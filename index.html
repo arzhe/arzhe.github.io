@@ -147,14 +147,15 @@
 
         
         <a href="/2020/07/18/Use%20const%20whenever%20possible/" class="archive-article-date">
-  	<time datetime="2020-07-18T02:42:01.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-18</time>
+  	<time datetime="2020-07-18T02:42:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-18</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="尽可能使用const"><a href="#尽可能使用const" class="headerlink" title="尽可能使用const"></a>尽可能使用const</h1><p>&emsp;&emsp;关键字const多才多艺。我们可以用它在classes外部修饰global或namespace作用域中的常量，或修饰文件、函数、或区块作用域中被声明为static的对象。我们也可以用它修饰classes内部的static和non-static成员变量。面对指针，我们也可以指出指针自身、指针所指物，或者两者都（或都不）是const：</p>
+        <hr>
+<h1 id="尽可能使用const"><a href="#尽可能使用const" class="headerlink" title="尽可能使用const"></a>尽可能使用const</h1><p>&emsp;&emsp;关键字const多才多艺。我们可以用它在classes外部修饰global或namespace作用域中的常量，或修饰文件、函数、或区块作用域中被声明为static的对象。我们也可以用它修饰classes内部的static和non-static成员变量。面对指针，我们也可以指出指针自身、指针所指物，或者两者都（或都不）是const：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> greeting[] = <span class="string">"Hello"</span>;</span><br><span class="line"><span class="keyword">char</span>* p = greeting;              <span class="comment">//non-const pointer,non-const data</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* p = greeting;        <span class="comment">//non-const pointer,const data</span></span><br><span class="line"><span class="keyword">char</span>* <span class="keyword">const</span> p = greeting;        <span class="comment">//const pointer,non-const data</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span> p = greeting;  <span class="comment">//const pointer,const data</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;STL迭代器是以指针为根据塑模出来的，所以迭代器的作用就像个T*指针。声明迭代器为const就像声明指针为const一样（即声明一个T&#42;const指针），表示这个迭代器不得指向不同的东西，但它所指的东西的值是可以改动的。如果我们希望迭代器所指的东西不可被改动，我们需要的是const_iterator：</p>
@@ -225,7 +226,29 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
 
       
         <p class="article-more-link">
