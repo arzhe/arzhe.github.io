@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Category: 长篇大论 | Hexo</title>
+  <title>Know what functions C++ silently writes and calls | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/index.html">
+  <meta name="description" content="了解C++默默编写并调用哪些函数&amp;emsp;&amp;emsp;对于一个class来说，如果我们自己没有声明，编译器就会为它声明（编译器版本的）一个copy构造函数，一个copy assignment操作符和一个析构函数。此外如果我们没有声明任何构造函数，编译器也会为我们声明一个default构造函数。所有这些函数都是public和inline。因此，如果我们写下： 1class Empty &amp;#123">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Know what functions C++ silently writes and calls">
+<meta property="og:url" content="http://yoursite.com/2020/07/20/Know%20what%20functions%20C++%20silently%20writes%20and%20calls/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="了解C++默默编写并调用哪些函数&amp;emsp;&amp;emsp;对于一个class来说，如果我们自己没有声明，编译器就会为它声明（编译器版本的）一个copy构造函数，一个copy assignment操作符和一个析构函数。此外如果我们没有声明任何构造函数，编译器也会为我们声明一个default构造函数。所有这些函数都是public和inline。因此，如果我们写下： 1class Empty &amp;#123">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-07-20T08:31:00.000Z">
+<meta property="article:modified_time" content="2020-07-20T12:14:48.000Z">
 <meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -132,36 +137,86 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-Know what functions C++ silently writes and calls" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      Know what functions C++ silently writes and calls
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/20/Know%20what%20functions%20C++%20silently%20writes%20and%20calls/" class="archive-article-date">
+
+        
+        <a href="/2020/07/20/Know%20what%20functions%20C++%20silently%20writes%20and%20calls/" class="archive-article-date">
   	<time datetime="2020-07-20T08:31:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-20</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/20/Know%20what%20functions%20C++%20silently%20writes%20and%20calls/">Know what functions C++ silently writes and calls</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="了解C-默默编写并调用哪些函数"><a href="#了解C-默默编写并调用哪些函数" class="headerlink" title="了解C++默默编写并调用哪些函数"></a>了解C++默默编写并调用哪些函数</h1><p>&emsp;&emsp;对于一个class来说，如果我们自己没有声明，编译器就会为它声明（编译器版本的）一个copy构造函数，一个copy assignment操作符和一个析构函数。此外如果我们没有声明任何构造函数，编译器也会为我们声明一个default构造函数。所有这些函数都是public和inline。因此，如果我们写下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Empty</span> &#123;</span>&#125;;</span><br></pre></td></tr></table></figure>
 
-        <div class="article-info info-on-right">
-          
+<p>这就好像写下这样的代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Empty</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Empty() &#123; ... &#125;</span><br><span class="line">    Empty(<span class="keyword">const</span> Empty&amp; rhs) &#123; ... &#125;</span><br><span class="line">    ~Empty() &#123; ... &#125;</span><br><span class="line">    </span><br><span class="line">    Empty <span class="keyword">operator</span>=(<span class="keyword">const</span> Empty&amp; rhs) &#123; ... &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;只要当这些函数被需要（被调用）时，它们才会被编译器创建出来。程序中需要它们是很平常的事。下面代码造成上述每一个函数被编译器产出：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Empty e1;  <span class="comment">//default构造函数</span></span><br><span class="line">           <span class="comment">//析构函数</span></span><br><span class="line"><span class="function">Empty <span class="title">e2</span><span class="params">(e1)</span></span>;  <span class="comment">//copy构造函数</span></span><br><span class="line">e2 = e1;       <span class="comment">//copy assignment操作符</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;default构造函数和析构函数主要是给编译器一个地方用来放置“藏身幕后”的代码，像是调用base class和non-static成员变量的构造函数和析构函数。注意，编译器产出的析构函数是个non-virtual，除非这个class的base class自身声明有virtual析构函数（这种情况下这个函数的虚属性主要来自base class）。</p>
+<p>&emsp;&emsp;至于copy构造函数和copy assignment操作符，编译器创建的版本只是单纯地将来源对象的每一个non-static成员变量拷贝到目标对象。考虑一下代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NamedObject</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    NamedObject(<span class="keyword">const</span> <span class="keyword">char</span>* name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    NamedObject(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span>&amp; nameValue;</span><br><span class="line">    T objectValue;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;由于其中声明了一个构造函数，编译器于是不再为它创建default构造函数。</p>
+<p>&emsp;&emsp;NamedObject既没有声明copy构造函数，也没有声明copy assignment操作符，所以编译器会为它创建那些函数（如果它们被调用的话）。现在，看看copy构造函数的用法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">no1</span><span class="params">(<span class="string">"Smallest Prime Number"</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">no2</span><span class="params">(no1)</span></span>;  <span class="comment">//调用copy构造函数</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;编译器生成的copy构造函数必须以no1.nameValue和no1.objectValue为初值设定no2.nameValue和no2.objectValue。两者之中，nameValue的类型是string，而标准string有个copy构造函数，所以no2.nameValue的初始化方式是调用string的copy构造函数并以no1.nameValue为实参。另一个成员NamedObject&lt;int&gt;objectValue的类型是int，这是个内置类型，所以no2.objectValue会以“拷贝no1.objectValue内的每一个bits”来完成初始化。</p>
+<p>&emsp;&emsp;编译器为NamedObject&lt;int&gt;所生成的copy assignment操作符，其行为基本上与copy构造函数如出一辙，但一般而言只有当生成的代码合法且有适当机会证明它有意义，其表现才会如我先前所说。万一两个条件有一个不符合，编译器会拒绝为class生成operator=。</p>
+<p>&emsp;&emsp;举个例子，假设NameObject定义如下，其中nameValue是个reference to string，objectValue是个const T：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">NamedObject</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    NamedObject(<span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    ...</span><br><span class="line">   </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span>&amp; nameValue;</span><br><span class="line">    <span class="keyword">const</span> T objectValue;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在考虑下面会发生什么事：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">newDog</span><span class="params">(<span class="string">"Alice"</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">oldDog</span><span class="params">(<span class="string">"Bob"</span>)</span></span>;</span><br><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">p</span><span class="params">(newDog, <span class="number">2</span>)</span></span>;</span><br><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">s</span><span class="params">(oldDog, <span class="number">36</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">p = s;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;赋值之后p.nameValue应该指向s.nameValue所指的那个string吗？也就是说reference自身可被改动吗？如果可以，那可就不得了了，因为C+并不允许“让reference改指向不同对象”。换一个想法，p.nameValue所指的那个string对象该被修改，进而影响“持有pointers或references而且指向该string”的其它对象吗？也就是对象不被直接牵扯到赋值操作内？编译器生成的copy assignment操作符究竟该如何做呢？</p>
+<p>&emsp;&emsp;面对这个难题，C++的响应是拒绝编译那一行赋值动作。如果我们打算在一个“内含reference成员”的class内支持赋值操作，我们必须自己定义copy assignment操作符。面对“内含const成员”的classes，编译器的反应也一样。更改const成员是不合法的，所以编译器不知道如何在它自己生成的赋值函数内面对它们。最后还有一种情况：如果某个base class将copy assignment操作符声明为private，编译器将拒绝为其derived classes生成一个copy assignment操作符。毕竟编译器为derived classes所生成的copy assignment操作符想象中可以处理base class成分，但它们当然无法调用derived classes无权调用的成员函数。编译器两手一摊，无能为力。</p>
+<blockquote>
+<p>编译器可以暗自为class创建default构造函数、copy构造函数、copy assignment操作符，以及析构函数。</p>
+</blockquote>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -173,7 +228,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -186,213 +241,104 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/07/20/Know%20what%20functions%20C++%20silently%20writes%20and%20calls/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/19/Make%20sure%20that%20subjects%20are%20initialized%20before%20they%20are%20used/" class="archive-article-date">
-  	<time datetime="2020-07-19T01:41:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-19</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/07/19/Make%20sure%20that%20subjects%20are%20initialized%20before%20they%20are%20used/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Make sure that subjects are initialized before they are used</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/19/Make%20sure%20that%20subjects%20are%20initialized%20before%20they%20are%20used/">Make sure that subjects are initialized before they are used</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/18/Use%20const%20whenever%20possible/" class="archive-article-date">
-  	<time datetime="2020-07-18T02:42:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/18/Use%20const%20whenever%20possible/">Use const whenever possible</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/17/Prefer%20consts,enums,and%20inlines/" class="archive-article-date">
-  	<time datetime="2020-07-17T07:17:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/17/Prefer%20consts,enums,and%20inlines/">Prefer consts,enums,and inlines</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/17/View%20C++%20as%20a%20federation%20of%20languages/" class="archive-article-date">
-  	<time datetime="2020-07-17T04:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/17/View%20C++%20as%20a%20federation%20of%20languages/">View C++ as a federation of languages</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -415,10 +361,10 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
-		isCategory: true,
+		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
 		root: "/",
