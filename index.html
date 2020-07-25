@@ -134,6 +134,210 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Handle assignment to self in operator=" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/25/Handle%20assignment%20to%20self%20in%20operator=/">Handle assignment to self in operator=</a>
+    </h1>
+  
+
+        
+        <a href="/2020/07/25/Handle%20assignment%20to%20self%20in%20operator=/" class="archive-article-date">
+  	<time datetime="2020-07-25T07:19:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="在operator-中处理“自我赋值”"><a href="#在operator-中处理“自我赋值”" class="headerlink" title="在operator=中处理“自我赋值”"></a>在operator=中处理“自我赋值”</h1><p>&emsp;&emsp;“自我赋值”发生在对象被赋值给自己时：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span> ... &#125;;</span><br><span class="line">Widget w;</span><br><span class="line">...</span><br><span class="line">w = w;  <span class="comment">//赋值给自己</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这看起来有点愚蠢，但它合法，所以不要认定客户绝不会那么做。此外赋值动作并不总是那么可被一眼识别出来，例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a[i] = a[j];  <span class="comment">//潜在的自我赋值</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果i和j有相同的值，这便是个自我赋值。再看：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*px = *py;  <span class="comment">//潜在的自我赋值</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果px和py恰巧指向同一个东西，这也是自我赋值。这些并不明显的自我赋值，是“别名”带来的结果：所谓“别名”就是“有一个以上的方法指涉某对象”。一般而言如果某段代码操作pointer或reference而它们被用来“指向多个相同类型的对象”，就需要考虑这些对象是否为同一个。实际上两个对象只要来自同一个继承体系，它们甚至不需声明为相同类型就可能造成“别名”，因为一个base class的reference或pointer可以指向一个derived class对象：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(<span class="keyword">const</span> Base&amp; rb, Derived* pd)</span></span>;  <span class="comment">//rb和*pd有可能其实是同一对象</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果我们尝试自行管理资源（如果我们打算写一个勇于资源管理的class就得这样做），可能会在停止使用资源之前就意外释放了它。假设我们建立一个class用来保存一个指针指向动态分配的位图（bitmap）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bitmap</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Bitmap* pb;  <span class="comment">//指针，指向一个从heap分配而得的对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;下面是operator=实现代码，表面上看起来合理，但自我赋值出现时并不安全（它也不具备异常安全性）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp;</span><br><span class="line">Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//一份不安全的operator=实现版本</span></span><br><span class="line">    <span class="keyword">delete</span> pb;                          <span class="comment">//停止使用当前的Bitmap</span></span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);           <span class="comment">//使用rhs的bitmap的副本</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;                       </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这里的自我赋值问题是，operator=函数内的*this（赋值的目的端）和rhs有可能是同一个对象。果真如此delete就不只是销毁当前对象的bitmap，它也销毁rhs的bitmap。在函数末尾，Widget——它原本不该被自我赋值动作改变的——发现自己持有一个指针指向一个已被删除的对象！</p>
+<p>&emsp;&emsp;欲阻止这种错误，传统做法是藉由operator=最前面的一个“证同测试”达到“自我赋值”的检测目的：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span> == &amp;rhs) <span class="keyword">return</span> *<span class="keyword">this</span>;  <span class="comment">//证同测试：如果是自我赋值，就不做任何事</span></span><br><span class="line">    <span class="keyword">delete</span> pb;</span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这样做行得通。前一版本的operator=不仅不具备“自我赋值安全性”，也不具备“异常安全性”，这个新版本仍然存在异常方面的麻烦。更明确地说，如果“new Bitmap”导致异常，Widget最终会持有一个指针指向一块被删除的Bitmap。这样的指针有害。我们无法安全地删除它们，甚至无法安全地读取它们。</p>
+<p>&emsp;&emsp;令人高兴的是，让operator=具备“异常安全性”往往自动获得“自我赋值安全”的回报。因此越来越多的人对“自我赋值”的处理态度是倾向于不去管它，把焦点放在实现“异常安全性”上。例如以下代码，我们只需注意在复制pb所指东西之前别删除pb：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    Bitmap* pOrig = pb;        <span class="comment">//记住原先的pb</span></span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);  <span class="comment">//令pb指向*pb的一个副本</span></span><br><span class="line">    <span class="keyword">delete</span> pOrig;              <span class="comment">//删除原先的pb</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在，如果“new Bitmap”抛出异常，pb（及其栖身的那个Widget）保持原状。即使没有证同测试，这段代码还是能够处理自我赋值，因为我们对原bitmap做了一份复件、删除原bitmap、然后指向新制造的那个复件。它或许不是处理“自我赋值”的最高效办法，但它行得通。</p>
+<p>&emsp;&emsp;如果你很关心效率，可以把“证同测试”再次放回函数起始处。然而这样做，我们得先问问自己，“自我赋值”的发生概率有多高？因为这项测试也需要成本。它会使代码变大一些并导入一个新的控制流分支，而两者都会降低执行速度。Prefetching、caching和pipelining等指令的效率都会因此降低。</p>
+<p>&emsp;&emsp;在operator=函数内手工排列语句（确保代码不但“异常安全”而且“自我赋值安全“）的一个替代方案是，使用所谓的copy and swap技术。这个技术和“异常安全性”有密切关系。然而由于它是一个常见而够好的operator=撰写办法，所以值得看看其实现手法像什么样子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; rhs)</span></span>;  <span class="comment">//交换*this和rhs的数据</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    Widget temp(rhs);        <span class="comment">//为rhs数据制作一份复件</span></span><br><span class="line">    swap(temp);              <span class="comment">//将*this数据和上述复件的数据交换</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;以下代码是上述代码的变奏曲：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(Widget rhs) &#123;  <span class="comment">//rhs是被传对象的一份复件</span></span><br><span class="line">    swap(rhs);                           <span class="comment">//将*this的数据和复件的数据互换</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我个人比较担忧这个做法，它为了“巧妙性”而牺牲了“清晰性”。然而将“copying动作”从函数本体内移至“函数参数构造阶段”却可令编译器有时生成更高效的代码。</p>
+<blockquote>
+<p>确保当对象自我赋值时operator=有良好行为。其中技术包括比较“来源对象”和“目标对象”的地址、精心周到的语句顺序、以及copy-and-swap。</p>
+<p>确定任何函数如果操作一个以上的对象，而其中多个对象是同一个对象时，其行为仍然正确。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/07/25/Handle%20assignment%20to%20self%20in%20operator=/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Have assignment operators return a reference to *this" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/25/Have%20assignment%20operators%20return%20a%20reference%20to%20*this/">Have assignment operators return a reference to *this</a>
+    </h1>
+  
+
+        
+        <a href="/2020/07/25/Have%20assignment%20operators%20return%20a%20reference%20to%20*this/" class="archive-article-date">
+  	<time datetime="2020-07-25T00:14:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="令operator-返回一个reference-to-this"><a href="#令operator-返回一个reference-to-this" class="headerlink" title="令operator=返回一个reference to *this"></a>令operator=返回一个reference to *this</h1><p>&emsp;&emsp;关于赋值，有趣的是我们可以把它们写成连锁形式：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x, y, z;</span><br><span class="line">x = y = z = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;同样有趣的是，赋值采用右结合律，所以上述连锁赋值被解析为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = (y = (z = <span class="number">1</span>));</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这里1先被赋值给z，然后其结果再被赋值给y，然后其结果再被赋值给x。</p>
+<p>&emsp;&emsp;为了实现“连锁赋值，赋值操作符必须返回一个reference指向操作符的左侧实参。这是我们为class实现赋值操作符时应该遵循的协议：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//返回类型是个reference，指向当前对象</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;                       <span class="comment">//返回左侧对象</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个协议不仅适用于以上的标准赋值形式，也适用于所有赋值相关运算，例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>+=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//这个协议适用于+=，-=，*=等等</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">int</span> rhs) &#123;             <span class="comment">//此函数也适用，</span></span><br><span class="line">        ...                                  <span class="comment">//即使此操作符的参数类型不符合协定</span></span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;注意，这只是个协议，并无强制性。如果不遵循它，代码一样可以通过编译。然而这份协议被所有内置类型和标准程序库提供的类型如string，vector，complex，tr1::shared_ptr或即将提供的类型共同遵守。因此除非我们有一个标新立异的好理由，不然还是从众吧。</p>
+<blockquote>
+<p>令赋值操作符返回一个reference to *this。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/07/25/Have%20assignment%20operators%20return%20a%20reference%20to%20*this/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Never call virtual functions during construction or destruction" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -265,7 +469,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <hr>
-<h1 id="别让异常逃离析构函数"><a href="#别让异常逃离析构函数" class="headerlink" title="别让异常逃离析构函数"></a>别让异常逃离析构函数</h1><p>&emsp;&emsp;C++并不禁止析构函数吐出异常，但它不鼓励我们这样做。这是有理由的。考虑一下代码：</p>
+<h1 id="别让异常逃离析构函数"><a href="#别让异常逃离析构函数" class="headerlink" title="别让异常逃离析构函数"></a>别让异常逃离析构函数</h1><p>&emsp;&emsp;C++并不禁止析构函数吐出异常，但它不鼓励我们这样做。这是有理由的。考虑以下代码：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    ~Widget() &#123; ... &#125;  <span class="comment">//假设这个可能吐出一个异常</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Widget&gt; v;</span><br><span class="line">    ...</span><br><span class="line">&#125;                      <span class="comment">//v在这里被自动销毁</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;当vector v被销毁，它有责任销毁其内含的所有Widgets。假设v内含十个Widgets，而在析构第一个元素期间，有个异常被抛出。其他九个Widgets还是应该被销毁（否则它们保存的任何资源都会发生泄漏），因此v应该调用它们各个析构函数。但假设在那些调用期间，第二个Widget析构函数又抛出异常。现在有两个同时作用的异常，这对C++而言太多了。在两个异常同时存在的情况下，程序若不是结束执行就是导致不明确的行为。本例中它会导致不明确的行为。使用标准程序库的任何其他容器或TR1的任何容器或甚至array，也会出现相同情况。只要析构函数吐出异常，即使并非使用容器或array，程序也可能过早结束或出现不明确行为。没错，C++不喜欢析构函数吐出异常！</p>
@@ -1117,101 +1321,10 @@
 
 
   
-    <article id="post-View C++ as a federation of languages" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/17/View%20C++%20as%20a%20federation%20of%20languages/">View C++ as a federation of languages</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/17/View%20C++%20as%20a%20federation%20of%20languages/" class="archive-article-date">
-  	<time datetime="2020-07-17T04:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="视C-为一个语言联邦"><a href="#视C-为一个语言联邦" class="headerlink" title="视C++为一个语言联邦"></a>视C++为一个语言联邦</h1><p>&emsp;&emsp;一开始，C++只是C加上一些面向对象特性。C++最初的名称C with Classes也反映了这个血缘关系。</p>
-<p>&emsp;&emsp;但是当这个语言逐渐成熟，它变得更活跃更无拘束，更大胆更冒险，开始接受不同于C with Classes的各种观念、特性和编程战略。Exception（异常）对函数的结构化带来不同的做法，templates（模板）将带来新的设计思考方式，STL则定义了一个全新的伸展性做法。</p>
-<p>&emsp;&emsp;今天的C++已经是一个多重范型编程语言，一个同时支持过程形式、面向对象形式、函数形式、泛型形式、元编程形式的语言。那么该如何理解这样的一个语言呢?</p>
-<p>&emsp;&emsp;最简单的方法是将C++视为一个由相关语言组成的联邦而非单一语言。在其某个次语言中，各种守则与通例都倾向简单、直观易懂、并且容易记住。然而从一个次语言移往另一个次语言，守则可能改变。所幸的是C++的次语言总共只有四个：</p>
-<ul>
-<li>C。说到底C++仍是以C为基础。区块、语句、预处理器、内置数据类型、数组、指针等统统来自C。许多时候C++对问题的解法其实不过就是较高级的C解法。</li>
-<li>Object-Oriented C++。这部分也就是C with Classes所诉求的：classes（包括构造函数和析构函数），封装、继承、多态、virtual函数（动态绑定）……等等。这一部分是面向对象设计之古典守则在C++上的最直接实施。</li>
-<li>Template C++。这是C++的泛型编程部分，也是大多数程序员经验最少的部分（C++程序员）。实际上由于templates威力强大，它带来了崭新的编程范式，也就是所谓的templates metaprogramming（TMP，模板元编程）。</li>
-<li>STL。STL是个tamplate程序库。它对容器、迭代器、算法以及函数对象的规约有极佳的紧密配合与协调。</li>
-</ul>
-<p>&emsp;&emsp;当我们从一个次语言切换到另一个，需要改变策略。例如对内置（也就是C-like）类型而言pass-by-value通常比pass-by-reference高效，但当我们从C part of C++移往Object-Oriented C++，由于用户自定义构造函数和析构函数的存在，pass-by-reference-to-const往往更好。然而一旦跨入STL就会了解，迭代器和函数对象都是在C指针之上塑造出来的，所以对STL的迭代器和函数对象而言，旧式的C pass-by-value守则在此之前适用。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/17/View%20C++%20as%20a%20federation%20of%20languages/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
+    </nav>
   
 
 
