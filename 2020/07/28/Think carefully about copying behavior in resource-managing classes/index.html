@@ -6,13 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Hexo</title>
+  <title>Think carefully about copying behavior in resource-managing classes | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="在资源管理类中小心copying行为&amp;emsp;&amp;emsp;并非所有资源都是heap-based，对这种资源而言，像shared_ptr这样的智能指针往往不适合作为资源管理者。既然如此，有可能偶尔我们会发现，我们需要建立自己的资源管理类。 &amp;emsp;&amp;emsp;例如，假设我们使用C API函数处理类型为Mutex的互斥器对象，共有lock和unlock两函数可用： 12void lock(Mut">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Think carefully about copying behavior in resource-managing classes">
+<meta property="og:url" content="http://yoursite.com/2020/07/28/Think%20carefully%20about%20copying%20behavior%20in%20resource-managing%20classes/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在资源管理类中小心copying行为&amp;emsp;&amp;emsp;并非所有资源都是heap-based，对这种资源而言，像shared_ptr这样的智能指针往往不适合作为资源管理者。既然如此，有可能偶尔我们会发现，我们需要建立自己的资源管理类。 &amp;emsp;&amp;emsp;例如，假设我们使用C API函数处理类型为Mutex的互斥器对象，共有lock和unlock两函数可用： 12void lock(Mut">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-07-28T03:03:46.000Z">
+<meta property="article:modified_time" content="2020-07-28T06:40:19.000Z">
 <meta property="article:author" content="arzhe">
 <meta name="twitter:card" content="summary">
   
@@ -132,16 +136,14 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-Think carefully about copying behavior in resource-managing classes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-Think carefully about copying behavior in resource-managing classes" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/28/Think%20carefully%20about%20copying%20behavior%20in%20resource-managing%20classes/">Think carefully about copying behavior in resource-managing classes</a>
+    <h1 class="article-title" itemprop="name">
+      Think carefully about copying behavior in resource-managing classes
     </h1>
   
 
@@ -193,6 +195,32 @@
       
 
       
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/blogImg/wechatpay.jpeg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
     </div>
     <div class="article-info article-info-index">
       
@@ -200,16 +228,75 @@
       
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/28/Think%20carefully%20about%20copying%20behavior%20in%20resource-managing%20classes/">展开全文 >></a>
-        </p>
-      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/07/28/Think%20carefully%20about%20copying%20behavior%20in%20resource-managing%20classes/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2020/07/27/Use%20objects%20to%20manage%20resources/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Use objects to manage resources</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -229,1013 +316,14 @@
 
 
 
-
-  
-    <article id="post-Use objects to manage resources" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/27/Use%20objects%20to%20manage%20resources/">Use objects to manage resources</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/27/Use%20objects%20to%20manage%20resources/" class="archive-article-date">
-  	<time datetime="2020-07-27T08:16:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-27</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="以对象管理资源"><a href="#以对象管理资源" class="headerlink" title="以对象管理资源"></a>以对象管理资源</h1><p>&emsp;&emsp;假设我们使用一个用来塑模投资行为的程序库，其中各式各样的投资类型继承自一个root class Investment：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Investment</span> &#123;</span> ... &#125;;  <span class="comment">//投资类型体系中的root class</span></span><br></pre></td></tr></table></figure>
-
-<p>进一步假设，这个程序库系通过一个工厂函数供应我们某特定的Investment对象：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Investment* <span class="title">createInvestment</span><span class="params">()</span></span>;  <span class="comment">//返回指针，指向Investment继承体系内的动态分配对象。</span></span><br><span class="line">                                 <span class="comment">//调用者有责任删除它，这里为了简化，刻意不写参数。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如上注释所述，createInvestment的调用端使用了函数返回的对象后，有责任删除之。现在考虑有个f函数履行了这个责任：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Investment* pInv = createInvestment();  <span class="comment">//调用factory函数</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">delete</span> pInv;                            <span class="comment">//释放pInv所指对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这看起来妥当，但若干情况下f可能无法删除它得自createInvestment的投资对象——或许因为“…”区域内的一个过早的return语句。如果这样一个return被执行起来，控制流就绝不会触及delete语句。类似情况还可能发生在很多其他地方。</p>
-<p>&emsp;&emsp;为确保createInvestment返回的资源总是被释放，我们需要将资源放进对象内，当控制流厉害f，该对象的析构函数会自动释放那些资源。把资源放进对象内，我们便可依赖C++的“析构函数自动调用机制”确保资源被释放。</p>
-<p>&emsp;&emsp;我们可以使用“引用计数型智能指针”（RCSP）。所谓RCSP也是个智能指针，持续追踪共有多少对象指向某笔资源，并在无人指向它时自动删除该资源。RCSP提供的行为类似垃圾回收，不同的是RCSP无法打破环状引用（例如两个其实已经没被使用的对象彼此互指，因而好像还处于“被使用”状态）。</p>
-<p>&emsp;&emsp;C++标准库中的shared_ptr就是个RCSP，所以我们可以这样写f：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pInv</span><span class="params">(createInvestment())</span></span>;  <span class="comment">//调用factory函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;  <span class="comment">//经由share_ptr析构函数自动删除pInv</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;share_ptr在其析构函数内做delete而不是delete[]动作。这意味着在动态分配而得的array身上使用shared_ptr是个馊主意。尽管如此，可叹的是，那么做仍能通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; <span class="title">spi</span><span class="params">(<span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">1024</span>])</span></span>;  <span class="comment">//馊主意！</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我们或许会惊讶地发现，并没有针对“C++动态分配数组”而设计的类似shared_ptr这样的东西。这是因为vector和sting几乎总是可以取代动态分配而得的数组。如果你们还是认为拥有针对数组而设计、类似shared_ptr这样的class较好，看看Boost吧。在那儿我们会很高兴地发现boost::scoped_array和boost::shared_array class，它们都提供我们想要的行为。</p>
-<blockquote>
-<p>为防止资源泄漏，务必使用shared_ptr这类智能指针，它们在构造函数中获得资源并在析构函数中释放资源。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/27/Use%20objects%20to%20manage%20resources/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Copy all parts of an object" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/26/Copy%20all%20parts%20of%20an%20object/">Copy all parts of an object</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/26/Copy%20all%20parts%20of%20an%20object/" class="archive-article-date">
-  	<time datetime="2020-07-26T00:28:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-26</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="复制对象时勿忘其每一个成分"><a href="#复制对象时勿忘其每一个成分" class="headerlink" title="复制对象时勿忘其每一个成分"></a>复制对象时勿忘其每一个成分</h1><p>&emsp;&emsp;设计良好的面向对象系统会将对象的内部封装起来，只留两个函数负责对象拷贝，这便是copy构造函数和copy assignment操作符，称它们为copying函数。</p>
-<p>&emsp;&emsp;如果我们声明自己的copying函数，意思就是告诉编译器我们并不喜欢缺省实现中的某些行为，编译器仿佛被冒犯似得，会以一种奇怪的方式回敬：当我们的实现代码几乎必然出错时却不告诉我们。</p>
-<p>&emsp;&emsp;考虑一个class用来表现顾客，其中手工写出copying函数，使得外界对它们的调用会被志记（logged）下来：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">logCall</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; funcName)</span></span>;  <span class="comment">//制造一个log entry</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Customer</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    Customer(<span class="keyword">const</span> Customer&amp; rhs);</span><br><span class="line">    Customer&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Customer&amp; rhs);</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">&#125;;</span><br><span class="line">Customer::Customer(<span class="keyword">const</span> Customer&amp; rhs): name(rhs.name) &#123;</span><br><span class="line">    logCall(<span class="string">"Customer copy constructor"</span>);</span><br><span class="line">&#125;</span><br><span class="line">Customer&amp; Customer::<span class="keyword">operator</span>=(<span class="keyword">const</span> Customer&amp; rhs) &#123;</span><br><span class="line">    logCall(<span class="string">"Customer copy assignment operator"</span>);</span><br><span class="line">    name = rhs.name;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里的每一件事情都看起来很好，而实际上每件事情也的确都好，直到另一个成员变量加入战局：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Date</span> &#123;</span> ... &#125;;  <span class="comment">//日期</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Customer</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...              <span class="comment">//同前</span></span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">    Date lastTrasaction;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这时候现有的copying函数执行的是局部拷贝，并没有复制新添加的lastTransaction。大多数编译器对此不会发出任何怨言——即使在最高警告级别中。这是编译器对“我们自己写出copying函数”的报复行为。结论很明显：如果我们为class添加一个成员变量，我们必须同时修改copying函数。如果我们忘记，编译器不太可能提醒我们。</p>
-<p>&emsp;&emsp;一旦发生继承，可能会出现一个隐患：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PriorityCustomer</span>:</span> <span class="keyword">public</span> Customer &#123;  <span class="comment">//一个derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    PriorityCustomer（<span class="keyword">const</span> PriorityCustomer&amp; rhs）;</span><br><span class="line">    PriorityCustomer&amp; <span class="keyword">operator</span>=（<span class="keyword">const</span> PriorityCustomer&amp; rhs）;</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>：</span><br><span class="line">    <span class="keyword">int</span> priority;</span><br><span class="line">&#125;;</span><br><span class="line">PriorityCustomer::PriorityCustomer（<span class="keyword">const</span> PriorityCustomer&amp; rhs）</span><br><span class="line">: priority(rhs.priority) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy constructor"</span>);</span><br><span class="line">&#125;</span><br><span class="line">PriorityCustomer&amp;</span><br><span class="line">PriorityCustomer::<span class="keyword">operator</span>=(<span class="keyword">const</span> PriorityCustomer&amp; rhs) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy assignment operator"</span>);</span><br><span class="line">    priority = rhs.priority;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;看起来PriorityCustomer的copying函数好像复制了其内的每一样东西，但是它所继承的Customer成员变量却并未被复制。PriorityCustomer的copy构造函数并没有指定实参传给其base class构造函数（也就是说它在它的成员初值列中没有提到Customer），因此PriorityCustomer对象的Customer成分会被不带实参的Customer构造函数（即default构造函数）初始化。default构造函数将针对name和lastTransaction执行缺省的初始化动作。</p>
-<p>&emsp;&emsp;以上情况在PriorityCustomer的copy assignment操作符身上只有轻微不同。它不曾试图修改其base class的成员变量，所以那些成员变量保持不变。</p>
-<p>&emsp;&emsp;任何时候只要我们承担起“为derived class撰写copying函数”的重任，必须很小心地也复制其base class成分。那些成分往往是private，所以无法直接访问它们，我们应该让derived class的copying函数调用相应的base class函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">PriorityCustomer::PriorityCustomer(<span class="keyword">const</span> PriorityCustomer&amp; rhs)</span><br><span class="line">: Customer(rhs), priority(rhs.priority) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy constructor"</span>);</span><br><span class="line">&#125;</span><br><span class="line">PriorityCustomer&amp;</span><br><span class="line">PriorityCustomer::<span class="keyword">operator</span>=(<span class="keyword">const</span> PriorityCustomer&amp; rhs) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy assignment operator"</span>);</span><br><span class="line">    Customer::<span class="keyword">operator</span>=(rhs);</span><br><span class="line">    priority = rhs.priority;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当我们编写一个copying函数，请确保（1）复制所有local成员变量，（2）调用所有base class内的适当copying函数。</p>
-<p>&emsp;&emsp;如果你发现你的copy构造函数和copy assignment操作符有着相近的代码，消除重复代码的做法是，建立一个新成员函数给两者调用。这样的函数往往是private而且常被命名为init。这个策略可以安全地消除copy构造函数和copy assignment操作符之间的代码重复。</p>
-<blockquote>
-<p>Copying函数应该确保复制“对象内的所有成员变量”及“所有base class成分”。</p>
-<p>不要尝试以某个copying函数实现另一个copying函数。应该将共同机能放进第三个函数中，并由两个copying函数共同调用。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/26/Copy%20all%20parts%20of%20an%20object/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Handle assignment to self in operator=" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/25/Handle%20assignment%20to%20self%20in%20operator=/">Handle assignment to self in operator=</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/25/Handle%20assignment%20to%20self%20in%20operator=/" class="archive-article-date">
-  	<time datetime="2020-07-25T07:19:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="在operator-中处理“自我赋值”"><a href="#在operator-中处理“自我赋值”" class="headerlink" title="在operator=中处理“自我赋值”"></a>在operator=中处理“自我赋值”</h1><p>&emsp;&emsp;“自我赋值”发生在对象被赋值给自己时：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span> ... &#125;;</span><br><span class="line">Widget w;</span><br><span class="line">...</span><br><span class="line">w = w;  <span class="comment">//赋值给自己</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这看起来有点愚蠢，但它合法，所以不要认定客户绝不会那么做。此外赋值动作并不总是那么可被一眼识别出来，例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a[i] = a[j];  <span class="comment">//潜在的自我赋值</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果i和j有相同的值，这便是个自我赋值。再看：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*px = *py;  <span class="comment">//潜在的自我赋值</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果px和py恰巧指向同一个东西，这也是自我赋值。这些并不明显的自我赋值，是“别名”带来的结果：所谓“别名”就是“有一个以上的方法指涉某对象”。一般而言如果某段代码操作pointer或reference而它们被用来“指向多个相同类型的对象”，就需要考虑这些对象是否为同一个。实际上两个对象只要来自同一个继承体系，它们甚至不需声明为相同类型就可能造成“别名”，因为一个base class的reference或pointer可以指向一个derived class对象：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(<span class="keyword">const</span> Base&amp; rb, Derived* pd)</span></span>;  <span class="comment">//rb和*pd有可能其实是同一对象</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果我们尝试自行管理资源（如果我们打算写一个勇于资源管理的class就得这样做），可能会在停止使用资源之前就意外释放了它。假设我们建立一个class用来保存一个指针指向动态分配的位图（bitmap）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bitmap</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Bitmap* pb;  <span class="comment">//指针，指向一个从heap分配而得的对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;下面是operator=实现代码，表面上看起来合理，但自我赋值出现时并不安全（它也不具备异常安全性）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp;</span><br><span class="line">Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//一份不安全的operator=实现版本</span></span><br><span class="line">    <span class="keyword">delete</span> pb;                          <span class="comment">//停止使用当前的Bitmap</span></span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);           <span class="comment">//使用rhs的bitmap的副本</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;                       </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里的自我赋值问题是，operator=函数内的*this（赋值的目的端）和rhs有可能是同一个对象。果真如此delete就不只是销毁当前对象的bitmap，它也销毁rhs的bitmap。在函数末尾，Widget——它原本不该被自我赋值动作改变的——发现自己持有一个指针指向一个已被删除的对象！</p>
-<p>&emsp;&emsp;欲阻止这种错误，传统做法是藉由operator=最前面的一个“证同测试”达到“自我赋值”的检测目的：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span> == &amp;rhs) <span class="keyword">return</span> *<span class="keyword">this</span>;  <span class="comment">//证同测试：如果是自我赋值，就不做任何事</span></span><br><span class="line">    <span class="keyword">delete</span> pb;</span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这样做行得通。前一版本的operator=不仅不具备“自我赋值安全性”，也不具备“异常安全性”，这个新版本仍然存在异常方面的麻烦。更明确地说，如果“new Bitmap”导致异常，Widget最终会持有一个指针指向一块被删除的Bitmap。这样的指针有害。我们无法安全地删除它们，甚至无法安全地读取它们。</p>
-<p>&emsp;&emsp;令人高兴的是，让operator=具备“异常安全性”往往自动获得“自我赋值安全”的回报。因此越来越多的人对“自我赋值”的处理态度是倾向于不去管它，把焦点放在实现“异常安全性”上。例如以下代码，我们只需注意在复制pb所指东西之前别删除pb：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    Bitmap* pOrig = pb;        <span class="comment">//记住原先的pb</span></span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);  <span class="comment">//令pb指向*pb的一个副本</span></span><br><span class="line">    <span class="keyword">delete</span> pOrig;              <span class="comment">//删除原先的pb</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，如果“new Bitmap”抛出异常，pb（及其栖身的那个Widget）保持原状。即使没有证同测试，这段代码还是能够处理自我赋值，因为我们对原bitmap做了一份复件、删除原bitmap、然后指向新制造的那个复件。它或许不是处理“自我赋值”的最高效办法，但它行得通。</p>
-<p>&emsp;&emsp;如果你很关心效率，可以把“证同测试”再次放回函数起始处。然而这样做，我们得先问问自己，“自我赋值”的发生概率有多高？因为这项测试也需要成本。它会使代码变大一些并导入一个新的控制流分支，而两者都会降低执行速度。Prefetching、caching和pipelining等指令的效率都会因此降低。</p>
-<p>&emsp;&emsp;在operator=函数内手工排列语句（确保代码不但“异常安全”而且“自我赋值安全“）的一个替代方案是，使用所谓的copy and swap技术。这个技术和“异常安全性”有密切关系。然而由于它是一个常见而够好的operator=撰写办法，所以值得看看其实现手法像什么样子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; rhs)</span></span>;  <span class="comment">//交换*this和rhs的数据</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    Widget temp(rhs);        <span class="comment">//为rhs数据制作一份复件</span></span><br><span class="line">    swap(temp);              <span class="comment">//将*this数据和上述复件的数据交换</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;以下代码是上述代码的变奏曲：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(Widget rhs) &#123;  <span class="comment">//rhs是被传对象的一份复件</span></span><br><span class="line">    swap(rhs);                           <span class="comment">//将*this的数据和复件的数据互换</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我个人比较担忧这个做法，它为了“巧妙性”而牺牲了“清晰性”。然而将“copying动作”从函数本体内移至“函数参数构造阶段”却可令编译器有时生成更高效的代码。</p>
-<blockquote>
-<p>确保当对象自我赋值时operator=有良好行为。其中技术包括比较“来源对象”和“目标对象”的地址、精心周到的语句顺序、以及copy-and-swap。</p>
-<p>确定任何函数如果操作一个以上的对象，而其中多个对象是同一个对象时，其行为仍然正确。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/25/Handle%20assignment%20to%20self%20in%20operator=/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Have assignment operators return a reference to *this" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/25/Have%20assignment%20operators%20return%20a%20reference%20to%20*this/">Have assignment operators return a reference to *this</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/25/Have%20assignment%20operators%20return%20a%20reference%20to%20*this/" class="archive-article-date">
-  	<time datetime="2020-07-25T00:14:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="令operator-返回一个reference-to-this"><a href="#令operator-返回一个reference-to-this" class="headerlink" title="令operator=返回一个reference to *this"></a>令operator=返回一个reference to *this</h1><p>&emsp;&emsp;关于赋值，有趣的是我们可以把它们写成连锁形式：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x, y, z;</span><br><span class="line">x = y = z = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;同样有趣的是，赋值采用右结合律，所以上述连锁赋值被解析为：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = (y = (z = <span class="number">1</span>));</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里1先被赋值给z，然后其结果再被赋值给y，然后其结果再被赋值给x。</p>
-<p>&emsp;&emsp;为了实现“连锁赋值，赋值操作符必须返回一个reference指向操作符的左侧实参。这是我们为class实现赋值操作符时应该遵循的协议：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//返回类型是个reference，指向当前对象</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;                       <span class="comment">//返回左侧对象</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个协议不仅适用于以上的标准赋值形式，也适用于所有赋值相关运算，例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>+=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//这个协议适用于+=，-=，*=等等</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">int</span> rhs) &#123;             <span class="comment">//此函数也适用，</span></span><br><span class="line">        ...                                  <span class="comment">//即使此操作符的参数类型不符合协定</span></span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;注意，这只是个协议，并无强制性。如果不遵循它，代码一样可以通过编译。然而这份协议被所有内置类型和标准程序库提供的类型如string，vector，complex，tr1::shared_ptr或即将提供的类型共同遵守。因此除非我们有一个标新立异的好理由，不然还是从众吧。</p>
-<blockquote>
-<p>令赋值操作符返回一个reference to *this。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/25/Have%20assignment%20operators%20return%20a%20reference%20to%20*this/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Never call virtual functions during construction or destruction" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/24/Never%20call%20virtual%20functions%20during%20construction%20or%20destruction/">Never call virtual functions during construction or destruction</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/24/Never%20call%20virtual%20functions%20during%20construction%20or%20destruction/" class="archive-article-date">
-  	<time datetime="2020-07-24T01:10:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-24</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="绝不在构造和析构过程中调用virtual函数"><a href="#绝不在构造和析构过程中调用virtual函数" class="headerlink" title="绝不在构造和析构过程中调用virtual函数"></a>绝不在构造和析构过程中调用virtual函数</h1><p>&emsp;&emsp;我们不该在构造函数和析构函数期间调用virtual函数，因为这样的调用不会带来我们预想的结果，就算有我们也不会高兴。如果你同时也是一位Java或C#程序员，那么就更加要注意了，因为这是C++与它们不同的一个地方。</p>
-<p>&emsp;&emsp;假设我们有个class继承体系，用来塑模股市交易如买进、卖出的订单等等。这样的交易一定要经过审计，所以每当创建一个交易对象，在审计日志中也需要创建一笔适当记录。下面是一个看起来颇为合理的做法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span>                           <span class="comment">//所有交易的base class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Transaction();</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;  <span class="comment">//做出一份因类型不同而不同</span></span><br><span class="line">                                              <span class="comment">//的日志记录（log entry）</span></span><br><span class="line">    ...</span><br><span class="line">&#125;；</span><br><span class="line">Transaction::Transactionn() &#123;                 <span class="comment">//base class构造函数的实现</span></span><br><span class="line">    ...</span><br><span class="line">    logTransaction();                         <span class="comment">//最后动作是记录这笔交易</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BuyTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;    <span class="comment">//derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span></span>;      <span class="comment">//记录此类交易</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SellTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;   <span class="comment">//derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span></span>;      <span class="comment">//记录此类交易</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，当执行一下这行时，会发生什么事：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BuyTransaction b;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;无疑会有一个BuyTransaction构造函数被调用，但首先Transaction构造函数一定会更早被调用；没错，derived class对象内的base class成分会在derived class自身成分被构造之前先构造妥当。Transaction构造函数的最后一行调用virtual函数logTransaction，这正是奇怪的地方。这时候被调用的logTransaction是Transaction内的版本，不是buyTransaction内的版本——即使目前即将建立的对象类型是buyTransaction。没错，base class构造期间virtual函数绝不会下降到derived classs阶层。取而代之的是，对象的作为就像隶属base类型一样。非正式的说法或许比较传神：在base class构造期间，virtual函数不是virtual函数。</p>
-<p>&emsp;&emsp;这一似乎反直觉的行为有个好的解释。由于base class构造函数的执行更早于derived class构造函数，当base class构造函数执行时derived class的成员变量尚未初始化。如果此期间调用的virtual函数下降至derived class阶层，要知道derived class的函数几乎必然取用local成员变量，而那些成员变量尚未初始化。这将是一张通往不明确行为和彻夜调试大会的直达车票。“使用对象内部尚未初始化的成分”是及其危险的，所以C++允许我们这样做。</p>
-<p>&emsp;&emsp;其实还有比上述理由更根本的原因：在derived class对象的base class构造期间，对象的类型是base class而不是derived class。不只virtual函数会被编译器解析至base class，若使用运行期类型信息（例如dynamic_cast和typeid），也会把对象视为base class类型。本例之中，当Transaction构造函数正执行起来打算初始化“BuyTransaction对象内的base class成分”时，该对象的类型时Transaction。这个对象内的“BuyTransaction专属成分”尚未被初始化，所以面对它们，最安全的做法就是视它们不存在。对象在derived class构造函数开始执行前不会成为一个derive的对象。</p>
-<p>&emsp;&emsp;相同的道理也适用于析构函数。一旦derived class析构函数开始执行，对象内的derived class成员变量便呈现未定义值，所以C++视它们仿佛不再存在。进入base class析构函数后对象就成为一个base class对象，而C++的任何部分包括virtual函数、dynamic_cast等等也就会那么看待它。</p>
-<p>&emsp;&emsp;在上述示例中，Transaction构造函数直接调用一个virtual函数，这很明显而且容易看出来，某些编译器会为此发出一个警告信息。即使没有这些警告信息，这个问题在执行前也几乎肯定会变得显而易见，因为logTransaction函数在Transaction内是个pure virtual。除非它被定义（不太有可能）否则程序无法连接，因为连接器找不到必要的Transaction::logTransaction实现代码。</p>
-<p>&emsp;&emsp;但是侦测“构造函数或析构函数运行期是否调用virtual函数”并不总是这样轻松。如果Transaction有多个构造函数，每个都需要执行某些相同的工作，那么避免代码重复的一个优秀做法是把共同的初始化代码（其中包括对logTransaction的调用）放进一个初始化函数如init内：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Transaction() &#123; init(); &#125;  <span class="comment">//调用non-virtual</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        logTransaction();  <span class="comment">//这里调用virtual！</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这段代码概念上和之前版本相同，但它比较隐蔽，因为它通常不会引发任何编译器和连接器的抱怨。此时由于logTransaction是Transaction内的一个pure virtual函数，当pure virtual函数被调用，大多数执行系统会中止程序（通常会对此结果发出一个信息）。然而如果logTransaction是个正常的virtual函数并在Transaction内带有一份实现代码，该版本就会被调用，而程序也就会兴高采烈地继续向前执行，之后我们便会百思不得其解：为什么建立一个derived class对象时会调用错误版本的logTransaction。唯一能够避免此问题的做法就是：确定我们的构造函数和析构函数都没有（在对象被创建和被销毁期间）调用virtual函数，而它们调用的所有函数也都服从同一个约束。</p>
-<p>&emsp;&emsp;但我们如何确保每次一有Transaction继承体系上的对象被创建，就会有适当版本的logTransaction被调用呢？很显然，在Transaction构造函数内对对象调用virtual函数是一种错误做法。</p>
-<p>&emsp;&emsp;有其他方案可以解决这个问题，一种做法是在class Transaction内将logTransaction函数改为non-virtual，然后要求derived class构造函数传递必要信息给Transaction构造函数，而后那个构造函数便可安全地调用non-virtual logTransaction。像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Transaction</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">(cosnt <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo)</span> cosnt</span>;  <span class="comment">//如今是个non-virtual函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">Transaction::Transaction(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo) &#123;</span><br><span class="line">    ...</span><br><span class="line">    logTransaction(logInfo);  <span class="comment">//如今是个non-virtual调用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BuyTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    BuyTransaction(parameters)</span><br><span class="line">        : Transaction(createLogString(parameters)) &#123;  <span class="comment">//将log信息传给base class构造函数</span></span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">createLogString</span><span class="params">(parameters)</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;换句话说由于我们无法使用virtual函数从base class向下调用，在构造期间，我们可以藉由“令derived class将必要的构造信息向上传递至base class构造函数”替换之而加以弥补。</p>
-<p>&emsp;&emsp;在本例中BuyTransaction内的private static函数createLogString的作用：比起在成员初值列内给予base class所需数据，利用辅助函数创建一个值传给base class构造函数往往比较方便（也比较可读）。令此函数为static，也就不可能意外指向“初期未成熟的BuyTransaction对象内尚未初始化的成员变量”。这很重要，正是因为“那些成员变量处于未定义状态”，所以“在base class构造和析构期间调用的virtual函数不可下降至derived class”。</p>
-<blockquote>
-<p>在构造和析构期间不要调用virtual函数，因为这类调用从不下降至derived class。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/24/Never%20call%20virtual%20functions%20during%20construction%20or%20destruction/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Prevent exceptions from leaving destructors" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/23/Prevent%20exceptions%20from%20leaving%20destructors/">Prevent exceptions from leaving destructors</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/23/Prevent%20exceptions%20from%20leaving%20destructors/" class="archive-article-date">
-  	<time datetime="2020-07-23T00:25:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-23</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="别让异常逃离析构函数"><a href="#别让异常逃离析构函数" class="headerlink" title="别让异常逃离析构函数"></a>别让异常逃离析构函数</h1><p>&emsp;&emsp;C++并不禁止析构函数吐出异常，但它不鼓励我们这样做。这是有理由的。考虑以下代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    ~Widget() &#123; ... &#125;  <span class="comment">//假设这个可能吐出一个异常</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Widget&gt; v;</span><br><span class="line">    ...</span><br><span class="line">&#125;                      <span class="comment">//v在这里被自动销毁</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当vector v被销毁，它有责任销毁其内含的所有Widgets。假设v内含十个Widgets，而在析构第一个元素期间，有个异常被抛出。其他九个Widgets还是应该被销毁（否则它们保存的任何资源都会发生泄漏），因此v应该调用它们各个析构函数。但假设在那些调用期间，第二个Widget析构函数又抛出异常。现在有两个同时作用的异常，这对C++而言太多了。在两个异常同时存在的情况下，程序若不是结束执行就是导致不明确的行为。本例中它会导致不明确的行为。使用标准程序库的任何其他容器或TR1的任何容器或甚至array，也会出现相同情况。只要析构函数吐出异常，即使并非使用容器或array，程序也可能过早结束或出现不明确行为。没错，C++不喜欢析构函数吐出异常！</p>
-<p>&emsp;&emsp;这很容易理解，但如果我们的析构函数必须执行一个动作，而该动作可能会在失败时抛出异常，该怎么办？举个例子，假设我们使用一个class负责数据库连接：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DBConnection</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">static</span> DBConnection <span class="title">create</span><span class="params">()</span></span>;  <span class="comment">//这个函数返回DBConnection对象；</span></span><br><span class="line">                                   <span class="comment">//为求简化暂略参数。</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">close</span><span class="params">()</span></span>;                  <span class="comment">//关闭联机；失败则抛出异常。</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为确保客户不忘记在DBConnection对象身上调用close()，一个合理的想法是创建一个用来管理DBConnection资源的class，并在其析构函数中调用close：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DBConn</span> &#123;</span>    <span class="comment">//这个class用来管理DBConnection对象</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    ~DBConn() &#123;   <span class="comment">//确保数据库连接总是会被关闭</span></span><br><span class="line">      db.<span class="built_in">close</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    DBConnetion db;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这便允许客户写出这样的代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;                                    <span class="comment">//开启一个区块</span></span><br><span class="line"><span class="function">DBConn <span class="title">dbc</span><span class="params">(DBConnection::create())</span></span>;  <span class="comment">//建立DBConnection对象</span></span><br><span class="line">                                     <span class="comment">//  并交给DBConn对象以便管理。</span></span><br><span class="line">...                                  <span class="comment">//通过DBConn的接口</span></span><br><span class="line">                                     <span class="comment">//  使用DBConnection对象。</span></span><br><span class="line">&#125;                                    <span class="comment">//在区块结束点，DBConn对象被销毁，</span></span><br><span class="line">                                     <span class="comment">//因而自动为DBConnection对象调用close。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;只要调用close成功，一切都美好。但是如果该调用导致异常，DBConn析构函数会传播该异常，也就是允许它离开这个析构函数。这会造成问题，因为这就是抛出了难以驾驭的麻烦。</p>
-<p>&emsp;&emsp;两个办法可以避免这一问题。DBConn的析构函数可以：</p>
-<ul>
-<li>如果close抛出异常就结束程序。通常通过调用abort完成：</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DBConn::~DBConn() &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123; db.<span class="built_in">close</span>(); &#125;</span><br><span class="line">    <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">        <span class="comment">//制作运转记录，记下对close的调用失败；</span></span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">abort</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果程序遭遇一个“于析构期间发生的错误”后无法继续执行，“强迫结束程序”是个合理选项。毕竟它可以阻止异常从析构函数传播出去。也就是说调用abort可以抢先置“不明确行为”于死地。</p>
-<ul>
-<li>吞下因调用close而发生的异常：</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DBConn::~DBConn() &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123; db.<span class="built_in">close</span>(); &#125; </span><br><span class="line">    <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">        <span class="comment">//制作运转记录，记下对close的调用失败；</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;一般而言，将异常吞掉是个坏主意，因为它压制了“某些动作失败”的重要信息！然而有时候吞下异常也比负担“草率结束程序”或“不明确行为带来的风险”好。为了让这成为一个可行方案，程序必须能够继续可靠地执行，即使在遭遇并忽略一个错误之后。</p>
-<p>&emsp;&emsp;这些办法都没什么吸引力。问题在于两者都无法对“导致close抛出异常”的情况做出反应。</p>
-<p>&emsp;&emsp;一个较佳策略是重新设计DBConn接口，使其客户有机会对可能出现的问题做出反应。例如DBConn自己可以提供一个close函数，因而赋予客户一个机会得以处理“因该操作而发生的异常”。DBConn也可以追踪其所管理的DBConnection是否已被关闭，并在答案为否的情况下由其析构函数关闭之。这可防止遗失数据库连接。然而如果DBConnection析构函数调用close失败，我们将又退回“强迫结束程序”或“吞下异常”的老路：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DBConn</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;  <span class="comment">//供客户使用的新函数</span></span><br><span class="line">       db.<span class="built_in">close</span>();</span><br><span class="line">       closed = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ~DBConn() &#123;</span><br><span class="line">        <span class="keyword">if</span>(!closed) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;  <span class="comment">//关闭连接（如果客户不那么做的话）</span></span><br><span class="line">                db.<span class="built_in">close</span>();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">                <span class="comment">//制作运转记录，记下对close的调用失败；</span></span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    DBConnection db;</span><br><span class="line">    <span class="keyword">bool</span> closed;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;把调用close的责任从DBConn析构函数手上移到DBConn客户手上（但DBConn析构函数内仍内含一个“双保险”调用）可能会给我们“肆无忌惮转移负担”的印象。实际上在这里并无大碍。如果某个操作可能在失败时抛出异常，而又存在某种需要必须处理该异常，那么这个异常必须来自析构函数以外的某个函数。因为析构函数吐出异常就是危险，总会带来“过早结束程序”或“发生不明确行为”的风险。本例要说的是，由客户自己调用close并不会对他们带来负担，而是给他们一个处理错误的机会，否则他们没机会响应。如果他们不认为这个机会有用（或许他们坚信不会有错误发生），可以忽略它，依赖DBConn析构函数去调用close。</p>
-<blockquote>
-<p>析构函数绝对不要抛出异常。如果一个被析构函数调用的函数可能抛出异常，析构函数应该捕捉任何异常，然后吞下它们（不传播）或结束程序。</p>
-<p>如果客户需要对某个操作函数运行期间抛出的异常做出反应，那么class应该提供一个普通函数（而非在析构函数中）执行该操作。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/23/Prevent%20exceptions%20from%20leaving%20destructors/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Declare destructions virtual in polymorphic base classes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/22/Declare%20destructions%20virtual%20in%20polymorphic%20base%20classes/">Declare destructions virtual in polymorphic base classes</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/22/Declare%20destructions%20virtual%20in%20polymorphic%20base%20classes/" class="archive-article-date">
-  	<time datetime="2020-07-22T08:22:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-22</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="为多态基类声明virtual析构函数"><a href="#为多态基类声明virtual析构函数" class="headerlink" title="为多态基类声明virtual析构函数"></a>为多态基类声明virtual析构函数</h1><p>&emsp;&emsp;有许多种做法可以记录时间，因此，设计一个TimeKeeper base class和一些derived classes作为不同的计时方法，相当合情合理：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TimeKeeper</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    TimeKeeper();</span><br><span class="line">    ~TimeKeeper();</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AtomicClock</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//原子钟</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WaterClock</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//水钟</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WristWatch</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//腕表</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;许多客户只想在程序中使用时间，不想操心时间如何计算等细节，这时候我们可以设计factory函数，返回指针指向一个计时对象。Factory函数会“返回一个base class指针，指向新生成的derived class对象”：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">TimeKeeper* <span class="title">getTimeKeeper</span><span class="params">()</span></span>;  <span class="comment">//返回一个指针，指向一个</span></span><br><span class="line">                              <span class="comment">//TimeKeeper派生类的动态分配对象</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为遵守factory函数的规矩，被getTimeKeeper()返回的对象必须位于heap，因此为了避免泄漏内存和其它资源，将factory函数返回的每一个对象适当地delete掉很重要：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TimeKeeper* ptk = getTimeKeeper();  <span class="comment">//从TimeKeeper继承体系</span></span><br><span class="line">                                    <span class="comment">//获得一个动态分配对象。</span></span><br><span class="line">...                                 <span class="comment">//运用它...</span></span><br><span class="line"><span class="keyword">delete</span> ptk;                         <span class="comment">//释放它，避免资源泄漏。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;上述代码有一个根本性弱点：纵使客户把每一件事都做对了，仍然没办法知道程序是如何行动的。</p>
-<p>&emsp;&emsp;问题出在getTimeKeeper返回的指针指向一个derived class对象，而那个对象却经由一个base class指针被删除，而目前的base class有个non-virtual析构函数。这将引来灾难，因为C++明确指出，当derived class对象经由一个base class指针被删除，而该base class带着一个non-virtual析构函数，其结果将是未定义的——实际执行时通常发生的是对象的derived成分没被销毁。如果getTimeKeeper返回指针指向一个AtomicClock对象，其内的AtomicClock成分（也就是声明于AtomicClock class内的成员变量）很可能没被销毁，而AtomicClock的析构函数也未能执行起来。然而其base class成分（也就是TimeKeeper这一部分）通常会被销毁，于是形成了一个诡异的“局部销毁”对象。这可是形成资源泄漏、败坏的数据结构、在调试器上浪费许多时间的绝佳途径喔。</p>
-<p>&emsp;&emsp;消除这个问题的做法很简单：给base class一个virtual析构函数。此后删除derived class对象就会如我们所愿。没错，它会销毁整个对象，包括所有的derived class成分：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TimeKeeper</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    TimeKeeper();</span><br><span class="line">    <span class="keyword">virtual</span> ~TimeKeeper();</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">TimeKeeper* ptk = getTimeKeeper();</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> ptk;  <span class="comment">//现在，行为正确</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;像TimeKeeper这样的base class除了析构函数之外通常还有其它virtual函数，因为virtual函数的目的是允许derived class的实现得以自定义。例如TimeKeeper就可能拥有一个virtual getCurrentTime，它在不同的derived classes中有不同的实现代码。任何class只要带有virtual函数都几乎确定应该也有一个virtual析构函数。</p>
-<p>&emsp;&emsp;如果class不含virtual函数，通常表示它并不意图被用做一个base class。当class不企图被当作base class，令其析构函数为virtual往往是个馊主意。考虑一个用来表示二维空间坐标的class：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Point(<span class="keyword">int</span> xCoord, <span class="keyword">int</span> yCoord);</span><br><span class="line">    ~Point();</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> x, y;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果int占用32bits，那么Point对象可能塞入一个64-bit缓存器中。更有甚者，这样一个Point对象可被当作一个“64-bit量”传给其他语言如C或FORTRAN编写的函数。然而当Point的析构函数是virtual，形势发生了变化。</p>
-<p>&emsp;&emsp;欲实现出virtual函数，对象必须携带某些信息，主要用来在运行期决定哪一个virtual函数该被调用。这份信息通常是由一个所谓vptr（virtual table pointer）指针指出。vptr指向一个由函数指针构成的数组，称为vtbl（virtual table）；每一个带有virtual函数的class都有一个相应的vtbl。当对象调用某一virtual函数。实际被调用的函数取决于该对象的vptr所指的那个vtbl——编译器在其中寻找适当的函数指针。</p>
-<p>&emsp;&emsp;virtual函数的实现细节不重要。重要的是如果Point class内含virtual函数，其对象的体积会增加：在32-bit计算机体系结构中将占用64bits（为了存放两个ints）至96bits（两个ints加上vptr）；在64-bits计算机体系结构中可能占用64-128bits，因为指针在这样的计算机结构中占64bits。因此，为Point添加一个vptr会增加其对象大小达50%～100%！Point对象不再能够塞入一个64-bit缓存器，而C++的Point对象也不再和其他语言（如C）内的相同声明有着一样的结构（因为其他语言的对应物应该没有vptr），因此也就不再可能把它传递至（或接受自）其他语言所写的函数，除非我们明确补偿vptr——这属于实现细节，也因此不再具有移植性。</p>
-<p>&emsp;&emsp;因此，无端地将所有classes的析构函数声明为virtual，就像从未声明它们为virtual一样，都是错误的。许多人的心得是：只有当class内含至少一个virtual函数，才为它声明virtual析构函数。</p>
-<p>&emsp;&emsp;即使class完全不带virtual函数，被“non-virtual析构函数问题”给咬伤还是有可能的。举个例子，标准string不含任何virtual函数，但有时候程序员会错误地把它当作base class：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialString</span>:</span> <span class="keyword">public</span> <span class="built_in">std</span>::<span class="built_in">string</span> &#123;  <span class="comment">//馊主意！std::string有个</span></span><br><span class="line">    ...                                    <span class="comment">//non-virtual析构函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;乍看之下似乎无害，但如果我们在程序任意某处无意间将一个pointer-to-SpecialString转换为一个pointer-to-string，然后将转换的那个string指针delete掉，我们将立刻被流放到“行为不正确”的荒地上：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SpecialString* pss = <span class="keyword">new</span> SpecialString(<span class="string">"Impending Doom"</span>);</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* ps;</span><br><span class="line">...</span><br><span class="line">ps = pss;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> ps;  <span class="comment">//未定义！实际中的*ps的SpecialString资源会泄漏，</span></span><br><span class="line">            <span class="comment">//因为SpecialString析构函数没被调用。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;包括所有STL容器如vector，list，set，tr1::unordered_map等等，如果我们企图继承一个标准容器或任何其他“带有non-virtual析构函数”的class，拒绝这个诱惑吧！很不幸C++没有提供类似Java的final classes或C#的sealed classes那样的“禁止派生”机制。</p>
-<p>&emsp;&emsp;有时候令class带一个pure virtual析构函数，可能颇为便利。pure virtual函数导致abstract class——也就是不能被实体化的class。也就是说，我们不能为这种类型创建对象。然而有时候我们希望拥有抽象class，但手上没有任何pure virtual函数，怎么办？由于抽象class总是企图被当作一个base class来用，而又由于base class应该有个virtual析构函数，并且由于pure virtual函数会导致抽象class，因此解法很简单：为我们希望它成为抽象的那个class声明一个pure virtual析构函数。下面是个例子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AWOV</span> &#123;</span>  <span class="comment">//AWOV = "Abstract w/o to Virtuals"</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~AWOV() = <span class="number">0</span>;  <span class="comment">//声明pure virtual析构函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个class有一个pure virtual函数，所以它是个抽象class，又由于它有个virtual析构函数，所以我们不需要担心析构函数的问题，然而这里有个窍门：我们必须为这个pure virtual析构函数提供一份定义：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AWOV::~AWOV() &#123;&#125;  <span class="comment">//pure virtual析构函数的定义</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;析构函数的运作方式是，最深层派生的那个class其析构函数最先被调用，然后是其每一个base class的析构函数被调用。编译器会在AWOV的derived class的析构函数中创建一个对～AWOV的调用动作，所以我们必须为这个函数提供一份定义。如果不这样做，编译器会发出抱怨。</p>
-<p>&emsp;&emsp;“给base class一个virtual析构函数”，这个规则只适用于polymorphic（带有多态性质的）base class身上。这种base class的设计目的是为了用来“通过base class接口处理derived class对象”。TimeKeeper就是一个polymorphic base class，因为我们希望处理AtomicClock和WaterClock对象，纵使我们只有TimeKeeper指针指向它们。</p>
-<p>&emsp;&emsp;并非所有base class的设计目的都是为了多态用途。例如标准string和STL容器都不被设计作为base class使用，更别提多态了。某些class的设计目的是作为base class使用，但不是为了多态用途。这样的class如input_iterator_tag等，它们并非被设计用来“经由base class接口处理derived class对象”，因此它们不需要virtual析构函数。</p>
-<blockquote>
-<p>Polymorphic（带多态性质的）base class应该声明一个virtual析构函数。如果class带有任何virtual函数，它就应该拥有一个virtual析构函数。</p>
-<p>Class的设计目的如果不是作为base class使用，或不是为了具备多态性，就不该声明virtual析构函数。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/22/Declare%20destructions%20virtual%20in%20polymorphic%20base%20classes/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Explicitly disallow the use of compiler-generated functions you do not want" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/21/Explicitly%20disallow%20the%20use%20of%20compiler-generated%20functions%20you%20do%20not%20want/">Explicitly disallow the use of compiler-generated functions you do not want</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/21/Explicitly%20disallow%20the%20use%20of%20compiler-generated%20functions%20you%20do%20not%20want/" class="archive-article-date">
-  	<time datetime="2020-07-21T00:36:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-21</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="若不想使用编译器自动生成的函数，就该明确拒绝"><a href="#若不想使用编译器自动生成的函数，就该明确拒绝" class="headerlink" title="若不想使用编译器自动生成的函数，就该明确拒绝"></a>若不想使用编译器自动生成的函数，就该明确拒绝</h1><p>&emsp;&emsp;地产中介商卖的是房子，一个中介软件系统自然而然想必有个class用来描述待售房屋：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span> &#123;</span> ... &#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;每一位真正的地产中介商都会说，任何一笔资产都是独一无二的，没有两笔完全相像。因此我们也认为，为HomeForSale对象做一份副本有点没道理。我们怎么可以复制某些先天独一无二的东西呢？因此，我们应该乐意看到HomeForSale的对象拷贝动作以失败收场：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HomeForSale h1;</span><br><span class="line">HomeForSale h2;</span><br><span class="line"><span class="function">HomeForSale <span class="title">h3</span><span class="params">(h1)</span></span>;  <span class="comment">//企图拷贝h1，不该通过编译</span></span><br><span class="line">h1 = h2;             <span class="comment">//企图拷贝h2，也不该通过编译</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;通常如果我们不希望class支持某一个特定功能，只要不声明对应函数就是了。但这个策略对copy构造函数和copy assignment操作符却不起作用，因为如果我们不声明它们，而某些人尝试调用它们，编译器会为我们声明它们。</p>
-<p>&emsp;&emsp;这使我们陷入了两难的境况。答案的关键是，所有编译器产出的函数都是public。为阻止这些函数被创建出来。我们得自行声明它们，但这里并没有什么需求使我们必须将它们声明为public。因此我们可以将copy构造函数或copy assignment操作符声明为private。明确声明一个成员函数，我们阻止了编译器暗自创建其专属版本；而令这些函数为private，使我们得以成功阻止人们调用它。</p>
-<p>&emsp;&emsp;一般而言这个做法并不绝对安全，因为member函数和friend函数还是可以调用我们的private函数。除非我们足够聪明，不去定义它们，那么如果某些人不慎调用任何一个，会获得一个连接错误（Linkage error）。“将成员函数声明为private而且故意不实现它们”这一技术是广受欢迎的，因而被用在C++ iostream程序库中阻止copy行为。没错，当我们看看手上的标准程序库实现代码中的ios_base，basic_ios和sentry。我们会发现无论哪一个，其copy构造函数和copy assignment操作符都被声明为private而且没有定义。</p>
-<p>&emsp;&emsp;将这个技巧用于HomeForSale也很简单：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    ...</span><br><span class="line">    HomeForSale(<span class="keyword">const</span> HomeForSale);  <span class="comment">//只有声明</span></span><br><span class="line">    HomeForSale&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> HomeForSale)&amp;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;或许你注意到了，我没有写函数参数的名称。其实，参数名称并非必要，只不过大家总是习惯写出来。这个函数毕竟不会被实现出来，也很少被使用，指定参数名称又有何用？</p>
-<p>&emsp;&emsp;有了上述class定义，当客户企图拷贝HomeForSale对象，编译器会阻挠他，如果我们不慎在member函数或friend函数之内那么做，就轮到连接器发出抱怨了。</p>
-<p>&emsp;&emsp;将连接期错误移至编译期是可能的（而且这是好事，毕竟越早侦测出错误越好），只要将copy构造函数和copy assignment操作符声明为private就可以办到，但不是在HomeForSale自身，而是在一个专门为了阻止copy动作而设计的base class内。这个base class非常简单：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Uncopyable</span> &#123;</span></span><br><span class="line"><span class="keyword">protected</span>:          <span class="comment">//允许derived对象构造和析构             </span></span><br><span class="line">    Uncopyable() &#123;&#125;</span><br><span class="line">    ~Uncopyable() &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Uncopyable(<span class="keyword">const</span> Uncopyable&amp;);  <span class="comment">//但阻止copy</span></span><br><span class="line">    Uncopyable&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Uncopyable&amp;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为求阻止HomeForSale对象被拷贝，我们唯一需要做的就是继承Uncopyable：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span>:</span> <span class="keyword">private</span> Uncopyable &#123;  <span class="comment">//不再声明</span></span><br><span class="line">    ...                                  <span class="comment">//copy构造函数或</span></span><br><span class="line">&#125;;                                       <span class="comment">//copy assignment操作符</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这是可行的，因为只要任何人——甚至是member函数或friend函数——尝试拷贝HomeForSale对象，编译器便试着生成一个copy构造函数和一个copy assignment操作符，这些函数的“编译器生成版”会尝试调用其base class的对应兄弟，那些调用会被编译器拒绝，因为其base class的拷贝函数是private。</p>
-<blockquote>
-<p>为驳回编译器自动提供的功能，可将相应的成员函数声明为private并且不予实现。使用像Uncopyable这样的base class也是一种做法。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/21/Explicitly%20disallow%20the%20use%20of%20compiler-generated%20functions%20you%20do%20not%20want/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Know what functions C++ silently writes and calls" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/20/Know%20what%20functions%20C++%20silently%20writes%20and%20calls/">Know what functions C++ silently writes and calls</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/20/Know%20what%20functions%20C++%20silently%20writes%20and%20calls/" class="archive-article-date">
-  	<time datetime="2020-07-20T08:31:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-20</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="了解C-默默编写并调用哪些函数"><a href="#了解C-默默编写并调用哪些函数" class="headerlink" title="了解C++默默编写并调用哪些函数"></a>了解C++默默编写并调用哪些函数</h1><p>&emsp;&emsp;对于一个class来说，如果我们自己没有声明，编译器就会为它声明（编译器版本的）一个copy构造函数，一个copy assignment操作符和一个析构函数。此外如果我们没有声明任何构造函数，编译器也会为我们声明一个default构造函数。所有这些函数都是public和inline。因此，如果我们写下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Empty</span> &#123;</span>&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>这就好像写下这样的代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Empty</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Empty() &#123; ... &#125;</span><br><span class="line">    Empty(<span class="keyword">const</span> Empty&amp; rhs) &#123; ... &#125;</span><br><span class="line">    ~Empty() &#123; ... &#125;</span><br><span class="line">    </span><br><span class="line">    Empty <span class="keyword">operator</span>=(<span class="keyword">const</span> Empty&amp; rhs) &#123; ... &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;只要当这些函数被需要（被调用）时，它们才会被编译器创建出来。程序中需要它们是很平常的事。下面代码造成上述每一个函数被编译器产出：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Empty e1;  <span class="comment">//default构造函数</span></span><br><span class="line">           <span class="comment">//析构函数</span></span><br><span class="line"><span class="function">Empty <span class="title">e2</span><span class="params">(e1)</span></span>;  <span class="comment">//copy构造函数</span></span><br><span class="line">e2 = e1;       <span class="comment">//copy assignment操作符</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;default构造函数和析构函数主要是给编译器一个地方用来放置“藏身幕后”的代码，像是调用base class和non-static成员变量的构造函数和析构函数。注意，编译器产出的析构函数是个non-virtual，除非这个class的base class自身声明有virtual析构函数（这种情况下这个函数的虚属性主要来自base class）。</p>
-<p>&emsp;&emsp;至于copy构造函数和copy assignment操作符，编译器创建的版本只是单纯地将来源对象的每一个non-static成员变量拷贝到目标对象。考虑一下代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NamedObject</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    NamedObject(<span class="keyword">const</span> <span class="keyword">char</span>* name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    NamedObject(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span>&amp; nameValue;</span><br><span class="line">    T objectValue;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;由于其中声明了一个构造函数，编译器于是不再为它创建default构造函数。</p>
-<p>&emsp;&emsp;NamedObject既没有声明copy构造函数，也没有声明copy assignment操作符，所以编译器会为它创建那些函数（如果它们被调用的话）。现在，看看copy构造函数的用法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">no1</span><span class="params">(<span class="string">"Smallest Prime Number"</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">no2</span><span class="params">(no1)</span></span>;  <span class="comment">//调用copy构造函数</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;编译器生成的copy构造函数必须以no1.nameValue和no1.objectValue为初值设定no2.nameValue和no2.objectValue。两者之中，nameValue的类型是string，而标准string有个copy构造函数，所以no2.nameValue的初始化方式是调用string的copy构造函数并以no1.nameValue为实参。另一个成员NamedObject&lt;int&gt;objectValue的类型是int，这是个内置类型，所以no2.objectValue会以“拷贝no1.objectValue内的每一个bits”来完成初始化。</p>
-<p>&emsp;&emsp;编译器为NamedObject&lt;int&gt;所生成的copy assignment操作符，其行为基本上与copy构造函数如出一辙，但一般而言只有当生成的代码合法且有适当机会证明它有意义，其表现才会如我先前所说。万一两个条件有一个不符合，编译器会拒绝为class生成operator=。</p>
-<p>&emsp;&emsp;举个例子，假设NameObject定义如下，其中nameValue是个reference to string，objectValue是个const T：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">NamedObject</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    NamedObject(<span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    ...</span><br><span class="line">   </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span>&amp; nameValue;</span><br><span class="line">    <span class="keyword">const</span> T objectValue;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在考虑下面会发生什么事：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">newDog</span><span class="params">(<span class="string">"Alice"</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">oldDog</span><span class="params">(<span class="string">"Bob"</span>)</span></span>;</span><br><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">p</span><span class="params">(newDog, <span class="number">2</span>)</span></span>;</span><br><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">s</span><span class="params">(oldDog, <span class="number">36</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">p = s;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;赋值之后p.nameValue应该指向s.nameValue所指的那个string吗？也就是说reference自身可被改动吗？如果可以，那可就不得了了，因为C+并不允许“让reference改指向不同对象”。换一个想法，p.nameValue所指的那个string对象该被修改，进而影响“持有pointers或references而且指向该string”的其它对象吗？也就是对象不被直接牵扯到赋值操作内？编译器生成的copy assignment操作符究竟该如何做呢？</p>
-<p>&emsp;&emsp;面对这个难题，C++的响应是拒绝编译那一行赋值动作。如果我们打算在一个“内含reference成员”的class内支持赋值操作，我们必须自己定义copy assignment操作符。面对“内含const成员”的classes，编译器的反应也一样。更改const成员是不合法的，所以编译器不知道如何在它自己生成的赋值函数内面对它们。最后还有一种情况：如果某个base class将copy assignment操作符声明为private，编译器将拒绝为其derived classes生成一个copy assignment操作符。毕竟编译器为derived classes所生成的copy assignment操作符想象中可以处理base class成分，但它们当然无法调用derived classes无权调用的成员函数。编译器两手一摊，无能为力。</p>
-<blockquote>
-<p>编译器可以暗自为class创建default构造函数、copy构造函数、copy assignment操作符，以及析构函数。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/20/Know%20what%20functions%20C++%20silently%20writes%20and%20calls/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
   
   
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
-    </nav>
+  
+
+  
+
+  
+
   
 
 
@@ -1258,8 +346,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,

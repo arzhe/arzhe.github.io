@@ -134,6 +134,129 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Make sure that subjects are initialized before they are used" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/19/Make%20sure%20that%20subjects%20are%20initialized%20before%20they%20are%20used/">Make sure that subjects are initialized before they are used</a>
+    </h1>
+  
+
+        
+        <a href="/2020/07/19/Make%20sure%20that%20subjects%20are%20initialized%20before%20they%20are%20used/" class="archive-article-date">
+  	<time datetime="2020-07-19T01:41:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-19</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="确定对象被使用前已先被初始化"><a href="#确定对象被使用前已先被初始化" class="headerlink" title="确定对象被使用前已先被初始化"></a>确定对象被使用前已先被初始化</h1><p>&emsp;&emsp;关于“将对象初始化”这一点，C++似乎反复无常。如果我们这么写：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x;</span><br></pre></td></tr></table></figure>
+
+<p>在某些语境下x保证被初始化（为0），但在其他语境中却不保证。如果我们这么写：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> x, y;</span><br><span class="line">&#125;;</span><br><span class="line">...</span><br><span class="line">Point p;</span><br></pre></td></tr></table></figure>
+
+<p>p的成员变量有时候被初始化（为0），有时候不会。</p>
+<p>&emsp;&emsp;通常如果我们使用C part of C++而且初始化可能导致运行期成本，那么就不保证发生初始化。一旦进入了non-C parts of C++，规则就会有些改变。这就很好的解释了为什么array（来自C part of C++）不保证其内容被初始化，而vector（来自STL parts of C++）却有此保证。</p>
+<p>&emsp;&emsp;表面上这似乎是个无法决定的状态，而最佳处理办法就是：永远在使用对象之前先讲它初始化。对于物任何成员的内置类型，我们必须手工完成此事。例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="built_in">text</span> = <span class="string">"A C-style string"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">double</span> d;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cin</span> &gt;&gt; d;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;至于内置类型以外的任何其他东西，初始化责任落在了构造函数身上。规则很简单：确保每一个构造函数都将对象的每一个成员初始化。</p>
+<p>&emsp;&emsp;这个规则很容易遵循，重要的事别混淆了赋值和初始化。考虑一个用来表现通讯簿的class，其构造函数如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneNumber</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ABEntry</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">            <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones);</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> theName;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> theAddress;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt; thePhones;</span><br><span class="line">    <span class="keyword">int</span> numTimesConsulted;</span><br><span class="line">&#125;;</span><br><span class="line">ABEntry::ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">                 <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones) &#123;</span><br><span class="line">    theName = name;  <span class="comment">//这些都是赋值而非初始化</span></span><br><span class="line">    theAddress = address;</span><br><span class="line">    thePhones = phones;</span><br><span class="line">    numTimesConsulted = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这会导致ABEntry对象带有我们期望的值，但不是最佳做法。C++规定，对象的成员变量的初始化动作发生在进入构造函数本体之前。在ABEntry构造函数内，theName，theAddress和thePhones都不是被初始化，而是被赋值。初始化的发生时间更早，发生于这些成员的default构造函数被自动调用之时。但这对numTimesConsulted却并非如此，因为它属于内置类型，不保证一定在我们所看到的那个赋值动作的时间点之前获得初值。</p>
+<p>&emsp;&emsp;ABEntry构造函数的一个较佳写法是，使用所谓的member initialization list（成员初值列）替换赋值动作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ABEntry::ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">                 <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones) </span><br><span class="line">    : theName(name),</span><br><span class="line">      theAddress(address),</span><br><span class="line">      thePhones(phones),</span><br><span class="line">      numTimesConsulted(<span class="number">0</span>)</span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个构造函数和上一个的最终结果相同，但通常效率较高。对于大多数类型而言，比起先调用default构造函数然后再调用copy assignment操作符，单只调用一次copy构造函数是比较高效的，有时甚至高效的多。对于内置对象如numTimesConsulted，其初始化和赋值的成本相同，但为了一致性最好也通过成员初值列来初始化。同样的道理，甚至当我们想要default构造一个成员变量，我们都可以用成员初值列，只要指定nothing作为初始化实参即可，假设ABEntry有一个无参数构造函数，我们可以将其实现为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ABEntry::ABEntry() </span><br><span class="line">    : theName(),  <span class="comment">//调用theName的default构造函数</span></span><br><span class="line">      theAddress(),</span><br><span class="line">      thePhones(),</span><br><span class="line">      numTimesConsulted(<span class="number">0</span>)  <span class="comment">//记得将numTimesConsulted显式初始化为0</span></span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于编译器会为用户自定义类型的成员变量自动调用default构造函数——如果那些成员变量在“成员初值列”中没有被指定初值的话，因而引发某些程序员过度夸张地采用以上写法，这是可以理解的，但请立下一个规定，总是在初值列中列出所有成员变量，以免还得记住哪些成员变量可以无需初值。举个例子，由于numTimesConsulted属于内置类型，如果成员初值列遗漏了它，它就没有初值，因而可能造成严重的后果。</p>
+<p>&emsp;&emsp;有些情况下即使面对的成员变量属于内置类型（那么其初始化与赋值成本相同），也一定得使用初值列。没错，如果成员变量是const或reference，它们就一定需要初值，不能被赋值。为了避免需要记住成员变量何时必须在成员初值列中初始化，何时不需要，最简单的做法就是：总是使用成员初值列。这样做有时候绝对有必要，且往往比赋值更高效。</p>
+<p>&emsp;&emsp;许多classes拥有多个构造函数，每个构造函数有自己的成员初值列；如果这种clasees存在许多成员变量和／或base classes，多份成员初值列的存在就会导致不受欢迎的重复（在初值列内）和无聊的工作。这种情况下可以合理地在初值列中遗漏哪些“赋值表现像初始化一样好”的成员变量，改用它们的赋值操作，并将哪些赋值动作移往某个函数（通常是private），供所有构造函数调用。这种做法在“成员变量的初值是由文件或数据库读入”时特别有用。然而，比起经由赋值操作完成的“伪初始化”，通过成员初值列完成的“真正初始化”通常更加可取。</p>
+<p>&emsp;&emsp;C++有着十分固定的“成员初始化次序”。次序总是相同的：base classes更早于其derived classes被初始化，而class的成员变量总是以其声明次序被初始化。回头看看ABEntry，其theName成员永远最先被初始化，然后是theAddress，再来是thePhones，最后是numTimesConsulted。即使它们在成员初值列中以不同的次序出现（很不幸，这是合法的），也不会有任何影响。为避免我们或观看我们代码的人迷惑，当我们在编写成员初值列各个成员时，最好总是以其声明次序为次序。</p>
+<p>&emsp;&emsp;一旦我们已经很小心地将“内置型成员变量”明确地加以初始化，而且也确保我们的构造函数运用“成员初值列”初始化base classes和成员变量，那就只剩唯一一件事需要操心，那就是……呃……深呼吸……“不同编译单元内定义的non-local static对象”的初始化次序。</p>
+<p>&emsp;&emsp;让我们一点一点地深钻这一长串词组。</p>
+<p>&emsp;&emsp;所谓static对象，其寿命从被构造出来直到程序结束为止，因此stack和heap-base对象都被排除。这种对象包括global对象、定义于namespace作用域内的对象、在class内、在函数内、以及在file作用域内被声明为static的对象。函数内的static对象称为local static对象，其它static对象称为non-local static对象。程序结束时static对象会被自动销毁，也就是它们的析构函数会在main()结束时被自动调用。</p>
+<p>&emsp;&emsp;所谓编译单元是指产出单一目标文件的那些源码。基本上它是单一源码文件加上其所含入的头文件。</p>
+<p>&emsp;&emsp;现在，我们关心的问题涉及至少两个源码文件，每一个内含至少一个non-local static对象。真正的问题是：如果某编译单元内的某个non-local static对象的初始化动作使用了另一编译单元的某个non-local static对象，它所用到的这个对象可能尚未被初始化，因为C++对“定义于不同编译单元内的non-local static对象”的初始化次序并无明确定义。</p>
+<p>&emsp;&emsp;幸运的是一个小小的设计便可以完全消除这个问题。唯一需要做的是：将每个non-local static对象搬到自己的专属函数内（该对象在此函数内被声明为static）。这些函数返回一个reference指向它所含的对象。然后用户调用这些函数，而不直接指涉这些对象。换句话说，non-local static对象被local static对象替换了。Design Patterns迷哥迷妹们想必认出来了，这是Singleton模式的一个常见实现手法。</p>
+<p>&emsp;&emsp;这个手法的基础在于：C++保证，函数内的local static对象会在“该函数被调用期间”“首次遇上该对象的定义式”时被初始化。所以如果我们以“函数调用”（返回一个reference指向local static对象）替换“直接访问non-local static对象”，我们就获得了保证，保证我们所获的的那个reference将指向一个经历过初始化的对象。更棒的是，如果我们从未调用non-local static对象的“仿真函数”，就绝不会引发构造和析构成本：真正的non-local static对象可没这等便宜。</p>
+<blockquote>
+<p>为内置型对象进行手工初始化，因为C++不保证初始化它们。</p>
+<p>构造函数最好使用成员初值列，而不要在构造函数本体内使用赋值操作。初值列列出的成员变量，其排列次序应该和它们在class中的声明次序相同。</p>
+<p>为免除“跨编译单元的初始化次序”问题，以local static对象替换non-local static对象。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/07/19/Make%20sure%20that%20subjects%20are%20initialized%20before%20they%20are%20used/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Use const whenever possible" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
