@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Tag: C++ | Hexo</title>
+  <title>Provide access to raw resources in resource-managing classes | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/tags/C/page/2/index.html">
+  <meta name="description" content="在资源管理类中提供对原始资源的访问&amp;emsp;&amp;emsp;资源管理类很棒。它们是你对抗资源泄漏的堡垒。排除此等泄漏是良好设计系统的根本性质。在一个完美世界中我们将依赖这样的class来处理和资源之间的所有互动，而不是玷污双手直接处理原始资源。 1234std::shared_ptr&lt;Investment&gt; pInv(createInvestment());  &#x2F;&#x2F;使用智能指针保存fa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Provide access to raw resources in resource-managing classes">
+<meta property="og:url" content="http://yoursite.com/2020/07/29/Provide%20access%20to%20raw%20resources%20in%20resource-managing%20classes/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在资源管理类中提供对原始资源的访问&amp;emsp;&amp;emsp;资源管理类很棒。它们是你对抗资源泄漏的堡垒。排除此等泄漏是良好设计系统的根本性质。在一个完美世界中我们将依赖这样的class来处理和资源之间的所有互动，而不是玷污双手直接处理原始资源。 1234std::shared_ptr&lt;Investment&gt; pInv(createInvestment());  &#x2F;&#x2F;使用智能指针保存fa">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-07-29T05:07:00.000Z">
+<meta property="article:modified_time" content="2020-07-29T12:16:48.000Z">
 <meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -132,36 +137,97 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Provide access to raw resources in resource-managing classes" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Provide access to raw resources in resource-managing classes
+    </h1>
+  
+
+        
+        <a href="/2020/07/29/Provide%20access%20to%20raw%20resources%20in%20resource-managing%20classes/" class="archive-article-date">
+  	<time datetime="2020-07-29T05:07:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-29</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="在资源管理类中提供对原始资源的访问"><a href="#在资源管理类中提供对原始资源的访问" class="headerlink" title="在资源管理类中提供对原始资源的访问"></a>在资源管理类中提供对原始资源的访问</h1><p>&emsp;&emsp;资源管理类很棒。它们是你对抗资源泄漏的堡垒。排除此等泄漏是良好设计系统的根本性质。在一个完美世界中我们将依赖这样的class来处理和资源之间的所有互动，而不是玷污双手直接处理原始资源。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pInv</span><span class="params">(createInvestment())</span></span>;  <span class="comment">//使用智能指针保存factory函数</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">daysHeld</span><span class="params">(<span class="keyword">const</span> Investment* pi)</span></span>;                    <span class="comment">//返回投资天数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> days = daysHeld(pInv);                             <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;dayHelds需要的是Investment*指针，我们传给它的却是个类型为std::shared_ptr&lt;Investment&gt;的对象。</p>
+<p>&emsp;&emsp;这时候我们需要一个函数可将RAII class对象转换为其所内含的原始资源。有两个做法可以达成目标：显式转换和隐式转换。</p>
+<p>&emsp;&emsp;shared_ptr提供一个get成员函数，用来执行显式转换，也就是它会返回智能指针内部的原始指针（的复件）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> days = daysHeld(pInv.<span class="built_in">get</span>());  <span class="comment">//将pInv内的原始指针传给daysHeld</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;shared_ptr重载了指针取值操作符（operator-&gt;和operator*），它们允许隐式转换至底部原始指针：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Investment</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isTaxFree</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">Investment* <span class="title">createInvestment</span><span class="params">()</span></span>;                       <span class="comment">//factory函数</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pi</span><span class="params">(createInvestment())</span></span>;  <span class="comment">//令指针指针管理一笔资源</span></span><br><span class="line"><span class="keyword">bool</span> taxable1 = !(pi-&gt;isTaxFree());                  <span class="comment">//经由operator-&gt;访问资源</span></span><br><span class="line"><span class="keyword">bool</span> taxable2 = !((*pi).isTaxFree());                <span class="comment">//经由operator*访问资源</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;再考虑下面这个用语字体的RAII class（对C API而言字体是一种原生数据结构）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">FontHandle <span class="title">getFont</span><span class="params">()</span></span>;  <span class="comment">//这是个C API，为求简化省略参数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">releaseFont</span><span class="params">(FontHandle fh)</span></span>;  <span class="comment">//来自同一组C API</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Font</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Font</span><span class="params">(FontHandle fh)</span>: <span class="title">f</span><span class="params">(fh)</span> </span>&#123;&#125;</span><br><span class="line">    ~Font() &#123; releaseFont(f); &#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    FontHandle f;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;假设有大量与字体相关的C API，它们处理的是FontHandle，那么“将Font对象转换为FontHandle”会是一种很频繁的需求。Font class可为此提供一个显式转换函数，像get那样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Font</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function">FontHandle <span class="title">get</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> f; &#125;  <span class="comment">//显式转换函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;不幸的是这使得客户每当想要使用API时就必须调用get：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">changeFontSize</span><span class="params">(FontHandle f, <span class="keyword">int</span> newSize)</span></span>;  <span class="comment">//C API</span></span><br><span class="line"><span class="function">Font <span class="title">f</span><span class="params">(getFont())</span></span>;</span><br><span class="line"><span class="keyword">int</span> newFontSize;</span><br><span class="line">...</span><br><span class="line">changeFontSize(f.<span class="built_in">get</span>(), newFontSize);  <span class="comment">//显式地将Font转换为FontHandle</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;某些程序员可能会认为，如此这般地到处要求显式转换，足以使人们倒尽胃口，不再愿意使用这个class，从而增加了泄漏字体的可能性，而Font class的主要设计目的就是为了防止资源（字体）泄漏。</p>
+<p>&emsp;&emsp;另一个办法是令Font提供隐式转换函数，转型为FontHandle：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Font</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">operator</span> <span class="title">FontHandle</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;  <span class="comment">//隐式转换函数</span></span><br><span class="line">        <span class="keyword">return</span> f;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//另外一种构造转换函数，与隐式转换函数相反，</span></span><br><span class="line">    <span class="comment">//是将其他类型转换为本类型，其也是构造函数的一种。</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这使得客户调用C API时比较轻松且自然：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Font <span class="title">f</span><span class="params">(getFont())</span></span>;</span><br><span class="line"><span class="keyword">int</span> newFontSize;</span><br><span class="line">...</span><br><span class="line">changeFontSize(f, newFontSize);  <span class="comment">//将Font隐式转换为FontHandle</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;但是这个隐式转换会增加错误发生机会。例如客户可能会在需要Font时意外创建一个FontHandle：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Font <span class="title">f1</span><span class="params">(getFont())</span></span>;</span><br><span class="line">...</span><br><span class="line">FontHandle f2 = f1;</span><br><span class="line"><span class="comment">//原意是要拷贝一个Font对象，</span></span><br><span class="line"><span class="comment">//却反而将f1隐式转换为其底部的FontHandle</span></span><br><span class="line"><span class="comment">//然后才复制它。</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;是否该提供一个显式转换函数（例如get成员函数）将RAII class转换为其底部资源，或是应该提供隐式转换，答案主要取决于RAII class被设计执行的特性工作，以及它被使用的情况。</p>
+<p>&emsp;&emsp;RAII class并不是为了封装某物而存在的；它们的存在是为了确保一个特殊行为——资源释放——会发生。此外也有某些RAII class结合十分松散的底层资源封装，借以获得真正的封装实现。例如shared_ptr将它的所有引用计数机构封装了起来，但还是让外界很容易访问其所内含的原始指针。就像多数设计良好的class一样，它隐藏了客户不需要看的部分，但备妥客户需要的所有东西。</p>
+<blockquote>
+<p>API往往要求访问原始资源，所以每一个RAII class应该提供一个“取得其所管理的资源”的办法。</p>
+<p>对原始资源的访问可能经由显式转换或隐式转换。一般而言显式转换比较安全，但隐式转换对客户比较方便。</p>
+</blockquote>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/blogImg/wechatpay.jpeg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/19/Make%20sure%20that%20subjects%20are%20initialized%20before%20they%20are%20used/" class="archive-article-date">
-  	<time datetime="2020-07-19T01:41:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-19</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/19/Make%20sure%20that%20subjects%20are%20initialized%20before%20they%20are%20used/">Make sure that subjects are initialized before they are used</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -173,7 +239,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -186,167 +252,103 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/07/29/Provide%20access%20to%20raw%20resources%20in%20resource-managing%20classes/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/18/Use%20const%20whenever%20possible/" class="archive-article-date">
-  	<time datetime="2020-07-18T02:42:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-18</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/07/28/Think%20carefully%20about%20copying%20behavior%20in%20resource-managing%20classes/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Think carefully about copying behavior in resource-managing classes</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/18/Use%20const%20whenever%20possible/">Use const whenever possible</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/17/Prefer%20consts,enums,and%20inlines/" class="archive-article-date">
-  	<time datetime="2020-07-17T07:17:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/17/Prefer%20consts,enums,and%20inlines/">Prefer consts,enums,and inlines</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/17/View%20C++%20as%20a%20federation%20of%20languages/" class="archive-article-date">
-  	<time datetime="2020-07-17T04:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/17/View%20C++%20as%20a%20federation%20of%20languages/">View C++ as a federation of languages</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/tags/C/">&amp;laquo; Prev</a><a class="page-number" href="/tags/C/">1</a><span class="page-number current">2</span>
-    </nav>
+  
+
+  
+
   
 
 
@@ -370,9 +372,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
