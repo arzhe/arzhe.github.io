@@ -12,7 +12,7 @@
 <meta property="og:title" content="Hexo">
 <meta property="og:url" content="http://yoursite.com/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="en_US">
+<meta property="og:locale" content="zh">
 <meta property="article:author" content="arzhe">
 <meta name="twitter:card" content="summary">
   
@@ -134,19 +134,245 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-Provide access to raw resources in resource-managing classes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-以独立语句将new对象置入智能指针" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/29/Provide%20access%20to%20raw%20resources%20in%20resource-managing%20classes/">Provide access to raw resources in resource-managing classes</a>
+      <a class="article-title" href="/2020/07/30/%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86new%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">以独立语句将new对象置入智能指针</a>
     </h1>
   
 
         
-        <a href="/2020/07/29/Provide%20access%20to%20raw%20resources%20in%20resource-managing%20classes/" class="archive-article-date">
+        <a href="/2020/07/30/%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86new%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" class="archive-article-date">
+  	<time datetime="2020-07-30T04:45:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-30</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="以独立语句将new对象置入智能指针"><a href="#以独立语句将new对象置入智能指针" class="headerlink" title="以独立语句将new对象置入智能指针"></a>以独立语句将new对象置入智能指针</h1><p>&emsp;&emsp;假设我们有个函数涌来揭示处理程序的优先权，另一个函数用来在某动态分配所得的Widget上进行某些带有优先权的处理：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">priority</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">processWidget</span><span class="params">(<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; pw, <span class="keyword">int</span> priority)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在考虑调用processWidget：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">processWidget(<span class="keyword">new</span> Widget, priority());</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;上述代码可不能通过编译。shared_ptr构造函数需要一个原始指针，但该构造函数是个explicit构造函数，无法进行隐式转换，将得自“newWidget”的原始指针转换为processWidget所要求的shared_ptr。如果写成这样就可以通过编译：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">processWidget(<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt;(<span class="keyword">new</span> Widget), priority());</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;然而上述调用却可能泄露资源。</p>
+<p>&emsp;&emsp;编译器产出一个processWidget调用码之前，必须首先核算即将被传递的各个实参。上述第二个实参只是一个单纯的对priority函数的调用，但第一个实参std::shared_ptr&lt;Widget&gt;(new Widget)由两部分组成：</p>
+<ul>
+<li>执行“new Widget”表达式</li>
+<li>调用shared_ptr构造函数</li>
+</ul>
+<p>也是在调用processWidget之前，编译器必须创建代码，做一下三件事：</p>
+<ul>
+<li>调用priority</li>
+<li>执行“new Widget”</li>
+<li>调用shared_ptr构造函数</li>
+</ul>
+<p>&emsp;&emsp;C++编译器以什么样的次序完成这些事情呢？弹性很大。这和其他语言如Java和C#不同，那两种语言总是以特定次序完成函数参数的核算。可以确定的是“new Widget”一定执行于shared_ptr构造函数被调用之前，因为这个表达式的结果还要被传递作为shared_ptr构造函数的一个实参，但对priority的调用则可以排在第一或第二或第三执行。如果编译器选择以第二顺位执行它（说不定可以因此产生更高效的代码，谁知道呢），最终获得这样的操作序列：</p>
+<ol>
+<li>执行“new Widget”</li>
+<li>调用priority</li>
+<li>调用shared_ptr构造函数</li>
+</ol>
+<p>&emsp;&emsp;现在我们想想，万一对priority的调用导致异常，会发生什么事？在此情况下“new Widget”返回的指针将遗失，因为它尚未被置入shared_ptr内，后者是我们期盼用来防卫资源泄漏的武器。没错，在对processWidget的调用过程可能引发资源泄漏。</p>
+<p>&emsp;&emsp;避免这类问题的办法很简单：使用分离语句，分别写出（1）创建Widget，（2）将它置入一个智能指针内，然后再把哪个智能指针传给processWidget：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; <span class="title">pw</span><span class="params">(<span class="keyword">new</span> Widget)</span></span>;</span><br><span class="line">processWidget(pw, priority());</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>以独立语句将new对象存储于智能指针内。如果不这样做，一旦异常被抛出，有可能导致难以察觉的资源泄漏。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/07/30/%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86new%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-成对使用new和delete时要采取相同形式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/">成对使用new和delete时要采取相同形式</a>
+    </h1>
+  
+
+        
+        <a href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/" class="archive-article-date">
+  	<time datetime="2020-07-30T01:01:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-30</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="成对使用new和delete时要采取相同形式"><a href="#成对使用new和delete时要采取相同形式" class="headerlink" title="成对使用new和delete时要采取相同形式"></a>成对使用new和delete时要采取相同形式</h1><p>&emsp;&emsp;以下动作有什么错？</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* stringArray = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>[<span class="number">100</span>];</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> stringArray;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;每件事看起来都井然有序。使用了new，也搭配了对应的delete。但还是有某样东西完全错误：我们的程序未定义。stringArray所含的100个string对象中的99个不太可能被适当删除，因为它们的析构函数很可能没被调用。</p>
+<p>&emsp;&emsp;当我们使用new（也就是通过new动态生成一个对象），有两件事发生。第一，内存被分配出来（通过名为operator new的函数）。第二，针对此内存会有一个（或更多）构造函数被调用。当我们使用delete，也会有两件事发生：针对此内存会有一个（或更多）析构函数被调用，然后内存才被释放（通过名为operator delete的函数）。delete的最大问题在于：即将被删除的内存之内究竟存有多少对象？这个问题的答案决定了有多少个析构函数必须被调用起来。</p>
+<p>&emsp;&emsp;实际上这个问题可以更简单些：即将被删除的那个指针，所指的是单一对象或对象数组？这是个必不可缺的问题，因为单一对象的内存布局一般而言不同于数组的内存布局。更明确地说，数组所用的内存通常还包括“数组大小”的纪录，以便delete知道需要调用多少次析构函数。单一对象的内存则没有这笔纪录。</p>
+<p>&emsp;&emsp;当我们对着一个指针使用delete，唯一能够让delete知道内存中是否存在一个“数组大小纪录”的办法就是：由我们来告诉它。如果我们使用delete时加上方括号，delete便认定指针指向一个数组，否则它便认定指针指向单一对象：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* stringPtr1 = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* stringPtr2 = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>[<span class="number">100</span>];</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> stringPtr1;</span><br><span class="line"><span class="keyword">delete</span>[] stringPtr2;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个规则对于喜欢使用typedef的人也很重要，因为它意味着typedef的作者必须说清楚，当程序员以new创建该种typedef类型对象时，该以哪一种delete形式删除之，考虑下面这个typedef：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="built_in">std</span>::<span class="built_in">string</span> AddressLines[<span class="number">4</span>];  <span class="comment">//每个人的地址有4行</span></span><br><span class="line">                                      <span class="comment">//每一行是一个string</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;由于AddressLines是个数组，如果这样使用new：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* pal = <span class="keyword">new</span> AddressLines;  <span class="comment">//注意，"new AddressLines"返回一个string*</span></span><br><span class="line">                                      <span class="comment">//就像"new string[4]"一样</span></span><br></pre></td></tr></table></figure>
+
+<p>这就必须匹配“数组形式”的delete：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> pal;    <span class="comment">//未定义</span></span><br><span class="line"><span class="keyword">delete</span>[] pal;  <span class="comment">//很好</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;为避免诸如此类的错误，最好尽量不要对数组形式做typedef动作。例如我们可以将本例的AddressLines定义为“由string组成的一个vector”，也就是其类型为vector&lt;string&gt;。</p>
+<blockquote>
+<p>如果我们在new表达式中使用[]，必须在相应的delete表达式中也使用[]。如果我们在new表达式中不使用[]，一定不要在相应的delete表达式中使用[]。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-在资源管理类中提供对原始资源的访问" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/">在资源管理类中提供对原始资源的访问</a>
+    </h1>
+  
+
+        
+        <a href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/" class="archive-article-date">
   	<time datetime="2020-07-29T05:07:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-29</time>
 </a>
         
@@ -225,7 +451,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/29/Provide%20access%20to%20raw%20resources%20in%20resource-managing%20classes/">展开全文 >></a>
+          <a class="article-more-a" href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/">展开全文 >></a>
         </p>
       
 
@@ -255,19 +481,19 @@
 
 
   
-    <article id="post-Think carefully about copying behavior in resource-managing classes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-在资源管理类中小心copying行为" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/28/Think%20carefully%20about%20copying%20behavior%20in%20resource-managing%20classes/">Think carefully about copying behavior in resource-managing classes</a>
+      <a class="article-title" href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/">在资源管理类中小心copying行为</a>
     </h1>
   
 
         
-        <a href="/2020/07/28/Think%20carefully%20about%20copying%20behavior%20in%20resource-managing%20classes/" class="archive-article-date">
+        <a href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/" class="archive-article-date">
   	<time datetime="2020-07-28T03:03:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
 </a>
         
@@ -345,7 +571,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/28/Think%20carefully%20about%20copying%20behavior%20in%20resource-managing%20classes/">展开全文 >></a>
+          <a class="article-more-a" href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/">展开全文 >></a>
         </p>
       
 
@@ -375,19 +601,19 @@
 
 
   
-    <article id="post-Use objects to manage resources" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-以对象管理资源" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/27/Use%20objects%20to%20manage%20resources/">Use objects to manage resources</a>
+      <a class="article-title" href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/">以对象管理资源</a>
     </h1>
   
 
         
-        <a href="/2020/07/27/Use%20objects%20to%20manage%20resources/" class="archive-article-date">
+        <a href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/" class="archive-article-date">
   	<time datetime="2020-07-27T08:16:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-27</time>
 </a>
         
@@ -452,7 +678,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/27/Use%20objects%20to%20manage%20resources/">展开全文 >></a>
+          <a class="article-more-a" href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/">展开全文 >></a>
         </p>
       
 
@@ -482,19 +708,19 @@
 
 
   
-    <article id="post-Copy all parts of an object" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-复制对象时勿忘其每一个成分" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/26/Copy%20all%20parts%20of%20an%20object/">Copy all parts of an object</a>
+      <a class="article-title" href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/">复制对象时勿忘其每一个成分</a>
     </h1>
   
 
         
-        <a href="/2020/07/26/Copy%20all%20parts%20of%20an%20object/" class="archive-article-date">
+        <a href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/" class="archive-article-date">
   	<time datetime="2020-07-26T00:28:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-26</time>
 </a>
         
@@ -560,7 +786,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/26/Copy%20all%20parts%20of%20an%20object/">展开全文 >></a>
+          <a class="article-more-a" href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/">展开全文 >></a>
         </p>
       
 
@@ -590,19 +816,19 @@
 
 
   
-    <article id="post-Handle assignment to self in operator=" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-在operator=中处理“自我赋值”" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/25/Handle%20assignment%20to%20self%20in%20operator=/">Handle assignment to self in operator=</a>
+      <a class="article-title" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/">在operator=中处理“自我赋值”</a>
     </h1>
   
 
         
-        <a href="/2020/07/25/Handle%20assignment%20to%20self%20in%20operator=/" class="archive-article-date">
+        <a href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/" class="archive-article-date">
   	<time datetime="2020-07-25T07:19:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
 </a>
         
@@ -673,7 +899,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/25/Handle%20assignment%20to%20self%20in%20operator=/">展开全文 >></a>
+          <a class="article-more-a" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/">展开全文 >></a>
         </p>
       
 
@@ -703,19 +929,19 @@
 
 
   
-    <article id="post-Have assignment operators return a reference to *this" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-令operator=返回一个reference to *this" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/25/Have%20assignment%20operators%20return%20a%20reference%20to%20*this/">Have assignment operators return a reference to *this</a>
+      <a class="article-title" href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/">令operator=返回一个reference to *this</a>
     </h1>
   
 
         
-        <a href="/2020/07/25/Have%20assignment%20operators%20return%20a%20reference%20to%20*this/" class="archive-article-date">
+        <a href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/" class="archive-article-date">
   	<time datetime="2020-07-25T00:14:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
 </a>
         
@@ -764,7 +990,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/25/Have%20assignment%20operators%20return%20a%20reference%20to%20*this/">展开全文 >></a>
+          <a class="article-more-a" href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/">展开全文 >></a>
         </p>
       
 
@@ -794,19 +1020,19 @@
 
 
   
-    <article id="post-Never call virtual functions during construction or destruction" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-绝不在构造和析构过程中调用virtual函数" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/24/Never%20call%20virtual%20functions%20during%20construction%20or%20destruction/">Never call virtual functions during construction or destruction</a>
+      <a class="article-title" href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/">绝不在构造和析构过程中调用virtual函数</a>
     </h1>
   
 
         
-        <a href="/2020/07/24/Never%20call%20virtual%20functions%20during%20construction%20or%20destruction/" class="archive-article-date">
+        <a href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/" class="archive-article-date">
   	<time datetime="2020-07-24T01:10:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-24</time>
 </a>
         
@@ -874,7 +1100,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/24/Never%20call%20virtual%20functions%20during%20construction%20or%20destruction/">展开全文 >></a>
+          <a class="article-more-a" href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/">展开全文 >></a>
         </p>
       
 
@@ -904,19 +1130,19 @@
 
 
   
-    <article id="post-Prevent exceptions from leaving destructors" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-别让异常逃离析构函数" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/23/Prevent%20exceptions%20from%20leaving%20destructors/">Prevent exceptions from leaving destructors</a>
+      <a class="article-title" href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/">别让异常逃离析构函数</a>
     </h1>
   
 
         
-        <a href="/2020/07/23/Prevent%20exceptions%20from%20leaving%20destructors/" class="archive-article-date">
+        <a href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/" class="archive-article-date">
   	<time datetime="2020-07-23T00:25:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-23</time>
 </a>
         
@@ -995,243 +1221,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/23/Prevent%20exceptions%20from%20leaving%20destructors/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Declare destructions virtual in polymorphic base classes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/22/Declare%20destructions%20virtual%20in%20polymorphic%20base%20classes/">Declare destructions virtual in polymorphic base classes</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/22/Declare%20destructions%20virtual%20in%20polymorphic%20base%20classes/" class="archive-article-date">
-  	<time datetime="2020-07-22T08:22:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-22</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="为多态基类声明virtual析构函数"><a href="#为多态基类声明virtual析构函数" class="headerlink" title="为多态基类声明virtual析构函数"></a>为多态基类声明virtual析构函数</h1><p>&emsp;&emsp;有许多种做法可以记录时间，因此，设计一个TimeKeeper base class和一些derived classes作为不同的计时方法，相当合情合理：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TimeKeeper</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    TimeKeeper();</span><br><span class="line">    ~TimeKeeper();</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AtomicClock</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//原子钟</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WaterClock</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//水钟</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WristWatch</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//腕表</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;许多客户只想在程序中使用时间，不想操心时间如何计算等细节，这时候我们可以设计factory函数，返回指针指向一个计时对象。Factory函数会“返回一个base class指针，指向新生成的derived class对象”：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">TimeKeeper* <span class="title">getTimeKeeper</span><span class="params">()</span></span>;  <span class="comment">//返回一个指针，指向一个</span></span><br><span class="line">                              <span class="comment">//TimeKeeper派生类的动态分配对象</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为遵守factory函数的规矩，被getTimeKeeper()返回的对象必须位于heap，因此为了避免泄漏内存和其它资源，将factory函数返回的每一个对象适当地delete掉很重要：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TimeKeeper* ptk = getTimeKeeper();  <span class="comment">//从TimeKeeper继承体系</span></span><br><span class="line">                                    <span class="comment">//获得一个动态分配对象。</span></span><br><span class="line">...                                 <span class="comment">//运用它...</span></span><br><span class="line"><span class="keyword">delete</span> ptk;                         <span class="comment">//释放它，避免资源泄漏。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;上述代码有一个根本性弱点：纵使客户把每一件事都做对了，仍然没办法知道程序是如何行动的。</p>
-<p>&emsp;&emsp;问题出在getTimeKeeper返回的指针指向一个derived class对象，而那个对象却经由一个base class指针被删除，而目前的base class有个non-virtual析构函数。这将引来灾难，因为C++明确指出，当derived class对象经由一个base class指针被删除，而该base class带着一个non-virtual析构函数，其结果将是未定义的——实际执行时通常发生的是对象的derived成分没被销毁。如果getTimeKeeper返回指针指向一个AtomicClock对象，其内的AtomicClock成分（也就是声明于AtomicClock class内的成员变量）很可能没被销毁，而AtomicClock的析构函数也未能执行起来。然而其base class成分（也就是TimeKeeper这一部分）通常会被销毁，于是形成了一个诡异的“局部销毁”对象。这可是形成资源泄漏、败坏的数据结构、在调试器上浪费许多时间的绝佳途径喔。</p>
-<p>&emsp;&emsp;消除这个问题的做法很简单：给base class一个virtual析构函数。此后删除derived class对象就会如我们所愿。没错，它会销毁整个对象，包括所有的derived class成分：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TimeKeeper</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    TimeKeeper();</span><br><span class="line">    <span class="keyword">virtual</span> ~TimeKeeper();</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">TimeKeeper* ptk = getTimeKeeper();</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> ptk;  <span class="comment">//现在，行为正确</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;像TimeKeeper这样的base class除了析构函数之外通常还有其它virtual函数，因为virtual函数的目的是允许derived class的实现得以自定义。例如TimeKeeper就可能拥有一个virtual getCurrentTime，它在不同的derived classes中有不同的实现代码。任何class只要带有virtual函数都几乎确定应该也有一个virtual析构函数。</p>
-<p>&emsp;&emsp;如果class不含virtual函数，通常表示它并不意图被用做一个base class。当class不企图被当作base class，令其析构函数为virtual往往是个馊主意。考虑一个用来表示二维空间坐标的class：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Point(<span class="keyword">int</span> xCoord, <span class="keyword">int</span> yCoord);</span><br><span class="line">    ~Point();</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> x, y;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果int占用32bits，那么Point对象可能塞入一个64-bit缓存器中。更有甚者，这样一个Point对象可被当作一个“64-bit量”传给其他语言如C或FORTRAN编写的函数。然而当Point的析构函数是virtual，形势发生了变化。</p>
-<p>&emsp;&emsp;欲实现出virtual函数，对象必须携带某些信息，主要用来在运行期决定哪一个virtual函数该被调用。这份信息通常是由一个所谓vptr（virtual table pointer）指针指出。vptr指向一个由函数指针构成的数组，称为vtbl（virtual table）；每一个带有virtual函数的class都有一个相应的vtbl。当对象调用某一virtual函数。实际被调用的函数取决于该对象的vptr所指的那个vtbl——编译器在其中寻找适当的函数指针。</p>
-<p>&emsp;&emsp;virtual函数的实现细节不重要。重要的是如果Point class内含virtual函数，其对象的体积会增加：在32-bit计算机体系结构中将占用64bits（为了存放两个ints）至96bits（两个ints加上vptr）；在64-bits计算机体系结构中可能占用64-128bits，因为指针在这样的计算机结构中占64bits。因此，为Point添加一个vptr会增加其对象大小达50%～100%！Point对象不再能够塞入一个64-bit缓存器，而C++的Point对象也不再和其他语言（如C）内的相同声明有着一样的结构（因为其他语言的对应物应该没有vptr），因此也就不再可能把它传递至（或接受自）其他语言所写的函数，除非我们明确补偿vptr——这属于实现细节，也因此不再具有移植性。</p>
-<p>&emsp;&emsp;因此，无端地将所有classes的析构函数声明为virtual，就像从未声明它们为virtual一样，都是错误的。许多人的心得是：只有当class内含至少一个virtual函数，才为它声明virtual析构函数。</p>
-<p>&emsp;&emsp;即使class完全不带virtual函数，被“non-virtual析构函数问题”给咬伤还是有可能的。举个例子，标准string不含任何virtual函数，但有时候程序员会错误地把它当作base class：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialString</span>:</span> <span class="keyword">public</span> <span class="built_in">std</span>::<span class="built_in">string</span> &#123;  <span class="comment">//馊主意！std::string有个</span></span><br><span class="line">    ...                                    <span class="comment">//non-virtual析构函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;乍看之下似乎无害，但如果我们在程序任意某处无意间将一个pointer-to-SpecialString转换为一个pointer-to-string，然后将转换的那个string指针delete掉，我们将立刻被流放到“行为不正确”的荒地上：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SpecialString* pss = <span class="keyword">new</span> SpecialString(<span class="string">"Impending Doom"</span>);</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* ps;</span><br><span class="line">...</span><br><span class="line">ps = pss;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> ps;  <span class="comment">//未定义！实际中的*ps的SpecialString资源会泄漏，</span></span><br><span class="line">            <span class="comment">//因为SpecialString析构函数没被调用。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;包括所有STL容器如vector，list，set，tr1::unordered_map等等，如果我们企图继承一个标准容器或任何其他“带有non-virtual析构函数”的class，拒绝这个诱惑吧！很不幸C++没有提供类似Java的final classes或C#的sealed classes那样的“禁止派生”机制。</p>
-<p>&emsp;&emsp;有时候令class带一个pure virtual析构函数，可能颇为便利。pure virtual函数导致abstract class——也就是不能被实体化的class。也就是说，我们不能为这种类型创建对象。然而有时候我们希望拥有抽象class，但手上没有任何pure virtual函数，怎么办？由于抽象class总是企图被当作一个base class来用，而又由于base class应该有个virtual析构函数，并且由于pure virtual函数会导致抽象class，因此解法很简单：为我们希望它成为抽象的那个class声明一个pure virtual析构函数。下面是个例子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AWOV</span> &#123;</span>  <span class="comment">//AWOV = "Abstract w/o to Virtuals"</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~AWOV() = <span class="number">0</span>;  <span class="comment">//声明pure virtual析构函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个class有一个pure virtual函数，所以它是个抽象class，又由于它有个virtual析构函数，所以我们不需要担心析构函数的问题，然而这里有个窍门：我们必须为这个pure virtual析构函数提供一份定义：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AWOV::~AWOV() &#123;&#125;  <span class="comment">//pure virtual析构函数的定义</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;析构函数的运作方式是，最深层派生的那个class其析构函数最先被调用，然后是其每一个base class的析构函数被调用。编译器会在AWOV的derived class的析构函数中创建一个对～AWOV的调用动作，所以我们必须为这个函数提供一份定义。如果不这样做，编译器会发出抱怨。</p>
-<p>&emsp;&emsp;“给base class一个virtual析构函数”，这个规则只适用于polymorphic（带有多态性质的）base class身上。这种base class的设计目的是为了用来“通过base class接口处理derived class对象”。TimeKeeper就是一个polymorphic base class，因为我们希望处理AtomicClock和WaterClock对象，纵使我们只有TimeKeeper指针指向它们。</p>
-<p>&emsp;&emsp;并非所有base class的设计目的都是为了多态用途。例如标准string和STL容器都不被设计作为base class使用，更别提多态了。某些class的设计目的是作为base class使用，但不是为了多态用途。这样的class如input_iterator_tag等，它们并非被设计用来“经由base class接口处理derived class对象”，因此它们不需要virtual析构函数。</p>
-<blockquote>
-<p>Polymorphic（带多态性质的）base class应该声明一个virtual析构函数。如果class带有任何virtual函数，它就应该拥有一个virtual析构函数。</p>
-<p>Class的设计目的如果不是作为base class使用，或不是为了具备多态性，就不该声明virtual析构函数。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/22/Declare%20destructions%20virtual%20in%20polymorphic%20base%20classes/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Explicitly disallow the use of compiler-generated functions you do not want" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/21/Explicitly%20disallow%20the%20use%20of%20compiler-generated%20functions%20you%20do%20not%20want/">Explicitly disallow the use of compiler-generated functions you do not want</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/21/Explicitly%20disallow%20the%20use%20of%20compiler-generated%20functions%20you%20do%20not%20want/" class="archive-article-date">
-  	<time datetime="2020-07-21T00:36:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-21</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="若不想使用编译器自动生成的函数，就该明确拒绝"><a href="#若不想使用编译器自动生成的函数，就该明确拒绝" class="headerlink" title="若不想使用编译器自动生成的函数，就该明确拒绝"></a>若不想使用编译器自动生成的函数，就该明确拒绝</h1><p>&emsp;&emsp;地产中介商卖的是房子，一个中介软件系统自然而然想必有个class用来描述待售房屋：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span> &#123;</span> ... &#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;每一位真正的地产中介商都会说，任何一笔资产都是独一无二的，没有两笔完全相像。因此我们也认为，为HomeForSale对象做一份副本有点没道理。我们怎么可以复制某些先天独一无二的东西呢？因此，我们应该乐意看到HomeForSale的对象拷贝动作以失败收场：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HomeForSale h1;</span><br><span class="line">HomeForSale h2;</span><br><span class="line"><span class="function">HomeForSale <span class="title">h3</span><span class="params">(h1)</span></span>;  <span class="comment">//企图拷贝h1，不该通过编译</span></span><br><span class="line">h1 = h2;             <span class="comment">//企图拷贝h2，也不该通过编译</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;通常如果我们不希望class支持某一个特定功能，只要不声明对应函数就是了。但这个策略对copy构造函数和copy assignment操作符却不起作用，因为如果我们不声明它们，而某些人尝试调用它们，编译器会为我们声明它们。</p>
-<p>&emsp;&emsp;这使我们陷入了两难的境况。答案的关键是，所有编译器产出的函数都是public。为阻止这些函数被创建出来。我们得自行声明它们，但这里并没有什么需求使我们必须将它们声明为public。因此我们可以将copy构造函数或copy assignment操作符声明为private。明确声明一个成员函数，我们阻止了编译器暗自创建其专属版本；而令这些函数为private，使我们得以成功阻止人们调用它。</p>
-<p>&emsp;&emsp;一般而言这个做法并不绝对安全，因为member函数和friend函数还是可以调用我们的private函数。除非我们足够聪明，不去定义它们，那么如果某些人不慎调用任何一个，会获得一个连接错误（Linkage error）。“将成员函数声明为private而且故意不实现它们”这一技术是广受欢迎的，因而被用在C++ iostream程序库中阻止copy行为。没错，当我们看看手上的标准程序库实现代码中的ios_base，basic_ios和sentry。我们会发现无论哪一个，其copy构造函数和copy assignment操作符都被声明为private而且没有定义。</p>
-<p>&emsp;&emsp;将这个技巧用于HomeForSale也很简单：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    ...</span><br><span class="line">    HomeForSale(<span class="keyword">const</span> HomeForSale);  <span class="comment">//只有声明</span></span><br><span class="line">    HomeForSale&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> HomeForSale)&amp;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;或许你注意到了，我没有写函数参数的名称。其实，参数名称并非必要，只不过大家总是习惯写出来。这个函数毕竟不会被实现出来，也很少被使用，指定参数名称又有何用？</p>
-<p>&emsp;&emsp;有了上述class定义，当客户企图拷贝HomeForSale对象，编译器会阻挠他，如果我们不慎在member函数或friend函数之内那么做，就轮到连接器发出抱怨了。</p>
-<p>&emsp;&emsp;将连接期错误移至编译期是可能的（而且这是好事，毕竟越早侦测出错误越好），只要将copy构造函数和copy assignment操作符声明为private就可以办到，但不是在HomeForSale自身，而是在一个专门为了阻止copy动作而设计的base class内。这个base class非常简单：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Uncopyable</span> &#123;</span></span><br><span class="line"><span class="keyword">protected</span>:          <span class="comment">//允许derived对象构造和析构             </span></span><br><span class="line">    Uncopyable() &#123;&#125;</span><br><span class="line">    ~Uncopyable() &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Uncopyable(<span class="keyword">const</span> Uncopyable&amp;);  <span class="comment">//但阻止copy</span></span><br><span class="line">    Uncopyable&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Uncopyable&amp;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为求阻止HomeForSale对象被拷贝，我们唯一需要做的就是继承Uncopyable：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span>:</span> <span class="keyword">private</span> Uncopyable &#123;  <span class="comment">//不再声明</span></span><br><span class="line">    ...                                  <span class="comment">//copy构造函数或</span></span><br><span class="line">&#125;;                                       <span class="comment">//copy assignment操作符</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这是可行的，因为只要任何人——甚至是member函数或friend函数——尝试拷贝HomeForSale对象，编译器便试着生成一个copy构造函数和一个copy assignment操作符，这些函数的“编译器生成版”会尝试调用其base class的对应兄弟，那些调用会被编译器拒绝，因为其base class的拷贝函数是private。</p>
-<blockquote>
-<p>为驳回编译器自动提供的功能，可将相应的成员函数声明为private并且不予实现。使用像Uncopyable这样的base class也是一种做法。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/21/Explicitly%20disallow%20the%20use%20of%20compiler-generated%20functions%20you%20do%20not%20want/">展开全文 >></a>
+          <a class="article-more-a" href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/">展开全文 >></a>
         </p>
       
 
