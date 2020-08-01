@@ -134,6 +134,231 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-宁以pass-by-reference-to-const替换pass-by-value" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/08/01/%E5%AE%81%E4%BB%A5pass-by-reference-to-const%E6%9B%BF%E6%8D%A2pass-by-value/">宁以pass-by-reference-to-const替换pass-by-value</a>
+    </h1>
+  
+
+        
+        <a href="/2020/08/01/%E5%AE%81%E4%BB%A5pass-by-reference-to-const%E6%9B%BF%E6%8D%A2pass-by-value/" class="archive-article-date">
+  	<time datetime="2020-08-01T07:42:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-01</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="宁以pass-by-reference-to-const替换pass-by-value"><a href="#宁以pass-by-reference-to-const替换pass-by-value" class="headerlink" title="宁以pass-by-reference-to-const替换pass-by-value"></a>宁以pass-by-reference-to-const替换pass-by-value</h1><p>&emsp;&emsp;缺省情况下C++以by value方式（继承自C的方式）传递对象至（或来自）函数，除非我们另外指定，否则函数参数都是以实际实参的副本为初值，而调用端所获得的亦是函数返回值的一个副本。这些副本是由对象 copy构造函数产出，这可能使得pass-by-value成为昂贵的操作。考虑一下继承体系：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Person();</span><br><span class="line">    <span class="keyword">virtual</span> ~Person();</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> address;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span>:</span> <span class="keyword">public</span> Person &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Student();</span><br><span class="line">    ~Student();</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> schoolName;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> schoolAddress;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在考虑一下代码，其中调用函数validateStudent，后者需要一个Student实参（by value）并返回它是否有效：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">validateStudent</span><span class="params">(Student s)</span></span>;  <span class="comment">//以by value方式接受学生</span></span><br><span class="line">Student plato;</span><br><span class="line"><span class="keyword">bool</span> platoIsOk = validateStudent(plato);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当上述函数被调用时，发生什么事？</p>
+<p>&emsp;&emsp;无疑地Student的copy构造函数会被调用，以plato为蓝本将s初始化。同样明显地，当validateStudent返回s会被销毁。因此，对此函数而言，参数的传递成本是“一次Student copy构造函数被调用，加上一次Student析构函数被调用”。</p>
+<p>&emsp;&emsp;但那还不是整个故事哦。Student对象内有两个string对象，所以每次构造一个Student对象也就构造了两个string对象。此外Student对象继承自Person对象，所以每次构造Student对象也必须构造出一个Person对象。一个Person对象又有两个string对象在其中，因此每一次Person构造动作又需承担两个string构造动作。最终总体成本是“六次构造函数和六次析构函数”！</p>
+<p>&emsp;&emsp;要是有什么方法可以回避所有那些构造和析构就太好了。有的！这就是pass by reference-to-const：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">validateStudent</span><span class="params">(<span class="keyword">const</span> Student&amp; s)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这种传递方式的效率高得多：没有任何构造函数或析构函数被调用，因为没有任何新对象被创建。修订后的这个参数声明中的const是重要的。原先的validateStudent以by value方式接受一个Student参数，因此调用者知道他们受到保护，函数内绝不会对传入的Student做任何改变；validateStudent只能够对其副本做修改。现在Student以by reference方式传递，将它声明为const是必要的，因为不这样做的话调用者会忧虑validateStudent会不会改变他们传入的那个Student。</p>
+<p>&emsp;&emsp;以by reference方式传递参数也可以避免slicing（对象切割）问题。当一个derived class对象以by value方式传递并被视为一个base class对象，base class的copy构造函数会被调用，而“造成此对象的行为像个derived class对象”的那些特化性质全被切割掉了，仅仅留下一个base class对象。这实在不怎么让人惊讶，因为正是base class构造函数建立了它。但这几乎绝不会是我们想要的。假设我们在一组class上工作，用来实现一个图形窗口系统：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span></span>;      <span class="comment">//返回窗口名称</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span> <span class="keyword">const</span></span>;  <span class="comment">//显示窗口和其内容</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WindowWithScrollBars</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;所有Window对象都带有一个名称，你可以通过name函数取得它。所有窗口都可显示，你可以通过display函数完成它。display是个virtual函数，这意味着简单朴素的base class Window对象的显示方式和华丽高贵的WindowWithScrollBars对象的显示方式不同。</p>
+<p>&emsp;&emsp;现在假设你希望写个函数打印窗口名称，然后显示该窗口。下面是错误示范：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printNameAndDisplay</span><span class="params">(Window w)</span> </span>&#123;  <span class="comment">//不正确！参数可能被切割</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; w.name;</span><br><span class="line">    w.<span class="built_in">display</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当你调用上述函数并交给它一个WindowWithScrollBars对象，会发生什么事呢？</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">WindowWithScrollBars wwsb；</span><br><span class="line">printNameAndDisplay(wwsb);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;参数w会被构造成为一个Window对象；它是passed by value。在printNameAndDisplay函数内不论传递过来的对象原本是什么类型，参数w就像一个Window对象（因为其类型是Window）。因此在printNameAndDisplay内调用display调用的总是Window::display，绝不会是WindowWithScrollBars::display。</p>
+<p>&emsp;&emsp;解决切割问题的办法，就是以by reference-to-const的方式传递w：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printNameAndDisplay</span><span class="params">(<span class="keyword">const</span> Window&amp; w)</span> </span>&#123;  <span class="comment">//很好，参数不会被切割</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; w.name();</span><br><span class="line">    w.<span class="built_in">display</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在，传进来的窗口是什么类型，w就表现出那种类型。</p>
+<p>&emsp;&emsp;如果窥视C++编译器的底层，我们会发现，reference往往以指针实现出来，因此pass by reference通常意味真正传递的是指针。因此如果我们有个对象属于内置类型（例如int），pass by value往往比pass by reference的效率高些。对内置类型而言，当我们有机会选择采用pass-by-value或pass-by-reference-to-const时，选择pass-by-value并非没有道理。这个忠告也适用于STL对迭代器和函数对象，因为习惯上它们都被设计为passed by value。迭代器和函数对象的实践者有责任看看它们是否高效且不受切割问题的影响。</p>
+<p>&emsp;&emsp;一般而言，你可以合理假设“pass-by-value并不昂贵”的唯一对象就是内置类型和STL的迭代器和函数对象。至于其它任何东西都请遵守本条款的忠告，尽量以pass-by-reference-to-const替换pass-by-value。</p>
+<blockquote>
+<p>尽量以pass-by-reference-to-const替换pass-by-value。前者通常比较高效，并可避免切割问题。</p>
+<p>以上规则并不适用于内置类型，以及STL的迭代器和函数对象。对它们而言，pass-by-value往往比较适当。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/08/01/%E5%AE%81%E4%BB%A5pass-by-reference-to-const%E6%9B%BF%E6%8D%A2pass-by-value/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-设计class犹如设计type" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/08/01/%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type/">设计class犹如设计type</a>
+    </h1>
+  
+
+        
+        <a href="/2020/08/01/%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type/" class="archive-article-date">
+  	<time datetime="2020-08-01T00:01:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-01</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="设计class犹如设计type"><a href="#设计class犹如设计type" class="headerlink" title="设计class犹如设计type"></a>设计class犹如设计type</h1><p>&emsp;&emsp;C++就像在其它OOP语言一样，当我们定义一个新class，也就定义了一个新type。身为C++程序员，我们的许多时间主要用来扩张我们的类型系统。这意味着我们并不只是class设计者，还是type设计者。</p>
+<p>&emsp;&emsp;设计优秀的class是一项艰巨的工作，因为设计好的type是一项艰巨的工作。好的type有自然的语法，直观的语义，以及一或多个高效实现品。在C++中，一个不良规划下的class定义恐怕无法达到上述任何一个目标。</p>
+<p>&emsp;&esmp;那么，如何设计高效的class呢？几乎每个class都要求我们面对以下提问，而我们的回答往往导致我们的设计规范：</p>
+<ul>
+<li><strong>新type的对象应该如何被创建和销毁？</strong>这会影响到我们的class的构造函数和析构函数以及内存分配函数和释放函数的设计，当然前提是如果我们打算编写它们。</li>
+<li><strong>对象的初始化和对象的赋值该有什么样的差别？</strong>这个答案决定我们的构造函数和赋值操作符的行为，以及其间的差异。重要的是别混淆了“初始化”和赋值“，因为它们对应不同的函数调用。</li>
+<li><strong>新type的对象如果被passed by value，意味着什么？</strong>记住，copy构造函数用来定义一个type的pass-by-value该如何实现。</li>
+<li><strong>什么是新type的“合法值”？</strong>对class的成员变量而言，通常只有某些数值集是有效的，那些数值集决定了我们的class必须维护的约束条件，也就决定了我们的成员函数（特别是构造函数、赋值操作符和所谓“setter”函数）必须进行的错误检查工作，它也影响函数抛出的异常。</li>
+<li><strong>你的新type需要配合某个继承图系吗？</strong>如果我们继承自某些既有的class，我们就受那些class的设计的束缚，特别是受到”它们的函数是virtual或non-virtual“的影响。如果我们允许其它class继承我们的class，这会影响我们所声明的函数——尤其是析构函数——是否为virtual。</li>
+<li><strong>你的新type需要什么样的转化？</strong>如果希望允许类型T1之物被隐式转换为类型T2之物，就必须在class T1内写一个类型转换函数（operator T2）或在class T2内写一个non-explicit-one-argument（可被单一实参调用）的构造函数。如果我们只允许explicit构造函数存在，就得写出专门负责执行转换的函数，且不得为类型转换操作符或non-explicit-one-argument构造函数。</li>
+<li><strong>什么样的操作符和函数对此新type而言是合理的？</strong>这个问题的答案决定你将为你的class声明哪些函数。其中某些该是member函数，某些则否。</li>
+<li><strong>什么样的标准函数应该驳回？</strong>那些正是你必须声明为private者。</li>
+<li><strong>谁该取用新type的成员？</strong>这个提问可以帮助你决定哪个成员为public，哪个为protected，哪个为private。它也帮助你决定哪一个class或function应该是friend，以及将它们嵌套于另一个之内是否合理。</li>
+<li><strong>什么是新type的“未声明接口”？</strong>它对效率、异常安全性以及资源运用提供何种保证？你在这些方面提供的保证将为你的class实现代码加上相应的约束条件。</li>
+<li><strong>你的新type有多么一般化？</strong>或许你其实并非定义一个新type，而是定义一整个type家族。果真如此你就不该定义一个新class，而是定义一个新的class template。</li>
+<li><strong>你真的需要一个新type吗？</strong>如果只是定义新的derived class以便为既有的class添加机能，那么说不定单纯定义一个或多个non-member函数或template，更能够达到目标。</li>
+</ul>
+<p>&emsp;&emsp;这些问题不容易回答，所以定义出高效的class是一种挑战。然而如果能够设计出至少像C++内置类型一样好的用户自定义class，一切汗水便都值得。</p>
+<blockquote>
+<p>class的设计就是type的设计。在定义一个新type之前，请确定你已经考虑过本条款所覆盖的所有讨论主题。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/08/01/%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-让接口容易被正确使用，不易被误用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1037,207 +1262,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-令operator=返回一个reference to *this" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/">令operator=返回一个reference to *this</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/" class="archive-article-date">
-  	<time datetime="2020-07-25T00:14:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="令operator-返回一个reference-to-this"><a href="#令operator-返回一个reference-to-this" class="headerlink" title="令operator=返回一个reference to *this"></a>令operator=返回一个reference to *this</h1><p>&emsp;&emsp;关于赋值，有趣的是我们可以把它们写成连锁形式：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x, y, z;</span><br><span class="line">x = y = z = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;同样有趣的是，赋值采用右结合律，所以上述连锁赋值被解析为：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = (y = (z = <span class="number">1</span>));</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里1先被赋值给z，然后其结果再被赋值给y，然后其结果再被赋值给x。</p>
-<p>&emsp;&emsp;为了实现“连锁赋值，赋值操作符必须返回一个reference指向操作符的左侧实参。这是我们为class实现赋值操作符时应该遵循的协议：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//返回类型是个reference，指向当前对象</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;                       <span class="comment">//返回左侧对象</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个协议不仅适用于以上的标准赋值形式，也适用于所有赋值相关运算，例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>+=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//这个协议适用于+=，-=，*=等等</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">int</span> rhs) &#123;             <span class="comment">//此函数也适用，</span></span><br><span class="line">        ...                                  <span class="comment">//即使此操作符的参数类型不符合协定</span></span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;注意，这只是个协议，并无强制性。如果不遵循它，代码一样可以通过编译。然而这份协议被所有内置类型和标准程序库提供的类型如string，vector，complex，tr1::shared_ptr或即将提供的类型共同遵守。因此除非我们有一个标新立异的好理由，不然还是从众吧。</p>
-<blockquote>
-<p>令赋值操作符返回一个reference to *this。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-绝不在构造和析构过程中调用virtual函数" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/">绝不在构造和析构过程中调用virtual函数</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/" class="archive-article-date">
-  	<time datetime="2020-07-24T01:10:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-24</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="绝不在构造和析构过程中调用virtual函数"><a href="#绝不在构造和析构过程中调用virtual函数" class="headerlink" title="绝不在构造和析构过程中调用virtual函数"></a>绝不在构造和析构过程中调用virtual函数</h1><p>&emsp;&emsp;我们不该在构造函数和析构函数期间调用virtual函数，因为这样的调用不会带来我们预想的结果，就算有我们也不会高兴。如果你同时也是一位Java或C#程序员，那么就更加要注意了，因为这是C++与它们不同的一个地方。</p>
-<p>&emsp;&emsp;假设我们有个class继承体系，用来塑模股市交易如买进、卖出的订单等等。这样的交易一定要经过审计，所以每当创建一个交易对象，在审计日志中也需要创建一笔适当记录。下面是一个看起来颇为合理的做法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span>                           <span class="comment">//所有交易的base class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Transaction();</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;  <span class="comment">//做出一份因类型不同而不同</span></span><br><span class="line">                                              <span class="comment">//的日志记录（log entry）</span></span><br><span class="line">    ...</span><br><span class="line">&#125;；</span><br><span class="line">Transaction::Transactionn() &#123;                 <span class="comment">//base class构造函数的实现</span></span><br><span class="line">    ...</span><br><span class="line">    logTransaction();                         <span class="comment">//最后动作是记录这笔交易</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BuyTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;    <span class="comment">//derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span></span>;      <span class="comment">//记录此类交易</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SellTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;   <span class="comment">//derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span></span>;      <span class="comment">//记录此类交易</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，当执行一下这行时，会发生什么事：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BuyTransaction b;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;无疑会有一个BuyTransaction构造函数被调用，但首先Transaction构造函数一定会更早被调用；没错，derived class对象内的base class成分会在derived class自身成分被构造之前先构造妥当。Transaction构造函数的最后一行调用virtual函数logTransaction，这正是奇怪的地方。这时候被调用的logTransaction是Transaction内的版本，不是buyTransaction内的版本——即使目前即将建立的对象类型是buyTransaction。没错，base class构造期间virtual函数绝不会下降到derived classs阶层。取而代之的是，对象的作为就像隶属base类型一样。非正式的说法或许比较传神：在base class构造期间，virtual函数不是virtual函数。</p>
-<p>&emsp;&emsp;这一似乎反直觉的行为有个好的解释。由于base class构造函数的执行更早于derived class构造函数，当base class构造函数执行时derived class的成员变量尚未初始化。如果此期间调用的virtual函数下降至derived class阶层，要知道derived class的函数几乎必然取用local成员变量，而那些成员变量尚未初始化。这将是一张通往不明确行为和彻夜调试大会的直达车票。“使用对象内部尚未初始化的成分”是及其危险的，所以C++允许我们这样做。</p>
-<p>&emsp;&emsp;其实还有比上述理由更根本的原因：在derived class对象的base class构造期间，对象的类型是base class而不是derived class。不只virtual函数会被编译器解析至base class，若使用运行期类型信息（例如dynamic_cast和typeid），也会把对象视为base class类型。本例之中，当Transaction构造函数正执行起来打算初始化“BuyTransaction对象内的base class成分”时，该对象的类型时Transaction。这个对象内的“BuyTransaction专属成分”尚未被初始化，所以面对它们，最安全的做法就是视它们不存在。对象在derived class构造函数开始执行前不会成为一个derive的对象。</p>
-<p>&emsp;&emsp;相同的道理也适用于析构函数。一旦derived class析构函数开始执行，对象内的derived class成员变量便呈现未定义值，所以C++视它们仿佛不再存在。进入base class析构函数后对象就成为一个base class对象，而C++的任何部分包括virtual函数、dynamic_cast等等也就会那么看待它。</p>
-<p>&emsp;&emsp;在上述示例中，Transaction构造函数直接调用一个virtual函数，这很明显而且容易看出来，某些编译器会为此发出一个警告信息。即使没有这些警告信息，这个问题在执行前也几乎肯定会变得显而易见，因为logTransaction函数在Transaction内是个pure virtual。除非它被定义（不太有可能）否则程序无法连接，因为连接器找不到必要的Transaction::logTransaction实现代码。</p>
-<p>&emsp;&emsp;但是侦测“构造函数或析构函数运行期是否调用virtual函数”并不总是这样轻松。如果Transaction有多个构造函数，每个都需要执行某些相同的工作，那么避免代码重复的一个优秀做法是把共同的初始化代码（其中包括对logTransaction的调用）放进一个初始化函数如init内：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Transaction() &#123; init(); &#125;  <span class="comment">//调用non-virtual</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        logTransaction();  <span class="comment">//这里调用virtual！</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这段代码概念上和之前版本相同，但它比较隐蔽，因为它通常不会引发任何编译器和连接器的抱怨。此时由于logTransaction是Transaction内的一个pure virtual函数，当pure virtual函数被调用，大多数执行系统会中止程序（通常会对此结果发出一个信息）。然而如果logTransaction是个正常的virtual函数并在Transaction内带有一份实现代码，该版本就会被调用，而程序也就会兴高采烈地继续向前执行，之后我们便会百思不得其解：为什么建立一个derived class对象时会调用错误版本的logTransaction。唯一能够避免此问题的做法就是：确定我们的构造函数和析构函数都没有（在对象被创建和被销毁期间）调用virtual函数，而它们调用的所有函数也都服从同一个约束。</p>
-<p>&emsp;&emsp;但我们如何确保每次一有Transaction继承体系上的对象被创建，就会有适当版本的logTransaction被调用呢？很显然，在Transaction构造函数内对对象调用virtual函数是一种错误做法。</p>
-<p>&emsp;&emsp;有其他方案可以解决这个问题，一种做法是在class Transaction内将logTransaction函数改为non-virtual，然后要求derived class构造函数传递必要信息给Transaction构造函数，而后那个构造函数便可安全地调用non-virtual logTransaction。像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Transaction</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">(cosnt <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo)</span> cosnt</span>;  <span class="comment">//如今是个non-virtual函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">Transaction::Transaction(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo) &#123;</span><br><span class="line">    ...</span><br><span class="line">    logTransaction(logInfo);  <span class="comment">//如今是个non-virtual调用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BuyTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    BuyTransaction(parameters)</span><br><span class="line">        : Transaction(createLogString(parameters)) &#123;  <span class="comment">//将log信息传给base class构造函数</span></span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">createLogString</span><span class="params">(parameters)</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;换句话说由于我们无法使用virtual函数从base class向下调用，在构造期间，我们可以藉由“令derived class将必要的构造信息向上传递至base class构造函数”替换之而加以弥补。</p>
-<p>&emsp;&emsp;在本例中BuyTransaction内的private static函数createLogString的作用：比起在成员初值列内给予base class所需数据，利用辅助函数创建一个值传给base class构造函数往往比较方便（也比较可读）。令此函数为static，也就不可能意外指向“初期未成熟的BuyTransaction对象内尚未初始化的成员变量”。这很重要，正是因为“那些成员变量处于未定义状态”，所以“在base class构造和析构期间调用的virtual函数不可下降至derived class”。</p>
-<blockquote>
-<p>在构造和析构期间不要调用virtual函数，因为这类调用从不下降至derived class。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/">展开全文 >></a>
         </p>
       
 
