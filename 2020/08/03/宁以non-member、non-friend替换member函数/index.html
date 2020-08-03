@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives | Hexo</title>
+  <title>宁以non-member、non-friend替换member函数 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/archives/page/3/index.html">
+  <meta name="description" content="宁以non-member、non-friend替换member函数&amp;emsp;&amp;emsp;想象有个class用来表示网页浏览器。这样的class可能提供的众多函数中，有一些用来清除下载元素高速缓存区、清除访问过的URL的历史记录、以及移除系统中的所有cookies： 12345678class WebBrowser &amp;#123;public:    ...    void clearCache(">
+<meta property="og:type" content="article">
+<meta property="og:title" content="宁以non-member、non-friend替换member函数">
+<meta property="og:url" content="http://yoursite.com/2020/08/03/%E5%AE%81%E4%BB%A5non-member%E3%80%81non-friend%E6%9B%BF%E6%8D%A2member%E5%87%BD%E6%95%B0/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="宁以non-member、non-friend替换member函数&amp;emsp;&amp;emsp;想象有个class用来表示网页浏览器。这样的class可能提供的众多函数中，有一些用来清除下载元素高速缓存区、清除访问过的URL的历史记录、以及移除系统中的所有cookies： 12345678class WebBrowser &amp;#123;public:    ...    void clearCache(">
 <meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-08-03T01:33:00.000Z">
+<meta property="article:modified_time" content="2020-08-03T15:02:33.000Z">
 <meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -132,36 +137,88 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-宁以non-member、non-friend替换member函数" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/" class="archive-article-date">
-  	<time datetime="2020-07-17T07:17:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/">尽量以const,enum,inline替换define</a>
+    <h1 class="article-title" itemprop="name">
+      宁以non-member、non-friend替换member函数
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2020/08/03/%E5%AE%81%E4%BB%A5non-member%E3%80%81non-friend%E6%9B%BF%E6%8D%A2member%E5%87%BD%E6%95%B0/" class="archive-article-date">
+  	<time datetime="2020-08-03T01:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-03</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="宁以non-member、non-friend替换member函数"><a href="#宁以non-member、non-friend替换member函数" class="headerlink" title="宁以non-member、non-friend替换member函数"></a>宁以non-member、non-friend替换member函数</h1><p>&emsp;&emsp;想象有个class用来表示网页浏览器。这样的class可能提供的众多函数中，有一些用来清除下载元素高速缓存区、清除访问过的URL的历史记录、以及移除系统中的所有cookies：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebBrowser</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clearCache</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clearHistory</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">removeCookies</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;许多用户会想一整个执行所有这些动作，因此WebBrowser也提供这样一个函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebBrowser</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clearEverything</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当然，这一机能也可由一个non-member函数调用适当的member函数而提供出来：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">clearBrowser</span><span class="params">(WebBrowser&amp; wb)</span> </span>&#123;</span><br><span class="line">    wb.clearCache();</span><br><span class="line">    wb.clearHistory();</span><br><span class="line">    wb.removeCookies();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;那么，哪一个比较好呢？是member函数clearEverything还是non-member函数clearBrowser？</p>
+<p>&emsp;&emsp;面向对象守则要求，数据以及操作数据的那些函数应该被捆绑在一块，这意味它建议member函数是好的选择。不幸的是这个建议不正确。这是基于面向对象真实意义的一个误解。面向对象守则要求数据应该尽可能被封装，然而与直观相反地，member函数clearEverything带来的封装性比non-member函数clearBrowser低。此外，提供non-member函数可允许对WebBrowser相关机能有较大的包裹弹性，而那最终导致较低的编译相依度，增加WebBrowser的可延伸性。因此在许多方面non-member做法比member做法好。重要的是，我们必须了解其原因。</p>
+<p>&emsp;&emsp;让我们从封装开始讨论。如果某些东西被封装，它就不再可见。越多东西被封装，越少人可以看到它。而越少人看到它，我们就有越大的弹性去改变它，因为我们的改变仅仅直接影响看到改变的那些人事物。因此，越多东西被封装，我们改变那些东西的能力也就越大。这就是我们首先推崇封装的原因：它使我们能够改变事物而只影响有限客户。</p>
+<p>&emsp;&emsp;成员变量应该是private，因为如果它们不是，就有无限量的函数可以访问它，它们也就毫无封装性。能够访问private成员变量的函数只有class的member函数加上friend函数而已。如果要你在一个member函数和一个non-member，non-friend函数之间做抉择，而且两者提供相同机能，那么，导致较大封装性的是non-member non-friend函数，因为它并不增加“能够访问class内的private成分”的函数变量。这就解释了为什么clearBrowser比clearEverything更受欢迎的原因：它导致WebBrowser class有较大的封装性。</p>
+<p>&emsp;&emsp;在这一点上有两件事情值得注意。第一，这个论述只适用于non-member non-friend函数。friend函数对class private成员的访问权力和member函数相同，因此两者对封装的冲击力道也相同。从封装的角度看，这里的选择关键并不在member和non member函数之间，而是在member和non-member non-friend函数之间。</p>
+<p>&emsp;&emsp;第二件值得注意的事情是，只因在意封装性而让函数“成为class的non-member”，并不意味它“不可以是另一个class的member”。这对那些习惯于“所有函数都必须定义于class内”的语言（如Java，C#）的程序员而言，可能是个温暖的慰藉。例如我们可以令clearBrowser成为某工具类的一个static member函数。只要它不是WebBrowser的一部分（或成为其friend），就不会影响WebBrowser的private成员封装性。</p>
+<p>&emsp;&emsp;在C++内，比较自然的做法是让clearBrowser成为一个non-member函数并且位于WebBrowser所在的同一个namespace内：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebBrowser</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">clearBrowser</span><span class="params">(WebBrowser&amp; wb)</span></span>;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;然而这不只是为了看起来自然而已。要知道namespace和class不同，前者可跨越多个源码文件而后者不能。这很重要。</p>
+<p>&emsp;&emsp;一个像WebBrowser这样的class可能拥有大量便利函数。某些与书签有关，某些与打印有关，还有一些与cookie的管理有关…… 通常大多数客户只对其中某些感兴趣。分离它们的最直接做法就是将书签相关便利函数声明于一个头文件，将cookie相关便利函数声明于另一个头文件，再将打印相关便利函数声明于第三个头文件，以此类推：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//头文件“webbrowser.h”</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebBrowser</span> &#123;</span> ... &#125;;</span><br><span class="line">...  <span class="comment">//核心机能，例如几乎所有客户都需要的non-member函数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//头文件“webbrowserbookmarks.h”</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">...  <span class="comment">//与书签相关的便利函数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//头文件“webbrowsercookies.h”</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">...  <span class="comment">//与cookie相关的便利函数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这正是C++标准程序库的组织方式。标准程序库并不是拥有单一、整体、庞大的&lt;C++StandardLibrary&gt;头文件并在其中内含std命名空间的每一样东西，而是有数十个头文件，每个头文件声明std的某些机能。如果客户只想使用vector相关机能，他不需要#include &lt;memory&gt;；如果客户不想使用list，也不需要#include&lt;list&gt;。这允许客户只对他们所用的那一小部分系统形成编译相依。以此种方式切割机能并不适用于class成员函数，因为一个class必须整体定义，不能被分割为片片段段。</p>
+<p>&emsp;&emsp;将所有便利函数放在多个头文件内但隶属同一个命名空间，意味着客户可以轻松扩展这一组便利函数。他们需要做的就是添加更多non-member non-friend函数到此命名空间内。举个例子，如果某个WebBrowser客户决定写些与影像下载相关的便利函数，他只需在WebBrowserStuff命名空间内建立一个头文件，内含那些函数的声明即可。新函数就像其它旧有的便利函数那样可用且整合为一体。这是class无法提供的另一个性质，因为class定义式对客户而言是不能扩展的。当然啦，客户可以派生出新的class，但derived class无法访问base class中被封装的成员，于是如此的“扩展机能”拥有的只是次级身份。此外，并非所有class都被设计用来作为base class。</p>
+<blockquote>
+<p>宁可拿non-member non-friend函数替换member函数。这样做可以增加封装性、包裹弹性和机能扩充行。</p>
+</blockquote>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/blogImg/wechatpay.jpeg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -173,7 +230,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -186,69 +243,103 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/08/03/%E5%AE%81%E4%BB%A5non-member%E3%80%81non-friend%E6%9B%BF%E6%8D%A2member%E5%87%BD%E6%95%B0/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/17/%E8%A7%86C++%E4%B8%BA%E4%B8%80%E4%B8%AA%E8%AF%AD%E8%A8%80%E8%81%94%E9%82%A6/" class="archive-article-date">
-  	<time datetime="2020-07-17T04:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/08/02/%E5%BF%85%E9%A1%BB%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1%E6%97%B6%EF%BC%8C%E5%88%AB%E5%A6%84%E6%83%B3%E8%BF%94%E5%9B%9E%E5%85%B6reference/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">必须返回对象时，别妄想返回其reference</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/17/%E8%A7%86C++%E4%B8%BA%E4%B8%80%E4%B8%AA%E8%AF%AD%E8%A8%80%E8%81%94%E9%82%A6/">视C++为一个语言联邦</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+
   
   
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/archives/page/2/">&amp;laquo; Prev</a><a class="page-number" href="/archives/">1</a><a class="page-number" href="/archives/page/2/">2</a><span class="page-number current">3</span>
-    </nav>
+  
+
+  
+
   
 
 
@@ -272,8 +363,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
