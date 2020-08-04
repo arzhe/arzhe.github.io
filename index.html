@@ -134,6 +134,132 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-若所有参数皆需类型转换，请为此采用non-member函数" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/08/04/%E8%8B%A5%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%86%E9%9C%80%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E8%AF%B7%E4%B8%BA%E6%AD%A4%E9%87%87%E7%94%A8non-member%E5%87%BD%E6%95%B0/">若所有参数皆需类型转换，请为此采用non-member函数</a>
+    </h1>
+  
+
+        
+        <a href="/2020/08/04/%E8%8B%A5%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%86%E9%9C%80%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E8%AF%B7%E4%B8%BA%E6%AD%A4%E9%87%87%E7%94%A8non-member%E5%87%BD%E6%95%B0/" class="archive-article-date">
+  	<time datetime="2020-08-04T03:56:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-04</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="若所有参数皆需类型转换，请为此采用non-member函数"><a href="#若所有参数皆需类型转换，请为此采用non-member函数" class="headerlink" title="若所有参数皆需类型转换，请为此采用non-member函数"></a>若所有参数皆需类型转换，请为此采用non-member函数</h1><p>&emsp;&emsp;令class支持隐式类型转换通常是个糟糕的主意。当然这条规则有其例外，最常见的例外是在建立数据类型时。假设我们这样开始我们的Rational class：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Rational(<span class="keyword">int</span> numerator = <span class="number">0</span>, <span class="keyword">int</span> denominator = <span class="number">1</span>);</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">numerator</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">denominator</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;你想支持算术运算诸如加法、乘法等等，但你不确定是否该由member函数、non-member函数，或可能的话由non-member friend函数来实现它们。你的直觉告诉你，当你犹豫就该保持面向对象精神。你知道有理数相乘和Rational class有关，因此很自然地似乎该在Rational class内为有理数实现operator*。先研究一下将operator*写成Rational成员函数的写法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; rhs) <span class="keyword">const</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个设计使你能够将两个有理数以最轻松自在的方式相乘：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Rational <span class="title">oneEight</span><span class="params">(<span class="number">1</span>, <span class="number">8</span>)</span></span>;</span><br><span class="line"><span class="function">Rational <span class="title">oneHalf</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">Rational result = oneHalf * oneEight;  <span class="comment">//很好</span></span><br><span class="line">result = result * oneEight;            <span class="comment">//很好</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;但我们还不满足。我们希望支持混合运算，也就是拿Rational和例如int相乘。毕竟很少有什么东西会比两个数值相乘更自然的来——即使是两个不同类型的数值。</p>
+<p>&emsp;&emsp;然而当我们尝试混合式算术，我们发现只有一半行得通：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">result = oneHalf * <span class="number">2</span>;  <span class="comment">//很好！</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;  <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这不是好兆头，乘法应该满足交换律，不是吗？</p>
+<p>&emsp;&emsp;当我们以对应的函数形式重写上述两个式子，问题所在便一目了然：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">result = oneHalf.<span class="keyword">operator</span>*(<span class="number">2</span>);  <span class="comment">//很好！</span></span><br><span class="line">result = <span class="number">2.</span><span class="keyword">operator</span>*(oneHalf);  <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;没错，oneHalf是一个内含operator*函数的class的对象，所以编译器调用该函数。然而整数2并没有相应的class，也就没有operator*成员函数。编译器也会尝试寻找可被以下这般调用的non-member operator*（也就是在命名空间内或在global作用域内）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result = <span class="keyword">operator</span>*(<span class="number">2</span>, oneHalf);  <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;但本例根本并不存在这样一个接受int和Rational作为参数的non-member operator*，因此查找失败。</p>
+<p>&emsp;&emsp;再看看先前成功的那个调用，注意其第二参数是整数2，但Rational::operator*需要的实参却是个Rational对象。这里发生了什么事？为什么2在这里可被接受，在另一个调用中却不被接受？</p>
+<p>&emsp;&emsp;因为这里发生了所谓隐式转换。编译器知道你正在传递一个int，而函数需要的是Rational；但它也知道只要调用Rational构造函数并赋予你所提供的int，就可以变出一个适当的Rational来。于是它就那样做了。换句话说此调用动作在编译器眼中有点像这样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> Rational <span class="title">temp</span><span class="params">(<span class="number">2</span>)</span></span>;   <span class="comment">//根据2建立一个暂时性的Rational对象</span></span><br><span class="line">result = oneHalf * temp;  <span class="comment">//等同于oneHalf.operator*(temp)</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当然，只因为涉及non-explicit构造函数，编译器才会这样做。如果Rational构造函数是explicit，以下语句没有一个可通过编译：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">result = oneHalf * <span class="number">2</span>;  <span class="comment">//错误！</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;  <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这就很难让Rational class支持混合式算术运算了，不过至少上述两个句子的行为从此一致。</p>
+<p>&emsp;&emsp;然而我们的目标不仅在一致性，也要支持混合式运算。为什么即使Rational构造函数不是explicit，仍然只有一个可通过编译，另一个不可以：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">result = oneHalf * <span class="number">2</span>;  <span class="comment">//没问题（在non-explicit构造函数的情况下）</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;  <span class="comment">//错误（甚至在non-explicit构造函数的情况下）</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;结论是，只有当参数被列于参数列内，这个参数才是隐式类型转换的合格参与者。地位相当于“被调用的成员函数所隶属的那个对象”——即this对象——的那个隐喻参数，绝不是隐式转换的合格参与者。这就是为什么上述第一次调用可通过编译，第二次调用则否，因为第一次调用伴随一个放在参数列内的参数，第二次则否。</p>
+<p>&emsp;&emsp;然而我们一定也会想要支持混合式算术运算。让operator*成为一个non-member函数，允许编译器在每一个实参身上执行隐式类型转换：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line">    ...  <span class="comment">//不包括operator*</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lsh, <span class="keyword">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">return</span> Rational(lhs.numerator() * rhs.numerator(),</span><br><span class="line">                    lhs.denominator() * rhs.denominator());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Rational <span class="title">oneFourth</span><span class="params">(<span class="number">1</span>, <span class="number">4</span>)</span></span>;</span><br><span class="line">Rational result;</span><br><span class="line">result = oneFourth * <span class="number">2</span>;</span><br><span class="line">result = <span class="number">2</span> * oneFourth;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这当然是个快乐的结局，不过还有一点必须操心：operator*是否应该成为Rational class的一个friend函数呢？</p>
+<p>&emsp;&emsp;就本例而言答案是否定的，因为operator*可以完全藉由Rational的public接口完成任务，这导出一个重要的观察：member函数的反面是non-member，不是friend函数。太多C++程序员假设，如果一个“与某class相关”的函数不该成为一个member，就该是个friend。本例表明这样的理由过于牵强。无论何时如果我们可以避免friend函数就该避免，因为就像真实世界一样，朋友带来的麻烦往往多过其价值。当然有时候friend有其正当性，但这个事实依然存在：不能够只因函数不该成为member，就自动让它成为friend。</p>
+<blockquote>
+<p>如果你需要为某个函数的所有参数（包括this指针所指的那个隐喻参数）进行类型转换，那么这个函数必须是个non-member。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/08/04/%E8%8B%A5%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%86%E9%9C%80%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E8%AF%B7%E4%B8%BA%E6%AD%A4%E9%87%87%E7%94%A8non-member%E5%87%BD%E6%95%B0/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-宁以non-member、non-friend替换member函数" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1174,113 +1300,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-以对象管理资源" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/">以对象管理资源</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/" class="archive-article-date">
-  	<time datetime="2020-07-27T08:16:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-27</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="以对象管理资源"><a href="#以对象管理资源" class="headerlink" title="以对象管理资源"></a>以对象管理资源</h1><p>&emsp;&emsp;假设我们使用一个用来塑模投资行为的程序库，其中各式各样的投资类型继承自一个root class Investment：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Investment</span> &#123;</span> ... &#125;;  <span class="comment">//投资类型体系中的root class</span></span><br></pre></td></tr></table></figure>
-
-<p>进一步假设，这个程序库系通过一个工厂函数供应我们某特定的Investment对象：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Investment* <span class="title">createInvestment</span><span class="params">()</span></span>;  <span class="comment">//返回指针，指向Investment继承体系内的动态分配对象。</span></span><br><span class="line">                                 <span class="comment">//调用者有责任删除它，这里为了简化，刻意不写参数。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如上注释所述，createInvestment的调用端使用了函数返回的对象后，有责任删除之。现在考虑有个f函数履行了这个责任：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Investment* pInv = createInvestment();  <span class="comment">//调用factory函数</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">delete</span> pInv;                            <span class="comment">//释放pInv所指对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这看起来妥当，但若干情况下f可能无法删除它得自createInvestment的投资对象——或许因为“…”区域内的一个过早的return语句。如果这样一个return被执行起来，控制流就绝不会触及delete语句。类似情况还可能发生在很多其他地方。</p>
-<p>&emsp;&emsp;为确保createInvestment返回的资源总是被释放，我们需要将资源放进对象内，当控制流厉害f，该对象的析构函数会自动释放那些资源。把资源放进对象内，我们便可依赖C++的“析构函数自动调用机制”确保资源被释放。</p>
-<p>&emsp;&emsp;我们可以使用“引用计数型智能指针”（RCSP）。所谓RCSP也是个智能指针，持续追踪共有多少对象指向某笔资源，并在无人指向它时自动删除该资源。RCSP提供的行为类似垃圾回收，不同的是RCSP无法打破环状引用（例如两个其实已经没被使用的对象彼此互指，因而好像还处于“被使用”状态）。</p>
-<p>&emsp;&emsp;C++标准库中的shared_ptr就是个RCSP，所以我们可以这样写f：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pInv</span><span class="params">(createInvestment())</span></span>;  <span class="comment">//调用factory函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;  <span class="comment">//经由share_ptr析构函数自动删除pInv</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;share_ptr在其析构函数内做delete而不是delete[]动作。这意味着在动态分配而得的array身上使用shared_ptr是个馊主意。尽管如此，可叹的是，那么做仍能通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; <span class="title">spi</span><span class="params">(<span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">1024</span>])</span></span>;  <span class="comment">//馊主意！</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我们或许会惊讶地发现，并没有针对“C++动态分配数组”而设计的类似shared_ptr这样的东西。这是因为vector和sting几乎总是可以取代动态分配而得的数组。如果你们还是认为拥有针对数组而设计、类似shared_ptr这样的class较好，看看Boost吧。在那儿我们会很高兴地发现boost::scoped_array和boost::shared_array class，它们都提供我们想要的行为。</p>
-<blockquote>
-<p>为防止资源泄漏，务必使用shared_ptr这类智能指针，它们在构造函数中获得资源并在析构函数中释放资源。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/">展开全文 >></a>
         </p>
       
 
