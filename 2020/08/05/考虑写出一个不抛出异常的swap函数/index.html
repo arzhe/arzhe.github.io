@@ -16,7 +16,7 @@
 <meta property="og:description" content="考虑写出一个不抛出异常的swap函数&amp;emsp;&amp;emsp;swap是个有趣的函数。原本它只是STL的一部分，而后成为异常安全性编程的脊柱，以及用来处理自我赋值可能性的一个常见机制。由于swap如此有用，适当的实现很重要。然而在非凡的重要性之外它也带来了非凡的复杂性。 &amp;emsp;&amp;emsp;所谓swap两对象值，意思是将两对象的值彼此赋予对方。缺省情况下swap动作可由标准程序库提供的swap">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-08-05T08:22:00.000Z">
-<meta property="article:modified_time" content="2020-08-06T14:29:42.000Z">
+<meta property="article:modified_time" content="2020-08-07T02:00:50.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -338,6 +338,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2020/08/07/%E5%B0%BD%E9%87%8F%E5%BB%B6%E5%90%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E5%BC%8F%E7%9A%84%E5%87%BA%E7%8E%B0%E6%97%B6%E9%97%B4/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          尽量延后变量定义式的出现时间
+        
+      </div>
+    </a>
   
   
     <a href="/2020/08/04/%E8%8B%A5%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%86%E9%9C%80%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E8%AF%B7%E4%B8%BA%E6%AD%A4%E9%87%87%E7%94%A8non-member%E5%87%BD%E6%95%B0/" id="article-nav-older" class="article-nav-link-wrap">
