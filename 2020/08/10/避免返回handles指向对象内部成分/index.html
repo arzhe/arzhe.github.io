@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2020 | Hexo</title>
+  <title>避免返回handles指向对象内部成分 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/archives/2020/page/2/index.html">
+  <meta name="description" content="避免返回handles指向对象内部成分&amp;emsp;&amp;emsp;假设你的程序设计矩形。每个矩形由其左上角和右下角表示。为了让一个Rectangle对象尽可能小，你可能会决定不把定义矩形的这些点存放在Rectangle对象内，而是放在一个辅助的struct内再让Rectangle去指它： 12345678910111213141516171819class Point &amp;#123;public:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="避免返回handles指向对象内部成分">
+<meta property="og:url" content="http://yoursite.com/2020/08/10/%E9%81%BF%E5%85%8D%E8%BF%94%E5%9B%9Ehandles%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1%E5%86%85%E9%83%A8%E6%88%90%E5%88%86/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="避免返回handles指向对象内部成分&amp;emsp;&amp;emsp;假设你的程序设计矩形。每个矩形由其左上角和右下角表示。为了让一个Rectangle对象尽可能小，你可能会决定不把定义矩形的这些点存放在Rectangle对象内，而是放在一个辅助的struct内再让Rectangle去指它： 12345678910111213141516171819class Point &amp;#123;public:">
 <meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-08-10T04:15:00.000Z">
+<meta property="article:modified_time" content="2020-08-10T12:55:14.000Z">
 <meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -132,36 +137,87 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-避免返回handles指向对象内部成分" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      避免返回handles指向对象内部成分
+    </h1>
+  
+
+        
+        <a href="/2020/08/10/%E9%81%BF%E5%85%8D%E8%BF%94%E5%9B%9Ehandles%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1%E5%86%85%E9%83%A8%E6%88%90%E5%88%86/" class="archive-article-date">
+  	<time datetime="2020-08-10T04:15:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-10</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="避免返回handles指向对象内部成分"><a href="#避免返回handles指向对象内部成分" class="headerlink" title="避免返回handles指向对象内部成分"></a>避免返回handles指向对象内部成分</h1><p>&emsp;&emsp;假设你的程序设计矩形。每个矩形由其左上角和右下角表示。为了让一个Rectangle对象尽可能小，你可能会决定不把定义矩形的这些点存放在Rectangle对象内，而是放在一个辅助的struct内再让Rectangle去指它：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Point(<span class="keyword">int</span> x, <span class="keyword">int</span> y);</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setX</span><span class="params">(<span class="keyword">int</span> newVal)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setY</span><span class="params">(<span class="keyword">int</span> newVal)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">RectData</span> &#123;</span>  <span class="comment">//这些“点”数据用来表现一个矩形</span></span><br><span class="line">    Point ulhc;    <span class="comment">//左上角</span></span><br><span class="line">    Point lrhc;    <span class="comment">//右下角</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;RectData&gt; pData;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;Rectangle的客户必须能够计算Rectangle的范围，所以这个class提供upperLeft函数和lowerRight函数。Point是个用户自定义类型，这些函数返回reference，代表底层的Point对象：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function">Point&amp; <span class="title">upperLeft</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;ulhc; &#125;</span><br><span class="line">    <span class="function">Point&amp; <span class="title">lowerRight</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;lrhc; &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这样的设计可以通过编译，但却是错误的。实际上它是自我矛盾的。一方面upperLeft和lowerRight被声明为const成员函数，因为它们的目的只是为了提供客户一个得知Rectangle相关坐标点的方法，而不是让客户修改Rectangle。另一方面两个函数都返回reference指向private内部数据，调用者于是可以通过这些reference更改内部数据！例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Point <span class="title">coord1</span><span class="params">(<span class="number">0</span>, <span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="function">Point <span class="title">coord2</span><span class="params">(<span class="number">100</span>, <span class="number">100</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">const</span> Rectangle <span class="title">rec</span><span class="params">(coord1, coord2)</span></span>;  <span class="comment">//rec是个const矩形，从（0，0）到（100，100）</span></span><br><span class="line">rec.upperLeft().setX(<span class="number">50</span>);             <span class="comment">//现在却变成从（50，0）到（100，100）</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这里立刻带给我们两个教训。第一，成员变量的封装性最多只等于“返回其reference”的函数的访问级别。本例之中虽然ulhc和lrhc都被声明为private，它们实际上却是public，因为public函数upperLeft和lowerRight传出它们的reference。第二，如果const成员函数传出一个reference，后者所指数据与对象自身有关联，而它又被存储于对象之外，那么这个函数的调用者可以修改那笔数据。这正是bitwise constness的一个附带结果。</p>
+<p>&emsp;&emsp;我们在这些函数身上遭遇的两个问题可以轻松去除，只要对它们的返回类型加上const即可：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">const</span> Point&amp; <span class="title">upperLeft</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;ulhc; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">const</span> Point&amp; <span class="title">lowerRight</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;lrhc; &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;有了这样的改变，客户可以读取矩形的Point，但不能涂写它们。这意味当初声明upperLeft和upperRight为const不再是个谎言，因为它们不在允许客户更改对象状态。至于封装问题，我们总是愿意让客户看到Rectangle的外围Point，所以这里是蓄意放松封装。更重要的是这是个有限度的放松：这些函数只让渡读取权。涂写权仍然是被禁止的。</p>
+<p>&emsp;&emsp;但即使如此，upperLeft和lowerRight还是返回了“代表对象内部”的handle，有可能在其它场合带来问题。更明确地说，它可能导致dangling handle（空悬号码牌）：这种handle所指东西（的所属对象）不复存在。这种“不复存在的对象”最常见的来源就是函数返回值。例如某个函数返回GUI对象的外框，这个外框采用矩形形式：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GUIObject</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="keyword">const</span> Rectangle</span><br><span class="line">boundingBox(<span class="keyword">const</span> GUIObject&amp; obj);</span><br></pre></td></tr></table></figure>
+
+<p>现在，客户有可能这么使用这个函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GUIObject* pgo;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> Point* pUpperLeft = &amp;(boundingBox(*pgo).upperLeft());</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;对boundingBox的调用获得一个新的、暂时的Rectangle对象。这个对象没有名称，所以我们权且称它为temp。随后upperLeft作用于temp身上，返回一个reference指向temp的一个内部成分，更具体地说是指向一个用以标示temp的Point。于是pUpperLeft指向那个Point对象。目前为止一切还好，但故事尚未结束，因为在那个语句结束之后，boundingBox的返回值，也就是我们所说的temp，将被销毁，而那间接导致temp内的Point析构。最终导致pUpperLeft指向一个不再存在的对象：也就是说一旦产出pUpperLeft的那个语句结束，pUpperLeft也就变成空悬、虚吊！</p>
+<p>&emsp;&emsp;这就是为什么函数如果“返回一个handle代表对象内部成分”总是危险的原因。不论这所谓的handle是个指针或迭代器或reference，也不论这个handle是否为const，也不论那个返回handle的成员函数是否为const。这里的唯一关键是，有个handle被传出去了，一旦如此你就是暴露在“handle比其所指对象更长寿”的风险下。</p>
+<p>&emsp;&emsp;这并不意味你绝对不可以让成员函数返回handle。有时候你必须那么做。例如operator[]就允许你“摘采”string和vector的个别元素，而这些operator[]就是返回reference指向“容器内的数据”，那些数据会随着容器被销毁而销毁。尽管如此，这样的函数毕竟是少数，不是常态。</p>
+<blockquote>
+<p>避免返回handle（包括reference、指针、迭代器）指向对象内部。遵守这个条款可增加封装性，帮助const成员函数的行为像个const，并将发生“虚吊号码牌”的可能性降至最低。</p>
+</blockquote>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/blogImg/wechatpay.jpeg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/30/%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86new%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" class="archive-article-date">
-  	<time datetime="2020-07-30T04:45:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-30</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/30/%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86new%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">以独立语句将new对象置入智能指针</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -173,7 +229,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -186,439 +242,103 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/08/10/%E9%81%BF%E5%85%8D%E8%BF%94%E5%9B%9Ehandles%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1%E5%86%85%E9%83%A8%E6%88%90%E5%88%86/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/" class="archive-article-date">
-  	<time datetime="2020-07-30T01:01:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-30</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/08/08/%E5%B0%BD%E9%87%8F%E5%B0%91%E5%81%9A%E8%BD%AC%E5%9E%8B%E5%8A%A8%E4%BD%9C/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">尽量少做转型动作</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/">成对使用new和delete时要采取相同形式</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/" class="archive-article-date">
-  	<time datetime="2020-07-29T05:07:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-29</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/">在资源管理类中提供对原始资源的访问</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/" class="archive-article-date">
-  	<time datetime="2020-07-28T03:03:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/">在资源管理类中小心copying行为</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/" class="archive-article-date">
-  	<time datetime="2020-07-27T08:16:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-27</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/">以对象管理资源</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/" class="archive-article-date">
-  	<time datetime="2020-07-26T00:28:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-26</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/">复制对象时勿忘其每一个成分</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/" class="archive-article-date">
-  	<time datetime="2020-07-25T07:19:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/">在operator=中处理“自我赋值”</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/" class="archive-article-date">
-  	<time datetime="2020-07-25T00:14:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/">令operator=返回一个reference to *this</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/" class="archive-article-date">
-  	<time datetime="2020-07-24T01:10:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-24</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/">绝不在构造和析构过程中调用virtual函数</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/" class="archive-article-date">
-  	<time datetime="2020-07-23T00:25:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-23</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/">别让异常逃离析构函数</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/archives/2020/">&amp;laquo; Prev</a><a class="page-number" href="/archives/2020/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/2020/page/3/">3</a><a class="extend next" rel="next" href="/archives/2020/page/3/">Next &amp;raquo;</a>
-    </nav>
+  
+
+  
+
   
 
 
@@ -642,8 +362,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
