@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Tag: C++ | Hexo</title>
+  <title>确定你的public继承塑模出is-a关系 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/tags/C/page/2/index.html">
+  <meta name="description" content="确定你的public继承塑模出is-a关系&amp;emsp;&amp;emsp;在《Some Must Watch While Some Must Sleep》这本书中，作者William Dement说了一个故事，谈到他曾经试图让学生记下课程中最重要的一些教导。书上说，他告诉他的班级，一般英国学生对于发生在1066年的黑斯廷斯战役所知不多。如果有学生记得多一些，Dement强调，无非也只是记得1066这个数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="确定你的public继承塑模出is-a关系">
+<meta property="og:url" content="http://yoursite.com/2020/09/06/%E7%A1%AE%E5%AE%9A%E4%BD%A0%E7%9A%84public%E7%BB%A7%E6%89%BF%E5%A1%91%E6%A8%A1%E5%87%BAis-a%E5%85%B3%E7%B3%BB/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="确定你的public继承塑模出is-a关系&amp;emsp;&amp;emsp;在《Some Must Watch While Some Must Sleep》这本书中，作者William Dement说了一个故事，谈到他曾经试图让学生记下课程中最重要的一些教导。书上说，他告诉他的班级，一般英国学生对于发生在1066年的黑斯廷斯战役所知不多。如果有学生记得多一些，Dement强调，无非也只是记得1066这个数">
 <meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-09-06T03:32:00.000Z">
+<meta property="article:modified_time" content="2020-09-11T07:27:15.000Z">
 <meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -132,36 +137,98 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-确定你的public继承塑模出is-a关系" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      确定你的public继承塑模出is-a关系
+    </h1>
+  
+
+        
+        <a href="/2020/09/06/%E7%A1%AE%E5%AE%9A%E4%BD%A0%E7%9A%84public%E7%BB%A7%E6%89%BF%E5%A1%91%E6%A8%A1%E5%87%BAis-a%E5%85%B3%E7%B3%BB/" class="archive-article-date">
+  	<time datetime="2020-09-06T03:32:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-06</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="确定你的public继承塑模出is-a关系"><a href="#确定你的public继承塑模出is-a关系" class="headerlink" title="确定你的public继承塑模出is-a关系"></a>确定你的public继承塑模出is-a关系</h1><p>&emsp;&emsp;在《Some Must Watch While Some Must Sleep》这本书中，作者William Dement说了一个故事，谈到他曾经试图让学生记下课程中最重要的一些教导。书上说，他告诉他的班级，一般英国学生对于发生在1066年的黑斯廷斯战役所知不多。如果有学生记得多一些，Dement强调，无非也只是记得1066这个数字而已。然后Dement继续其课程，其中只有少数重要信息，包括“安眠药反而造成失眠症”这类有趣的事情。他一再要求学生，纵使忘记了课程中的其他每一件事，也要记住这些数量不多的重要事件。Dement在整个学期中不断耳提面命这样的话。</p>
+<p>&emsp;&emsp;课程结束后，期末考的最后一道题是：“写下你从本课程获得的一件永生不忘的事”。当Dement批改试卷，他目瞪口呆。几乎每一个人都写下“1066”。</p>
+<p>&emsp;&emsp;以C++进行面向对象编程，最主要的一个规则是：public inheritance（公开继承）意味“is-a”（是一种）的关系。把这个规则牢牢地烙印在你的心中吧！</p>
+<p>&emsp;&emsp;如果你令class D（“derived”）以public形式继承class B（“base”），你便是告诉C++编译器（以及你的代码读者）说，每一个类型为D的对象同时也是一个类型为B的对象，反之不成立。也就是说你的本意是令B比D表现出更为一般化的概念，而D便是特殊化的体现。“任何B对象可派上用场的任何地方，D对象一样可以派上用场”这是C++对于“public继承”的解释。而需要D对象的场合，B对象则不一定会起到作用。</p>
+<p>&emsp;&emsp;考虑以下例子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span>:</span> <span class="keyword">public</span> Person &#123; ... &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;根据生活经验我们知道，每个学生都是人，但并非每个人都是学生。这就是一个public继承体系。我们预期，对人可以成立的每一件事——例如每个人都有生日——对学生也都成立。但我们并不预期对学生可成立的每一件事——例如他注册于某学校——对人也成立。人的概念比学生更一般化，学生是人的一种特殊形式。</p>
+<p>&emsp;&emsp;于是，在C++领域中，任何函数如果期望获得一个类型为Person（或point-to-Person或reference-to-Person）的实参，都也愿意接受一个Student对象（或point-to-Student或reference-to-Student）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">eat</span><span class="params">(<span class="keyword">const</span> Person&amp; p)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">study</span><span class="params">(<span class="keyword">const</span> Student&amp; s)</span></span>;</span><br><span class="line"></span><br><span class="line">Person p;</span><br><span class="line">Student s;</span><br><span class="line"></span><br><span class="line">eat(p);  <span class="comment">//没问题</span></span><br><span class="line">eat(s);  <span class="comment">//没问题</span></span><br><span class="line">study(p);  <span class="comment">//错误！</span></span><br><span class="line">study(s);  <span class="comment">//没问题</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个论点只对public继承才成立。只有当Student以public形式继承Person，C++的行为才会如我所描述。private继承的意义与此完全不同，至于protected继承，那是一种其意义至今仍然困惑我的东西。</p>
+<p>&emsp;&emsp;public继承和is-a之间的等价关系听起来颇为简单，但有时候你的直觉可能会误导你。举个例子，企鹅是一种鸟，这是事实。鸟可以飞，这也是事实。如果我们天真地以C++描述这层关系，结果如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bird</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Penguin</span> :</span> <span class="keyword">public</span> Bird &#123; </span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;突然间我们感到了困惑，因为这个继承体系说企鹅可以飞，而我们知道那不是真的，怎么回事？</p>
+<p>&emsp;&emsp;在这个例子中。当我们说鸟会飞的时候，我们真正的意思并不是说所有的鸟都会飞，我们要说的只是一般的鸟都有飞行能力。如果谨慎一点，我们应该承认一个事实：有数种鸟不会飞。看看以下代码，其构造出一种较为真实的继承体系：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bird</span> &#123;</span></span><br><span class="line">    ...  <span class="comment">//没有声明fly函数</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FlyingBird</span> :</span> <span class="keyword">public</span> Bird &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Penguin</span> :</span> <span class="keyword">public</span> Bird &#123;</span><br><span class="line">    ...  <span class="comment">//没有声明fly函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这样的继承体系比原先的设计更能忠实反映出我们真正的意思。</p>
+<p>&emsp;&emsp;即便如此，此刻我们仍然未能完全处理好这些鸟事，因为对某些软件系统而言，可能不需要区分会飞的鸟和不会飞的鸟。如果你的程序忙着处理鸟喙和鸟翅，完全不在乎飞行，原先的“双class继承体系”或许就相当令人满足了。这反映出一个事实，世界上并不存在一个“适用于所有软件”的完美设计。所谓最佳设计，取决于系统希望做什么事，包括现在与未来。如果你的程序对飞行一无所知，而且也不打算对飞行“有所知”，那么不去区分会飞的鸟和不会飞的鸟，不失为一个完美而有效的设计。实际上它可能比“对两者作出区隔”更受欢迎，因为这样的区隔在你企图塑模的世界中并不存在。</p>
+<p>&emsp;&emsp;另有一种思想派别处理我所谓“所有的鸟都会飞，企鹅是鸟，但是企鹅不会飞”的问题，就是为企鹅重新定义fly函数，令它产生一个运行期错误：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">error</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; msg)</span></span>;  <span class="comment">//定义于另外某处</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Penguin</span> :</span> <span class="keyword">public</span> Bird &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">()</span> </span>&#123; error(<span class="string">"Attempt to make a penguin fly!"</span>); &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;很重要的是，你必须认知这里所说的某些东西可能和你所想的不同。这里并不是说“企鹅不会飞”，而是说“企鹅会飞，但尝试那么做是一种错误”。</p>
+<p>&emsp;&emsp;如何描述其间的差异？从错误被侦测出来的时间点观之，“企鹅不会飞”这一限制可由编译器强制实施，但若违反“企鹅尝试飞行，是一种错误”这一条规则，只有运行期才能检测出来。</p>
+<p>&emsp;&emsp;为了表现“企鹅不会飞，就这样”的限制，你不可以为Penguin定义fly函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bird</span> &#123;</span></span><br><span class="line">    ...  <span class="comment">//没有声明fly函数</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Penguin</span> :</span> <span class="keyword">public</span> Bird &#123;</span><br><span class="line">    ...  <span class="comment">//没有声明fly函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在，如果你试图让企鹅飞，编译器会对你的背信加以谴责：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Penguin p;</span><br><span class="line">p.fly();  <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>“public继承”意味着is-a。适用于base class身上的每一件事情一定也适用于derived class身上，因为每一个derived class对象也都是一个base class对象。</li>
+</ul>
+</blockquote>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/blogImg/wechatpay.jpeg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/01/%E5%AE%81%E4%BB%A5pass-by-reference-to-const%E6%9B%BF%E6%8D%A2pass-by-value/" class="archive-article-date">
-  	<time datetime="2020-08-01T07:42:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-01</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/01/%E5%AE%81%E4%BB%A5pass-by-reference-to-const%E6%9B%BF%E6%8D%A2pass-by-value/">宁以pass-by-reference-to-const替换pass-by-value</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -173,7 +240,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -186,450 +253,103 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/09/06/%E7%A1%AE%E5%AE%9A%E4%BD%A0%E7%9A%84public%E7%BB%A7%E6%89%BF%E5%A1%91%E6%A8%A1%E5%87%BAis-a%E5%85%B3%E7%B3%BB/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/01/%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type/" class="archive-article-date">
-  	<time datetime="2020-08-01T00:01:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-01</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/08/13/%E5%B0%86%E6%96%87%E4%BB%B6%E9%97%B4%E7%9A%84%E7%BC%96%E8%AF%91%E4%BE%9D%E5%AD%98%E5%85%B3%E7%B3%BB%E9%99%8D%E8%87%B3%E6%9C%80%E4%BD%8E/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">将文件间的编译依存关系降至最低</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/01/%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type/">设计class犹如设计type</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/31/%E8%AE%A9%E6%8E%A5%E5%8F%A3%E5%AE%B9%E6%98%93%E8%A2%AB%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%93%E8%A2%AB%E8%AF%AF%E7%94%A8/" class="archive-article-date">
-  	<time datetime="2020-07-31T12:27:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-31</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/31/%E8%AE%A9%E6%8E%A5%E5%8F%A3%E5%AE%B9%E6%98%93%E8%A2%AB%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%93%E8%A2%AB%E8%AF%AF%E7%94%A8/">让接口容易被正确使用，不易被误用</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/30/%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86new%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" class="archive-article-date">
-  	<time datetime="2020-07-30T04:45:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-30</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/30/%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86new%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">以独立语句将new对象置入智能指针</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/" class="archive-article-date">
-  	<time datetime="2020-07-30T01:01:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-30</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/">成对使用new和delete时要采取相同形式</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/" class="archive-article-date">
-  	<time datetime="2020-07-29T05:07:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-29</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/">在资源管理类中提供对原始资源的访问</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/" class="archive-article-date">
-  	<time datetime="2020-07-28T03:03:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/">在资源管理类中小心copying行为</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/" class="archive-article-date">
-  	<time datetime="2020-07-27T08:16:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-27</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/">以对象管理资源</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/" class="archive-article-date">
-  	<time datetime="2020-07-26T00:28:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-26</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/">复制对象时勿忘其每一个成分</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/" class="archive-article-date">
-  	<time datetime="2020-07-25T07:19:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/">在operator=中处理“自我赋值”</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/tags/C/">&amp;laquo; Prev</a><a class="page-number" href="/tags/C/">1</a><span class="page-number current">2</span><a class="page-number" href="/tags/C/page/3/">3</a><a class="extend next" rel="next" href="/tags/C/page/3/">Next &amp;raquo;</a>
-    </nav>
+  
+
+  
+
   
 
 
@@ -653,9 +373,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,

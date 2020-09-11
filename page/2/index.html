@@ -134,6 +134,134 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-必须返回对象时，别妄想返回其reference" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/08/02/%E5%BF%85%E9%A1%BB%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1%E6%97%B6%EF%BC%8C%E5%88%AB%E5%A6%84%E6%83%B3%E8%BF%94%E5%9B%9E%E5%85%B6reference/">必须返回对象时，别妄想返回其reference</a>
+    </h1>
+  
+
+        
+        <a href="/2020/08/02/%E5%BF%85%E9%A1%BB%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1%E6%97%B6%EF%BC%8C%E5%88%AB%E5%A6%84%E6%83%B3%E8%BF%94%E5%9B%9E%E5%85%B6reference/" class="archive-article-date">
+  	<time datetime="2020-08-02T02:58:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-02</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="必须返回对象时，别妄想返回其reference"><a href="#必须返回对象时，别妄想返回其reference" class="headerlink" title="必须返回对象时，别妄想返回其reference"></a>必须返回对象时，别妄想返回其reference</h1><p>&emsp;&emsp;一旦程序员领悟了pass-by-value的效率牵连层面，往往变成十字军战士，一心一意根除pass-by-value带来的种种邪恶。在坚定追求pass-by-reference的纯度中，他们一定会犯下一个致命错误：开始传递一些reference指向并不存在的对象。这可不是件好事。</p>
+<p>&emsp;&emsp;考虑一个用以表现有理数的class，内含一个函数用来计算两个有理数的乘积：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Rational(<span class="keyword">int</span> numerator = <span class="number">0</span>,</span><br><span class="line">             <span class="keyword">int</span> denominator = <span class="number">1</span>);</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> n, d;  <span class="comment">//分子和分母</span></span><br><span class="line">    <span class="keyword">friend</span> <span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                                    <span class="keyword">const</span> Rational&amp; rhs);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个版本的operator*是以by value方式返回其计算结果（一个对象）。如果我们完全不担心该对象的构造和析构成本，我们其实是明显逃避了我们的专业责任。若非必要，没有人会想要为这样的对象付出太多代价，问题是需要付出任何代价吗？</p>
+<p>&emsp;&emsp;如果可以改而传递reference，就不需付出代价。但是记住，所谓reference只是个名称，代表某个既有对象。任何时候看到一个reference声明式，我们都应该立刻问自己，它的另一个名称是什么？因为它一定是某物的另一个名称。以上述operator*为例，如果它返回一个reference，后者一定指向某个既有的Rational对象，内含两个Rational对象的乘积。</p>
+<p>&emsp;&emsp;我们当然不可能期望这样一个（内含乘积的）Rational对象在调用operator*之前就存在，也即是说，如果有：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Rational <span class="title">a</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line"><span class="function">Rational <span class="title">b</span><span class="params">(<span class="number">3</span>, <span class="number">5</span>)</span></span>;</span><br><span class="line">Rational c = a * b;</span><br></pre></td></tr></table></figure>
+
+<p>期望“原本就存在一个其值为3/10点Rational对象”并不合理。如果operator*要返回一个reference指向此数值，它必须自己创建那个对象。</p>
+<p>&emsp;&emsp;函数创建对象的途径有二：在stack空间或在heap空间创建之。如果定义一个local变量，就是在stack空间创建对象。根据这个策略写operator*如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Rational&amp; <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                           <span class="keyword">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    <span class="function">Rational <span class="title">result</span><span class="params">(lhs.n * rhs.n, lhs.d * rhs.d)</span></span>;  <span class="comment">//警告！糟糕的代码</span></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我们可以拒绝这种做法，因为我们的目标是避免调用构造函数，而result却必须像任何对象一样地由构造函数构造起来。更严重的是：这个函数返回一个reference指向result，但result是个local对象，而local对象在函数退出前被销毁了。因此，这个版本的operator*并未返回reference指向某个Rational，它返回的reference指向一个“从前的”Rational：一个曾经被当作Rational但如今已经成空、发臭、败坏的残骸，因为它已经被销毁了。任何调用者甚至只是对此函数的返回值做任何一点点运用，都将立刻坠入“无定义行为”的恶地。事情的真相是，任何函数如果返回一个reference指向某个local对象，都将一败涂地。（如果函数返回指针指向一个local对象，也是一样）。</p>
+<p>&emsp;&emsp;于是，让我们考虑在heap内构造一个对象，并返回reference指向它。Heap-base对象由new创建，所以我们得写出一个heap-based operator*如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Rational&amp; <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                          <span class="keyword">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    Rational* result = <span class="keyword">new</span> Rational(lhs.n * rhs.n, lhs.d * rhs.d);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我们还是必须付出一个“构造函数调用”代价，因为分配所得的内存将以一个适当的构造函数完成初始化动作。但此外你现在又有了另一个问题：谁该对着被你new出来的对象实施delete？</p>
+<p>&emsp;&emsp;即使调用者诚实谨慎，并且出于良好意识，他们还是不太能够在这样合情合理的用法下阻止内存泄漏：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rational w, x, y, z;</span><br><span class="line">w = x * y * z;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这里，同一语句内调用了两次operator*，因而两次使用new，也就需要两次delete。但却没有合理的办法让operator*使用者进行那些delete调用，因为没有合理的办法让他们取得operator*返回的reference背后隐藏的那个指针。这绝对导致资源泄漏。</p>
+<p>&emsp;&emsp;但或许你注意到了，上述不论on-the-stack或on-the-heap做法，都因为对operator*返回的结果调用构造函数而受惩罚。或许你心里出现下面这样的实现代码，此法基于“让operator*返回的reference指向一个被定义于函数内部的static Rational对象”：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Rational&amp; <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                          <span class="keyword">const</span> Rational&amp; rhs) &#123;  <span class="comment">//警告！又一堆烂代码</span></span><br><span class="line">    <span class="keyword">static</span> Rational result;                       <span class="comment">//static对象，此函数返回其reference</span></span><br><span class="line">    result = ...;                                 <span class="comment">//将lhs乘以rhs，并将结果置于result内</span></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;就像所有用上static对象的设计一样，这一个也立刻造成我们对多线程安全性的疑虑。不过那还只是它显而易见的弱点。如果想看看更深层的瑕疵，考虑下面这些完全合理的客户代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> <span class="keyword">operator</span>==(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                <span class="keyword">const</span> Rational&amp; rhs);</span><br><span class="line">Rational a, b, c, d;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span>((a * b) == (c * d)) &#123;</span><br><span class="line">    <span class="comment">//当乘积相等时，做适当的相应动作；</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">//当乘积不等时，做适当的相应动作；</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;猜想怎么着？表达式（（a * b）==（c * d））总是被核算为true，不论a，b，c，d的值是什么！</p>
+<p>&emsp;&emsp;一旦将代码重新写为等价的函数形式，很容易就可以了解了出什么意外：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="keyword">operator</span>==(<span class="keyword">operator</span>*(a, b), <span class="keyword">operator</span>*(c, d)))</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;在operator==被调用前，已有两个operator*调用式起作用，每一个都返回reference指向operator*内部定义的static Rational对象。因此operator==被要求将“operator*内的static Rational对象值”拿来和“operator*内的static Rational对象值”比较，如果比较结果不相等，那才奇怪呢。（两次operator*调用的确各自改变了static Rational对象值，但由于它们返回的都是reference，因此调用端看到的永远是static Rational对象的“现值”）</p>
+<p>&emsp;&emsp;这应该足够说服你，欲令诸如operator*这样的函数返回reference，只是浪费时间而已，但现在或许又有些人这样想：“如果一个static不够，或许一个static array可以得分……”。</p>
+<p>&emsp;&emsp;我不打算再次写出示例来驳斥这个想法以彰显自己多么厉害，但我可以简单描述为什么你该为了提出这个念头而脸红。首先你必须选择array大小n。如果n太小，你可能会耗尽“用以存储函数返回值”的空间，那么情况就回到了我们刚才讨论过的单一static设计。但如果n太小，会因此降低程序效率，因为array内的每一个对象都会在函数第一次被调用时构造完成。那么将消耗n个构造函数和n个析构函数——即使我们所讨论的函数只被调用一次。如果所谓“最优化”是改善软件效率的过程，我们现在所谈的这些应该成为“恶劣化”。最后，想一想如何将你需要的值放进array内，而那么做的成本又是多少。在对象之间搬移数值的最直接办法是通过赋值操作，但赋值的成本几何？对许多type而言它相当于调用一个析构函数（用以销毁旧值）加上一个构造函数（用以复制新值）。但你的目标是避免构造和析构成本耶！面对现实吧，这个做法不会成功的。就算以vector替换array也不会让情况更好些。</p>
+<p>&emsp;&emsp;一个“必须返回新对象”的函数的正确写法是：就让那个函数返回一个新对象呗。对Rational的operator*而言意味以下写法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs, <span class="keyword">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">return</span> Rational(lhs.n * rhs.n, lhs.d * rhs.d);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当然，我们需要承受operator*返回值的构造成本和析构成本，然而长远来看那只是为了获得准确行为而付出的一个小小代价。但万一账单很恐怖，我们承受不起，别忘了C++和所有编程语言一样，允许编译器实现者施行最优化，用以改善产出码的效率却不改变其可观察的行为。因此某些情况下operator*返回值的构造和析构可被安全地消除。如果编译器运用这一事实（它们也往往如此），我们的程序将继续保持它们该有的行为，而执行起来又比预期的更快。</p>
+<p>&emsp;&emsp;当必须在“返回一个reference和返回一个object”之间抉择时，我们的工作就是挑出行为正确的那个。就让编译器厂商为“尽可能降低成本”鞠躬尽瘁吧，我们可以享受我们的生活。</p>
+<blockquote>
+<p>绝不要返回pointer或reference指向一个local stack对象，或返回reference指向一个heap-allocated对象，或返回pointer或reference指向一个local static对象而有可能同时需要多个这样的对象。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/08/02/%E5%BF%85%E9%A1%BB%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1%E6%97%B6%EF%BC%8C%E5%88%AB%E5%A6%84%E6%83%B3%E8%BF%94%E5%9B%9E%E5%85%B6reference/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-宁以pass-by-reference-to-const替换pass-by-value" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1178,122 +1306,9 @@
 
 
   
-    <article id="post-在operator=中处理“自我赋值”" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/">在operator=中处理“自我赋值”</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/" class="archive-article-date">
-  	<time datetime="2020-07-25T07:19:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="在operator-中处理“自我赋值”"><a href="#在operator-中处理“自我赋值”" class="headerlink" title="在operator=中处理“自我赋值”"></a>在operator=中处理“自我赋值”</h1><p>&emsp;&emsp;“自我赋值”发生在对象被赋值给自己时：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span> ... &#125;;</span><br><span class="line">Widget w;</span><br><span class="line">...</span><br><span class="line">w = w;  <span class="comment">//赋值给自己</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这看起来有点愚蠢，但它合法，所以不要认定客户绝不会那么做。此外赋值动作并不总是那么可被一眼识别出来，例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a[i] = a[j];  <span class="comment">//潜在的自我赋值</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果i和j有相同的值，这便是个自我赋值。再看：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*px = *py;  <span class="comment">//潜在的自我赋值</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果px和py恰巧指向同一个东西，这也是自我赋值。这些并不明显的自我赋值，是“别名”带来的结果：所谓“别名”就是“有一个以上的方法指涉某对象”。一般而言如果某段代码操作pointer或reference而它们被用来“指向多个相同类型的对象”，就需要考虑这些对象是否为同一个。实际上两个对象只要来自同一个继承体系，它们甚至不需声明为相同类型就可能造成“别名”，因为一个base class的reference或pointer可以指向一个derived class对象：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(<span class="keyword">const</span> Base&amp; rb, Derived* pd)</span></span>;  <span class="comment">//rb和*pd有可能其实是同一对象</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果我们尝试自行管理资源（如果我们打算写一个勇于资源管理的class就得这样做），可能会在停止使用资源之前就意外释放了它。假设我们建立一个class用来保存一个指针指向动态分配的位图（bitmap）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bitmap</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Bitmap* pb;  <span class="comment">//指针，指向一个从heap分配而得的对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;下面是operator=实现代码，表面上看起来合理，但自我赋值出现时并不安全（它也不具备异常安全性）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp;</span><br><span class="line">Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//一份不安全的operator=实现版本</span></span><br><span class="line">    <span class="keyword">delete</span> pb;                          <span class="comment">//停止使用当前的Bitmap</span></span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);           <span class="comment">//使用rhs的bitmap的副本</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;                       </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里的自我赋值问题是，operator=函数内的*this（赋值的目的端）和rhs有可能是同一个对象。果真如此delete就不只是销毁当前对象的bitmap，它也销毁rhs的bitmap。在函数末尾，Widget——它原本不该被自我赋值动作改变的——发现自己持有一个指针指向一个已被删除的对象！</p>
-<p>&emsp;&emsp;欲阻止这种错误，传统做法是藉由operator=最前面的一个“证同测试”达到“自我赋值”的检测目的：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span> == &amp;rhs) <span class="keyword">return</span> *<span class="keyword">this</span>;  <span class="comment">//证同测试：如果是自我赋值，就不做任何事</span></span><br><span class="line">    <span class="keyword">delete</span> pb;</span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这样做行得通。前一版本的operator=不仅不具备“自我赋值安全性”，也不具备“异常安全性”，这个新版本仍然存在异常方面的麻烦。更明确地说，如果“new Bitmap”导致异常，Widget最终会持有一个指针指向一块被删除的Bitmap。这样的指针有害。我们无法安全地删除它们，甚至无法安全地读取它们。</p>
-<p>&emsp;&emsp;令人高兴的是，让operator=具备“异常安全性”往往自动获得“自我赋值安全”的回报。因此越来越多的人对“自我赋值”的处理态度是倾向于不去管它，把焦点放在实现“异常安全性”上。例如以下代码，我们只需注意在复制pb所指东西之前别删除pb：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    Bitmap* pOrig = pb;        <span class="comment">//记住原先的pb</span></span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);  <span class="comment">//令pb指向*pb的一个副本</span></span><br><span class="line">    <span class="keyword">delete</span> pOrig;              <span class="comment">//删除原先的pb</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，如果“new Bitmap”抛出异常，pb（及其栖身的那个Widget）保持原状。即使没有证同测试，这段代码还是能够处理自我赋值，因为我们对原bitmap做了一份复件、删除原bitmap、然后指向新制造的那个复件。它或许不是处理“自我赋值”的最高效办法，但它行得通。</p>
-<p>&emsp;&emsp;如果你很关心效率，可以把“证同测试”再次放回函数起始处。然而这样做，我们得先问问自己，“自我赋值”的发生概率有多高？因为这项测试也需要成本。它会使代码变大一些并导入一个新的控制流分支，而两者都会降低执行速度。Prefetching、caching和pipelining等指令的效率都会因此降低。</p>
-<p>&emsp;&emsp;在operator=函数内手工排列语句（确保代码不但“异常安全”而且“自我赋值安全“）的一个替代方案是，使用所谓的copy and swap技术。这个技术和“异常安全性”有密切关系。然而由于它是一个常见而够好的operator=撰写办法，所以值得看看其实现手法像什么样子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; rhs)</span></span>;  <span class="comment">//交换*this和rhs的数据</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    Widget temp(rhs);        <span class="comment">//为rhs数据制作一份复件</span></span><br><span class="line">    swap(temp);              <span class="comment">//将*this数据和上述复件的数据交换</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;以下代码是上述代码的变奏曲：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(Widget rhs) &#123;  <span class="comment">//rhs是被传对象的一份复件</span></span><br><span class="line">    swap(rhs);                           <span class="comment">//将*this的数据和复件的数据互换</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我个人比较担忧这个做法，它为了“巧妙性”而牺牲了“清晰性”。然而将“copying动作”从函数本体内移至“函数参数构造阶段”却可令编译器有时生成更高效的代码。</p>
-<blockquote>
-<p>确保当对象自我赋值时operator=有良好行为。其中技术包括比较“来源对象”和“目标对象”的地址、精心周到的语句顺序、以及copy-and-swap。</p>
-<p>确定任何函数如果操作一个以上的对象，而其中多个对象是同一个对象时，其行为仍然正确。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
     </nav>
   
 
