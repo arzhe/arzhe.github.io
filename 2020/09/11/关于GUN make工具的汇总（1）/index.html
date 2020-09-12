@@ -6,19 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>确定对象被使用前已先被初始化 | Hexo</title>
+  <title>关于GUN make工具的汇总（1） | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="确定对象被使用前已先被初始化&amp;emsp;&amp;emsp;关于“将对象初始化”这一点，C++似乎反复无常。如果我们这么写： 1int x;  在某些语境下x保证被初始化（为0），但在其他语境中却不保证。如果我们这么写： 12345class Point &amp;#123;    int x, y;&amp;#125;;...Point p;  p的成员变量有时候被初始化（为0），有时候不会。 &amp;emsp;&amp;emsp">
+  <meta name="description" content="关于GUN make工具的汇总（1）前言&amp;emsp;&amp;emsp;对于这个话题，想必是每一个Linux程序员的苦手。不像Windows ，Mac等有自己完整的一套编译工具链IDE等，可以一键构建好自己的工程，Linux下的工程构建更多的是需要自己手动来完成，尽管目前已然有许多自动化构建工具，但是掌握好这么一个可以了解到一个工程构建的全部流程的优秀工具对于我们Linux程序员来说是百利而无一害的。不">
 <meta property="og:type" content="article">
-<meta property="og:title" content="确定对象被使用前已先被初始化">
-<meta property="og:url" content="http://yoursite.com/2020/07/19/%E7%A1%AE%E5%AE%9A%E5%AF%B9%E8%B1%A1%E8%A2%AB%E4%BD%BF%E7%94%A8%E5%89%8D%E5%B7%B2%E5%85%88%E8%A2%AB%E5%88%9D%E5%A7%8B%E5%8C%96/index.html">
+<meta property="og:title" content="关于GUN make工具的汇总（1）">
+<meta property="og:url" content="http://yoursite.com/2020/09/11/%E5%85%B3%E4%BA%8EGUN%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%881%EF%BC%89/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="确定对象被使用前已先被初始化&amp;emsp;&amp;emsp;关于“将对象初始化”这一点，C++似乎反复无常。如果我们这么写： 1int x;  在某些语境下x保证被初始化（为0），但在其他语境中却不保证。如果我们这么写： 12345class Point &amp;#123;    int x, y;&amp;#125;;...Point p;  p的成员变量有时候被初始化（为0），有时候不会。 &amp;emsp;&amp;emsp">
+<meta property="og:description" content="关于GUN make工具的汇总（1）前言&amp;emsp;&amp;emsp;对于这个话题，想必是每一个Linux程序员的苦手。不像Windows ，Mac等有自己完整的一套编译工具链IDE等，可以一键构建好自己的工程，Linux下的工程构建更多的是需要自己手动来完成，尽管目前已然有许多自动化构建工具，但是掌握好这么一个可以了解到一个工程构建的全部流程的优秀工具对于我们Linux程序员来说是百利而无一害的。不">
 <meta property="og:locale" content="zh">
-<meta property="article:published_time" content="2020-07-19T01:41:00.000Z">
-<meta property="article:modified_time" content="2020-07-30T01:14:33.000Z">
+<meta property="article:published_time" content="2020-09-11T07:31:00.000Z">
+<meta property="article:modified_time" content="2020-09-12T03:55:06.000Z">
 <meta property="article:author" content="arzhe">
-<meta property="article:tag" content="C++">
+<meta property="article:tag" content="makefile">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -137,20 +137,20 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-确定对象被使用前已先被初始化" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-关于GUN make工具的汇总（1）" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      确定对象被使用前已先被初始化
+      关于GUN make工具的汇总（1）
     </h1>
   
 
         
-        <a href="/2020/07/19/%E7%A1%AE%E5%AE%9A%E5%AF%B9%E8%B1%A1%E8%A2%AB%E4%BD%BF%E7%94%A8%E5%89%8D%E5%B7%B2%E5%85%88%E8%A2%AB%E5%88%9D%E5%A7%8B%E5%8C%96/" class="archive-article-date">
-  	<time datetime="2020-07-19T01:41:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-19</time>
+        <a href="/2020/09/11/%E5%85%B3%E4%BA%8EGUN%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%881%EF%BC%89/" class="archive-article-date">
+  	<time datetime="2020-09-11T07:31:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-11</time>
 </a>
         
       </header>
@@ -158,44 +158,71 @@
     <div class="article-entry" itemprop="articleBody">
       
         <hr>
-<h1 id="确定对象被使用前已先被初始化"><a href="#确定对象被使用前已先被初始化" class="headerlink" title="确定对象被使用前已先被初始化"></a>确定对象被使用前已先被初始化</h1><p>&emsp;&emsp;关于“将对象初始化”这一点，C++似乎反复无常。如果我们这么写：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x;</span><br></pre></td></tr></table></figure>
+<h1 id="关于GUN-make工具的汇总（1）"><a href="#关于GUN-make工具的汇总（1）" class="headerlink" title="关于GUN make工具的汇总（1）"></a>关于GUN make工具的汇总（1）</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>&emsp;&emsp;对于这个话题，想必是每一个Linux程序员的苦手。不像Windows ，Mac等有自己完整的一套编译工具链IDE等，可以一键构建好自己的工程，Linux下的工程构建更多的是需要自己手动来完成，尽管目前已然有许多自动化构建工具，但是掌握好这么一个可以了解到一个工程构建的全部流程的优秀工具对于我们Linux程序员来说是百利而无一害的。不会使用GUN make来构建和管理自己的工程，应该不算是一个合格的程序员，至少不是一个合格的Unix程序员。</p>
+<p>&emsp;&emsp;在Unix环境下，使用GUN make工具能够“比较容易”地构建一个属于自己的工程，整个工程最后只需要一个命令就可以完成编译，链接以及执行。在此之前，我们则需要编写一个或者多个Makefile文件，这个环节也是整个过程最难的地方。</p>
+<p>&emsp;&emsp;所要完成的Makefile文件描述了整个工程的编译、链接等规则。其中包括：工程中的哪些源文件需要编译以及如何编译、需要创建那些库文件以及如何创建这些库文件、如何最后产生我们想要得可执行文件。尽管看起来可能是很复杂的事情，但是为工程编写 Makefile 的好处是能够使用一行命令来完成“自动化编译”，一旦提供一个（通常对于一个工程来说会是多个）正确的 Makefile。编译整个工程你所要做的唯一的一件事就是在 shell 提示符下输入 make 命令。整个工程完全自动编译，极大提高了效率。</p>
+<p>&emsp;&emsp;make是一个命令工具，它负责解释Makefile中的指令（应该说是规则）。在Makefile文件中描述了整个工程所需文件的编译顺序、编译规则。Makefile有自己的语法规则，书写格式，就像C语言有自己的语法一样。而且更棒的是在Makefile中可以使用系统shell所提供的任何命令来完成自己想要的工作。Makefile在绝大多数的IDE开发环境中都在使用。</p>
+<p>&emsp;&emsp;本文以及后续所有关于Makefile的blog都将采用C语言的源程序。</p>
+<h2 id="关于学习GUN-make工具，你所需要掌握的知识"><a href="#关于学习GUN-make工具，你所需要掌握的知识" class="headerlink" title="关于学习GUN make工具，你所需要掌握的知识"></a>关于学习GUN make工具，你所需要掌握的知识</h2><p>&emsp;&emsp;在我们开始讨论Makefile之前，首先要明确几个基本概念（这里不对它们作详细的解释，本系列blog主要针对于GUN make工具）：</p>
+<ul>
+<li>编译：将高级语言转换为计算机可识别的机器指令。转换后的指令虽然可以被计算机识别，但是还不能被执行。编译时，编译器检查高级语言的语法、函数和变量的声明是否正确。只有所有的语法正确、相关变量定义正确，编译器才会编译出中间目标文件。通常，一个高级语言的源文件都可对应一个目标文件。目标文件在Linux中默认后缀为“.o”（如“func.c”的目标文件为“func.o”）。</li>
+<li>链接：将多个.o文件，或者.o文件和库文件链接为可被操作系统执行的可执行程序（Linux下可执行文件的格式为：ELF）。链接器不检查函数所在的源文件，只检查所有.o文件中定义的符号。将.o文件中的函数和其他.o和库文件中的相关符号进行合并，对所有文件中的符号进行重定位，并链接系统相关文件（程序启动文件等）最终生成可执行程序。链接过程使用GUN的“ld”工具。</li>
+<li>静态库：又称为“文档文件（Archive File）。它是多个.o文件的集合。Linux中静态文件的后缀为“.a”。静态库中的各个成员没有特殊的存在格式，仅仅是一个.o文件的集合。通常使用“ar”工具维护和管理静态库。</li>
+<li>共享库：也是多个.o文件的集合，但是这些.o文件是由编译器按照一种特殊的方式生成（Linux中，共享库文件格式通常为“ELF”格式。共享库已经具备了可执行的条件）。模块中各个成员的地址（变量引用和函数调用）都是相对地址。使用此共享库的程序在运行时，共享库被动态加载到内存并和主程序在内存中进行链接。多个可执行程序可共享库文件的代码段（多个程序可以共享代码，不共享数据）。另外共享库的成员对象可被执行（由libdl.so提供支持）。</li>
+</ul>
+<h2 id="GUN-make介绍"><a href="#GUN-make介绍" class="headerlink" title="GUN make介绍"></a>GUN make介绍</h2><p>&emsp;&emsp;此前说过，在执行make之前，我们需要一个或多个Makefile文件来告诉make该做什么以及怎么做。通常make工具主要被用来进行工程编译和程序链接。</p>
+<p>&emsp;&emsp;当使用make工具进行编译时，工程中以下几种文件在执行make时将会被编译（或者重新编译）：</p>
+<ol>
+<li>所有的源文件没有被编译过，则对各个C源文件进行编译并进行链接，生成最终的可执行程序；</li>
+<li>每一个在上次执行make之后修改过的C源文件在本次执行make时将会被重新编译；</li>
+<li>头文件在上一次执行make之后被修改，则所有包含此头文件的C源文件在本次执行make时将会被重新编译。</li>
+</ol>
+<h3 id="Makefile规则介绍"><a href="#Makefile规则介绍" class="headerlink" title="Makefile规则介绍"></a>Makefile规则介绍</h3><p>&emsp;&emsp;一个简单的Makefile描述规则组成：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">TARGET...:PREREQUISITES...</span></span><br><span class="line">	COMMAND</span><br><span class="line">	...</span><br><span class="line">	...</span><br></pre></td></tr></table></figure>
 
-<p>在某些语境下x保证被初始化（为0），但在其他语境中却不保证。如果我们这么写：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> x, y;</span><br><span class="line">&#125;;</span><br><span class="line">...</span><br><span class="line">Point p;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;target：规则的目标。通常是最后需要生成的文件名或者是为了实现这个目的而必需的中间过程文件名。可以是.o文件、也可以是最后的可执行程序的文件名等。另外，目标也可以是一个make执行动作的名称，比如“clean”，我们称这样的目标是“伪目标”。</p>
+<p>&emsp;&emsp;prerequisites：规则的依赖。生成规则目标所需的文件名列表。通常一个目标依赖于一个或者多个文件。</p>
+<p>&emsp;&emsp;command：规则的命令行。是规则所要执行的动作（任何shell命令或者是可在shell下执行的程序）。它限定了make执行这条规则所需要的动作。</p>
+<p>&emsp;&emsp;一个规则可以有多个命令行。每一条命令占一行。注意：每一个命令行必须以“TAB”字符开始，“TAB”字符告诉make此行是一个命令行。</p>
+<p>&emsp;&emsp;一个目标可以没有依赖而只有动作（指定的命令）。比如Makefile中的目标“clean”，此目标没有依赖，只有命令。它所定义的命令通常用来删除make过程中产生的中间文件（进行清理工作）。</p>
+<h3 id="一个简单的示例"><a href="#一个简单的示例" class="headerlink" title="一个简单的示例"></a>一个简单的示例</h3><p>&emsp;&emsp;现在，我们来编写一个最为简单的Makefile，此示例由2个头文件，4个C源文件组成，并且最终将生成可执行文件“sample”。示例如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#sample Makefile</span></span><br><span class="line"><span class="section">sample: main.o func1.o func2.o func3.o</span></span><br><span class="line">	  cc -o sample main.o func1.o func2.o func3.o</span><br><span class="line"></span><br><span class="line"><span class="section">main.o: main.c header1.h</span></span><br><span class="line">    cc -c main.c</span><br><span class="line"><span class="section">func1.o: func1.c header1.h header2.h</span></span><br><span class="line">    cc -c func1.c</span><br><span class="line"><span class="section">func2.o: func2.c header1.h header2.h</span></span><br><span class="line">    cc -c func2.c</span><br><span class="line"><span class="section">func3.o: func3.c header1.h header2.h</span></span><br><span class="line">    cc -c func3.c</span><br><span class="line">    </span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm sample main.o func1.o \</span><br><span class="line">    func2.o func3.o</span><br></pre></td></tr></table></figure>
 
-<p>p的成员变量有时候被初始化（为0），有时候不会。</p>
-<p>&emsp;&emsp;通常如果我们使用C part of C++而且初始化可能导致运行期成本，那么就不保证发生初始化。一旦进入了non-C parts of C++，规则就会有些改变。这就很好的解释了为什么array（来自C part of C++）不保证其内容被初始化，而vector（来自STL parts of C++）却有此保证。</p>
-<p>&emsp;&emsp;表面上这似乎是个无法决定的状态，而最佳处理办法就是：永远在使用对象之前先讲它初始化。对于物任何成员的内置类型，我们必须手工完成此事。例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="built_in">text</span> = <span class="string">"A C-style string"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">double</span> d;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cin</span> &gt;&gt; d;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;编写Makefile时，可以将一个较长行使用反斜线来分解多行，这样可以使我们的Makefile容易阅读。但需要注意的是：反斜线之后不能有空格。在完成这个Makefile之后，为了创建可执行程序“sample”，所要做的就是在包含此Makefile的目录下输入命令“make”。删除在此目录下之前使用“make”生成的文件（包括那些中间文件），也只需要输入命令“make clean”就可以了。</p>
+<p>&emsp;&emsp;在这个Makefile中，我们的目标就是可执行文件“sample”和那些中间.o文件；依赖就是冒号后面的那些.c文件和.h文件。所有的.o文件既是依赖文件又是目标。</p>
+<h3 id="make如何工作"><a href="#make如何工作" class="headerlink" title="make如何工作"></a>make如何工作</h3><p>&emsp;&emsp;当在shell提示符下输入“make”命令后。make读取当前目录下的Makefile文件，并将Makefile文件中的第一个目标作为其执行的“终极目标”，开始处理第一个规则（终极目标所在的规则）。在我们的示例中，第一个规则就是sample所在的规则。规则描述了“sample”的依赖关系，并定义了链接.o文件生成目标“sample”的命令；make在执行这个命令之前，首先处理目标“sample”的所有的依赖文件的更新规则。对这些.o文件为目标的规则处理有以下三种情况：</p>
+<ol>
+<li>目标.o文件不存在，使用其描述规则创建它；</li>
+<li>目标.o文件存在，目标.o文件所依赖的.c源文件、.h头文件中的任何一个比目标.o文件更新（在上一次make之后被修改）。则根据规则重新编译生成它；</li>
+<li>目标.o文件存在，目标.o文件比它的任何一个依赖文件更新（它的依赖文件在上一次make之后没有被修改）。则什么都不做。</li>
+</ol>
+<p>&emsp;&emsp;这些.o文件所在的规则之所以会被执行，是因为这些.o文件出现在“终极目标”的依赖列表中。在Makefile中一个规则的目标如果不是“终极目标”所依赖的（或者不是“终极目标”的依赖文件所依赖的），那么这个规则将不会被执行，除非明确指定执行这个规则（例如“make clean”）。</p>
+<p>&emsp;&emsp;完成了对.o文件的创建或者更新之后，make程序将处理终极目标“sample”所在的规则，分为以下三种情况：</p>
+<ol>
+<li>目标“sample”文件不存在，则执行规则以创建目标“sample”；</li>
+<li>目标“sample”文件存在，其依赖文件中有一个或者多个文件比它更新，则根据规则重新链接生成“sample”；</li>
+<li>目标“sample”文件存在，它比它的任何一个依赖文件都更新，则什么也不做。</li>
+</ol>
+<h3 id="指定变量"><a href="#指定变量" class="headerlink" title="指定变量"></a>指定变量</h3><p>&emsp;&emsp;对于上述示例中的终极目标“sample”所在的规则中，.o文件列表出现了两次，并且当遇到大量.o文件时，这就会给维护以及修改带来很大的不便。</p>
+<p>&emsp;&emsp;为了避免这个问题，在实际工作中，大家普遍比较认可的做法是，使用一个变量（比如“OBJECT”或者“object”或者其他名称）来作为所有.o文件列表的替代。在使用这些文件列表的地方，使用此变量来代替。在上述Makefile中我们可以添加这样一行：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objects = main.o func1.o func2.o func3.o</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;至于内置类型以外的任何其他东西，初始化责任落在了构造函数身上。规则很简单：确保每一个构造函数都将对象的每一个成员初始化。</p>
-<p>&emsp;&emsp;这个规则很容易遵循，重要的事别混淆了赋值和初始化。考虑一个用来表现通讯簿的class，其构造函数如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneNumber</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ABEntry</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">            <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones);</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> theName;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> theAddress;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt; thePhones;</span><br><span class="line">    <span class="keyword">int</span> numTimesConsulted;</span><br><span class="line">&#125;;</span><br><span class="line">ABEntry::ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">                 <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones) &#123;</span><br><span class="line">    theName = name;  <span class="comment">//这些都是赋值而非初始化</span></span><br><span class="line">    theAddress = address;</span><br><span class="line">    thePhones = phones;</span><br><span class="line">    numTimesConsulted = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;“objects”作为一个变量，它代表所有的.o文件列表。在定义了此变量后，我们就可以在需要使用这些.o文件列表的地方使用“$(objects)”来表示它，而不需要罗列所有的.o文件。因此上述示例的规则可以这样写：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">objects = main.o func1.o func2.o func3.o</span><br><span class="line"><span class="section">sample: <span class="variable">$(objects)</span></span></span><br><span class="line">		cc -o sample <span class="variable">$(objects)</span></span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">		rm sample <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;这会导致ABEntry对象带有我们期望的值，但不是最佳做法。C++规定，对象的成员变量的初始化动作发生在进入构造函数本体之前。在ABEntry构造函数内，theName，theAddress和thePhones都不是被初始化，而是被赋值。初始化的发生时间更早，发生于这些成员的default构造函数被自动调用之时。但这对numTimesConsulted却并非如此，因为它属于内置类型，不保证一定在我们所看到的那个赋值动作的时间点之前获得初值。</p>
-<p>&emsp;&emsp;ABEntry构造函数的一个较佳写法是，使用所谓的member initialization list（成员初值列）替换赋值动作：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ABEntry::ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">                 <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones) </span><br><span class="line">    : theName(name),</span><br><span class="line">      theAddress(address),</span><br><span class="line">      thePhones(phones),</span><br><span class="line">      numTimesConsulted(<span class="number">0</span>)</span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="自动推导规则"><a href="#自动推导规则" class="headerlink" title="自动推导规则"></a>自动推导规则</h3><p>&emsp;&emsp;在使用make编译.c源文件时，编译.c源文件规则的命令可以不用明确给出，这是因为make本身存在一个默认规则，能够自动完成对.c文件的编译并生成对应的.o文件。在Makefile中我们只需要给出需要重建的目标文件名（一个.o文件），make会自动为这个.o文件寻找适合的依赖文件（对应的.c文件。对应指的是：文件名除后缀外，其余都相同的两个文件），而且使用正确的命令来重建这个目标文件。</p>
+<p>&emsp;&emsp;这样，在编写Makefile时，我们就可以省略掉描述.c和.o文件依赖关系的规则，而只需要给出那些特定的规则描述（.o目标需要的.h文件）。因此上述示例可以写成：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#sample Makefile</span></span><br><span class="line">objects = main.o func1.o func2.o func3.o</span><br><span class="line"></span><br><span class="line"><span class="section">sample: <span class="variable">$(objects)</span></span></span><br><span class="line">		cc -o sample <span class="variable">$(objects)</span></span><br><span class="line">		</span><br><span class="line"><span class="section">main.o: header1.h </span></span><br><span class="line"><span class="section">func1.o: header1.h header2.h</span></span><br><span class="line"><span class="section">func2.o: header1.h header2.h</span></span><br><span class="line"><span class="section">func3.o: header1.h header2.h</span></span><br><span class="line"></span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br><span class="line">		rm sample <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;这个构造函数和上一个的最终结果相同，但通常效率较高。对于大多数类型而言，比起先调用default构造函数然后再调用copy assignment操作符，单只调用一次copy构造函数是比较高效的，有时甚至高效的多。对于内置对象如numTimesConsulted，其初始化和赋值的成本相同，但为了一致性最好也通过成员初值列来初始化。同样的道理，甚至当我们想要default构造一个成员变量，我们都可以用成员初值列，只要指定nothing作为初始化实参即可，假设ABEntry有一个无参数构造函数，我们可以将其实现为：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ABEntry::ABEntry() </span><br><span class="line">    : theName(),  <span class="comment">//调用theName的default构造函数</span></span><br><span class="line">      theAddress(),</span><br><span class="line">      thePhones(),</span><br><span class="line">      numTimesConsulted(<span class="number">0</span>)  <span class="comment">//记得将numTimesConsulted显式初始化为0</span></span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="清除工作目录过程文件"><a href="#清除工作目录过程文件" class="headerlink" title="清除工作目录过程文件"></a>清除工作目录过程文件</h3><p>&emsp;&emsp;之前提到的清除当前目录下编译过程中产生的临时文件的规则：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">clean:</span></span><br><span class="line">		rm sample <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
 
-<p>由于编译器会为用户自定义类型的成员变量自动调用default构造函数——如果那些成员变量在“成员初值列”中没有被指定初值的话，因而引发某些程序员过度夸张地采用以上写法，这是可以理解的，但请立下一个规定，总是在初值列中列出所有成员变量，以免还得记住哪些成员变量可以无需初值。举个例子，由于numTimesConsulted属于内置类型，如果成员初值列遗漏了它，它就没有初值，因而可能造成严重的后果。</p>
-<p>&emsp;&emsp;有些情况下即使面对的成员变量属于内置类型（那么其初始化与赋值成本相同），也一定得使用初值列。没错，如果成员变量是const或reference，它们就一定需要初值，不能被赋值。为了避免需要记住成员变量何时必须在成员初值列中初始化，何时不需要，最简单的做法就是：总是使用成员初值列。这样做有时候绝对有必要，且往往比赋值更高效。</p>
-<p>&emsp;&emsp;许多classes拥有多个构造函数，每个构造函数有自己的成员初值列；如果这种clasees存在许多成员变量和／或base classes，多份成员初值列的存在就会导致不受欢迎的重复（在初值列内）和无聊的工作。这种情况下可以合理地在初值列中遗漏哪些“赋值表现像初始化一样好”的成员变量，改用它们的赋值操作，并将哪些赋值动作移往某个函数（通常是private），供所有构造函数调用。这种做法在“成员变量的初值是由文件或数据库读入”时特别有用。然而，比起经由赋值操作完成的“伪初始化”，通过成员初值列完成的“真正初始化”通常更加可取。</p>
-<p>&emsp;&emsp;C++有着十分固定的“成员初始化次序”。次序总是相同的：base classes更早于其derived classes被初始化，而class的成员变量总是以其声明次序被初始化。回头看看ABEntry，其theName成员永远最先被初始化，然后是theAddress，再来是thePhones，最后是numTimesConsulted。即使它们在成员初值列中以不同的次序出现（很不幸，这是合法的），也不会有任何影响。为避免我们或观看我们代码的人迷惑，当我们在编写成员初值列各个成员时，最好总是以其声明次序为次序。</p>
-<p>&emsp;&emsp;一旦我们已经很小心地将“内置型成员变量”明确地加以初始化，而且也确保我们的构造函数运用“成员初值列”初始化base classes和成员变量，那就只剩唯一一件事需要操心，那就是……呃……深呼吸……“不同编译单元内定义的non-local static对象”的初始化次序。</p>
-<p>&emsp;&emsp;让我们一点一点地深钻这一长串词组。</p>
-<p>&emsp;&emsp;所谓static对象，其寿命从被构造出来直到程序结束为止，因此stack和heap-base对象都被排除。这种对象包括global对象、定义于namespace作用域内的对象、在class内、在函数内、以及在file作用域内被声明为static的对象。函数内的static对象称为local static对象，其它static对象称为non-local static对象。程序结束时static对象会被自动销毁，也就是它们的析构函数会在main()结束时被自动调用。</p>
-<p>&emsp;&emsp;所谓编译单元是指产出单一目标文件的那些源码。基本上它是单一源码文件加上其所含入的头文件。</p>
-<p>&emsp;&emsp;现在，我们关心的问题涉及至少两个源码文件，每一个内含至少一个non-local static对象。真正的问题是：如果某编译单元内的某个non-local static对象的初始化动作使用了另一编译单元的某个non-local static对象，它所用到的这个对象可能尚未被初始化，因为C++对“定义于不同编译单元内的non-local static对象”的初始化次序并无明确定义。</p>
-<p>&emsp;&emsp;幸运的是一个小小的设计便可以完全消除这个问题。唯一需要做的是：将每个non-local static对象搬到自己的专属函数内（该对象在此函数内被声明为static）。这些函数返回一个reference指向它所含的对象。然后用户调用这些函数，而不直接指涉这些对象。换句话说，non-local static对象被local static对象替换了。Design Patterns迷哥迷妹们想必认出来了，这是Singleton模式的一个常见实现手法。</p>
-<p>&emsp;&emsp;这个手法的基础在于：C++保证，函数内的local static对象会在“该函数被调用期间”“首次遇上该对象的定义式”时被初始化。所以如果我们以“函数调用”（返回一个reference指向local static对象）替换“直接访问non-local static对象”，我们就获得了保证，保证我们所获的的那个reference将指向一个经历过初始化的对象。更棒的是，如果我们从未调用non-local static对象的“仿真函数”，就绝不会引发构造和析构成本：真正的non-local static对象可没这等便宜。</p>
-<blockquote>
-<p>为内置型对象进行手工初始化，因为C++不保证初始化它们。</p>
-<p>构造函数最好使用成员初值列，而不要在构造函数本体内使用赋值操作。初值列列出的成员变量，其排列次序应该和它们在class中的声明次序相同。</p>
-<p>为免除“跨编译单元的初始化次序”问题，以local static对象替换non-local static对象。</p>
-</blockquote>
+<p>&emsp;&emsp;在实际应用中，我们将上述规则写成如下形式：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">		-rm sample <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这两个实现有两点不同：1.通过“.PHONY”特殊目标将“clean”目标声明为伪目标。避免当磁盘上存在一个名为“clean”文件时，目标“clean”所在规则的命令无法执行（具体原理见后续blog）。2.在命令行之前使用“-”，意思是忽略命令“rm”的执行错误。</p>
+<p>&emsp;&emsp;因为目标“clean”没有出现在终极目标“sample”依赖关系中，所以我们执行make时，目标“clean”所在规则不会被处理。当需要执行此规则时，要在make的命令行选项中明确指定这个目标（执行“make clean”）。</p>
+<p>&emsp;&emsp;以上就是关于Makefile的大致描述，关于Makefile的语法以及更加详尽的用法将在后续blog中进行描述。此blog目的仅仅是使读者对于Makefile有一个大致的印象，看完此内容并不足以使你成为一个Makefile高手，甚至不会是一个入门级选手。</p>
 
       
 
@@ -235,7 +262,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">makefile</a>
         		</li>
       		
 		</ul>
@@ -247,7 +274,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        			<a href="/categories/linux//" class="article-tag-list-link color1">linux</a>
         		</li>
       		
 		</ul>
@@ -302,7 +329,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/07/19/%E7%A1%AE%E5%AE%9A%E5%AF%B9%E8%B1%A1%E8%A2%AB%E4%BD%BF%E7%94%A8%E5%89%8D%E5%B7%B2%E5%85%88%E8%A2%AB%E5%88%9D%E5%A7%8B%E5%8C%96/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/09/11/%E5%85%B3%E4%BA%8EGUN%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%881%EF%BC%89/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -316,18 +343,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2020/07/20/%E4%BA%86%E8%A7%A3C++%E9%BB%98%E9%BB%98%E7%BC%96%E5%86%99%E5%B9%B6%E8%B0%83%E7%94%A8%E5%93%AA%E4%BA%9B%E5%87%BD%E6%95%B0/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          了解C++默默编写并调用哪些函数
-        
-      </div>
-    </a>
   
-  
-    <a href="/2020/07/18/%E5%B0%BD%E5%8F%AF%E8%83%BD%E4%BD%BF%E7%94%A8const/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">尽可能使用const</div>
+    <a href="/2020/09/06/%E7%A1%AE%E5%AE%9A%E4%BD%A0%E7%9A%84public%E7%BB%A7%E6%89%BF%E5%A1%91%E6%A8%A1%E5%87%BAis-a%E5%85%B3%E7%B3%BB/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">确定你的public继承塑模出is-a关系</div>
       <i class="icon-circle-right"></i>
     </a>
   
