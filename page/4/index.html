@@ -134,6 +134,277 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-确定对象被使用前已先被初始化" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/19/%E7%A1%AE%E5%AE%9A%E5%AF%B9%E8%B1%A1%E8%A2%AB%E4%BD%BF%E7%94%A8%E5%89%8D%E5%B7%B2%E5%85%88%E8%A2%AB%E5%88%9D%E5%A7%8B%E5%8C%96/">确定对象被使用前已先被初始化</a>
+    </h1>
+  
+
+        
+        <a href="/2020/07/19/%E7%A1%AE%E5%AE%9A%E5%AF%B9%E8%B1%A1%E8%A2%AB%E4%BD%BF%E7%94%A8%E5%89%8D%E5%B7%B2%E5%85%88%E8%A2%AB%E5%88%9D%E5%A7%8B%E5%8C%96/" class="archive-article-date">
+  	<time datetime="2020-07-19T01:41:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-19</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="确定对象被使用前已先被初始化"><a href="#确定对象被使用前已先被初始化" class="headerlink" title="确定对象被使用前已先被初始化"></a>确定对象被使用前已先被初始化</h1><p>&emsp;&emsp;关于“将对象初始化”这一点，C++似乎反复无常。如果我们这么写：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x;</span><br></pre></td></tr></table></figure>
+
+<p>在某些语境下x保证被初始化（为0），但在其他语境中却不保证。如果我们这么写：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> x, y;</span><br><span class="line">&#125;;</span><br><span class="line">...</span><br><span class="line">Point p;</span><br></pre></td></tr></table></figure>
+
+<p>p的成员变量有时候被初始化（为0），有时候不会。</p>
+<p>&emsp;&emsp;通常如果我们使用C part of C++而且初始化可能导致运行期成本，那么就不保证发生初始化。一旦进入了non-C parts of C++，规则就会有些改变。这就很好的解释了为什么array（来自C part of C++）不保证其内容被初始化，而vector（来自STL parts of C++）却有此保证。</p>
+<p>&emsp;&emsp;表面上这似乎是个无法决定的状态，而最佳处理办法就是：永远在使用对象之前先讲它初始化。对于物任何成员的内置类型，我们必须手工完成此事。例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="built_in">text</span> = <span class="string">"A C-style string"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">double</span> d;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cin</span> &gt;&gt; d;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;至于内置类型以外的任何其他东西，初始化责任落在了构造函数身上。规则很简单：确保每一个构造函数都将对象的每一个成员初始化。</p>
+<p>&emsp;&emsp;这个规则很容易遵循，重要的事别混淆了赋值和初始化。考虑一个用来表现通讯簿的class，其构造函数如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneNumber</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ABEntry</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">            <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones);</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> theName;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> theAddress;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt; thePhones;</span><br><span class="line">    <span class="keyword">int</span> numTimesConsulted;</span><br><span class="line">&#125;;</span><br><span class="line">ABEntry::ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">                 <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones) &#123;</span><br><span class="line">    theName = name;  <span class="comment">//这些都是赋值而非初始化</span></span><br><span class="line">    theAddress = address;</span><br><span class="line">    thePhones = phones;</span><br><span class="line">    numTimesConsulted = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这会导致ABEntry对象带有我们期望的值，但不是最佳做法。C++规定，对象的成员变量的初始化动作发生在进入构造函数本体之前。在ABEntry构造函数内，theName，theAddress和thePhones都不是被初始化，而是被赋值。初始化的发生时间更早，发生于这些成员的default构造函数被自动调用之时。但这对numTimesConsulted却并非如此，因为它属于内置类型，不保证一定在我们所看到的那个赋值动作的时间点之前获得初值。</p>
+<p>&emsp;&emsp;ABEntry构造函数的一个较佳写法是，使用所谓的member initialization list（成员初值列）替换赋值动作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ABEntry::ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">                 <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones) </span><br><span class="line">    : theName(name),</span><br><span class="line">      theAddress(address),</span><br><span class="line">      thePhones(phones),</span><br><span class="line">      numTimesConsulted(<span class="number">0</span>)</span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个构造函数和上一个的最终结果相同，但通常效率较高。对于大多数类型而言，比起先调用default构造函数然后再调用copy assignment操作符，单只调用一次copy构造函数是比较高效的，有时甚至高效的多。对于内置对象如numTimesConsulted，其初始化和赋值的成本相同，但为了一致性最好也通过成员初值列来初始化。同样的道理，甚至当我们想要default构造一个成员变量，我们都可以用成员初值列，只要指定nothing作为初始化实参即可，假设ABEntry有一个无参数构造函数，我们可以将其实现为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ABEntry::ABEntry() </span><br><span class="line">    : theName(),  <span class="comment">//调用theName的default构造函数</span></span><br><span class="line">      theAddress(),</span><br><span class="line">      thePhones(),</span><br><span class="line">      numTimesConsulted(<span class="number">0</span>)  <span class="comment">//记得将numTimesConsulted显式初始化为0</span></span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于编译器会为用户自定义类型的成员变量自动调用default构造函数——如果那些成员变量在“成员初值列”中没有被指定初值的话，因而引发某些程序员过度夸张地采用以上写法，这是可以理解的，但请立下一个规定，总是在初值列中列出所有成员变量，以免还得记住哪些成员变量可以无需初值。举个例子，由于numTimesConsulted属于内置类型，如果成员初值列遗漏了它，它就没有初值，因而可能造成严重的后果。</p>
+<p>&emsp;&emsp;有些情况下即使面对的成员变量属于内置类型（那么其初始化与赋值成本相同），也一定得使用初值列。没错，如果成员变量是const或reference，它们就一定需要初值，不能被赋值。为了避免需要记住成员变量何时必须在成员初值列中初始化，何时不需要，最简单的做法就是：总是使用成员初值列。这样做有时候绝对有必要，且往往比赋值更高效。</p>
+<p>&emsp;&emsp;许多classes拥有多个构造函数，每个构造函数有自己的成员初值列；如果这种clasees存在许多成员变量和／或base classes，多份成员初值列的存在就会导致不受欢迎的重复（在初值列内）和无聊的工作。这种情况下可以合理地在初值列中遗漏哪些“赋值表现像初始化一样好”的成员变量，改用它们的赋值操作，并将哪些赋值动作移往某个函数（通常是private），供所有构造函数调用。这种做法在“成员变量的初值是由文件或数据库读入”时特别有用。然而，比起经由赋值操作完成的“伪初始化”，通过成员初值列完成的“真正初始化”通常更加可取。</p>
+<p>&emsp;&emsp;C++有着十分固定的“成员初始化次序”。次序总是相同的：base classes更早于其derived classes被初始化，而class的成员变量总是以其声明次序被初始化。回头看看ABEntry，其theName成员永远最先被初始化，然后是theAddress，再来是thePhones，最后是numTimesConsulted。即使它们在成员初值列中以不同的次序出现（很不幸，这是合法的），也不会有任何影响。为避免我们或观看我们代码的人迷惑，当我们在编写成员初值列各个成员时，最好总是以其声明次序为次序。</p>
+<p>&emsp;&emsp;一旦我们已经很小心地将“内置型成员变量”明确地加以初始化，而且也确保我们的构造函数运用“成员初值列”初始化base classes和成员变量，那就只剩唯一一件事需要操心，那就是……呃……深呼吸……“不同编译单元内定义的non-local static对象”的初始化次序。</p>
+<p>&emsp;&emsp;让我们一点一点地深钻这一长串词组。</p>
+<p>&emsp;&emsp;所谓static对象，其寿命从被构造出来直到程序结束为止，因此stack和heap-base对象都被排除。这种对象包括global对象、定义于namespace作用域内的对象、在class内、在函数内、以及在file作用域内被声明为static的对象。函数内的static对象称为local static对象，其它static对象称为non-local static对象。程序结束时static对象会被自动销毁，也就是它们的析构函数会在main()结束时被自动调用。</p>
+<p>&emsp;&emsp;所谓编译单元是指产出单一目标文件的那些源码。基本上它是单一源码文件加上其所含入的头文件。</p>
+<p>&emsp;&emsp;现在，我们关心的问题涉及至少两个源码文件，每一个内含至少一个non-local static对象。真正的问题是：如果某编译单元内的某个non-local static对象的初始化动作使用了另一编译单元的某个non-local static对象，它所用到的这个对象可能尚未被初始化，因为C++对“定义于不同编译单元内的non-local static对象”的初始化次序并无明确定义。</p>
+<p>&emsp;&emsp;幸运的是一个小小的设计便可以完全消除这个问题。唯一需要做的是：将每个non-local static对象搬到自己的专属函数内（该对象在此函数内被声明为static）。这些函数返回一个reference指向它所含的对象。然后用户调用这些函数，而不直接指涉这些对象。换句话说，non-local static对象被local static对象替换了。Design Patterns迷哥迷妹们想必认出来了，这是Singleton模式的一个常见实现手法。</p>
+<p>&emsp;&emsp;这个手法的基础在于：C++保证，函数内的local static对象会在“该函数被调用期间”“首次遇上该对象的定义式”时被初始化。所以如果我们以“函数调用”（返回一个reference指向local static对象）替换“直接访问non-local static对象”，我们就获得了保证，保证我们所获的的那个reference将指向一个经历过初始化的对象。更棒的是，如果我们从未调用non-local static对象的“仿真函数”，就绝不会引发构造和析构成本：真正的non-local static对象可没这等便宜。</p>
+<blockquote>
+<p>为内置型对象进行手工初始化，因为C++不保证初始化它们。</p>
+<p>构造函数最好使用成员初值列，而不要在构造函数本体内使用赋值操作。初值列列出的成员变量，其排列次序应该和它们在class中的声明次序相同。</p>
+<p>为免除“跨编译单元的初始化次序”问题，以local static对象替换non-local static对象。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/07/19/%E7%A1%AE%E5%AE%9A%E5%AF%B9%E8%B1%A1%E8%A2%AB%E4%BD%BF%E7%94%A8%E5%89%8D%E5%B7%B2%E5%85%88%E8%A2%AB%E5%88%9D%E5%A7%8B%E5%8C%96/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-尽可能使用const" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/18/%E5%B0%BD%E5%8F%AF%E8%83%BD%E4%BD%BF%E7%94%A8const/">尽可能使用const</a>
+    </h1>
+  
+
+        
+        <a href="/2020/07/18/%E5%B0%BD%E5%8F%AF%E8%83%BD%E4%BD%BF%E7%94%A8const/" class="archive-article-date">
+  	<time datetime="2020-07-18T02:42:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-18</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="尽可能使用const"><a href="#尽可能使用const" class="headerlink" title="尽可能使用const"></a>尽可能使用const</h1><p>&emsp;&emsp;关键字const多才多艺。我们可以用它在classes外部修饰global或namespace作用域中的常量，或修饰文件、函数、或区块作用域中被声明为static的对象。我们也可以用它修饰classes内部的static和non-static成员变量。面对指针，我们也可以指出指针自身、指针所指物，或者两者都（或都不）是const：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> greeting[] = <span class="string">"Hello"</span>;</span><br><span class="line"><span class="keyword">char</span>* p = greeting;              <span class="comment">//non-const pointer,non-const data</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* p = greeting;        <span class="comment">//non-const pointer,const data</span></span><br><span class="line"><span class="keyword">char</span>* <span class="keyword">const</span> p = greeting;        <span class="comment">//const pointer,non-const data</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span> p = greeting;  <span class="comment">//const pointer,const data</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;STL迭代器是以指针为根据塑模出来的，所以迭代器的作用就像个T*指针。声明迭代器为const就像声明指针为const一样（即声明一个T&#42;const指针），表示这个迭代器不得指向不同的东西，但它所指的东西的值是可以改动的。如果我们希望迭代器所指的东西不可被改动，我们需要的是const_iterator：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator iter = vec.<span class="built_in">begin</span>();</span><br><span class="line">*iter = <span class="number">10</span>;  <span class="comment">//没问题，改变iter所指物</span></span><br><span class="line">++iter;  <span class="comment">//错误！iter是const</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::const_iterator cIter = vec.<span class="built_in">begin</span>();</span><br><span class="line">*cIter = <span class="number">10</span>;  <span class="comment">//错误！*cIter是const</span></span><br><span class="line">++cIter;  <span class="comment">//没问题，改变cIter</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;const最具威力的用法是面对函数声明时的应用。在一个函数声明式内，const可以和函数返回值、各参数、函数自身（如果是成员函数）产生关联。</p>
+<p>&emsp;&emsp;令函数返回一个常量值，往往可以降低因客户错误而造成的意外，而又不至于放弃安全性和高效性。举个例子，考虑有理数的operator&#42;声明式：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="keyword">const</span> Rational <span class="keyword">operator</span>* (<span class="keyword">const</span> Rational&amp; lhs, <span class="keyword">const</span> Rational&amp; rhs);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;许多程序员第一次看到这个声明时不免斜着眼睛说，为什么返回一个const对象？原因是如果不这样客户就能实现这样的暴行：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rational a, b, c;</span><br><span class="line">...</span><br><span class="line">(a * b) = c;  <span class="comment">//在a * b的结果上调用operator=</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我不知道为什么会有人想对两个数值的乘积再做一次赋值，也许只是因为单纯的打字错误：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(a * b = c) ...  <span class="comment">//其实是想做一个比较动作</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果a和b都是内置类型，这样的代码直截了当就是不合法。而一个良好的用户自定义类型的特征是它们避免无端地与内置类型不兼容，因此允许对两值乘积做赋值动作也就没什么意思了。将operator&#42;的回传值声明为const可以预防这个“没意思的赋值动作”，这就是该那么做的原因。</p>
+<p>​    &emsp;&emsp;至于const参数，没有什么特别的解释，它们不过就像是local const对象一样，我们应该在必要的时候使用它们。除非我们有改动参数或local对象，否则应该声明为const。只不过多打6个字符，却可以省下烦人的错误，像是“想要键入‘==’却意外键入‘=’”的错误。</p>
+<h2 id="const成员函数"><a href="#const成员函数" class="headerlink" title="const成员函数"></a>const成员函数</h2><p>&emsp;&emsp;将const用于成员函数的目的，是为了确认该成员函数可作用于const对象身上，这一类成员函数之所以重要，基于两个理由。第一，它们使class接口比较容易被理解。这是因为，得知哪个函数可以改动对象内容而哪个函数不行，非常重要。第二，它们使“操作const对象”成为可能。这是编写高效代码的关键所在，改善C++程序效率的一个根本办法是以pass by reference-to-const方式传递对象，而此技术可行的前提是，我们有const成员函数可用来处理取得（并经修饰而成）的const对象。</p>
+<p>&emsp;&emsp;许多人漠视一个事实：两个成员函数如果只是常量性不同，可以被重载。这是一个重要的C++特性。考虑以下class，用来表现大一块文字：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>:<span class="keyword">size_t</span> <span class="built_in">position</span>) <span class="keyword">const</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">text</span>[<span class="built_in">position</span>]; </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">text</span>[<span class="built_in">position</span>];</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> <span class="built_in">text</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>TextBlock的operator[]s可被这么使用：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">TextBlock <span class="title">tb</span><span class="params">(<span class="string">"Hello"</span>)</span></span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; tb[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">const</span> TextBlock <span class="title">ctb</span><span class="params">(<span class="string">"World"</span>)</span></span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ctb[<span class="number">0</span>];</span><br></pre></td></tr></table></figure>
+
+<p>顺带一提，真实程序中const对象大多用于passed by pointer-to-const或passed by reference-to-const的传递效果。上述的ctb例子太过造作，下面这个比较真实：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">const</span> TextBlock&amp; ctb)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ctb[<span class="number">0</span>];</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;需要注意的是，non-const operator[]的返回类型是个reference to char，不是char。如果operator[]只是返回一个char，下面这样的句子就无法通过编译：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tb[<span class="number">0</span>] = <span class="string">'x'</span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这是因为，如果函数的返回类型是个内置类型，那么改动函数返回值从来就不合法。纵使合法，C++以by value返回对象这一事实意味着被改动的其实是tb.text[0]的一个副本，不是tb.text[0]自身，我们也不会想要这样愚蠢的行为。</p>
+<p>&emsp;&emsp;成员函数如果是const意味着什么？这里有两个流行的概念：bitwise constness（又称physical constness）和logical constness。</p>
+<p>&emsp;&emsp;bitwise const阵营的人相信，成员函数只有在不更改对象的任何成员变量（static除外）时才可以说是const。也就是说它不更改对象内的任何一个bit。这种论点的好处是很容易侦测违反点：编译器只需寻找成员变量的赋值动作即可。bitwise constess正是C++对常量性的定义，因此const成员函数不可以更改对象内任何non-static成员变量。</p>
+<p>&emsp;&emsp;不幸的是许多成员函数虽然不完全具备const性质却能通过bitwise测试。更具体地说，一个更改了“指针所指物”的成员函数虽然不能算是const，但如果只有指针（而非其所指物）隶属于对象，那么可以说此函数为bitwise const不会引起编译器的抗议。这导致反直观结果。假设我们有一个TextBlock-like class，它将数据存储为char&#42;而不是string，因为它需要和一个不认识string对象的C API沟通：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CTextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) <span class="keyword">const</span> &#123;  <span class="comment">//bitwise const声明</span></span><br><span class="line">        <span class="keyword">return</span> pText[<span class="built_in">position</span>];                     <span class="comment">//但其实不恰当。</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">char</span>* pText;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个class不适当地将其operator[]声明为const成员函数，而该函数却返回一个reference指向对象内部值。假设暂时不管这个事实，注意，operator[]实现代码并不更改pText。于是编译器很开心地为operator[]产出目标码。它是bitwise const，所有编译器都这么认定。但是我们来看下它会允许发生些什么事：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> CTextBlock <span class="title">cctb</span><span class="params">(<span class="string">"Hello"</span>)</span></span>;</span><br><span class="line"><span class="keyword">char</span>* pc = &amp;cctb[<span class="number">0</span>];</span><br><span class="line">*pc = <span class="string">'J'</span>;  <span class="comment">//现在cctb有了“Jello”这样的内容</span></span><br></pre></td></tr></table></figure>
+
+<p>这其中当然不该有任何错误：我们创建一个常量对象并设置某值，而且只对它调用const成员函数。但我们终究还是改变了它的值。</p>
+<p>&emsp;&emsp;这种情况引出了所谓的logical constness。这一派拥护者主张，一个const成员函数可以修改它所处理的对象内的某些bits，但只有在客户端侦测不出的情况下才得如此。例如我们的CTextBlock class有可能高速缓存文本区块的长度以便应付询问：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CTextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">length</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">char</span>* pText;</span><br><span class="line">    <span class="built_in">std</span>::<span class="keyword">size_t</span> textLength;</span><br><span class="line">    <span class="keyword">bool</span> lengthIsValid;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">CTextBlock::length</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!lengthIsValid) &#123;</span><br><span class="line">        textLength = <span class="built_in">std</span>::<span class="built_in">strlen</span>(pText);  <span class="comment">//错误！在const成员函数内不能赋值给</span></span><br><span class="line">        lengthIsValid = <span class="literal">true</span>;             <span class="comment">//textLength和lengthIsValid。</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> textLength;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;length的实现当然不是bitwise const，因为textLength和lengthIsValid都可能被修改。这两个数据被修改对const CTextBlock对象而言虽然可接受，但编译器不同意。它们坚持bitwise constness。怎么办？</p>
+<p>&emsp;&emsp;解决办法很简单：利用C++的一个与const相关的关键字：mutable。mutable释放掉non-static成员变量的bitwise constness约束：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CTextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">length</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">char</span>* pText;</span><br><span class="line">    <span class="keyword">mutable</span> <span class="built_in">std</span>::<span class="keyword">size_t</span> textLength;</span><br><span class="line">    <span class="keyword">mutable</span> <span class="keyword">bool</span> lengthIsValid;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">CTextBlock::length</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!lengthIsValid) &#123;</span><br><span class="line">        textLength = <span class="built_in">std</span>::<span class="built_in">strlen</span>(pText);  <span class="comment">//现在，可以这样</span></span><br><span class="line">        lengthIsValid = <span class="literal">true</span>;             <span class="comment">//这样也可以</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> textLength;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="在const和non-const成员函数中避免重复"><a href="#在const和non-const成员函数中避免重复" class="headerlink" title="在const和non-const成员函数中避免重复"></a>在const和non-const成员函数中避免重复</h2><p>&emsp;&emsp;对于“bitwise-constness非所我欲”的问题，mutable是个解决办法，但它不能解决所有的const相关难题。举个例子，假设TextBlock（和CTextBlock）内的operator[]不单只是返回一个reference指向字符，也执行边界检验、日志访问信息、甚至可能进行数据完善性检验。把所有这些同时放进const和non-const operator[]中，导致这样的怪物：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) <span class="keyword">const</span> &#123;</span><br><span class="line">        ...  <span class="comment">//边界检验</span></span><br><span class="line">        ...  <span class="comment">//日志数据访问</span></span><br><span class="line">        ...  <span class="comment">//检验数据完整性</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">text</span>[<span class="built_in">position</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) &#123;</span><br><span class="line">        ...  <span class="comment">//边界检验</span></span><br><span class="line">        ...  <span class="comment">//日志数据访问</span></span><br><span class="line">        ...  <span class="comment">//检验数据完整性</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">text</span>[<span class="built_in">position</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> <span class="built_in">text</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我们真正该做的是实现operator[]的功能一次并使用它两次。也就是说，我们必须令其中一个调用另一个。这促使我们将常量性消除。</p>
+<p>&emsp;&emsp;就一般守则而言，转型是一个糟糕的想法。然而代码重复也一样使我们恼火。这面是避免代码重复的安全做法的例子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) <span class="keyword">const</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">        ...</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">text</span>[<span class="built_in">position</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">const_cast</span>&lt;<span class="keyword">char</span>&amp;&gt;(</span><br><span class="line">            <span class="keyword">static_cast</span>&lt;<span class="keyword">const</span> TextBlock&amp;&gt;(*<span class="keyword">this</span>)[<span class="built_in">position</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;上述代码有两个转型动作。我们打算让non-const operator[]调用其const兄弟，但non-const operator[]内部若只是单纯调用operator[]，会递归调用自己。那大概会……唔……进行一百万次。为了避免无穷递归，我们必须明确指出调用的是const operator[]，但C++缺乏直接的语法可以那么做。因此这里将&#42;this从其原始类型TextBlock&amp;转型为const TextBlock&amp;。这里的两次转型，第一次使用来为&#42;this添加const（这使接下来调用operator[]时得以调用const版本），第二次则是从const operator[]的返回值中移除const。</p>
+<p>&emsp;&emsp;至于其他动作，由于本例调用的是操作符，所以语法有一点奇特，恐怕无法赢得选美大赛，但却有我们渴望的“避免代码重复”的效果，因为它运用const operator[]实现出non-const版本。为了达到这个目标而写出如此难看的语法是否值得，只能由自己来决定了。但“运用const成员函数实现出non-const孪生兄弟”的技术是值得了解到。</p>
+<p>&emsp;&emsp;更值得了解的是，反向做法——令const版本调用non-const版本以避免重复——这并不是我们该做的事。记住，const成员函数决不允许改变其对象的逻辑状态，non-const成员函数却没有这样的强制要求。如果在const函数内调用non-const函数，就会冒这样的风险：我们不想改变的那个对象被改动了。这就是为什么“const成员函数调用non-const成员函数”是一个错误行为：因为对象有可能因此被改动。实际上若要这样的代码通过编译，我们必须使用一个const_cast将&#42;this身上的const性质解放掉，这是乌云罩顶掉前兆。之前的调用才是安全的：non-const成员函数本来就可以对其对象做任何操作，所以在其中调用一个const成员函数并不会带来风险。</p>
+<blockquote>
+<p>将某些东西声明为const可帮助编译器侦测出错误用法。const可被施加于任何作用域内的对象、函数参数、函数返回类型、成员函数本体。</p>
+<p>编译器强制实施bitwise constness，但我们编写程序时应该使用“概念上的常量性”。</p>
+<p>当const和non-const成员函数有着实质等价的实现时，令non-const版本调用const版本可避免代码重复。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/07/18/%E5%B0%BD%E5%8F%AF%E8%83%BD%E4%BD%BF%E7%94%A8const/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-尽量以const,enum,inline替换define" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -453,6 +724,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">makefile</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">c++</a>
               </li>
             
             <div class="clearfix"></div>
