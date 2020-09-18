@@ -134,6 +134,81 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-pkg-config" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/09/18/pkg-config/">pkg-config</a>
+    </h1>
+  
+
+        
+        <a href="/2020/09/18/pkg-config/" class="archive-article-date">
+  	<time datetime="2020-09-18T07:55:56.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-18</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="pkg-config详解"><a href="#pkg-config详解" class="headerlink" title="pkg-config详解"></a>pkg-config详解</h1><h2 id="什么是pkg-config"><a href="#什么是pkg-config" class="headerlink" title="什么是pkg-config"></a>什么是pkg-config</h2><p>&emsp;&emsp;Pkg-config是一个linux下的命令，用于获取某一个库／模块的所有编译相关的信息。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkg-config opencv --libs --cflags</span><br></pre></td></tr></table></figure>
+
+<p>结果是解析出了所有该库的头文件以及链接库</p>
+<h2 id="为什么要有pkg-config"><a href="#为什么要有pkg-config" class="headerlink" title="为什么要有pkg-config"></a>为什么要有pkg-config</h2><p>&emsp;&emsp;就上述列子来看，所有用到opencv的其他程序，在编译时，只需要写出“pkg-config opencv –libs –cflags”，而不需要自己去找opencv的头文件以及库文件在哪。</p>
+<p>&emsp;&emsp;如果你写了一个库，不管是静态的还是动态的，要提供给第三方使用，那除了给人家库／头文件，最好也写一个pc文件（package configure是库配置文件，保存在PKG_CONFIG_PATH = xxx。pc文件保存了该库的头文件、库所在的路径信息。GCC等编译器编译时，比如编译某个工程用到glib-2.0这个库，pkg-config会按照PKG_CONFIG_PATH中的路径进行搜索glib-2.0.pc，然后把glib-2.0.pc作为参数传给GCC，那么GCC就可以找到该库了），这样别人使用就方便很多，不用自己再动手写依赖了你哪些库，只需要敲一个“pkg-config [YOUR_LIB] –libs –cflags”。</p>
+<h2 id="pkg-config的信息从哪里来"><a href="#pkg-config的信息从哪里来" class="headerlink" title="pkg-config的信息从哪里来"></a>pkg-config的信息从哪里来</h2><p>&emsp;&emsp;有两种途径：</p>
+<ol>
+<li>取系统的/usr/lib下的所有*.pc文件。</li>
+<li>PKG_CONFIG_PATH环境变量所指向的路径下的所有*.pc文件。</li>
+</ol>
+<p>&emsp;&emsp;这些pc文件什么时候有的？</p>
+<p>&emsp;&emsp;都是在你安装某个库／模块的时候添加的。比如你往系统里面安装opencv时，就会在/usr/lib/目录下，放一个opencv.pc。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/09/18/pkg-config/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-关于GNU make工具的汇总（3）" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1284,114 +1359,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/08/08/%E5%B0%BD%E9%87%8F%E5%B0%91%E5%81%9A%E8%BD%AC%E5%9E%8B%E5%8A%A8%E4%BD%9C/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-尽量延后变量定义式的出现时间" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/08/07/%E5%B0%BD%E9%87%8F%E5%BB%B6%E5%90%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E5%BC%8F%E7%9A%84%E5%87%BA%E7%8E%B0%E6%97%B6%E9%97%B4/">尽量延后变量定义式的出现时间</a>
-    </h1>
-  
-
-        
-        <a href="/2020/08/07/%E5%B0%BD%E9%87%8F%E5%BB%B6%E5%90%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E5%BC%8F%E7%9A%84%E5%87%BA%E7%8E%B0%E6%97%B6%E9%97%B4/" class="archive-article-date">
-  	<time datetime="2020-08-07T00:14:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-07</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="尽量延后变量定义式的出现时间"><a href="#尽量延后变量定义式的出现时间" class="headerlink" title="尽量延后变量定义式的出现时间"></a>尽量延后变量定义式的出现时间</h1><p>&emsp;&emsp;只要你定义了一个变量而其类型带有一个构造函数或析构函数，那么当程序的控制流到达这个变量定义式时，你便得承受构造成本；当这个变量离开其作用域时，你便得承受析构成本。即使这个变量最终并未被使用，仍需耗费这些成本，所以你应该尽可能避免这种情形。</p>
-<p>&emsp;&emsp;或许你会认为，你不可能定义一个不使用的变量，但话不要说得太早！考虑下面这个函数，它计算通行密码的加密版本而后返回，前提是密码够长。如果密码太短，函数会丢出一个异常，类型为logic_error：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这个函数过早定义变量“encrypted”</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line">    <span class="built_in">string</span> encrypted;</span><br><span class="line">    <span class="keyword">if</span>(password.length() &lt; MinimumPasswordLength) &#123;</span><br><span class="line">        <span class="keyword">throw</span> logic_error(<span class="string">"Password is too short"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ...  <span class="comment">//必要动作，将一个加密后的密码置入变量encrypted内</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;对象encrypted在此函数中并非完全未被使用，但如果有个异常被丢出，它就真的没被使用。也就是说如果函数encryptPassword丢出异常，你仍得付出encrypted的析构成本和构造成本。所以最好延后encrypted的定义式，直到确实需要它：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这个函数延后“encrypted”的定义，直到真正需要它</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line">    <span class="keyword">if</span>(password.length() &lt; MinimumPasswordLength) &#123;</span><br><span class="line">        <span class="keyword">throw</span> logic_error(<span class="string">"Password is too shrot"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">string</span> encrypted;</span><br><span class="line">    ...  <span class="comment">//必要动作，将一个加密后的密码置入变量encrypted内</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;但是这段代码仍然不够秾纤合度，因为encrypted虽获定义却无任何实参作为初值。这意味调用的是其default构造函数。许多时候你该对对象做的第一件事就是给它个值，通常是通过一个赋值动作达成。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//终于，这是定义并初始化encrypted的最佳做法</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    ...                               <span class="comment">//检查长度</span></span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encrypted</span><span class="params">(password)</span></span>;  <span class="comment">//通过copy构造函数定义并初始化</span></span><br><span class="line">    encrypt(encrypted);               <span class="comment">//在encrypt函数内对其加密</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这让我们联想起所谓“尽可能延后”的真正意义。你不只应该延后变量的定义，直到非得使用该变量的前一刻为止，甚至应该尝试延后这份定义直到能够给它初值实参为止。如果这样，不仅能够避免构造（和析构）非必要对象，还可以避免无意义的default构造行为。更深一层说，以“具明显意义之初值”将变量初始化，还可以附带说明变量的目的。</p>
-<p>&emsp;&emsp;“但循环怎么办？”你可能会感到疑惑。如果变量只在循环内使用，那么把它定义于循环外并在每次循环迭代时赋值给它比较好，还是该把它定义于循环内？也就是说下面两个一般性结构，哪一个比较好？</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//方法A</span></span><br><span class="line">Widget w;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">    w = i;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//方法B</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">    <span class="function">Widget <span class="title">w</span><span class="params">(i)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;在Widget函数内部，以上两种写法的成本如下：</p>
-<ul>
-<li>做法A：1个构造函数 + 1个析构函数 + n个赋值操作</li>
-<li>做法B：n个构造函数 + n个析构函数</li>
-</ul>
-<p>&emsp;&emsp;如果class的一个赋值成本低于一组构造+析构成本，做法A大体而言比较高效。尤其当n值很大时。否则做法B或许较好。此外做法A造成名称w的作用域（覆盖整个循环）比做法B更大，有时那对程序的可理解性和易维护性造成冲突。因此除非（1）你知道赋值成本比“构造+析构”成本低，（2）你正在处理代码中效率高度敏感的部分，否则你应该使用做法B。</p>
-<blockquote>
-<p>尽可能延后变量定义式的出现。这样做可增加程序的清晰度并改善程序效率。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/08/07/%E5%B0%BD%E9%87%8F%E5%BB%B6%E5%90%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E5%BC%8F%E7%9A%84%E5%87%BA%E7%8E%B0%E6%97%B6%E9%97%B4/">展开全文 >></a>
         </p>
       
 
