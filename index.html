@@ -167,7 +167,7 @@
 <li>PKG_CONFIG_PATH环境变量所指向的路径下的所有*.pc文件。</li>
 </ol>
 <p>&emsp;&emsp;这些pc文件什么时候有的？</p>
-<p>&emsp;&emsp;都是在你安装某个库／模块的时候添加的。比如你往系统里面安装opencv时，就会在/usr/lib/目录下，放一个opencv.pc。比如我个人电脑上就没有pc文件，那么pc文件到底写了什么？</p>
+<p>&emsp;&emsp;都是在你安装某个库／模块的时候添加的。比如你往系统里面安装opencv时，就会在/usr/lib64/pkgconfig目录下，放一个opencv.pc。比如我个人电脑上就没有pc文件，那么pc文件到底写了什么？</p>
 <p>&emsp;&emsp;以我本人的电脑为例，在/usr/lib64/pkgconfig目录下有一个lua.pc文件，其内容如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">V&#x3D;5.1</span><br><span class="line">R&#x3D;5.1.4</span><br><span class="line">prefix&#x3D;&#x2F;usr</span><br><span class="line">exe_prefix&#x3D;$&#123;prefix&#125;</span><br><span class="line">libdir&#x3D;&#x2F;usr&#x2F;lib64</span><br><span class="line">includedir&#x3D;$&#123;prefix&#125;&#x2F;include</span><br><span class="line"></span><br><span class="line">Name: Lua</span><br><span class="line">Description: An Extensible Extension Language</span><br><span class="line">Version: $&#123;R&#125;</span><br><span class="line">Requires: </span><br><span class="line">Libs: -llua -lm -ldl</span><br><span class="line">Cflags: -I$&#123;includedir&#125;</span><br></pre></td></tr></table></figure>
 
@@ -177,7 +177,56 @@
 <p>显示出如下：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-llua -lm -ldl</span><br></pre></td></tr></table></figure>
 
-<h2 id="如何添加自己的pc文件"><a href="#如何添加自己的pc文件" class="headerlink" title="如何添加自己的pc文件"></a>如何添加自己的pc文件</h2>
+<h2 id="如何添加自己的pc文件"><a href="#如何添加自己的pc文件" class="headerlink" title="如何添加自己的pc文件"></a>如何添加自己的pc文件</h2><p>&emsp;&emsp;如上文所说，有2种方式：</p>
+<ol>
+<li><p>把你的pc文件，直接放在/usr/lib64/pkgconfig…默认路径下。</p>
+</li>
+<li><p>把你的pc文件的路径写到PKG_CONFIG_PATH环境变量里。比如，你可以在/etc/.bashrc或者/home/[your count]/.bashrc的文件末尾添加：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PKG_CONFIG_PATH=$PGK_CONFIG_PATH:/home/[your count]/[your project]/lib/pkgconfig</span><br><span class="line">export PKG_CONFIG_PATH</span><br></pre></td></tr></table></figure>
+
+<p>那么，pkg-config就会到该目录下寻找*.pc文件。</p>
+<p>那么这个pc文件何时生效呢？</p>
+<p>如果是/usr/lib64/pkgconfig下，立马生效！！！</p>
+<p>如果在环境变量里，只要先source ~/.bashrc一下，让环境变量生成，也立马生效。</p>
+</li>
+</ol>
+<h2 id="如何自己写pkg-config的pc文件"><a href="#如何自己写pkg-config的pc文件" class="headerlink" title="如何自己写pkg-config的pc文件"></a>如何自己写pkg-config的pc文件</h2><p>&emsp;&emsp;其实很简单，只需要拿别人的pc文件改一改就行了。</p>
+<p>&emsp;&emsp;pc文件的所有参数：</p>
+<ul>
+<li><p>Name：该模块的的名字，比如你的pc名字是xxx.pc，那么名字最好也是xxx。</p>
+</li>
+<li><p>Description：模块的简单描述。<code>pkg-config --list-all</code>该命令可以查看到所有的模块信息，该命令的结果，每个模块的名字后面就是description。</p>
+</li>
+<li><p>URL：用户可以通过该URL获得更多的信息，或者下载信息。也是辅助的，可要可不要。</p>
+</li>
+<li><p>Version：版本号。</p>
+</li>
+<li><p>Requires：该模块有没有依赖其他模块。一般没有。</p>
+</li>
+<li><p>Requires.private：该模块有没有依赖其他模块，并且还不需要第三方知道的。一般也没有。</p>
+</li>
+<li><p>Conflicts：有没有和别的模块冲突。常用于版本冲突。比如，Confilcts: opencv &lt; 1.0.0，表示和opencv模块的1.0.0以下的版本有冲突。</p>
+</li>
+<li><p>Cflags：这个就很重要了。pkg-config的参数<code>--cflags</code>就指向这里。主要用于写本模块的头文件路径。</p>
+</li>
+<li><p>Libs：也很重要，pkg-config的参数<code>--libs</code>就指向这里。主要用于写本模块的库／依赖库的路径。</p>
+</li>
+<li><p>Libs.private：本模块依赖的库，但不需要第三方知道。</p>
+</li>
+</ul>
+<p>其实必须写的只有5个：Name、Description、Version、Cflags、Libs。</p>
+<p>举个例子。一个动态库，一个静态库。</p>
+<p>例子1:动态库的pc文件。</p>
+<p>假设我写了libfoo.so，我的库会被安装到/usr/local/lib/，头文件会放到/usr/local/include/。那么pc文件可以这样写：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">prefix&#x3D;&#x2F;usr&#x2F;local</span><br><span class="line">exe_prefix&#x3D;$&#123;prefix&#125;</span><br><span class="line">includedir&#x3D;$&#123;prefix&#125;&#x2F;include</span><br><span class="line">libdir&#x3D;$&#123;prefix&#125;&#x2F;lib</span><br><span class="line"></span><br><span class="line">Name: foo</span><br><span class="line">Description: The foo library</span><br><span class="line">Version: 1.0.0</span><br><span class="line">Cflags: -I$&#123;includedir&#125;&#x2F;</span><br><span class="line">Libs: -L$&#123;libdir&#125; -lfoo</span><br></pre></td></tr></table></figure>
+
+<p>例子2:静态库的pc文件</p>
+<p>静态库链接动态库时，如何使用该静态库，如果我有个静态库libXXX.a，它依赖了很多其他动态库libAA.so，libBB.so，那么第三方程序要使用libXXX.a时，编译时还得链接libAA.so，libBB.so。为了让第三方程序不用操心我这个libXXX.a到底依赖了什么，可以为我的libXXX.a写一个pc文件。路径位于工程的文件下的lib/pkgconfig/。之后唯一需要做的就是把这些pc文件的路径，写到PKG_CONFIG_PATH。</p>
+<p>在/home/parallels/.bashrc内添加</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PKG_CONFIG_PATH=$PKG_CONFIG_PATH:[your path]</span><br><span class="line">export PKG_CONFIG_PATH</span><br></pre></td></tr></table></figure>
+
+<p>然后<code>source /home/parallels/.bashrc</code>，最后就可以使用了！</p>
+
       
 
       
@@ -286,9 +335,39 @@
 <h2 id="通配符存在的缺陷"><a href="#通配符存在的缺陷" class="headerlink" title="通配符存在的缺陷"></a>通配符存在的缺陷</h2><p>&emsp;&emsp;在我们的Makefile中，期望能够根据所有的.o文件生成可执行文件“demo”：</p>
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">objects = *.o</span><br><span class="line"></span><br><span class="line"><span class="section">demo: <span class="variable">$(objects)</span></span></span><br><span class="line">    cc -o demo <span class="variable">$(CFLAGS)</span> <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
 
-<p>这里变量“objects”的值是一个字符串“.o”。在重建“demo”的规则中对变量“objects”就行展开，目标“demo”的依赖就是“.o”，即所有的.o文件列表。如果在工作目录下已经存在必需的.o文件，那么这些.o文件将成为目标的依赖文件，目标“demo”将根据规则重建。</p>
-<p>&emsp;&emsp;但是如果将工作目录下的所有.o文件删除，重新执行make将会得到一个类似于“没有创建*.0文件的规则”的错误提示。这当然不是我们想要的结果。为了达到我们想要的结果，在对变量进行定义时需要使用一些高级的技巧，包括使用“wildcard”函数（定义为“objects = $(wildcard *.o)”）和字符串的置换。</p>
-<h2 id="函数wildcard"><a href="#函数wildcard" class="headerlink" title="函数wildcard"></a>函数wildcard</h2><p>&emsp;&emsp;在规则中，通配符会被自动展开。但在变量的定义和函数引用时，通配符将失效。这种情况下如果需要通配符有效，就需要使用“wildcard”，它的用法是：$(wildcard PATTERN…)。在Makefile中，它被展开为已经存在的、使用空格分开的、匹配此模式的所有文件列表。但如果不存在任何符合此模式的</p>
+<p>这里变量“objects”的值是一个字符串“*.o”。在重建“demo”的规则中对变量“objects”进行展开，目标“demo”的依赖就是“*.o”，即所有的.o文件列表。如果在工作目录下已经存在必需的.o文件，那么这些.o文件将成为目标的依赖文件，目标“demo”将根据规则重建。</p>
+<p>&emsp;&emsp;但是如果将工作目录下的所有.o文件删除，重新执行make将会得到一个类似于“没有创建*.0文件的规则”的错误提示。这当然不是我们想要的结果。为了达到我们想要的结果，在对变量进行定义时需要使用一些高级的技巧，包括使用“wildcard”函数（定义为“objects =$(wildcard *.o)”）和字符串的置换。</p>
+<h2 id="函数wildcard"><a href="#函数wildcard" class="headerlink" title="函数wildcard"></a>函数wildcard</h2><p>&emsp;&emsp;在规则中，通配符会被自动展开。但在变量的定义和函数引用时，通配符将失效。这种情况下如果需要通配符有效，就需要使用“wildcard”，它的用法是：$(wildcard PATTERN…)。在Makefile中，它被展开为已经存在的、使用空格分开的、匹配此模式的所有文件列表。但如果不存在任何符合此模式的文件，函数会忽略模式字符并返回空。</p>
+<p>&emsp;&emsp;一般来说，我们可以使用“$(wildcard *.c)”来获取工作目录下的所有的.c文件列表。复杂一些的用法，可以使用“$(patsubst %.c,%.o,$(wildcard *.c))”，首先使用“wildcard”函数获取工作目录下的.c文件列表；之后将列表中所有文件名的后缀.c替换为.o。这样我们就可以得到在当前目录下可生成的.o文件列表。因此在一个目录下可以使用如下内容的Makefile来将工作目录下的所有.c文件进行编译并最后连接成为一个可执行文件：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#sample Makefile</span></span><br><span class="line">objects := <span class="variable">$(<span class="built_in">patsubst</span> %.c,%.o,$(<span class="built_in">wildcard</span> *.c)</span>)</span><br><span class="line"></span><br><span class="line"><span class="section">foo: <span class="variable">$(objects)</span></span></span><br><span class="line">    cc -o foo <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这里使用了make的隐含规则来编译.c的源文件。</p>
+<h2 id="Makefile伪命令"><a href="#Makefile伪命令" class="headerlink" title="Makefile伪命令"></a>Makefile伪命令</h2><p>&emsp;&emsp;伪目标：它不代表一个真正的文件名，在执行make时可以指定这个目标来执行其所在规则定义的命令，有时也可以将一个伪目标称为一个标签。使用伪目标有两个原因：</p>
+<ol>
+<li>避免在我们的Makefile中定义的只执行命令的目标和工作目录下的实际文件名出线名字冲突。</li>
+<li>提高执行make时的效率，特别是对一个大型的工程来说，编译的效率我们同时关心。</li>
+</ol>
+<p>以下就这两个问题我们进行分析讨论：</p>
+<ol>
+<li><p>如果我们需要编写这样的一个规则：规则所定义的命令不是去创建目标文件，而是通过make命令行指定它来执行一些特定的命令。像很常见的clean目标:</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm *.o temp</span><br></pre></td></tr></table></figure>
+
+<p>规则中“rm”不是创建文件“clean”的命令，而是删除当前目录下的所有.o文件和temp文件。当工作目录下不存在“clean”这个文件时，我们输入“make clean”，“rm *.o temp”总会被执行，这是我们的初衷。</p>
+<p>&emsp;&emsp;但是如果当前工作目录下存在文件“clean”，情况就不一样了，同样我们输入“make clean”，由于这个规则没有任何依赖文件，所以目标被认为是最新的而不去执行规则所定义的命令，因此“rm”命令不会被执行。这并不是我们的初衷。为了解决这个问题，我们需要将目标“clean”声明为伪目标。如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br></pre></td></tr></table></figure>
+
+<p>这样目标“clean”就被声明为一个伪目标，无论在当前目录下是否存在“clean”这个文件，我们输入“make clean”之后，“rm”命令都会被执行。而且，当一个目标被声明为伪目标后，make在执行此规则时不会去试图查找隐含规则来创建它。其完整格式如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm *.o temp</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>伪目标的另一种使用场合是在make的并行和递归执行过程中。此情况下一般会存在一个变量，定义为所有需要make的子目录。对多个目录进行make对实现方式可以是：在一个规则的命令行中使用shell循环来完成。如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SUBDIR = one two three</span><br><span class="line"></span><br><span class="line"><span class="section">subdirs:</span></span><br><span class="line">    for dir in <span class="variable">$(SUBDIR)</span>; do\</span><br><span class="line">        <span class="variable">$(MAKE)</span> -C $$dir;\</span><br><span class="line">    done</span><br></pre></td></tr></table></figure>
+
+<p>但这种实现方法存在以下几个问题。1.当子目录执行make出现错误时，make不会退出。也就是说，在对某一个目录执行make失败后，会继续对其他的目录进行make。在最终执行失败的情况下，我们很难根据错误提示定位出具体是在哪个目录下执行make时发生错误。2.另一个问题就是使用这种shell的循环方式时，没有用到make对目录的并行处理功能，由于规则的命令是一条完整的shell命令，不能被并行处理。</p>
+<p>有了为目标后，我们可以用它来克服上述2个问题：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SUBDIRS = one two three</span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: subdirs $(SUBDIRS)</span></span><br><span class="line"><span class="section">subdirs: <span class="variable">$(SUBDIRS)</span></span></span><br><span class="line"><span class="variable">$(SUBDIRS)</span>:</span><br><span class="line">    <span class="variable">$(MAKE)</span> -C <span class="variable">$@</span></span><br><span class="line"><span class="section">one: two</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
 
       
 

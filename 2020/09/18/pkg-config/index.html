@@ -16,7 +16,7 @@
 <meta property="og:description" content="pkg-config详解什么是pkg-config&amp;emsp;&amp;emsp;Pkg-config是一个linux下的命令，用于获取某一个库／模块的所有编译相关的信息。 1pkg-config opencv --libs --cflags  结果是解析出了所有该库的头文件以及链接库 为什么要有pkg-config&amp;emsp;&amp;emsp;就上述列子来看，所有用到opencv的其他程序，在编译时，只需要">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-09-18T07:55:00.000Z">
-<meta property="article:modified_time" content="2020-09-19T15:40:01.000Z">
+<meta property="article:modified_time" content="2020-09-25T08:33:16.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="shell">
 <meta name="twitter:card" content="summary">
@@ -170,7 +170,7 @@
 <li>PKG_CONFIG_PATH环境变量所指向的路径下的所有*.pc文件。</li>
 </ol>
 <p>&emsp;&emsp;这些pc文件什么时候有的？</p>
-<p>&emsp;&emsp;都是在你安装某个库／模块的时候添加的。比如你往系统里面安装opencv时，就会在/usr/lib/目录下，放一个opencv.pc。比如我个人电脑上就没有pc文件，那么pc文件到底写了什么？</p>
+<p>&emsp;&emsp;都是在你安装某个库／模块的时候添加的。比如你往系统里面安装opencv时，就会在/usr/lib64/pkgconfig目录下，放一个opencv.pc。比如我个人电脑上就没有pc文件，那么pc文件到底写了什么？</p>
 <p>&emsp;&emsp;以我本人的电脑为例，在/usr/lib64/pkgconfig目录下有一个lua.pc文件，其内容如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">V&#x3D;5.1</span><br><span class="line">R&#x3D;5.1.4</span><br><span class="line">prefix&#x3D;&#x2F;usr</span><br><span class="line">exe_prefix&#x3D;$&#123;prefix&#125;</span><br><span class="line">libdir&#x3D;&#x2F;usr&#x2F;lib64</span><br><span class="line">includedir&#x3D;$&#123;prefix&#125;&#x2F;include</span><br><span class="line"></span><br><span class="line">Name: Lua</span><br><span class="line">Description: An Extensible Extension Language</span><br><span class="line">Version: $&#123;R&#125;</span><br><span class="line">Requires: </span><br><span class="line">Libs: -llua -lm -ldl</span><br><span class="line">Cflags: -I$&#123;includedir&#125;</span><br></pre></td></tr></table></figure>
 
@@ -180,7 +180,56 @@
 <p>显示出如下：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-llua -lm -ldl</span><br></pre></td></tr></table></figure>
 
-<h2 id="如何添加自己的pc文件"><a href="#如何添加自己的pc文件" class="headerlink" title="如何添加自己的pc文件"></a>如何添加自己的pc文件</h2>
+<h2 id="如何添加自己的pc文件"><a href="#如何添加自己的pc文件" class="headerlink" title="如何添加自己的pc文件"></a>如何添加自己的pc文件</h2><p>&emsp;&emsp;如上文所说，有2种方式：</p>
+<ol>
+<li><p>把你的pc文件，直接放在/usr/lib64/pkgconfig…默认路径下。</p>
+</li>
+<li><p>把你的pc文件的路径写到PKG_CONFIG_PATH环境变量里。比如，你可以在/etc/.bashrc或者/home/[your count]/.bashrc的文件末尾添加：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PKG_CONFIG_PATH=$PGK_CONFIG_PATH:/home/[your count]/[your project]/lib/pkgconfig</span><br><span class="line">export PKG_CONFIG_PATH</span><br></pre></td></tr></table></figure>
+
+<p>那么，pkg-config就会到该目录下寻找*.pc文件。</p>
+<p>那么这个pc文件何时生效呢？</p>
+<p>如果是/usr/lib64/pkgconfig下，立马生效！！！</p>
+<p>如果在环境变量里，只要先source ~/.bashrc一下，让环境变量生成，也立马生效。</p>
+</li>
+</ol>
+<h2 id="如何自己写pkg-config的pc文件"><a href="#如何自己写pkg-config的pc文件" class="headerlink" title="如何自己写pkg-config的pc文件"></a>如何自己写pkg-config的pc文件</h2><p>&emsp;&emsp;其实很简单，只需要拿别人的pc文件改一改就行了。</p>
+<p>&emsp;&emsp;pc文件的所有参数：</p>
+<ul>
+<li><p>Name：该模块的的名字，比如你的pc名字是xxx.pc，那么名字最好也是xxx。</p>
+</li>
+<li><p>Description：模块的简单描述。<code>pkg-config --list-all</code>该命令可以查看到所有的模块信息，该命令的结果，每个模块的名字后面就是description。</p>
+</li>
+<li><p>URL：用户可以通过该URL获得更多的信息，或者下载信息。也是辅助的，可要可不要。</p>
+</li>
+<li><p>Version：版本号。</p>
+</li>
+<li><p>Requires：该模块有没有依赖其他模块。一般没有。</p>
+</li>
+<li><p>Requires.private：该模块有没有依赖其他模块，并且还不需要第三方知道的。一般也没有。</p>
+</li>
+<li><p>Conflicts：有没有和别的模块冲突。常用于版本冲突。比如，Confilcts: opencv &lt; 1.0.0，表示和opencv模块的1.0.0以下的版本有冲突。</p>
+</li>
+<li><p>Cflags：这个就很重要了。pkg-config的参数<code>--cflags</code>就指向这里。主要用于写本模块的头文件路径。</p>
+</li>
+<li><p>Libs：也很重要，pkg-config的参数<code>--libs</code>就指向这里。主要用于写本模块的库／依赖库的路径。</p>
+</li>
+<li><p>Libs.private：本模块依赖的库，但不需要第三方知道。</p>
+</li>
+</ul>
+<p>其实必须写的只有5个：Name、Description、Version、Cflags、Libs。</p>
+<p>举个例子。一个动态库，一个静态库。</p>
+<p>例子1:动态库的pc文件。</p>
+<p>假设我写了libfoo.so，我的库会被安装到/usr/local/lib/，头文件会放到/usr/local/include/。那么pc文件可以这样写：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">prefix&#x3D;&#x2F;usr&#x2F;local</span><br><span class="line">exe_prefix&#x3D;$&#123;prefix&#125;</span><br><span class="line">includedir&#x3D;$&#123;prefix&#125;&#x2F;include</span><br><span class="line">libdir&#x3D;$&#123;prefix&#125;&#x2F;lib</span><br><span class="line"></span><br><span class="line">Name: foo</span><br><span class="line">Description: The foo library</span><br><span class="line">Version: 1.0.0</span><br><span class="line">Cflags: -I$&#123;includedir&#125;&#x2F;</span><br><span class="line">Libs: -L$&#123;libdir&#125; -lfoo</span><br></pre></td></tr></table></figure>
+
+<p>例子2:静态库的pc文件</p>
+<p>静态库链接动态库时，如何使用该静态库，如果我有个静态库libXXX.a，它依赖了很多其他动态库libAA.so，libBB.so，那么第三方程序要使用libXXX.a时，编译时还得链接libAA.so，libBB.so。为了让第三方程序不用操心我这个libXXX.a到底依赖了什么，可以为我的libXXX.a写一个pc文件。路径位于工程的文件下的lib/pkgconfig/。之后唯一需要做的就是把这些pc文件的路径，写到PKG_CONFIG_PATH。</p>
+<p>在/home/parallels/.bashrc内添加</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PKG_CONFIG_PATH=$PKG_CONFIG_PATH:[your path]</span><br><span class="line">export PKG_CONFIG_PATH</span><br></pre></td></tr></table></figure>
+
+<p>然后<code>source /home/parallels/.bashrc</code>，最后就可以使用了！</p>
+
       
 
       
