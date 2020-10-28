@@ -134,6 +134,155 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-尽量少做转型动作" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/08/08/%E5%B0%BD%E9%87%8F%E5%B0%91%E5%81%9A%E8%BD%AC%E5%9E%8B%E5%8A%A8%E4%BD%9C/">尽量少做转型动作</a>
+    </h1>
+  
+
+        
+        <a href="/2020/08/08/%E5%B0%BD%E9%87%8F%E5%B0%91%E5%81%9A%E8%BD%AC%E5%9E%8B%E5%8A%A8%E4%BD%9C/" class="archive-article-date">
+  	<time datetime="2020-08-08T02:24:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="尽量少做转型动作"><a href="#尽量少做转型动作" class="headerlink" title="尽量少做转型动作"></a>尽量少做转型动作</h1><p>&emsp;&emsp;C++规则的设计目标之一是，保证“类型错误”绝不可能发生。理论上如果你的程序很“干净地”通过编译，就表示它并不企图在任何对象身上执行任何不安全、无意义、愚蠢荒谬的操作。这是个极具价值的保证，可别草率地放弃它。</p>
+<p>&emsp;&emsp;不幸的是，转型破坏了类型系统。那可能导致任何种类的麻烦，有些容易辨识，有些非常隐晦。如果你来自C，Java或C#阵营，请特别注意，因为那些语言中的转型比较必要而无法避免，也比较不危险（与C++相较）。但C++不是C，也不是Java或C#。在C++中转型是一个你会想带着极大尊重去亲近的一个特性。</p>
+<p>&emsp;&emsp;让我们首先回顾转型语法，因为通常有三种不同的形式，可写出相同的转型动作。C风格的转型动作看起来像这样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(T)expression  <span class="comment">//将expression转型为T</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;函数风格的转型动作看起来像这样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T(expression)  <span class="comment">//将expression转型为T</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;两种形式并无差别，纯粹只是小括号的摆放位置不同而已。为称此二种形式为“旧式转型”。</p>
+<p>&emsp;&emsp;C++还提供四种新式转型：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="keyword">dynamic_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="keyword">reinterpret_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="keyword">static_cast</span>&lt;T&gt;( expression )</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;各有不同的目的：</p>
+<ul>
+<li>const_cast通常被用将对象的常量性转除。它也是唯一有此能力的C++-style转型操作符。</li>
+<li>dynamic_cast主要用来执行“安全向下转型”，也就是用来决定对象是否归属继承体系中的某个类型。它是唯一无法由旧式语法执行的动作，也是唯一可能消耗重大运行成本低转型动作。</li>
+<li>reinterpret_cast意图执行低级转型，实际动作（及结果）可能取决于编译器，这也就表示它不可移植。例如将一个pointer to int转型为一个int。这一类转型在低级代码以外很少见。</li>
+<li>static_cast用来强迫隐式转换，例如将non-const对象转为const对象，或将int转为double等等。它也可以用来执行上述多种转换的反向转换，例如将void*指针转为typed指针，将pointer-to-derived转为pointer-to-base。但它无法将const转为non-const——这个只有const_cast才办得到。</li>
+</ul>
+<p>&emsp;&emsp;旧式转型仍然合法，但新式转型较受欢迎。原因是：第一，它们很容易在代码中被辨识出来，因而得以简化“找出类型系统在哪个地点被破坏”的过程。第二，各种转型动作的目标愈窄化，编译器愈可能诊断出错误的运用。举个例子，如果你打算将常量性去掉，除非使用新式转型中的const_cast否则无法通过编译。</p>
+<p>&emsp;&emsp;我唯一使用旧式转型的时机是，当为要调用一个explicit构造函数将一个对象传递给一个函数时。例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Widget</span><span class="params">(<span class="keyword">int</span> <span class="built_in">size</span>)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomeWork</span><span class="params">(<span class="keyword">const</span> Widget&amp; w)</span></span>;</span><br><span class="line"></span><br><span class="line">doSomeWork(Widget(<span class="number">15</span>));               <span class="comment">//以一个int加上“函数风格”的转型动作创建一个Widget</span></span><br><span class="line"></span><br><span class="line">doSomeWork(<span class="keyword">static_cast</span>&lt;Widget&gt;(<span class="number">15</span>));  <span class="comment">//以一个int加上“C++风格”的转型动作创建一个Widget</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;从某个角度来说，蓄意的“对象生成”动作感觉不怎么像“转型”，所以我很可能使用函数风格的转型而不适用static_cast。但我要再说一次，当我我们写下一段日后出错导致“core dump”的代码时，撰写之时我们往往“觉得”通情达理，所以或许最好是忽略你的感觉，始终理智地使用新式转型。</p>
+<p>&emsp;&emsp;许多程序员相信，转型其实什么都没做，只是告诉编译器把某种类型视为另一种类型。这是错误的概念。任何一个类型转换往往真的令编译器编译出运行期间执行的码。例如在这段程序中：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x, y;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">double</span> d = <span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>&gt;(x) / y;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;将int x转型为double几乎肯定会产生一些代码，因为在大部分计算器体系结构中，int的底层表述不同于double的底层表述。这或许不会让你惊讶，但下面这个例子就有可能让你稍微睁大眼睛了：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line">Derived d;</span><br><span class="line">Base* pb = &amp;d;  <span class="comment">//隐喻地将Derived*转换为Base*</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这里我们不过是建立一个base class指针指向一个derived class对象，但有时候上述的两个指针值并不相同。这种情况下会有个偏移量在运行期被施行于Derived*指针身上，用以取得正确的Base*指针值。</p>
+<p>&emsp;&emsp;上个例子表明，单一对象（例如一个类型为Derived的对象）可能拥有一个以上的地址（例如“以Base*指向它”时的地址和“以Derived*指向它”时的地址。）。C不可能发生这种事，Java不可能发生这种事，C#也不可能发生这种事。但C++可能！实际上一旦使用多重继承，这事几乎一直发生着。即使在单一继承中也可能发生。虽然这还有其它涵义但至少意味你通常应该避免做出“对象在C++中如何如何布局”的假设。当然更不该以此假设为基础执行任何转型动作。例如，将对象地址转型为char*指针然后在它们身上进行指针算术。几乎总是会导致无定义行为。</p>
+<p>&emsp;&emsp;但请注意，我说的是有时候需要一个偏移量。对象的布局方式和它们的地址计算方式随编译器的不同而不同，那意味着“由于知道对象如何布局”而设计的转型，在某一平台行得通，在其它平台不一定行得通。这个世界有许多悲惨的程序员，他们历尽千辛万苦才学到这个教训。</p>
+<p>&emsp;&emsp;另一件关于转型的有趣事情是：我们很容易写出某些似是而非的代码。例如许多应用框架都要求derived class内的virtual函数代码的第一个动作就先调用base class的对应函数。假设我们有个Window base class和一个SpecialWindow derived class，两者都定义了virtual函数onResize。进一步假设SpecialWindow的onResize函数被要求首先调用Window的onResize。下面是实现方式之一，它看起来对，但实际上错：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">onResize</span><span class="params">()</span> </span>&#123; ... &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">onResize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">static_cast</span>&lt;Windwo&gt;(*<span class="keyword">this</span>).onResize();</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我在代码中强调了转型动作。一如你所预期，这段程序将*this转型为Window，对函数onResize的调用也因此调用了Window::onResize。但恐怕你没想到，它调用的并不是当前对象上的函数，而是稍早转型动作所建立的一个“*this对象之base class成分”的暂时副本身上的onResize！再说一次，上述代码并非在当前对象身上调用Window::onResize之后又在该对象身上执行SpecialWindow专属动作。如果Window::onResize修改了对象内容（不能说没有可能性，因为onResize是个non-const成员函数），当前对象其实没被改动，改动的是副本。然而SpecialWindow::onResize内如果也修改对象，当前对象真的会被改动，这使当前对象进入一种“伤残”状态：其base class成分的更改没有落实，而derived class成分倒是落实。</p>
+<p>&emsp;&emsp;解决之道是拿掉转型动作，代之以你真正想说的话。你并不想哄编译器将*this视为一个base class对象，你只是想调用base class版本的onResize函数，令它作用于当前对象身上，所以请这么写：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">onResize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Window::onResize();  <span class="comment">//调用Window::onResize作用于*this身上</span></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个例子也说明，如果你发现你自己打算转型，那活脱是个警告信号：你可能正将局面发展至错误的方向上。如果你用的是dynamic_cast更是如此。</p>
+<p>&emsp;&emsp;在探究dynamic_cast设计意涵之前，值得注意的是，dynamic_cast的许多实现版本执行速度相当慢。例如至少有一个很普遍的实现版本基于“class名称之字符串比较”，如果你在四层深的单继承体系内的某个对象身上执行dynamic_cast，刚才说的那个实现版本所提供的每一次dynamic_cast可能会耗用多达四次的strcmp调用，用以比较class名称。深度继承或多重继承的成本更高！某些实现版本这样做是有其原因（它们必须支持动态连接）。然而我还是要强调，除了对一般转型保持机敏与猜疑，更应该在注重效率的代码中对dynamic_cast保持机敏与猜疑。</p>
+<p>&emsp;&emsp;之所以需要dynamic_cast，通常是因为你想在一个你认定为derived class对象身上执行derived class操作函数，但你手上却只有一个“指向base”的pointer或reference，你只能靠它们来处理对象。有两个一般性做法可以避免这个问题。</p>
+<p>&emsp;&emsp;第一，使用容器并在其中存储直接指向derived class对象的指针（通常是智能指针），如此便消除了“通过base class接口处理对象”的需要。假设先前的Window/SpecialWindow继承体系中只有SpecialWindow才支持闪烁效果，试着不要这样做：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">blink</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;window&gt; &gt; VPW;</span><br><span class="line">VPW winPtrs;</span><br><span class="line">...</span><br><span class="line">  <span class="keyword">for</span>(VPW::iterator iter = winPtrs.<span class="built_in">begin</span>();</span><br><span class="line">      iter != winPtrs.<span class="built_in">end</span>(); ++iter) &#123;</span><br><span class="line">      <span class="keyword">if</span>(SpecialWindow* psw = <span class="keyword">dynamic_cast</span>&lt;SpecialWindow*&gt;(iter-&gt;<span class="built_in">get</span>()))</span><br><span class="line">          psw-&gt;<span class="built_in">blink</span>();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>应该改而这样做：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;SpecialWindow&gt; &gt; VPSW;</span><br><span class="line">VPSW winPtrs;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">for</span>(VPSW::iterator iter = winPtrs.<span class="built_in">begin</span>();  <span class="comment">//这样写比较好</span></span><br><span class="line">    iter != winPtrs.<span class="built_in">end</span>(); ++iter)          <span class="comment">//不使用dynamic_cast</span></span><br><span class="line">(*iter)-&gt;<span class="built_in">blink</span>();</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当然啦，这种做法使你无法在同一个容器内存储指针“指向所有可能之多种Window派生类”。如果真要处理多种窗口类型，你可能需要多个容器，它们都必须具备类型安全性。</p>
+<p>&emsp;&emsp;另一种做法可让你通过base class接口处理“所有可能之各种window派生类”，那就是在base class内提供virtual函数做你想对各个Window派生类做的事。举个例子，虽然只有SpecialWindow可以闪烁，但或许将闪烁函数声明于base class内并提供一份“什么也没做”的缺省实现代码是有意义的：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">blink</span><span class="params">()</span> </span>&#123;&#125;  <span class="comment">//缺省实现代码“什么也没做”</span></span><br><span class="line">    ...                      <span class="comment">//缺省实现代码可能是个馊主意</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">blink</span><span class="params">()</span> </span>&#123; ... &#125;;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::share_ptr&lt;Window&gt; &gt; VPW;</span><br><span class="line">VPW winPtrs;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">for</span>(VPW::iterator iter = winPtrs.<span class="built_in">begin</span>();</span><br><span class="line">    iter != winPtrs.<span class="built_in">end</span>();</span><br><span class="line">    ++iter)</span><br><span class="line">(*iter)-&gt;<span class="built_in">blink</span>();</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;不论哪种写法——“使用类型安全容器”或“将virtual函数往继承体系上方移动”——都并非放之四海而皆准，但在许多情况下它们都提供一个可行的dynamic_cast替代方案。当它们有此功效时，你应该欣然拥抱它们。</p>
+<p>&emsp;&emsp;绝对必须避免的一件事是所谓的“连串dynamic_cast”，也就是看起来像这样的东西：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span> ... &#125;;</span><br><span class="line">...  <span class="comment">//derived class定义在这里</span></span><br><span class="line"><span class="keyword">typedef</span> </span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Window&gt; &gt; VPW;</span><br><span class="line">VPW winPtrs;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">for</span>(VPW::iterator iter = winPtrs.<span class="built_in">begin</span>();</span><br><span class="line">    iter != winPtrs.<span class="built_in">end</span>(); ++iter) &#123;</span><br><span class="line">    <span class="keyword">if</span>(SpecialWindow1* psw1 =</span><br><span class="line">       <span class="keyword">dynamic_cast</span>&lt;SpecialWindow1*&gt;(iter-&gt;<span class="built_in">get</span>())) &#123; ... &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(SpecialWindow2* psw2 =</span><br><span class="line">            <span class="keyword">dynamic_cast</span>&lt;SpecialWindow2*&gt;(iter-&gt;<span class="built_in">get</span>())) &#123; ... &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(SpecialWindow3* psw3 =</span><br><span class="line">            <span class="keyword">dynamic_cast</span>&lt;SpecialWindow3*&gt;(iter-&gt;<span class="built_in">get</span>())) &#123; ... &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这样生产出来的代码又大又慢，而且基础不稳，因为每次Window class继承体系一有改变，所有这一类代码都必须再次检阅看看是否需要修改。例如一旦加入新的derived class，或许上述连串判断中需要加入新的条件分支。这样的代码应该总是以某些“基于virtual函数调用”的东西取而代之。</p>
+<p>&emsp;&emsp;优良的C++代码很少使用转型，但若说要完全摆脱它们又太过不切实际。例如之前的例子从int转型为double就是转型的一个通情达理的使用，虽然它并非绝对必要（那段代码可以重新写过，声明一个类型为double的新变量并以x值初始化）。就像面对众多蹊跷可疑的构造函数一样，我们应该尽可能隔离转型动作，通常是把它隐藏在某个函数内，函数的接口会保护调用者不受函数内部任何肮脏龌龊的动作影响。</p>
+<blockquote>
+<p>如果可以，尽量避免转型，特别是在注重效率的代码中避免dynamic_cast。如果有个设计需要转型动作，试着发展无需转型的替代设计。</p>
+<p>如果转型是必要的，试着将它隐藏于某个函数背后。客户随后可以调用该函数，而不需将转型放进它们自己的代码内。</p>
+<p>宁可使用C++-style（新式）转型，不要使用旧式转型。前者很容易辨识出来，而且也比较又着分门别类的职掌。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/08/08/%E5%B0%BD%E9%87%8F%E5%B0%91%E5%81%9A%E8%BD%AC%E5%9E%8B%E5%8A%A8%E4%BD%9C/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-尽量延后变量定义式的出现时间" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1206,113 +1355,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/07/30/%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86new%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-成对使用new和delete时要采取相同形式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/">成对使用new和delete时要采取相同形式</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/" class="archive-article-date">
-  	<time datetime="2020-07-30T01:01:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-30</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="成对使用new和delete时要采取相同形式"><a href="#成对使用new和delete时要采取相同形式" class="headerlink" title="成对使用new和delete时要采取相同形式"></a>成对使用new和delete时要采取相同形式</h1><p>&emsp;&emsp;以下动作有什么错？</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* stringArray = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>[<span class="number">100</span>];</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> stringArray;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;每件事看起来都井然有序。使用了new，也搭配了对应的delete。但还是有某样东西完全错误：我们的程序未定义。stringArray所含的100个string对象中的99个不太可能被适当删除，因为它们的析构函数很可能没被调用。</p>
-<p>&emsp;&emsp;当我们使用new（也就是通过new动态生成一个对象），有两件事发生。第一，内存被分配出来（通过名为operator new的函数）。第二，针对此内存会有一个（或更多）构造函数被调用。当我们使用delete，也会有两件事发生：针对此内存会有一个（或更多）析构函数被调用，然后内存才被释放（通过名为operator delete的函数）。delete的最大问题在于：即将被删除的内存之内究竟存有多少对象？这个问题的答案决定了有多少个析构函数必须被调用起来。</p>
-<p>&emsp;&emsp;实际上这个问题可以更简单些：即将被删除的那个指针，所指的是单一对象或对象数组？这是个必不可缺的问题，因为单一对象的内存布局一般而言不同于数组的内存布局。更明确地说，数组所用的内存通常还包括“数组大小”的纪录，以便delete知道需要调用多少次析构函数。单一对象的内存则没有这笔纪录。</p>
-<p>&emsp;&emsp;当我们对着一个指针使用delete，唯一能够让delete知道内存中是否存在一个“数组大小纪录”的办法就是：由我们来告诉它。如果我们使用delete时加上方括号，delete便认定指针指向一个数组，否则它便认定指针指向单一对象：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* stringPtr1 = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* stringPtr2 = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>[<span class="number">100</span>];</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> stringPtr1;</span><br><span class="line"><span class="keyword">delete</span>[] stringPtr2;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个规则对于喜欢使用typedef的人也很重要，因为它意味着typedef的作者必须说清楚，当程序员以new创建该种typedef类型对象时，该以哪一种delete形式删除之，考虑下面这个typedef：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="built_in">std</span>::<span class="built_in">string</span> AddressLines[<span class="number">4</span>];  <span class="comment">//每个人的地址有4行</span></span><br><span class="line">                                      <span class="comment">//每一行是一个string</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;由于AddressLines是个数组，如果这样使用new：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* pal = <span class="keyword">new</span> AddressLines;  <span class="comment">//注意，"new AddressLines"返回一个string*</span></span><br><span class="line">                                      <span class="comment">//就像"new string[4]"一样</span></span><br></pre></td></tr></table></figure>
-
-<p>这就必须匹配“数组形式”的delete：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> pal;    <span class="comment">//未定义</span></span><br><span class="line"><span class="keyword">delete</span>[] pal;  <span class="comment">//很好</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为避免诸如此类的错误，最好尽量不要对数组形式做typedef动作。例如我们可以将本例的AddressLines定义为“由string组成的一个vector”，也就是其类型为vector&lt;string&gt;。</p>
-<blockquote>
-<p>如果我们在new表达式中使用[]，必须在相应的delete表达式中也使用[]。如果我们在new表达式中不使用[]，一定不要在相应的delete表达式中使用[]。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/">展开全文 >></a>
         </p>
       
 

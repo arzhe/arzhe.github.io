@@ -16,7 +16,7 @@
 <meta property="og:description" content="Makefile规则规则语法&amp;emsp;&amp;emsp;通常规则的语法格式如下： 123TARGETS: PREQUISITES    COMMAND    ...  或者： 123TARGETS: PREQUISITES; COMMAND    COMMAND    ...  书写规则时，需要注意以下几点：  规则的命令部分有两种书写方式：a.命令可以和目标：依赖描述放在同一行。命令在依赖文件列表">
 <meta property="og:locale" content="zh">
 <meta property="article:published_time" content="2020-09-14T08:32:00.000Z">
-<meta property="article:modified_time" content="2020-09-26T14:47:31.000Z">
+<meta property="article:modified_time" content="2020-09-27T05:13:16.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="makefile">
 <meta name="twitter:card" content="summary">
@@ -213,6 +213,19 @@
 <p>有了为目标后，我们可以用它来克服上述2个问题：</p>
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SUBDIRS = one two three</span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: subdirs $(SUBDIRS)</span></span><br><span class="line"><span class="section">subdirs: <span class="variable">$(SUBDIRS)</span></span></span><br><span class="line"><span class="variable">$(SUBDIRS)</span>:</span><br><span class="line">    <span class="variable">$(MAKE)</span> -C <span class="variable">$@</span></span><br><span class="line"><span class="section">one: two</span></span><br></pre></td></tr></table></figure>
 
+<p>上述的实现中有一个没有命令行的规则“one: two”，此规则用来限制子目录的make顺序。</p>
+<p>&emsp;&emsp;一般情况下，一个伪目标不作为另外一个目标的依赖。这是因为当一个目标文件的依赖包含伪目标时，每一次在执行这个规则时伪目标所定义的命令都会被执行。当一个伪目标没有作为任何目标的依赖时，我们只能通过make的命令行来指定它为make的终极目标，来执行它所在规则所定义的命令。例如“make clean”。</p>
+<p>&emsp;&emsp;在Makefile中，一个伪目标可以有自己的依赖（可以是一个或者多个文件、一个或者多个伪目标）。在一个目录下如果需要创建多个可执行程序，我们可以将所有程序的重建规则在一个Makefile中描述。因为Makefile中第一个目标是“终极目标”，约定的做法是使用一个“all”的伪目标来作为终极目标，它的依赖文件就是那些需要创建的程序，以下就是一个例子：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">all: one two three</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: all</span></span><br><span class="line"></span><br><span class="line"><span class="section">one: one.o func.o</span></span><br><span class="line">    cc -o one one.o func.o</span><br><span class="line"><span class="section">two: two.o func.o</span></span><br><span class="line">    cc -o two two.o func.o</span><br><span class="line"><span class="section">three: three.o func.o</span></span><br><span class="line">    cc -o three three.o func.o</span><br></pre></td></tr></table></figure>
+
+<p>执行make时，目标“all”被作为终极目标。为了完成对它的更新，make会创建或者重建目标“all”的所有依赖文件。当需要单独更新某一个程序时，我们可以通过make的命令行选项来目前指定需要重建的程序（例如：“make one”）。</p>
+<p>&emsp;&emsp;当一个伪目标作为另一个伪目标的依赖时，make将其作为另外一个伪目标的子例程来处理（就跟C语言中的函数调用一样）。下面就是这个做法的例子：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: cleanall cleanobj cleandiff</span></span><br><span class="line"><span class="section">cleanall: cleanobj cleandiff</span></span><br><span class="line">    rm program</span><br><span class="line"><span class="section">cleanobj:</span></span><br><span class="line">    rm *.o</span><br><span class="line"><span class="section">cleandiff:</span></span><br><span class="line">    rm *.diff</span><br></pre></td></tr></table></figure>
+
+<p>我们可以输入“make cleanall”和“make cleanobj”和“make cleandiff”命令来达到清除不同种类文件的目的。</p>
+<p>&emsp;&emsp;说明：</p>
+<p>&emsp;&emsp;通常在清除文件的伪目标所定义的命令中“rm”使用选项“-f（–force）”来防止在缺少删除文件时出错并退出。也可以在“rm”之前加上“-”来防止“rm”错误退出，使用这个方法时make会提示错误信息但不会退出。为了不看到这些讨厌的信息，需要使用上述第一种方式。</p>
+<p>&emsp;&emsp;另外make存在一个内嵌的隐含变量“RM”。它被定义为：“RM=rm -f”。因此在书写“clean”规则的命令时可以使用变量“$(RM)”来替代“rm”。</p>
 </li>
 </ol>
 

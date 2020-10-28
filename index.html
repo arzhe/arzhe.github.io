@@ -134,6 +134,108 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-避免遮掩继承而来的名称" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/10/28/%E9%81%BF%E5%85%8D%E9%81%AE%E6%8E%A9%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E5%90%8D%E7%A7%B0/">避免遮掩继承而来的名称</a>
+    </h1>
+  
+
+        
+        <a href="/2020/10/28/%E9%81%BF%E5%85%8D%E9%81%AE%E6%8E%A9%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E5%90%8D%E7%A7%B0/" class="archive-article-date">
+  	<time datetime="2020-10-28T13:09:58.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-28</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="避免继承而来的名称"><a href="#避免继承而来的名称" class="headerlink" title="避免继承而来的名称"></a>避免继承而来的名称</h1><p>&emsp;&emsp;关于“名称”，莎士比亚说过这样一句话：“名称是什么呢？”他问，“一朵玫瑰叫任何名字还是一样芬芳。</p>
+<p>&emsp;&emsp;其实这样的讨论与继承无关，而是和作用域有关。我们都知道再诸如这样的代码中：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x;              <span class="comment">//global变量</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">someFunc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">double</span> x;       <span class="comment">//local变量</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cin</span> &gt;&gt; x;  <span class="comment">//读一个新值赋予local变量x</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个读取数据的语句指的是local变量x，而不是global变量x，因为内层作用域的名称会遮掩外围作用域的名称。</p>
+<p>&emsp;&emsp;当编译器处于comeFunc的作用域内并遭遇名称x时，它在local作用域内查找是否有什么东西带着这个名称。如果找到就不再找其他作用域。本例到someFunc的x是double类型而global x是int类型，但那不要紧。C++的名称遮掩规则（name-hiding rules）所作的唯一事情就是：遮掩名称。至于名称是否相同或不同的类型，并不重要。本例中一个名为x的double遮掩了一个名为x的int。</p>
+<p>&emsp;&emsp;现在导入继承。我们知道，当位于一个derived class成员函数内指涉base class内的某物（也许是个成员函数、typedef、或成员变量）时，编译器可以找出我们所指涉的东西，因为derived class继承了声明于base classes内的所有东西。实际运作方式是，derived class作用域被嵌套在base class作用域内，像这样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf2</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">mf3</span><span class="params">()</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span> :</span> <span class="keyword">public</span> Base &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">mf4</span><span class="params">()</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;此例内含一组混合例public和private名称，以及一组成员变量和成员函数名称。这些成员函数包括pure virtual，impure virtual和non-virtual三种，这是为了强调我们谈的是名称，和其他无关。这个例子也可以加入各种名称类习惯，例如enums，nested classes和typedefs。整个讨论中唯一重要的是这些东西的名称，至于这些东西是什么并不重要。本例使用单一继承，然而一旦了解单一继承下发生的事，很容易就可以推想C++在多重继承下的行为。</p>
+<p>&emsp;&emsp;假设derived class内的mf4的实现代码像这样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Derived::mf4</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    mf2();</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当编译器看到这里使用名称mf2，必须估算它指涉什么东西。编译器的做法是查找各作用域，看看有没有某个名为mf2的声明式。首先查找local作用域（也就是mf4覆盖的作用域），在那儿没找到任何东西名为mf2.于是查找其外围作用域，也就是class Derived覆盖的作用域。还是没找到任何东西名为mf2，于是再往外围移动，本例为base class。在那儿编译器找到一个名为mf2的东西了，于是停止查找。如果Base内还是没有mf2，查找动作继续下去，首先找到内含Base的那个namespace的作用域（如果有的话），最后往global作用域找去。</p>
+<p>&emsp;&emsp;再次考虑前一个例子，这次让我们重载mf1和mf3，并且添加一个新版mf3到Derived去。这里发生的事情是：Derived重载了mf3，那是一个继承而来的non-virtual函数。这会使整个设计立刻显得疑雾重重，但为了充分认识继承体系内的“名称可视性”，我们暂时安之若素。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">(<span class="keyword">int</span>)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf2</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">mf3</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">mf3</span><span class="params">(<span class="keyword">double</span>)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span> :</span> puvlic Base &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">mf3</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">mf4</span><span class="params">()</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这段代码带来的行为会让每一位第一次面对它的C++程序员大吃一惊。以作用域为基础的“名称遮掩规则”并没有改变，因此base class内所有名为mf1和mf3的函数都被derived class内的mf1和mf3函数遮掩掉了。从名称查找观点来看，Base::mf1和Base::mf3不再被Derived继承！</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Derived d;</span><br><span class="line"><span class="keyword">int</span> x;</span><br><span class="line">...</span><br><span class="line">d.mf1();   <span class="comment">//没问题，调用Derived::mf1</span></span><br><span class="line">d.mf1(x);  <span class="comment">//错误！因为Derived::mf1遮掩了Base::mf1</span></span><br><span class="line">d.mf2();   <span class="comment">//没问题，调用Base::mf2</span></span><br><span class="line">d.mf3();   <span class="comment">//没问题，调用Derievd::mf3</span></span><br><span class="line">d.mf3(x);  <span class="comment">//错误！因为Derived::mf3遮掩了Base::mf3</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如你所见，上述规则都适用，即使base class和derived class内的函数有不同的参数类型也适用，而且不论函数是virtual或non-virtual都适用。</p>
+<p>&emsp;&emsp;这些行为背后的基本理由是为了防止你在程序库或应用框架内建立新的derived class时附带地从疏远的base class继承重载函数。不幸的是你通常会想继承重载函数。实际上如果你正在使用public继承而又不继承那些重载函数，就是违反base和derived class之间的is-a关系，而“<a href="/2020/09/06/%E7%A1%AE%E5%AE%9A%E4%BD%A0%E7%9A%84public%E7%BB%A7%E6%89%BF%E5%A1%91%E6%A8%A1%E5%87%BAis-a%E5%85%B3%E7%B3%BB/" title="确定你的public继承塑模出is-a关系">确定你的public继承塑模出is-a关系</a>”说过is-a是public继承的基石。因此你几乎总会想要推翻（override）对“继承而来的名称”的缺省遮掩行为。</p>
+<p>&emsp;&emsp;你可以使用using声明式达成目标：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">(<span class="keyword">int</span>)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf2</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">mf3</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">mf3</span><span class="params">(<span class="keyword">double</span>)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span> :</span> <span class="keyword">public</span> Base &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">using</span> Base::mf1;  <span class="comment">//让Base class内名为mf1和mf3的所有东西</span></span><br><span class="line">        <span class="keyword">using</span> Base::mf3;  <span class="comment">//在Derived作用域内都可见（并且public）</span></span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">mf3</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">mf4</span><span class="params">()</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在，继承机制将一如既往地运作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Derived d;</span><br><span class="line"><span class="keyword">int</span> x;</span><br><span class="line">...</span><br><span class="line">d.mf1();   <span class="comment">//仍然没问题，仍然调用Derived::mf1</span></span><br><span class="line">d.mf1(x);  <span class="comment">//现在没问题了，调用Base::mf1</span></span><br><span class="line">d.mf2();   <span class="comment">//仍然没问题，仍然调用Base::mf2</span></span><br><span class="line">d.mf3();   <span class="comment">//没问题，调用Derived::mf3</span></span><br><span class="line">d.mf3(x);  <span class="comment">//现在没问题了，调用Base::mf3</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这意味如果你继承base class并加上重载函数，而你又希望重新定义或覆写其中一部分，那么你必须为那些原本会被遮掩的每个名称引入一个using声明式，否则某些你希望继承的名称会被遮掩。</p>
+<p>&emsp;&emsp;有时候你并不想继承base class的所有函数，这是可以理解的。在public继承下，这绝不可能发生，因为它违反了public继承所暗示的“base和derived class之间的is-a关系”。（这也就是为什么上述using声明式被放在derived class的public区域的原因：base class内的public名称在publicly derived class内也应该是public。）然而在private继承之下它却可能是有意义的。例如假设Derived以private形式继承Base，而Derived唯一想继承的mf1是那个无参数版本。using声明式在这里派不上用场，因为using声明式会令继承而来的某给定名称之所有同名函数在derived class中都可见。不，我们需要不同的技术，即一个简单的转交函数（forwarding function）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">(<span class="keyword">int</span>)</span></span>;</span><br><span class="line">        ...  <span class="comment">//同前</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span> :</span> <span class="keyword">private</span> Base &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">mf1</span><span class="params">()</span> </span>&#123;  <span class="comment">//转交函数；</span></span><br><span class="line">            Base::mf1();      <span class="comment">//暗自成为inline</span></span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">Derived d;</span><br><span class="line"><span class="keyword">int</span> x;</span><br><span class="line">d.mf1();   <span class="comment">//很好，调用的是Derived::mf1</span></span><br><span class="line">d.mf1(x);  <span class="comment">//错误！Base::mf1()被遮掩了</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;inline转交函数的另一个用途是为那些不支持using声明式的老旧编译器另辟一条路，将继承而得的名称汇入derived class作用域内。</p>
+<p>&emsp;&emsp;这就是继承和名称遮掩的完整故事。但是当继承结合templates，我们又将面对“继承名称被遮掩”的一个全然不同的形式。</p>
+<blockquote>
+<ul>
+<li>Derived class内的名称会遮掩base class内的名称。在public继承下从来没有人希望如此。</li>
+<li>为了让被遮掩的名称再见天日，可使用using声明式或转交函数。</li>
+</ul>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/10/28/%E9%81%BF%E5%85%8D%E9%81%AE%E6%8E%A9%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E5%90%8D%E7%A7%B0/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-pkg-config" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -366,6 +468,19 @@
 <p>有了为目标后，我们可以用它来克服上述2个问题：</p>
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SUBDIRS = one two three</span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: subdirs $(SUBDIRS)</span></span><br><span class="line"><span class="section">subdirs: <span class="variable">$(SUBDIRS)</span></span></span><br><span class="line"><span class="variable">$(SUBDIRS)</span>:</span><br><span class="line">    <span class="variable">$(MAKE)</span> -C <span class="variable">$@</span></span><br><span class="line"><span class="section">one: two</span></span><br></pre></td></tr></table></figure>
 
+<p>上述的实现中有一个没有命令行的规则“one: two”，此规则用来限制子目录的make顺序。</p>
+<p>&emsp;&emsp;一般情况下，一个伪目标不作为另外一个目标的依赖。这是因为当一个目标文件的依赖包含伪目标时，每一次在执行这个规则时伪目标所定义的命令都会被执行。当一个伪目标没有作为任何目标的依赖时，我们只能通过make的命令行来指定它为make的终极目标，来执行它所在规则所定义的命令。例如“make clean”。</p>
+<p>&emsp;&emsp;在Makefile中，一个伪目标可以有自己的依赖（可以是一个或者多个文件、一个或者多个伪目标）。在一个目录下如果需要创建多个可执行程序，我们可以将所有程序的重建规则在一个Makefile中描述。因为Makefile中第一个目标是“终极目标”，约定的做法是使用一个“all”的伪目标来作为终极目标，它的依赖文件就是那些需要创建的程序，以下就是一个例子：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">all: one two three</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: all</span></span><br><span class="line"></span><br><span class="line"><span class="section">one: one.o func.o</span></span><br><span class="line">    cc -o one one.o func.o</span><br><span class="line"><span class="section">two: two.o func.o</span></span><br><span class="line">    cc -o two two.o func.o</span><br><span class="line"><span class="section">three: three.o func.o</span></span><br><span class="line">    cc -o three three.o func.o</span><br></pre></td></tr></table></figure>
+
+<p>执行make时，目标“all”被作为终极目标。为了完成对它的更新，make会创建或者重建目标“all”的所有依赖文件。当需要单独更新某一个程序时，我们可以通过make的命令行选项来目前指定需要重建的程序（例如：“make one”）。</p>
+<p>&emsp;&emsp;当一个伪目标作为另一个伪目标的依赖时，make将其作为另外一个伪目标的子例程来处理（就跟C语言中的函数调用一样）。下面就是这个做法的例子：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: cleanall cleanobj cleandiff</span></span><br><span class="line"><span class="section">cleanall: cleanobj cleandiff</span></span><br><span class="line">    rm program</span><br><span class="line"><span class="section">cleanobj:</span></span><br><span class="line">    rm *.o</span><br><span class="line"><span class="section">cleandiff:</span></span><br><span class="line">    rm *.diff</span><br></pre></td></tr></table></figure>
+
+<p>我们可以输入“make cleanall”和“make cleanobj”和“make cleandiff”命令来达到清除不同种类文件的目的。</p>
+<p>&emsp;&emsp;说明：</p>
+<p>&emsp;&emsp;通常在清除文件的伪目标所定义的命令中“rm”使用选项“-f（–force）”来防止在缺少删除文件时出错并退出。也可以在“rm”之前加上“-”来防止“rm”错误退出，使用这个方法时make会提示错误信息但不会退出。为了不看到这些讨厌的信息，需要使用上述第一种方式。</p>
+<p>&emsp;&emsp;另外make存在一个内嵌的隐含变量“RM”。它被定义为：“RM=rm -f”。因此在书写“clean”规则的命令时可以使用变量“$(RM)”来替代“rm”。</p>
 </li>
 </ol>
 
@@ -1344,155 +1459,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/08/10/%E9%81%BF%E5%85%8D%E8%BF%94%E5%9B%9Ehandles%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1%E5%86%85%E9%83%A8%E6%88%90%E5%88%86/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-尽量少做转型动作" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/08/08/%E5%B0%BD%E9%87%8F%E5%B0%91%E5%81%9A%E8%BD%AC%E5%9E%8B%E5%8A%A8%E4%BD%9C/">尽量少做转型动作</a>
-    </h1>
-  
-
-        
-        <a href="/2020/08/08/%E5%B0%BD%E9%87%8F%E5%B0%91%E5%81%9A%E8%BD%AC%E5%9E%8B%E5%8A%A8%E4%BD%9C/" class="archive-article-date">
-  	<time datetime="2020-08-08T02:24:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-08</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="尽量少做转型动作"><a href="#尽量少做转型动作" class="headerlink" title="尽量少做转型动作"></a>尽量少做转型动作</h1><p>&emsp;&emsp;C++规则的设计目标之一是，保证“类型错误”绝不可能发生。理论上如果你的程序很“干净地”通过编译，就表示它并不企图在任何对象身上执行任何不安全、无意义、愚蠢荒谬的操作。这是个极具价值的保证，可别草率地放弃它。</p>
-<p>&emsp;&emsp;不幸的是，转型破坏了类型系统。那可能导致任何种类的麻烦，有些容易辨识，有些非常隐晦。如果你来自C，Java或C#阵营，请特别注意，因为那些语言中的转型比较必要而无法避免，也比较不危险（与C++相较）。但C++不是C，也不是Java或C#。在C++中转型是一个你会想带着极大尊重去亲近的一个特性。</p>
-<p>&emsp;&emsp;让我们首先回顾转型语法，因为通常有三种不同的形式，可写出相同的转型动作。C风格的转型动作看起来像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(T)expression  <span class="comment">//将expression转型为T</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;函数风格的转型动作看起来像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T(expression)  <span class="comment">//将expression转型为T</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;两种形式并无差别，纯粹只是小括号的摆放位置不同而已。为称此二种形式为“旧式转型”。</p>
-<p>&emsp;&emsp;C++还提供四种新式转型：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="keyword">dynamic_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="keyword">reinterpret_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="keyword">static_cast</span>&lt;T&gt;( expression )</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;各有不同的目的：</p>
-<ul>
-<li>const_cast通常被用将对象的常量性转除。它也是唯一有此能力的C++-style转型操作符。</li>
-<li>dynamic_cast主要用来执行“安全向下转型”，也就是用来决定对象是否归属继承体系中的某个类型。它是唯一无法由旧式语法执行的动作，也是唯一可能消耗重大运行成本低转型动作。</li>
-<li>reinterpret_cast意图执行低级转型，实际动作（及结果）可能取决于编译器，这也就表示它不可移植。例如将一个pointer to int转型为一个int。这一类转型在低级代码以外很少见。</li>
-<li>static_cast用来强迫隐式转换，例如将non-const对象转为const对象，或将int转为double等等。它也可以用来执行上述多种转换的反向转换，例如将void*指针转为typed指针，将pointer-to-derived转为pointer-to-base。但它无法将const转为non-const——这个只有const_cast才办得到。</li>
-</ul>
-<p>&emsp;&emsp;旧式转型仍然合法，但新式转型较受欢迎。原因是：第一，它们很容易在代码中被辨识出来，因而得以简化“找出类型系统在哪个地点被破坏”的过程。第二，各种转型动作的目标愈窄化，编译器愈可能诊断出错误的运用。举个例子，如果你打算将常量性去掉，除非使用新式转型中的const_cast否则无法通过编译。</p>
-<p>&emsp;&emsp;我唯一使用旧式转型的时机是，当为要调用一个explicit构造函数将一个对象传递给一个函数时。例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Widget</span><span class="params">(<span class="keyword">int</span> <span class="built_in">size</span>)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomeWork</span><span class="params">(<span class="keyword">const</span> Widget&amp; w)</span></span>;</span><br><span class="line"></span><br><span class="line">doSomeWork(Widget(<span class="number">15</span>));               <span class="comment">//以一个int加上“函数风格”的转型动作创建一个Widget</span></span><br><span class="line"></span><br><span class="line">doSomeWork(<span class="keyword">static_cast</span>&lt;Widget&gt;(<span class="number">15</span>));  <span class="comment">//以一个int加上“C++风格”的转型动作创建一个Widget</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;从某个角度来说，蓄意的“对象生成”动作感觉不怎么像“转型”，所以我很可能使用函数风格的转型而不适用static_cast。但我要再说一次，当我我们写下一段日后出错导致“core dump”的代码时，撰写之时我们往往“觉得”通情达理，所以或许最好是忽略你的感觉，始终理智地使用新式转型。</p>
-<p>&emsp;&emsp;许多程序员相信，转型其实什么都没做，只是告诉编译器把某种类型视为另一种类型。这是错误的概念。任何一个类型转换往往真的令编译器编译出运行期间执行的码。例如在这段程序中：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x, y;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">double</span> d = <span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>&gt;(x) / y;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;将int x转型为double几乎肯定会产生一些代码，因为在大部分计算器体系结构中，int的底层表述不同于double的底层表述。这或许不会让你惊讶，但下面这个例子就有可能让你稍微睁大眼睛了：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line">Derived d;</span><br><span class="line">Base* pb = &amp;d;  <span class="comment">//隐喻地将Derived*转换为Base*</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里我们不过是建立一个base class指针指向一个derived class对象，但有时候上述的两个指针值并不相同。这种情况下会有个偏移量在运行期被施行于Derived*指针身上，用以取得正确的Base*指针值。</p>
-<p>&emsp;&emsp;上个例子表明，单一对象（例如一个类型为Derived的对象）可能拥有一个以上的地址（例如“以Base*指向它”时的地址和“以Derived*指向它”时的地址。）。C不可能发生这种事，Java不可能发生这种事，C#也不可能发生这种事。但C++可能！实际上一旦使用多重继承，这事几乎一直发生着。即使在单一继承中也可能发生。虽然这还有其它涵义但至少意味你通常应该避免做出“对象在C++中如何如何布局”的假设。当然更不该以此假设为基础执行任何转型动作。例如，将对象地址转型为char*指针然后在它们身上进行指针算术。几乎总是会导致无定义行为。</p>
-<p>&emsp;&emsp;但请注意，我说的是有时候需要一个偏移量。对象的布局方式和它们的地址计算方式随编译器的不同而不同，那意味着“由于知道对象如何布局”而设计的转型，在某一平台行得通，在其它平台不一定行得通。这个世界有许多悲惨的程序员，他们历尽千辛万苦才学到这个教训。</p>
-<p>&emsp;&emsp;另一件关于转型的有趣事情是：我们很容易写出某些似是而非的代码。例如许多应用框架都要求derived class内的virtual函数代码的第一个动作就先调用base class的对应函数。假设我们有个Window base class和一个SpecialWindow derived class，两者都定义了virtual函数onResize。进一步假设SpecialWindow的onResize函数被要求首先调用Window的onResize。下面是实现方式之一，它看起来对，但实际上错：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">onResize</span><span class="params">()</span> </span>&#123; ... &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">onResize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">static_cast</span>&lt;Windwo&gt;(*<span class="keyword">this</span>).onResize();</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我在代码中强调了转型动作。一如你所预期，这段程序将*this转型为Window，对函数onResize的调用也因此调用了Window::onResize。但恐怕你没想到，它调用的并不是当前对象上的函数，而是稍早转型动作所建立的一个“*this对象之base class成分”的暂时副本身上的onResize！再说一次，上述代码并非在当前对象身上调用Window::onResize之后又在该对象身上执行SpecialWindow专属动作。如果Window::onResize修改了对象内容（不能说没有可能性，因为onResize是个non-const成员函数），当前对象其实没被改动，改动的是副本。然而SpecialWindow::onResize内如果也修改对象，当前对象真的会被改动，这使当前对象进入一种“伤残”状态：其base class成分的更改没有落实，而derived class成分倒是落实。</p>
-<p>&emsp;&emsp;解决之道是拿掉转型动作，代之以你真正想说的话。你并不想哄编译器将*this视为一个base class对象，你只是想调用base class版本的onResize函数，令它作用于当前对象身上，所以请这么写：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">onResize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Window::onResize();  <span class="comment">//调用Window::onResize作用于*this身上</span></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个例子也说明，如果你发现你自己打算转型，那活脱是个警告信号：你可能正将局面发展至错误的方向上。如果你用的是dynamic_cast更是如此。</p>
-<p>&emsp;&emsp;在探究dynamic_cast设计意涵之前，值得注意的是，dynamic_cast的许多实现版本执行速度相当慢。例如至少有一个很普遍的实现版本基于“class名称之字符串比较”，如果你在四层深的单继承体系内的某个对象身上执行dynamic_cast，刚才说的那个实现版本所提供的每一次dynamic_cast可能会耗用多达四次的strcmp调用，用以比较class名称。深度继承或多重继承的成本更高！某些实现版本这样做是有其原因（它们必须支持动态连接）。然而我还是要强调，除了对一般转型保持机敏与猜疑，更应该在注重效率的代码中对dynamic_cast保持机敏与猜疑。</p>
-<p>&emsp;&emsp;之所以需要dynamic_cast，通常是因为你想在一个你认定为derived class对象身上执行derived class操作函数，但你手上却只有一个“指向base”的pointer或reference，你只能靠它们来处理对象。有两个一般性做法可以避免这个问题。</p>
-<p>&emsp;&emsp;第一，使用容器并在其中存储直接指向derived class对象的指针（通常是智能指针），如此便消除了“通过base class接口处理对象”的需要。假设先前的Window/SpecialWindow继承体系中只有SpecialWindow才支持闪烁效果，试着不要这样做：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">blink</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;window&gt; &gt; VPW;</span><br><span class="line">VPW winPtrs;</span><br><span class="line">...</span><br><span class="line">  <span class="keyword">for</span>(VPW::iterator iter = winPtrs.<span class="built_in">begin</span>();</span><br><span class="line">      iter != winPtrs.<span class="built_in">end</span>(); ++iter) &#123;</span><br><span class="line">      <span class="keyword">if</span>(SpecialWindow* psw = <span class="keyword">dynamic_cast</span>&lt;SpecialWindow*&gt;(iter-&gt;<span class="built_in">get</span>()))</span><br><span class="line">          psw-&gt;<span class="built_in">blink</span>();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>应该改而这样做：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;SpecialWindow&gt; &gt; VPSW;</span><br><span class="line">VPSW winPtrs;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">for</span>(VPSW::iterator iter = winPtrs.<span class="built_in">begin</span>();  <span class="comment">//这样写比较好</span></span><br><span class="line">    iter != winPtrs.<span class="built_in">end</span>(); ++iter)          <span class="comment">//不使用dynamic_cast</span></span><br><span class="line">(*iter)-&gt;<span class="built_in">blink</span>();</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当然啦，这种做法使你无法在同一个容器内存储指针“指向所有可能之多种Window派生类”。如果真要处理多种窗口类型，你可能需要多个容器，它们都必须具备类型安全性。</p>
-<p>&emsp;&emsp;另一种做法可让你通过base class接口处理“所有可能之各种window派生类”，那就是在base class内提供virtual函数做你想对各个Window派生类做的事。举个例子，虽然只有SpecialWindow可以闪烁，但或许将闪烁函数声明于base class内并提供一份“什么也没做”的缺省实现代码是有意义的：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">blink</span><span class="params">()</span> </span>&#123;&#125;  <span class="comment">//缺省实现代码“什么也没做”</span></span><br><span class="line">    ...                      <span class="comment">//缺省实现代码可能是个馊主意</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">blink</span><span class="params">()</span> </span>&#123; ... &#125;;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::share_ptr&lt;Window&gt; &gt; VPW;</span><br><span class="line">VPW winPtrs;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">for</span>(VPW::iterator iter = winPtrs.<span class="built_in">begin</span>();</span><br><span class="line">    iter != winPtrs.<span class="built_in">end</span>();</span><br><span class="line">    ++iter)</span><br><span class="line">(*iter)-&gt;<span class="built_in">blink</span>();</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;不论哪种写法——“使用类型安全容器”或“将virtual函数往继承体系上方移动”——都并非放之四海而皆准，但在许多情况下它们都提供一个可行的dynamic_cast替代方案。当它们有此功效时，你应该欣然拥抱它们。</p>
-<p>&emsp;&emsp;绝对必须避免的一件事是所谓的“连串dynamic_cast”，也就是看起来像这样的东西：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span> ... &#125;;</span><br><span class="line">...  <span class="comment">//derived class定义在这里</span></span><br><span class="line"><span class="keyword">typedef</span> </span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Window&gt; &gt; VPW;</span><br><span class="line">VPW winPtrs;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">for</span>(VPW::iterator iter = winPtrs.<span class="built_in">begin</span>();</span><br><span class="line">    iter != winPtrs.<span class="built_in">end</span>(); ++iter) &#123;</span><br><span class="line">    <span class="keyword">if</span>(SpecialWindow1* psw1 =</span><br><span class="line">       <span class="keyword">dynamic_cast</span>&lt;SpecialWindow1*&gt;(iter-&gt;<span class="built_in">get</span>())) &#123; ... &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(SpecialWindow2* psw2 =</span><br><span class="line">            <span class="keyword">dynamic_cast</span>&lt;SpecialWindow2*&gt;(iter-&gt;<span class="built_in">get</span>())) &#123; ... &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(SpecialWindow3* psw3 =</span><br><span class="line">            <span class="keyword">dynamic_cast</span>&lt;SpecialWindow3*&gt;(iter-&gt;<span class="built_in">get</span>())) &#123; ... &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这样生产出来的代码又大又慢，而且基础不稳，因为每次Window class继承体系一有改变，所有这一类代码都必须再次检阅看看是否需要修改。例如一旦加入新的derived class，或许上述连串判断中需要加入新的条件分支。这样的代码应该总是以某些“基于virtual函数调用”的东西取而代之。</p>
-<p>&emsp;&emsp;优良的C++代码很少使用转型，但若说要完全摆脱它们又太过不切实际。例如之前的例子从int转型为double就是转型的一个通情达理的使用，虽然它并非绝对必要（那段代码可以重新写过，声明一个类型为double的新变量并以x值初始化）。就像面对众多蹊跷可疑的构造函数一样，我们应该尽可能隔离转型动作，通常是把它隐藏在某个函数内，函数的接口会保护调用者不受函数内部任何肮脏龌龊的动作影响。</p>
-<blockquote>
-<p>如果可以，尽量避免转型，特别是在注重效率的代码中避免dynamic_cast。如果有个设计需要转型动作，试着发展无需转型的替代设计。</p>
-<p>如果转型是必要的，试着将它隐藏于某个函数背后。客户随后可以调用该函数，而不需将转型放进它们自己的代码内。</p>
-<p>宁可使用C++-style（新式）转型，不要使用旧式转型。前者很容易辨识出来，而且也比较又着分门别类的职掌。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/08/08/%E5%B0%BD%E9%87%8F%E5%B0%91%E5%81%9A%E8%BD%AC%E5%9E%8B%E5%8A%A8%E4%BD%9C/">展开全文 >></a>
         </p>
       
 
