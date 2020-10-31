@@ -6,13 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2020 | Hexo</title>
+  <title>区分接口继承和实现继承 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/archives/2020/index.html">
+  <meta name="description" content="区分接口继承和实现继承&amp;emsp;&amp;emsp;表面上直截了当的public继承概念，经过更严密的检查之后，发现它由两部分组成：函数接口继承和函数实现继承。这两种继承的差异，很像函数声明与函数定义之间的差异。 &amp;emsp;&amp;emsp;身为class设计者，有时候我们会希望derived class只继承成员函数的接口（也就是声明）；有时候又会希望derived class同时继承函数的接口和实现，但">
+<meta property="og:type" content="article">
+<meta property="og:title" content="区分接口继承和实现继承">
+<meta property="og:url" content="http://yoursite.com/2020/10/30/%E5%8C%BA%E5%88%86%E6%8E%A5%E5%8F%A3%E7%BB%A7%E6%89%BF%E5%92%8C%E5%AE%9E%E7%8E%B0%E7%BB%A7%E6%89%BF/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="区分接口继承和实现继承&amp;emsp;&amp;emsp;表面上直截了当的public继承概念，经过更严密的检查之后，发现它由两部分组成：函数接口继承和函数实现继承。这两种继承的差异，很像函数声明与函数定义之间的差异。 &amp;emsp;&amp;emsp;身为class设计者，有时候我们会希望derived class只继承成员函数的接口（也就是声明）；有时候又会希望derived class同时继承函数的接口和实现，但">
 <meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-10-30T06:49:27.000Z">
+<meta property="article:modified_time" content="2020-10-31T00:36:40.000Z">
 <meta property="article:author" content="arzhe">
 <meta name="twitter:card" content="summary">
   
@@ -132,493 +136,237 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-区分接口继承和实现继承" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      区分接口继承和实现继承
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/10/30/%E5%8C%BA%E5%88%86%E6%8E%A5%E5%8F%A3%E7%BB%A7%E6%89%BF%E5%92%8C%E5%AE%9E%E7%8E%B0%E7%BB%A7%E6%89%BF/" class="archive-article-date">
+
+        
+        <a href="/2020/10/30/%E5%8C%BA%E5%88%86%E6%8E%A5%E5%8F%A3%E7%BB%A7%E6%89%BF%E5%92%8C%E5%AE%9E%E7%8E%B0%E7%BB%A7%E6%89%BF/" class="archive-article-date">
   	<time datetime="2020-10-30T06:49:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-30</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/10/30/%E5%8C%BA%E5%88%86%E6%8E%A5%E5%8F%A3%E7%BB%A7%E6%89%BF%E5%92%8C%E5%AE%9E%E7%8E%B0%E7%BB%A7%E6%89%BF/">区分接口继承和实现继承</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="区分接口继承和实现继承"><a href="#区分接口继承和实现继承" class="headerlink" title="区分接口继承和实现继承"></a>区分接口继承和实现继承</h1><p>&emsp;&emsp;表面上直截了当的public继承概念，经过更严密的检查之后，发现它由两部分组成：函数接口继承和函数实现继承。这两种继承的差异，很像函数声明与函数定义之间的差异。</p>
+<p>&emsp;&emsp;身为class设计者，有时候我们会希望derived class只继承成员函数的接口（也就是声明）；有时候又会希望derived class同时继承函数的接口和实现，但又希望能够覆写它们所继承的实现；又有时候希望derived class同时继承函数的接口和实现，并且不允许覆写任何东西。</p>
+<p>&emsp;&emsp;为了更好地感觉上述选择之间的差异，让我们考虑一个展现绘图程序中各种几何形状的class继承体系：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> vod <span class="title">draw</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">error</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; msg)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">objectID</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> :</span> <span class="keyword">public</span> Shape &#123; ... &#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ellipse</span> :</span> <span class="keyword">public</span> Shape &#123; ... &#125;</span><br></pre></td></tr></table></figure>
 
-        <div class="article-info info-on-right">
-          
-          
+<p>&emsp;&emsp;Shape是个抽象class；它的pure virtual函数draw使他成为一个抽象class。所以客户不能够创建Shape class的实体，只能创建其derived class的实体。尽管如此，Shape还是强烈影响了所有以public形式继承它的derived class，因为：</p>
+<ul>
+<li>成员函数的接口总是会被继承，public继承意味着is-a，所以对base class为真的任何事情一定也对其derived class为真。因此，如果某个函数可施行于某class身上，一定也可施行于其derived class身上。</li>
+</ul>
+<p>&emsp;&emsp;Shape class声明了三个函数。第一个是draw，于某个隐喻的视屏中画出当前对象。第二个是error，准备让那些“需要报导某个错误”的成员函数调用。第三个是objectID，返回当前对象的一个独立无二的整数识别码。每个函数的声明方式都不相同：draw是个pure virtual函数；error是个简朴的（非纯）impure virtual函数；objectID是个non-virtual函数。这些不同的声明带来什么样的暗示呢？</p>
+<p>&emsp;&emsp;首先考虑pure virtual函数draw：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
+<p>&emsp;&emsp;pure virtual函数有两个最突出的特性：它们必须被任何“继承了它们”的具象class重新声明，而且它们在抽象class中通常没有定义。把这两个性质摆在一起，你就会明白：</p>
+<ul>
+<li>声明一个pure virtual函数的目的是为了让derived class只继承函数接口。</li>
+</ul>
+<p>&emsp;&emsp;这对Shape::draw函数是再合理不过的事了，因为所有Shape对象都应该是可绘出的，这是合理的要求。但Shape class无法为此函数提供合理的缺省实现，毕竟椭圆形绘法迥异于矩形绘法。Shape::draw的声明式乃是对具象derived class设计者说，“你必须提供一个draw函数，但我不干涉你怎么实现它。”</p>
+<p>&emsp;&emsp;令人意外的是，我们竟然可以为pure virtual函数提供定义。也就是说你可以为Shape::draw供应一份实现代码，C++并不会发出怨言，但调用它的唯一途径是“调用时明确指出其class名称”：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Shape* ps = <span class="keyword">new</span> Shape;       <span class="comment">//错误！Shape是抽象的</span></span><br><span class="line">Shape* ps1 = <span class="keyword">new</span> Rectangle;  <span class="comment">//没问题</span></span><br><span class="line">ps1-&gt;draw();                 <span class="comment">//调用Rectangle::draw</span></span><br><span class="line">Shape* ps2 = <span class="keyword">new</span> Ellipse;    <span class="comment">//没问题</span></span><br><span class="line">ps2-&gt;draw();                 <span class="comment">//调用Ellipse::draw</span></span><br><span class="line">ps1-&gt;Shape::draw();          <span class="comment">//调用Shape::draw</span></span><br><span class="line">ps2-&gt;Shape::draw();          <span class="comment">//调用Shape::draw</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;除了能够帮助你在高雅酒会上留给大师级程序员一个深刻的印象，一般而言这项性质用途有限。但是稍后你将看到，它可以实现一种机制，为简朴的（非纯）impure virtual函数提供更平常更安全的缺省实现。</p>
+<p>&emsp;&emsp;简朴的impure virtual函数背后的故事和pure virtual函数有点不同。一如往常，derived class继承其函数接口，但impure virtual函数会提供一份实现代码，derived class可能覆写它。稍加思索，你就会明白：</p>
+<ul>
+<li>声明简朴的（非纯）impure virtual函数的目的，是让derived class继承该函数的接口和缺省实现。</li>
+</ul>
+<p>&emsp;&emsp;考虑Shape::error这个例子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">error</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; msg)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;其接口表示，每个class都必须支持一个“当遇上错误时可调用”的函数，但每个class都可自由处理错误。如果某个class不想针对错误做出任何特殊行为，它可以退回到Shape class提供的缺省错误处理行为。也就是说Shape::error的声明式告诉derived class的设计者，“你必须支持一个error函数，但如果你不想自己写一个，可以使用Shape class提供的缺省版本”。</p>
+<p>&emsp;&emsp;但是，允许impure virtual函数同时指定函数声明和函数缺省行为，却有可能造成危险。欲探讨原因，让我们考虑XYZ航空公司设计的飞行继承体系。该公司只有A型和B型飞机，两者都以相同方式飞行。因此XYZ设计出这样的继承体系：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Airport</span> &#123;</span> ... &#125;;  <span class="comment">//用以表现机场</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Airplane</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Airplane::fly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span> </span>&#123;</span><br><span class="line">    缺省代码，将飞机飞至指定的目的地</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelA</span> :</span> <span class="keyword">public</span> Airplane &#123; ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelB</span> :</span> <span class="keyword">public</span> Airplane &#123; ... &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;为了表示所有飞机都一定能飞，并阐明“不同型飞机原则上需要不同的fly实现”，Airplane::fly被声明为virtual。然而为了避免在ModelA和ModelB中撰写相同代码，缺省飞行行为由Airplane::fly提供，它同时被ModelA和ModelB继承。</p>
+<p>&emsp;&emsp;这是个典型的面相对象设计。两个class共享一份相同性质（也就是它们实现fly的方式），所以共同性质被搬到base class中，然后被这两个class继承。这个设计突显出共同性质，避免代码重复，并提升未来的强化能力，减缓长期维护所需的成本。所有这些都是面相对象技术如此受到欢迎的原因。XYZ航空公司应该感到骄傲。</p>
+<p>&emsp;&emsp;现在，假设XYZ盈余大增，决定购买一种新式C型飞机。C型和A型以及B型有某些不同。更明确地说，它的飞行方式不同。</p>
+<p>&emsp;&emsp;XYZ公司的程序员正在继承体系中针对C型飞机添加了一个class，但由于他们急着让新飞机上线服务，竟忘了重新定义其fly函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelC</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    ...  <span class="comment">//未声明fly函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;然后代码中有一些诸如此类的动作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Airport <span class="title">MLP</span><span class="params">(...)</span></span>;  <span class="comment">//MLP是某个机场</span></span><br><span class="line">Airplane* pa = <span class="keyword">new</span> ModelC;</span><br><span class="line">...</span><br><span class="line">pa-&gt;fly(MLP);      <span class="comment">//调用Airplane::fly</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这将酿成大祸；这个程序试图以ModelA或ModelB的飞行方式来飞ModelC。</p>
+<p>&emsp;&emsp;问题不在Airplane::fly有缺省行为，而在于ModelC在未明白说出“我要”的情况下就继承了该缺省行为。幸运的是我们可以轻易做到“提供缺省实现给derived class，但除非它们明白要求否则免谈”。此间伎俩在于切断“virtual函数接口”和其”缺省实现“之间的连接。下面是一种做法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Airplane</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span> </span>= <span class="number">0</span>;</span><br><span class="line">        ...</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">protected</span>:</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">defaultFly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Airplane::defaultFly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span> </span>&#123;</span><br><span class="line">    缺省行为，将飞行飞至指定目的地。</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;请注意，Airplane::fly已被改为一个pure virtual函数，只提供飞行接口。其缺省行为也出现在Airplane class中，但此次系以独立函数defaultFly的姿态出现。若想使用缺省实现（例如ModelA和ModelB），可以在其fly函数中对defaultFly做一个inline调用：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelA</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123;</span><br><span class="line">            defaultFly(destination);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelB</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123;</span><br><span class="line">            defaultFly(destination);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在ModelC class不可能意外继承不正确的fly实现代码了，因为Airplane中的pure virtual函数迫使ModelC必须提供自己的fly版本：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelC</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ModelC::fly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span> </span>&#123;</span><br><span class="line">    将C型飞机飞至指定目的地</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个方案并非安全无虞，程序员还是可能因为剪贴代码而招来麻烦，但它的确比原先的设计值得依赖。至于Airplane::defaultFly，请注意它现在成了protected，因为它是Airplane及其derived class的实现细目。乘客应该只在意飞机能不能飞，不在意它们怎么飞。</p>
+<p>&emsp;&emsp;Airplane::defaultFly是个non-virtual函数，这一点也很重要。因为没有任何一个derived class应该重新定义此函数。如果defaultFly是virtual函数，就会出现一个循环问题：万一某些derived class忘记重新定义defaultFly，会怎样？</p>
+<p>&emsp;&emsp;有些人反对以不同的函数分别提供接口和缺省实现，像上述的fly和defaultFly那样。他们关心因过度雷同的函数名称而引起的class命名空间污染问题。但是他们也同意，接口和缺省实现应该分开。这个表面上看起来的矛盾该如何解决？唔，我们可以利用“pure virtual函数必须在derived class中重新声明，但它们也可以拥有自己的实现”这一事实。下面便是Airplane继承体系如何给pure virtual函数一份定义：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Airplane</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>= <span class="number">0</span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Airplane::fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123; <span class="comment">//pure virtual函数实现</span></span><br><span class="line">    缺省行为，将飞机飞至指定的目的地</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelA</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123;</span><br><span class="line">            Airplane::fly(destination);</span><br><span class="line">        &#125; </span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelB</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123;</span><br><span class="line">            Airplane::fly(destination);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelC</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ModelC::fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123;</span><br><span class="line">    将C型飞机飞至指定的目的地</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这几乎和前一个设计一摸一样，只不过pure virtual函数Airplane:fly替换了独立函数Airplane::defaultFly。本质上，现在的fly被分割为两个基本要素：其声明部分表现的是接口（那是derived class必须使用的），其定义部分则表现出缺省行为（那是derived class可能使用的，但只有在它们明确提出申请时才是）。如果合并fly和defaultFly，就丧失了“让两个函数享有不同保护级别”的机会：习惯上被设为protected的函数（defaultFly）如今成了public（因为它在fly之中）。</p>
+<p>&emsp;&emsp;最后，让我们看看Shape的non-virtual函数objectID：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">objectID</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果成员函数是个non-virtual函数，意味着它并不打算在derived class中有不同的行为。实际上一个non-virtual成员函数所表现的不变性凌驾其特异性，因为它表示不论derived class变得多么特异化，它的行为都不可以改变。就其自身而言：</p>
+<ul>
+<li>声明non-virtual函数的目的是为了令derived class继承函数的接口及一份强制性实现。</li>
+</ul>
+<p>&emsp;&emsp;你可以把Shape::objectID的声明想做是：“每个Shape对象都有一个用来产生对象识别码的函数；此识别码总是采用相同计算方法，该方法由Shape::objectID的定义式决定，任何derived class都不应该尝试改变其行为”。由于non-virtual函数代表的意义是不变性凌驾特异性，所以它绝不该在derived class中被重新定义。</p>
+<p>&emsp;&emsp;pure virtual函数、simple（impure）virtual函数、non-virtual函数之间的差异，使你得以精确指定你想要derived class继承的东西：只继承接口，或是继承接口和一份缺省实现，或是继承接口和一份强制实现。由于这些不同类型的声明意味着根本意义并不相同的事情，当你声明你的成员函数时，必须谨慎选择。如果你确实履行，应该能够避免经验不足的class设计者最常犯的两个错误。</p>
+<p>&emsp;&emsp;第一个错误是将所有函数声明为non-virtual。这使得derived class没有余裕空间进行特化工作。non-virtual析构函数尤其会带来问题（见“<a href="/2020/07/22/%E4%B8%BA%E5%A4%9A%E6%80%81%E5%9F%BA%E7%B1%BB%E5%A3%B0%E6%98%8Evirtual%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/" title="为多态基类声明virtual析构函数">为多态基类声明virtual析构函数</a>”）。当然啦，设计一个并不想成为base class的class是绝对合理的，既然这样，将其所有成员函数都声明为non-virtual也很适当。但这种声明如果不是忽略了virtual和non-virtual函数之间的差异，就是过度担心virtual函数的效率成本。实际上任何class如果打算被用来当做一个base class，都会拥有若干virtual函数。</p>
+<p>&emsp;&emsp;如果你关心virtual函数的成本，请容许我介绍所谓的80-20法则（也可见“<a href="/2020/08/12/%E9%80%8F%E5%BD%BB%E4%BA%86%E8%A7%A3inlining%E7%9A%84%E9%87%8C%E9%87%8C%E5%A4%96%E5%A4%96/" title="透彻了解inlining的里里外外">透彻了解inlining的里里外外</a>。这个法则说，一个典型的程序有80%的执行时间花费在20%的代码身上。此一法则十分重要，因为它意味，平均而言你的函数调用中可以有80%是virtual而不冲击程序的大体效率。所以当你担心是否有能力负担virtual函数的成本之前，请先将心力放在那举足轻重的20%代码上头，它才是关键。</p>
+<p>&emsp;&emsp;另一个常见错误是将所有成员函数声明为virtual。有时候这样做是正确的，例如“<a href="/2020/08/13/%E5%B0%86%E6%96%87%E4%BB%B6%E9%97%B4%E7%9A%84%E7%BC%96%E8%AF%91%E4%BE%9D%E5%AD%98%E5%85%B3%E7%B3%BB%E9%99%8D%E8%87%B3%E6%9C%80%E4%BD%8E/" title="将文件间的编译依存关系降至最低">将文件间的编译依存关系降至最低</a>”的interface class。然而这也可能是class设计者缺乏坚定立场的前兆。某些函数就是不该在derived class中被重新定义，果真如此你应该将那些函数声明为non-virtual。没有人有权利妄称你的class适用于任何人任何事物而他们只需花点时间重新定义你的函数就可以享受一切。如果你的不变性凌驾特异性，别害怕说出来。</p>
+<blockquote>
+<ul>
+<li>接口继承和实现继承不同。在public继承之下，derived class总是继承base class的接口。</li>
+<li>pure virtual函数只具体指定接口继承。</li>
+<li>简朴的（非纯）impure virtual函数具体指定接口继承及缺省实现继承。</li>
+<li>non-virtual函数具体指定接口以及强制性实现继承。</li>
+</ul>
+</blockquote>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/blogImg/wechatpay.jpeg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/10/30/%E5%8C%BA%E5%88%86%E6%8E%A5%E5%8F%A3%E7%BB%A7%E6%89%BF%E5%92%8C%E5%AE%9E%E7%8E%B0%E7%BB%A7%E6%89%BF/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/10/28/%E9%81%BF%E5%85%8D%E9%81%AE%E6%8E%A9%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E5%90%8D%E7%A7%B0/" class="archive-article-date">
-  	<time datetime="2020-10-28T13:09:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-28</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/10/28/%E9%81%BF%E5%85%8D%E9%81%AE%E6%8E%A9%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E5%90%8D%E7%A7%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">避免遮掩继承而来的名称</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/10/28/%E9%81%BF%E5%85%8D%E9%81%AE%E6%8E%A9%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E5%90%8D%E7%A7%B0/">避免遮掩继承而来的名称</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/09/18/pkg-config/" class="archive-article-date">
-  	<time datetime="2020-09-18T07:55:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/09/18/pkg-config/">pkg-config</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">shell</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/杂记//" class="article-tag-list-link color3">杂记</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/" class="archive-article-date">
-  	<time datetime="2020-09-14T08:32:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-14</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/">关于GNU make工具的汇总（3）</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">makefile</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/linux//" class="article-tag-list-link color1">linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/09/12/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%882%EF%BC%89/" class="archive-article-date">
-  	<time datetime="2020-09-12T04:11:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-12</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/09/12/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%882%EF%BC%89/">关于GNU make工具的汇总（2）</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">makefile</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/linux//" class="article-tag-list-link color1">linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/09/11/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%881%EF%BC%89/" class="archive-article-date">
-  	<time datetime="2020-09-11T07:31:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-11</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/09/11/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%881%EF%BC%89/">关于GNU make工具的汇总（1）</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">makefile</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/linux//" class="article-tag-list-link color1">linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/09/06/%E7%A1%AE%E5%AE%9A%E4%BD%A0%E7%9A%84public%E7%BB%A7%E6%89%BF%E5%A1%91%E6%A8%A1%E5%87%BAis-a%E5%85%B3%E7%B3%BB/" class="archive-article-date">
-  	<time datetime="2020-09-06T03:32:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-06</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/09/06/%E7%A1%AE%E5%AE%9A%E4%BD%A0%E7%9A%84public%E7%BB%A7%E6%89%BF%E5%A1%91%E6%A8%A1%E5%87%BAis-a%E5%85%B3%E7%B3%BB/">确定你的public继承塑模出is-a关系</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/13/%E5%B0%86%E6%96%87%E4%BB%B6%E9%97%B4%E7%9A%84%E7%BC%96%E8%AF%91%E4%BE%9D%E5%AD%98%E5%85%B3%E7%B3%BB%E9%99%8D%E8%87%B3%E6%9C%80%E4%BD%8E/" class="archive-article-date">
-  	<time datetime="2020-08-13T02:41:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-13</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/13/%E5%B0%86%E6%96%87%E4%BB%B6%E9%97%B4%E7%9A%84%E7%BC%96%E8%AF%91%E4%BE%9D%E5%AD%98%E5%85%B3%E7%B3%BB%E9%99%8D%E8%87%B3%E6%9C%80%E4%BD%8E/">将文件间的编译依存关系降至最低</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/12/%E9%80%8F%E5%BD%BB%E4%BA%86%E8%A7%A3inlining%E7%9A%84%E9%87%8C%E9%87%8C%E5%A4%96%E5%A4%96/" class="archive-article-date">
-  	<time datetime="2020-08-12T01:57:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-12</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/12/%E9%80%8F%E5%BD%BB%E4%BA%86%E8%A7%A3inlining%E7%9A%84%E9%87%8C%E9%87%8C%E5%A4%96%E5%A4%96/">透彻了解inlining的里里外外</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/11/%E4%B8%BA%E2%80%9C%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%E2%80%9D%E8%80%8C%E5%8A%AA%E5%8A%9B%E6%98%AF%E5%80%BC%E5%BE%97%E7%9A%84/" class="archive-article-date">
-  	<time datetime="2020-08-11T02:22:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-11</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/11/%E4%B8%BA%E2%80%9C%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%E2%80%9D%E8%80%8C%E5%8A%AA%E5%8A%9B%E6%98%AF%E5%80%BC%E5%BE%97%E7%9A%84/">为“异常安全”而努力是值得的</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/archives/2020/page/2/">2</a><a class="page-number" href="/archives/2020/page/3/">3</a><a class="page-number" href="/archives/2020/page/4/">4</a><a class="extend next" rel="next" href="/archives/2020/page/2/">Next &amp;raquo;</a>
-    </nav>
+  
+
+  
+
   
 
 
@@ -642,8 +390,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
