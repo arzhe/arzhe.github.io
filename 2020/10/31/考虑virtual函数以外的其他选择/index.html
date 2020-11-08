@@ -6,13 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2020 | Hexo</title>
+  <title>考虑virtual函数以外的其他选择 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/archives/2020/page/4/index.html">
+  <meta name="description" content="考虑virtual函数以外的其他选择&amp;emsp;&amp;emsp;假设你正在写一个游戏，你打算为游戏内的人物设计一个继承体系。你的游戏属于砍杀类型，游戏中人物被伤害或因其他因素而降低健康状态的情况并不罕见。你因此决定提供一个成员函数healthValue，它会返回一个整数，表示人物的健康程度。由于不同的人物可能以不同的方式计算他们的健康指数，将healthValue声明为virtual似乎是再明白不过的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="考虑virtual函数以外的其他选择">
+<meta property="og:url" content="http://yoursite.com/2020/10/31/%E8%80%83%E8%99%91virtual%E5%87%BD%E6%95%B0%E4%BB%A5%E5%A4%96%E7%9A%84%E5%85%B6%E4%BB%96%E9%80%89%E6%8B%A9/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="考虑virtual函数以外的其他选择&amp;emsp;&amp;emsp;假设你正在写一个游戏，你打算为游戏内的人物设计一个继承体系。你的游戏属于砍杀类型，游戏中人物被伤害或因其他因素而降低健康状态的情况并不罕见。你因此决定提供一个成员函数healthValue，它会返回一个整数，表示人物的健康程度。由于不同的人物可能以不同的方式计算他们的健康指数，将healthValue声明为virtual似乎是再明白不过的">
 <meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-10-31T10:27:42.000Z">
+<meta property="article:modified_time" content="2020-11-08T09:09:16.000Z">
 <meta property="article:author" content="arzhe">
 <meta name="twitter:card" content="summary">
   
@@ -132,417 +136,222 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-考虑virtual函数以外的其他选择" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      考虑virtual函数以外的其他选择
+    </h1>
+  
+
+        
+        <a href="/2020/10/31/%E8%80%83%E8%99%91virtual%E5%87%BD%E6%95%B0%E4%BB%A5%E5%A4%96%E7%9A%84%E5%85%B6%E4%BB%96%E9%80%89%E6%8B%A9/" class="archive-article-date">
+  	<time datetime="2020-10-31T10:27:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-31</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="考虑virtual函数以外的其他选择"><a href="#考虑virtual函数以外的其他选择" class="headerlink" title="考虑virtual函数以外的其他选择"></a>考虑virtual函数以外的其他选择</h1><p>&emsp;&emsp;假设你正在写一个游戏，你打算为游戏内的人物设计一个继承体系。你的游戏属于砍杀类型，游戏中人物被伤害或因其他因素而降低健康状态的情况并不罕见。你因此决定提供一个成员函数healthValue，它会返回一个整数，表示人物的健康程度。由于不同的人物可能以不同的方式计算他们的健康指数，将healthValue声明为virtual似乎是再明白不过的做法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span></span>;  <span class="comment">//返回人物的健康指数；</span></span><br><span class="line">        ...                               <span class="comment">//derived class可重新定义它</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;healthValue并未被声明为pure virtual，这暗示我们将会有个计算健康指数的缺省算法。</p>
+<p>&emsp;&emsp;这的确是再明白不过的设计，但是从某个角度说却反而成为了它的弱点。由于这个设计如此明显，你可能因此没有认真考虑其他替代方案。为了帮助你跳脱面向对象设计上的常轨，让我们考虑其他一些解法。</p>
+<h2 id="藉由Non-Virtual-Interface手法实现Template-Method模式"><a href="#藉由Non-Virtual-Interface手法实现Template-Method模式" class="headerlink" title="藉由Non-Virtual Interface手法实现Template Method模式"></a>藉由Non-Virtual Interface手法实现Template Method模式</h2><p>&emsp;&emsp;我们将从一个有趣的思想流派开始，这个流派主张virtual函数应该几乎总是private。这个流派的拥护者建议，较好的设计是保留healthValue为public成员函数，但让它成为non-virtual，并调用一个private virtual函数（例如doHealthValue）进行实际工作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;            <span class="comment">//derived class不重新定义它。</span></span><br><span class="line">            ...                              <span class="comment">//做一些事前工作。</span></span><br><span class="line">            <span class="keyword">int</span> retVal = doHealthValue();    <span class="comment">//做真正的工作。</span></span><br><span class="line">            ...                              <span class="comment">//做一些事后工作。</span></span><br><span class="line">            <span class="keyword">return</span> retVal;</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">       </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">doHealthValue</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;  <span class="comment">//derived class可重新定义它。</span></span><br><span class="line">            ...                              <span class="comment">//缺省算法，计算健康指数。</span></span><br><span class="line">        &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;在这段代码中，我直接在class定义式内呈现成员函数本体。这也就让它们全部暗自成为了inline。但其实我以这种方式呈现代码只是为了让你比较容易阅读。我所描述的设计与inlining其实没有关联，所以请不要认为成员函数在这里被定义于class内有特殊用意。不，它没有。</p>
+<p>&emsp;&emsp;这一基本设计，也就是“令客户通过public non-virtual成员函数间接调用private virtual函数”，称为non-virtual interface（NVI）手法。它是所谓Template Method设计模式的一个独特表现形式。我把这个non-virtual函数（healthValue）称为virtual函数的外覆器（wrapper）。</p>
+<p>&emsp;&emsp;NVI手法的一个优点隐身在上述代码注释“做一些事前工作”和“做一些事后工作”之中。那些注释用来告诉你当时的代码保证在“virtual函数进行真正工作之前和之后”被调用。这意味外覆器确保得以在一个virtual函数被调用之前设定好适当场景，并在调用结束之后清理场景。“事前工作”可以包括锁定互斥器、制造运转日志记录项、验证class约束条件、验证函数先决条件等等。“事后工作”可以包括互斥器接触锁定、验证函数的事后条件、在此验证class约束条件等等。如果你让客户直接调用virtual函数，就没有任何好办法可以做这些事。</p>
+<p>&emsp;&emsp;有件事或许会妨碍你跃跃欲试的心：NVI手法涉及在derived class内重新定义private virtual函数。啊，重新定义若干个derived class并不调用的函数！这里并不存在矛盾。“重新定义virtual函数”表示某些事“如何”被完成，“调用virtual函数”则表示它“何时”被完成。这些事情都是各自独立互不相干的。NVI手法允许derived class重新定义virtual函数，从而赋予它们“如何实现机能”的控制能力，但base class保留诉说“函数何时被调用”的权利。一开始这些听起来似乎诡异，但C++的这种“derived class可重新定义继承而来的private virtual函数”的规则似乎合情合理。</p>
+<p>&emsp;&emsp;在NVI手法下其实没有必要让virtual函数一定得是private。某些class继承体系要求derived class在virtual函数的实现内必须调用其base class的对应兄弟，而为了让这样的调用合法，virtual函数必须是protected，不能是private。有时候virtual函数甚至一定得是public（例如具备多态性质的base class的析构函数），这么一来就不能实施NVI手法了。</p>
+<h2 id="藉由Function-Pointers实现Strategy模式"><a href="#藉由Function-Pointers实现Strategy模式" class="headerlink" title="藉由Function Pointers实现Strategy模式"></a>藉由Function Pointers实现Strategy模式</h2><p>&emsp;&emsp;NVI手法对public virtual函数而言是一个有趣的替代方案，但从某种设计角度观之，它只比窗饰花样更强一些而已。毕竟我们还是使用virtual函数来计算每个人物的健康指数。另一个更戏剧性的设计主张“人物健康指数的计算与人物类型无关”，这样的计算完全不需要“人物”这个成分。例如我们可能会要求每个人物的构造函数接受一个指针，指向一个健康计算函数，而我们可以调用该函数进行实际计算：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span>;</span>  <span class="comment">//前置声明</span></span><br><span class="line"><span class="comment">//以下函数是计算健康指数的缺省算法。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">defaultHealthCalc</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp; gc)</span></span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*HealthCalcFunc)</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">GameCharacter</span><span class="params">(HealthCalcFunc hcf = defaultHealthCalc)</span></span></span><br><span class="line"><span class="function">        : <span class="title">healthFunc</span><span class="params">(hcf)</span></span></span><br><span class="line"><span class="function">        </span>&#123;&#125;</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> healthFunc(*<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        HealthCalcFunc healthFunc;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个做法是常见的Strategy设计模式的简单应用。拿它和“植基于GameCharacter继承体系内之virtual函数”的做法比较，它提供了某些有趣弹性：</p>
+<ul>
+<li>同一人物类型之不同实体可以有不同的健康计算函数，例如：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EvilBadGuy</span> :</span> <span class="keyword">public</span> GameCharacter &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">EvilBadGuy</span><span class="params">(HealthCalcFunc hcf = defaultHealthCalc)</span></span></span><br><span class="line"><span class="function">        : <span class="title">GameCharacter</span><span class="params">(hcf)</span></span></span><br><span class="line"><span class="function">        </span>&#123; ... &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">loseHealthQuickly</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span></span>;  <span class="comment">//健康指数计算函数1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">loseHealthSlowly</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span></span>;   <span class="comment">//健康指数计算函数2</span></span><br><span class="line"></span><br><span class="line"><span class="function">EvilBadGuy <span class="title">ebg1</span><span class="params">(loseHealthQuickly)</span></span>;           <span class="comment">//相同类型的人物搭配</span></span><br><span class="line"><span class="function">EvilBadGuy <span class="title">ebg2</span><span class="params">(loseHealthSlowly)</span></span>;            <span class="comment">// 不同的健康计算方式</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>某已知人物之健康指数计算函数可在运行期变更。例如GameCharacter可提供一个成员函数setHealthCalculator，用来替换当前的健康指数计算函数。</li>
+</ul>
+<p>&emsp;&emsp;换句话说，“健康指数计算函数不再是GameCharacter继承体系内的成员函数”这一事实意味，这些计算函数并未特别访问“即将被计算健康指数”的那个对象的内部成分。例如defaultHealthCalc并未访问EvilBadGuy的non-public成分。</p>
+<p>&emsp;&emsp;如果人物的健康可纯粹根据该人物的public接口得来的信息加以计算，这就没有问题，但如果需要non-public信息进行精确计算，就有问题了。实际上任何时候当你将class内的某个机能（也许取道自某个成员函数）替换为class外部的某个等价机能（也许取道自某个non-member non-friend函数或另一个class的non-friend成员函数），这都是潜在争议点。这个争议将持续至本条款其余篇幅，因为我们即将考虑的所有替代设计也都涉及使用GameCharacter继承体系外的函数。</p>
+<p>&emsp;&emsp;一般而言，唯一能够解决“需要以non-member函数访问class的non-public成分”的办法就是：弱化class的封装。例如class可声明那个non-member函数为friends，或是为其实现的某一部分提供public访问函数（其他部分则宁可隐藏起来）。运用函数指针替换virtual函数，其优点（像是“每个对象可各自拥有自己的健康计算函数”和“可在运行期改变计算函数”）是否足以弥补缺点（例如可能必须降低GameCharacter封装性），是你必须根据每个设计情况的不同而抉择的。</p>
+<h2 id="藉由std-function完成Strategy模式"><a href="#藉由std-function完成Strategy模式" class="headerlink" title="藉由std::function完成Strategy模式"></a>藉由std::function完成Strategy模式</h2><p>&emsp;&emsp;一旦习惯了templates以及它们对隐式接口的使用，基于函数指针的做法看起来便过分苛刻而死板了。为什么要求“健康指数之计算”必须是个函数，而不能是某种“像函数的东西”（例如函数对象）呢？如果一定得是函数，为什么不能够是个成员函数？为什么一定得返回int而不是任何可被转换为int的类型呢？</p>
+<p>&emsp;&emsp;如果我们不再使用函数指针（如前例的healthFunc），而是改用一个类型为std::function的对象，这些约束就全部挥发不见了。这样的对象可持有（保存）任何可调用物（callable entity，也就是函数指针、函数对象、或成员函数指针），只要其签名式兼容于需求端。以下将刚才的设计改为使用std::function：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span>;</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">defaultHealthCalc</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp; gc)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="comment">//HealthCalcFunc可以是任何“可调用物”（callable entity），可被调用并接受</span></span><br><span class="line">        <span class="comment">//任何兼容于GameCharacter之物，返回任何兼容于int的东西。详下。</span></span><br><span class="line">        <span class="keyword">typedef</span> <span class="built_in">std</span>::function&lt;<span class="keyword">int</span> (<span class="keyword">const</span> GameCharacter&amp;)&gt; HealthCalcFunc;</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">GameCharacter</span><span class="params">(HealthCalcFunc hcf = defaultHealthCalc)</span></span></span><br><span class="line"><span class="function">        : <span class="title">healthFunc</span><span class="params">(hcf)</span></span></span><br><span class="line"><span class="function">        </span>&#123;&#125;</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> healthFunc(*<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        HealthCalcFunc healthFunc;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如你所见，HealthCalcFunc是个typedef，用来表现std::function的某个具现体，意味着该具现体的行为像一般的函数指针。</p>
+<p>&emsp;&emsp;和前一个设计（其GameCharacter持有的是函数指针）比较，这个设计几乎相同。唯一不同的是如今GameCharacter持有一个std::function对象，相当于一个指向函数的泛化指针。这个改变如此细小，我总说它没有什么外显影响，除非客户在“指定健康计算函数”这件事上需要更惊人的弹性：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">short <span class="title">calcHealth</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span></span>;  <span class="comment">//健康计算函数；</span></span><br><span class="line">                                         <span class="comment">//注意其返回类型为non-int</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">HealthCalculator</span> &#123;</span>                <span class="comment">//为计算健康而设计的函数对象</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameLevel</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">float</span> <span class="title">health</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span> <span class="keyword">const</span></span>;  <span class="comment">//成员函数，用以计算健康；</span></span><br><span class="line">        ...                                        <span class="comment">//注意其non-int返回类型</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EvilBadGuy</span> :</span> <span class="keyword">public</span> GameCharacter &#123;          <span class="comment">//同前</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EyeCandyCharacter</span> :</span> <span class="keyword">public</span> GameCharacter &#123;   <span class="comment">//另一个人物类型；</span></span><br><span class="line">    ...                                            <span class="comment">//假设其构造函数与</span></span><br><span class="line">&#125;;                                                 <span class="comment">//EvilBadGuy同</span></span><br><span class="line"></span><br><span class="line"><span class="function">EvilBadGuy <span class="title">ebg1</span><span class="params">(calcHealth)</span></span>;                       <span class="comment">//人物1，使用某个</span></span><br><span class="line">                                                   <span class="comment">//函数计算健康指数</span></span><br><span class="line"></span><br><span class="line"><span class="function">EyeCandyCharacter <span class="title">ecc1</span><span class="params">(HealthCalculator())</span></span>;        <span class="comment">//人物2，使用某个</span></span><br><span class="line">                                                   <span class="comment">//函数对象计算健康指数</span></span><br><span class="line"></span><br><span class="line">GameLevel currentLevel;</span><br><span class="line">...</span><br><span class="line"><span class="function">EvilBadGuy <span class="title">ebg2</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="built_in">std</span>::bind(&amp;GameLevel::health, currentLevel, _1)</span></span></span><br><span class="line"><span class="function"><span class="params">)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;首先我要声明，为计算ebg2的健康指数，应该使用GameLevel class成员函数health。好，GameLevel::health宣称它自己接受一个参数（那是个reference指向GameCharacter），但它实际上接受两个参数，因为它也获得一个隐式参数GameLevel，也就是this所指的那个。然而GameCharacters的健康计算函数只接受单一参数：GameCharacter（这个对象将被计算出健康指数）。如果我们使用GameLevel::health作为ebg2的健康计算函数，我们必须以某种方式转换它，使它不再接受两个参数（一个GameCharacter和一个GameLevel），转而接受单一参数（一个GameCharacter）。在这个例子中我们必然会想要使用currentLevel作为“ebg2点健康计算函数所需的那个GameLevel对象”，于是我们将currentLevel绑定为GameLevel对象，让它在“每次GameLevel::health被调用用以计算ebg2的健康”时被使用。那正是std::bind的作为：它指出ebg2的健康计算函数应该总是以currentLevel作为GameLevel对象。</p>
+<p>&emsp;&emsp;我跳过了一大堆细节，像是为什么“_1”意味“当为ebg2调用GameLevel::health时系以currentLevel作为GameLevel对象”。这样的细节不难阐述，但它们会分散我要说的根本重点：若以std::function替换函数指针，将因此允许客户在计算人物健康指数时使用任何兼容的可调用物。如果这还不酷，什么是酷？</p>
+<h2 id="古典的Strategy模式"><a href="#古典的Strategy模式" class="headerlink" title="古典的Strategy模式"></a>古典的Strategy模式</h2><p>&emsp;&emsp;如果你对设计模式比对C++的酷劲更有兴趣，我告诉你，传统（典型）的Strategy做法会将健康计算函数做成一个分离的继承体系中的virtual成员函数。</p>
+<p>&emsp;&emsp;比如下面的对应代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span>;</span>  <span class="comment">//前置声明</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HealthCalcFunc</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">calc</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp; gc)</span> <span class="keyword">const</span> </span>&#123; ... &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">HealthCalcFunc defaultHealthCal;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">GameCharacter</span><span class="params">(HealthCalcFunc* phcf = &amp;defaultHealthCal)</span></span></span><br><span class="line"><span class="function">        : <span class="title">pHealthCalc</span><span class="params">(phcf)</span> </span>&#123;&#125;</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> pHealthCalc-&gt;calc(*<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        HealthCalcFunc* pHealthCalc;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个解法的吸引力在于，熟悉标准Strategy模式的人很容易辨认它，而且它还提供“将一个既有的健康算法纳入使用”的可能性——只要为HealthCalcFunc继承体系添加一个derived class即可。</p>
+<h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>&emsp;&emsp;本条款的根本忠告是。当你为解决问题而寻找某个设计方法时，不妨考虑virtual函数的替代方案：</p>
+<ul>
+<li><p>使用non-virtual interface（NVI）手法，这是Template Method设计模式的一种特殊形式。它以public non-virtual成员函数包裹较低访问性的virtual函数。</p>
+</li>
+<li><p>将virtual函数替换为“函数指针成员变量”，这是Strategy设计模式的一种分解表现形式。</p>
+</li>
+<li><p>以std::function成员变量替换virtual函数，因而允许使用任何可调用物（callable entity）搭配一个兼容于需求的签名式。这也是Strategy设计模式的某种形式。</p>
+</li>
+<li><p>将继承体系内的virtual函数替换为另一个继承体系内的virtual函数。这是Strategy设计模式的传统实现手法。</p>
+</li>
+</ul>
+<p>&emsp;&emsp;以上并未彻底而详尽地列出virtual函数的所有替换方案，但应该足够让你知道的确有不少替换方案。此外，它们各有其相对的优点和缺点，你应该把它们全部列入考虑。</p>
+<p>&emsp;&emsp;为避免陷入面向对象设计路上因常规而形成的凹洞中，偶尔我们需要对着车轮猛推一把。这个世界还有其他许多道路，值得我们花时间加以研究。</p>
+<blockquote>
+<ul>
+<li>virtual函数的替代方案包括NVI手法及Strategy设计模式的多种形式。NVI手法自身是一个特殊形式的Template Method设计模式。</li>
+<li>将机能从成员函数移到class外部函数，带来的一个缺点是，非成员函数无法访问class的non-public成员。</li>
+<li>std::function对象的行为就像一般函数指针。这样的对象可接纳“与给定之目标签名式兼容”的所有可调用物。</li>
+</ul>
+</blockquote>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/blogImg/wechatpay.jpeg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/" class="archive-article-date">
-  	<time datetime="2020-07-23T00:25:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-23</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/">别让异常逃离析构函数</a>
-    </h1>
-  
+      </div>
+    </span>
+  </div>
+</div>
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/10/31/%E8%80%83%E8%99%91virtual%E5%87%BD%E6%95%B0%E4%BB%A5%E5%A4%96%E7%9A%84%E5%85%B6%E4%BB%96%E9%80%89%E6%8B%A9/" alt="微信分享二维码">
+    </div>
+</div>
 
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/22/%E4%B8%BA%E5%A4%9A%E6%80%81%E5%9F%BA%E7%B1%BB%E5%A3%B0%E6%98%8Evirtual%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/" class="archive-article-date">
-  	<time datetime="2020-07-22T08:22:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-22</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/10/30/%E5%8C%BA%E5%88%86%E6%8E%A5%E5%8F%A3%E7%BB%A7%E6%89%BF%E5%92%8C%E5%AE%9E%E7%8E%B0%E7%BB%A7%E6%89%BF/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">区分接口继承和实现继承</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/22/%E4%B8%BA%E5%A4%9A%E6%80%81%E5%9F%BA%E7%B1%BB%E5%A3%B0%E6%98%8Evirtual%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/">为多态基类声明virtual析构函数</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/21/%E8%8B%A5%E4%B8%8D%E6%83%B3%E4%BD%BF%E7%94%A8%E7%BC%96%E8%AF%91%E5%99%A8%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E7%9A%84%E5%87%BD%E6%95%B0%E5%B0%B1%E8%AF%A5%E6%98%8E%E7%A1%AE%E6%8B%92%E7%BB%9D/" class="archive-article-date">
-  	<time datetime="2020-07-21T00:36:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-21</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/21/%E8%8B%A5%E4%B8%8D%E6%83%B3%E4%BD%BF%E7%94%A8%E7%BC%96%E8%AF%91%E5%99%A8%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E7%9A%84%E5%87%BD%E6%95%B0%E5%B0%B1%E8%AF%A5%E6%98%8E%E7%A1%AE%E6%8B%92%E7%BB%9D/">若不想使用编译器自动生成的函数就该明确拒绝</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/20/%E4%BA%86%E8%A7%A3C++%E9%BB%98%E9%BB%98%E7%BC%96%E5%86%99%E5%B9%B6%E8%B0%83%E7%94%A8%E5%93%AA%E4%BA%9B%E5%87%BD%E6%95%B0/" class="archive-article-date">
-  	<time datetime="2020-07-20T08:31:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-20</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/20/%E4%BA%86%E8%A7%A3C++%E9%BB%98%E9%BB%98%E7%BC%96%E5%86%99%E5%B9%B6%E8%B0%83%E7%94%A8%E5%93%AA%E4%BA%9B%E5%87%BD%E6%95%B0/">了解C++默默编写并调用哪些函数</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/19/%E7%A1%AE%E5%AE%9A%E5%AF%B9%E8%B1%A1%E8%A2%AB%E4%BD%BF%E7%94%A8%E5%89%8D%E5%B7%B2%E5%85%88%E8%A2%AB%E5%88%9D%E5%A7%8B%E5%8C%96/" class="archive-article-date">
-  	<time datetime="2020-07-19T01:41:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-19</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/19/%E7%A1%AE%E5%AE%9A%E5%AF%B9%E8%B1%A1%E8%A2%AB%E4%BD%BF%E7%94%A8%E5%89%8D%E5%B7%B2%E5%85%88%E8%A2%AB%E5%88%9D%E5%A7%8B%E5%8C%96/">确定对象被使用前已先被初始化</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/18/%E5%B0%BD%E5%8F%AF%E8%83%BD%E4%BD%BF%E7%94%A8const/" class="archive-article-date">
-  	<time datetime="2020-07-18T02:42:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/18/%E5%B0%BD%E5%8F%AF%E8%83%BD%E4%BD%BF%E7%94%A8const/">尽可能使用const</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/" class="archive-article-date">
-  	<time datetime="2020-07-17T07:17:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/">尽量以const,enum,inline替换define</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/17/%E8%A7%86C++%E4%B8%BA%E4%B8%80%E4%B8%AA%E8%AF%AD%E8%A8%80%E8%81%94%E9%82%A6/" class="archive-article-date">
-  	<time datetime="2020-07-17T04:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/17/%E8%A7%86C++%E4%B8%BA%E4%B8%80%E4%B8%AA%E8%AF%AD%E8%A8%80%E8%81%94%E9%82%A6/">视C++为一个语言联邦</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/archives/2020/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/archives/2020/">1</a><a class="page-number" href="/archives/2020/page/2/">2</a><a class="page-number" href="/archives/2020/page/3/">3</a><span class="page-number current">4</span>
-    </nav>
+  
+
+  
+
   
 
 
@@ -566,8 +375,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

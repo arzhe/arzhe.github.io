@@ -134,6 +134,131 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-考虑virtual函数以外的其他选择" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/10/31/%E8%80%83%E8%99%91virtual%E5%87%BD%E6%95%B0%E4%BB%A5%E5%A4%96%E7%9A%84%E5%85%B6%E4%BB%96%E9%80%89%E6%8B%A9/">考虑virtual函数以外的其他选择</a>
+    </h1>
+  
+
+        
+        <a href="/2020/10/31/%E8%80%83%E8%99%91virtual%E5%87%BD%E6%95%B0%E4%BB%A5%E5%A4%96%E7%9A%84%E5%85%B6%E4%BB%96%E9%80%89%E6%8B%A9/" class="archive-article-date">
+  	<time datetime="2020-10-31T10:27:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-31</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="考虑virtual函数以外的其他选择"><a href="#考虑virtual函数以外的其他选择" class="headerlink" title="考虑virtual函数以外的其他选择"></a>考虑virtual函数以外的其他选择</h1><p>&emsp;&emsp;假设你正在写一个游戏，你打算为游戏内的人物设计一个继承体系。你的游戏属于砍杀类型，游戏中人物被伤害或因其他因素而降低健康状态的情况并不罕见。你因此决定提供一个成员函数healthValue，它会返回一个整数，表示人物的健康程度。由于不同的人物可能以不同的方式计算他们的健康指数，将healthValue声明为virtual似乎是再明白不过的做法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span></span>;  <span class="comment">//返回人物的健康指数；</span></span><br><span class="line">        ...                               <span class="comment">//derived class可重新定义它</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;healthValue并未被声明为pure virtual，这暗示我们将会有个计算健康指数的缺省算法。</p>
+<p>&emsp;&emsp;这的确是再明白不过的设计，但是从某个角度说却反而成为了它的弱点。由于这个设计如此明显，你可能因此没有认真考虑其他替代方案。为了帮助你跳脱面向对象设计上的常轨，让我们考虑其他一些解法。</p>
+<h2 id="藉由Non-Virtual-Interface手法实现Template-Method模式"><a href="#藉由Non-Virtual-Interface手法实现Template-Method模式" class="headerlink" title="藉由Non-Virtual Interface手法实现Template Method模式"></a>藉由Non-Virtual Interface手法实现Template Method模式</h2><p>&emsp;&emsp;我们将从一个有趣的思想流派开始，这个流派主张virtual函数应该几乎总是private。这个流派的拥护者建议，较好的设计是保留healthValue为public成员函数，但让它成为non-virtual，并调用一个private virtual函数（例如doHealthValue）进行实际工作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;            <span class="comment">//derived class不重新定义它。</span></span><br><span class="line">            ...                              <span class="comment">//做一些事前工作。</span></span><br><span class="line">            <span class="keyword">int</span> retVal = doHealthValue();    <span class="comment">//做真正的工作。</span></span><br><span class="line">            ...                              <span class="comment">//做一些事后工作。</span></span><br><span class="line">            <span class="keyword">return</span> retVal;</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">       </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">doHealthValue</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;  <span class="comment">//derived class可重新定义它。</span></span><br><span class="line">            ...                              <span class="comment">//缺省算法，计算健康指数。</span></span><br><span class="line">        &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;在这段代码中，我直接在class定义式内呈现成员函数本体。这也就让它们全部暗自成为了inline。但其实我以这种方式呈现代码只是为了让你比较容易阅读。我所描述的设计与inlining其实没有关联，所以请不要认为成员函数在这里被定义于class内有特殊用意。不，它没有。</p>
+<p>&emsp;&emsp;这一基本设计，也就是“令客户通过public non-virtual成员函数间接调用private virtual函数”，称为non-virtual interface（NVI）手法。它是所谓Template Method设计模式的一个独特表现形式。我把这个non-virtual函数（healthValue）称为virtual函数的外覆器（wrapper）。</p>
+<p>&emsp;&emsp;NVI手法的一个优点隐身在上述代码注释“做一些事前工作”和“做一些事后工作”之中。那些注释用来告诉你当时的代码保证在“virtual函数进行真正工作之前和之后”被调用。这意味外覆器确保得以在一个virtual函数被调用之前设定好适当场景，并在调用结束之后清理场景。“事前工作”可以包括锁定互斥器、制造运转日志记录项、验证class约束条件、验证函数先决条件等等。“事后工作”可以包括互斥器接触锁定、验证函数的事后条件、在此验证class约束条件等等。如果你让客户直接调用virtual函数，就没有任何好办法可以做这些事。</p>
+<p>&emsp;&emsp;有件事或许会妨碍你跃跃欲试的心：NVI手法涉及在derived class内重新定义private virtual函数。啊，重新定义若干个derived class并不调用的函数！这里并不存在矛盾。“重新定义virtual函数”表示某些事“如何”被完成，“调用virtual函数”则表示它“何时”被完成。这些事情都是各自独立互不相干的。NVI手法允许derived class重新定义virtual函数，从而赋予它们“如何实现机能”的控制能力，但base class保留诉说“函数何时被调用”的权利。一开始这些听起来似乎诡异，但C++的这种“derived class可重新定义继承而来的private virtual函数”的规则似乎合情合理。</p>
+<p>&emsp;&emsp;在NVI手法下其实没有必要让virtual函数一定得是private。某些class继承体系要求derived class在virtual函数的实现内必须调用其base class的对应兄弟，而为了让这样的调用合法，virtual函数必须是protected，不能是private。有时候virtual函数甚至一定得是public（例如具备多态性质的base class的析构函数），这么一来就不能实施NVI手法了。</p>
+<h2 id="藉由Function-Pointers实现Strategy模式"><a href="#藉由Function-Pointers实现Strategy模式" class="headerlink" title="藉由Function Pointers实现Strategy模式"></a>藉由Function Pointers实现Strategy模式</h2><p>&emsp;&emsp;NVI手法对public virtual函数而言是一个有趣的替代方案，但从某种设计角度观之，它只比窗饰花样更强一些而已。毕竟我们还是使用virtual函数来计算每个人物的健康指数。另一个更戏剧性的设计主张“人物健康指数的计算与人物类型无关”，这样的计算完全不需要“人物”这个成分。例如我们可能会要求每个人物的构造函数接受一个指针，指向一个健康计算函数，而我们可以调用该函数进行实际计算：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span>;</span>  <span class="comment">//前置声明</span></span><br><span class="line"><span class="comment">//以下函数是计算健康指数的缺省算法。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">defaultHealthCalc</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp; gc)</span></span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*HealthCalcFunc)</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">GameCharacter</span><span class="params">(HealthCalcFunc hcf = defaultHealthCalc)</span></span></span><br><span class="line"><span class="function">        : <span class="title">healthFunc</span><span class="params">(hcf)</span></span></span><br><span class="line"><span class="function">        </span>&#123;&#125;</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> healthFunc(*<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        HealthCalcFunc healthFunc;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个做法是常见的Strategy设计模式的简单应用。拿它和“植基于GameCharacter继承体系内之virtual函数”的做法比较，它提供了某些有趣弹性：</p>
+<ul>
+<li>同一人物类型之不同实体可以有不同的健康计算函数，例如：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EvilBadGuy</span> :</span> <span class="keyword">public</span> GameCharacter &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">EvilBadGuy</span><span class="params">(HealthCalcFunc hcf = defaultHealthCalc)</span></span></span><br><span class="line"><span class="function">        : <span class="title">GameCharacter</span><span class="params">(hcf)</span></span></span><br><span class="line"><span class="function">        </span>&#123; ... &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">loseHealthQuickly</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span></span>;  <span class="comment">//健康指数计算函数1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">loseHealthSlowly</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span></span>;   <span class="comment">//健康指数计算函数2</span></span><br><span class="line"></span><br><span class="line"><span class="function">EvilBadGuy <span class="title">ebg1</span><span class="params">(loseHealthQuickly)</span></span>;           <span class="comment">//相同类型的人物搭配</span></span><br><span class="line"><span class="function">EvilBadGuy <span class="title">ebg2</span><span class="params">(loseHealthSlowly)</span></span>;            <span class="comment">// 不同的健康计算方式</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>某已知人物之健康指数计算函数可在运行期变更。例如GameCharacter可提供一个成员函数setHealthCalculator，用来替换当前的健康指数计算函数。</li>
+</ul>
+<p>&emsp;&emsp;换句话说，“健康指数计算函数不再是GameCharacter继承体系内的成员函数”这一事实意味，这些计算函数并未特别访问“即将被计算健康指数”的那个对象的内部成分。例如defaultHealthCalc并未访问EvilBadGuy的non-public成分。</p>
+<p>&emsp;&emsp;如果人物的健康可纯粹根据该人物的public接口得来的信息加以计算，这就没有问题，但如果需要non-public信息进行精确计算，就有问题了。实际上任何时候当你将class内的某个机能（也许取道自某个成员函数）替换为class外部的某个等价机能（也许取道自某个non-member non-friend函数或另一个class的non-friend成员函数），这都是潜在争议点。这个争议将持续至本条款其余篇幅，因为我们即将考虑的所有替代设计也都涉及使用GameCharacter继承体系外的函数。</p>
+<p>&emsp;&emsp;一般而言，唯一能够解决“需要以non-member函数访问class的non-public成分”的办法就是：弱化class的封装。例如class可声明那个non-member函数为friends，或是为其实现的某一部分提供public访问函数（其他部分则宁可隐藏起来）。运用函数指针替换virtual函数，其优点（像是“每个对象可各自拥有自己的健康计算函数”和“可在运行期改变计算函数”）是否足以弥补缺点（例如可能必须降低GameCharacter封装性），是你必须根据每个设计情况的不同而抉择的。</p>
+<h2 id="藉由std-function完成Strategy模式"><a href="#藉由std-function完成Strategy模式" class="headerlink" title="藉由std::function完成Strategy模式"></a>藉由std::function完成Strategy模式</h2><p>&emsp;&emsp;一旦习惯了templates以及它们对隐式接口的使用，基于函数指针的做法看起来便过分苛刻而死板了。为什么要求“健康指数之计算”必须是个函数，而不能是某种“像函数的东西”（例如函数对象）呢？如果一定得是函数，为什么不能够是个成员函数？为什么一定得返回int而不是任何可被转换为int的类型呢？</p>
+<p>&emsp;&emsp;如果我们不再使用函数指针（如前例的healthFunc），而是改用一个类型为std::function的对象，这些约束就全部挥发不见了。这样的对象可持有（保存）任何可调用物（callable entity，也就是函数指针、函数对象、或成员函数指针），只要其签名式兼容于需求端。以下将刚才的设计改为使用std::function：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span>;</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">defaultHealthCalc</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp; gc)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="comment">//HealthCalcFunc可以是任何“可调用物”（callable entity），可被调用并接受</span></span><br><span class="line">        <span class="comment">//任何兼容于GameCharacter之物，返回任何兼容于int的东西。详下。</span></span><br><span class="line">        <span class="keyword">typedef</span> <span class="built_in">std</span>::function&lt;<span class="keyword">int</span> (<span class="keyword">const</span> GameCharacter&amp;)&gt; HealthCalcFunc;</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">GameCharacter</span><span class="params">(HealthCalcFunc hcf = defaultHealthCalc)</span></span></span><br><span class="line"><span class="function">        : <span class="title">healthFunc</span><span class="params">(hcf)</span></span></span><br><span class="line"><span class="function">        </span>&#123;&#125;</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> healthFunc(*<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        HealthCalcFunc healthFunc;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如你所见，HealthCalcFunc是个typedef，用来表现std::function的某个具现体，意味着该具现体的行为像一般的函数指针。</p>
+<p>&emsp;&emsp;和前一个设计（其GameCharacter持有的是函数指针）比较，这个设计几乎相同。唯一不同的是如今GameCharacter持有一个std::function对象，相当于一个指向函数的泛化指针。这个改变如此细小，我总说它没有什么外显影响，除非客户在“指定健康计算函数”这件事上需要更惊人的弹性：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">short <span class="title">calcHealth</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span></span>;  <span class="comment">//健康计算函数；</span></span><br><span class="line">                                         <span class="comment">//注意其返回类型为non-int</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">HealthCalculator</span> &#123;</span>                <span class="comment">//为计算健康而设计的函数对象</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameLevel</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">float</span> <span class="title">health</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp;)</span> <span class="keyword">const</span></span>;  <span class="comment">//成员函数，用以计算健康；</span></span><br><span class="line">        ...                                        <span class="comment">//注意其non-int返回类型</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EvilBadGuy</span> :</span> <span class="keyword">public</span> GameCharacter &#123;          <span class="comment">//同前</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EyeCandyCharacter</span> :</span> <span class="keyword">public</span> GameCharacter &#123;   <span class="comment">//另一个人物类型；</span></span><br><span class="line">    ...                                            <span class="comment">//假设其构造函数与</span></span><br><span class="line">&#125;;                                                 <span class="comment">//EvilBadGuy同</span></span><br><span class="line"></span><br><span class="line"><span class="function">EvilBadGuy <span class="title">ebg1</span><span class="params">(calcHealth)</span></span>;                       <span class="comment">//人物1，使用某个</span></span><br><span class="line">                                                   <span class="comment">//函数计算健康指数</span></span><br><span class="line"></span><br><span class="line"><span class="function">EyeCandyCharacter <span class="title">ecc1</span><span class="params">(HealthCalculator())</span></span>;        <span class="comment">//人物2，使用某个</span></span><br><span class="line">                                                   <span class="comment">//函数对象计算健康指数</span></span><br><span class="line"></span><br><span class="line">GameLevel currentLevel;</span><br><span class="line">...</span><br><span class="line"><span class="function">EvilBadGuy <span class="title">ebg2</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="built_in">std</span>::bind(&amp;GameLevel::health, currentLevel, _1)</span></span></span><br><span class="line"><span class="function"><span class="params">)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;首先我要声明，为计算ebg2的健康指数，应该使用GameLevel class成员函数health。好，GameLevel::health宣称它自己接受一个参数（那是个reference指向GameCharacter），但它实际上接受两个参数，因为它也获得一个隐式参数GameLevel，也就是this所指的那个。然而GameCharacters的健康计算函数只接受单一参数：GameCharacter（这个对象将被计算出健康指数）。如果我们使用GameLevel::health作为ebg2的健康计算函数，我们必须以某种方式转换它，使它不再接受两个参数（一个GameCharacter和一个GameLevel），转而接受单一参数（一个GameCharacter）。在这个例子中我们必然会想要使用currentLevel作为“ebg2点健康计算函数所需的那个GameLevel对象”，于是我们将currentLevel绑定为GameLevel对象，让它在“每次GameLevel::health被调用用以计算ebg2的健康”时被使用。那正是std::bind的作为：它指出ebg2的健康计算函数应该总是以currentLevel作为GameLevel对象。</p>
+<p>&emsp;&emsp;我跳过了一大堆细节，像是为什么“_1”意味“当为ebg2调用GameLevel::health时系以currentLevel作为GameLevel对象”。这样的细节不难阐述，但它们会分散我要说的根本重点：若以std::function替换函数指针，将因此允许客户在计算人物健康指数时使用任何兼容的可调用物。如果这还不酷，什么是酷？</p>
+<h2 id="古典的Strategy模式"><a href="#古典的Strategy模式" class="headerlink" title="古典的Strategy模式"></a>古典的Strategy模式</h2><p>&emsp;&emsp;如果你对设计模式比对C++的酷劲更有兴趣，我告诉你，传统（典型）的Strategy做法会将健康计算函数做成一个分离的继承体系中的virtual成员函数。</p>
+<p>&emsp;&emsp;比如下面的对应代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span>;</span>  <span class="comment">//前置声明</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HealthCalcFunc</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">calc</span><span class="params">(<span class="keyword">const</span> GameCharacter&amp; gc)</span> <span class="keyword">const</span> </span>&#123; ... &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">HealthCalcFunc defaultHealthCal;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">GameCharacter</span><span class="params">(HealthCalcFunc* phcf = &amp;defaultHealthCal)</span></span></span><br><span class="line"><span class="function">        : <span class="title">pHealthCalc</span><span class="params">(phcf)</span> </span>&#123;&#125;</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> pHealthCalc-&gt;calc(*<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        HealthCalcFunc* pHealthCalc;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个解法的吸引力在于，熟悉标准Strategy模式的人很容易辨认它，而且它还提供“将一个既有的健康算法纳入使用”的可能性——只要为HealthCalcFunc继承体系添加一个derived class即可。</p>
+<h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>&emsp;&emsp;本条款的根本忠告是。当你为解决问题而寻找某个设计方法时，不妨考虑virtual函数的替代方案：</p>
+<ul>
+<li><p>使用non-virtual interface（NVI）手法，这是Template Method设计模式的一种特殊形式。它以public non-virtual成员函数包裹较低访问性的virtual函数。</p>
+</li>
+<li><p>将virtual函数替换为“函数指针成员变量”，这是Strategy设计模式的一种分解表现形式。</p>
+</li>
+<li><p>以std::function成员变量替换virtual函数，因而允许使用任何可调用物（callable entity）搭配一个兼容于需求的签名式。这也是Strategy设计模式的某种形式。</p>
+</li>
+<li><p>将继承体系内的virtual函数替换为另一个继承体系内的virtual函数。这是Strategy设计模式的传统实现手法。</p>
+</li>
+</ul>
+<p>&emsp;&emsp;以上并未彻底而详尽地列出virtual函数的所有替换方案，但应该足够让你知道的确有不少替换方案。此外，它们各有其相对的优点和缺点，你应该把它们全部列入考虑。</p>
+<p>&emsp;&emsp;为避免陷入面向对象设计路上因常规而形成的凹洞中，偶尔我们需要对着车轮猛推一把。这个世界还有其他许多道路，值得我们花时间加以研究。</p>
+<blockquote>
+<ul>
+<li>virtual函数的替代方案包括NVI手法及Strategy设计模式的多种形式。NVI手法自身是一个特殊形式的Template Method设计模式。</li>
+<li>将机能从成员函数移到class外部函数，带来的一个缺点是，非成员函数无法访问class的non-public成员。</li>
+<li>std::function对象的行为就像一般函数指针。这样的对象可接纳“与给定之目标签名式兼容”的所有可调用物。</li>
+</ul>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/10/31/%E8%80%83%E8%99%91virtual%E5%87%BD%E6%95%B0%E4%BB%A5%E5%A4%96%E7%9A%84%E5%85%B6%E4%BB%96%E9%80%89%E6%8B%A9/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-区分接口继承和实现继承" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1365,152 +1490,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/08/12/%E9%80%8F%E5%BD%BB%E4%BA%86%E8%A7%A3inlining%E7%9A%84%E9%87%8C%E9%87%8C%E5%A4%96%E5%A4%96/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-为“异常安全”而努力是值得的" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/08/11/%E4%B8%BA%E2%80%9C%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%E2%80%9D%E8%80%8C%E5%8A%AA%E5%8A%9B%E6%98%AF%E5%80%BC%E5%BE%97%E7%9A%84/">为“异常安全”而努力是值得的</a>
-    </h1>
-  
-
-        
-        <a href="/2020/08/11/%E4%B8%BA%E2%80%9C%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%E2%80%9D%E8%80%8C%E5%8A%AA%E5%8A%9B%E6%98%AF%E5%80%BC%E5%BE%97%E7%9A%84/" class="archive-article-date">
-  	<time datetime="2020-08-11T02:22:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-11</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="为“异常安全”而努力是值得的"><a href="#为“异常安全”而努力是值得的" class="headerlink" title="为“异常安全”而努力是值得的"></a>为“异常安全”而努力是值得的</h1><p>&emsp;&emsp;异常安全有几分像是……呃……怀孕。但等等，在我们完成求偶之前，实在无法确实地谈论生育。</p>
-<p>&emsp;&emsp;假设有个class用来表现夹带背景图案的GUI菜单。这个class希望用语多线程环境，所以它有个互斥器作为并发控制之用：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PrettyMenu</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">changeBackground</span><span class="params">(<span class="built_in">std</span>::istream&amp; imgSrc)</span></span>;  <span class="comment">//改变背景图像</span></span><br><span class="line">    ...</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Mutex mutex;       <span class="comment">//互斥器</span></span><br><span class="line">    Image* bgImage;    <span class="comment">//目前的背景图像</span></span><br><span class="line">    <span class="keyword">int</span> imageChanges;  <span class="comment">//背景图像被改变的次数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>下面是PrettyMenu的changeBackground函数的一个可能实现：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PrettyMenu::changeBackground</span><span class="params">(<span class="built_in">std</span>::istream&amp; imgSrc)</span> </span>&#123;</span><br><span class="line">    lock(&amp;mutex);                 <span class="comment">//取得互斥器</span></span><br><span class="line">    <span class="keyword">delete</span> bgImage;               <span class="comment">//摆脱旧的背景图像</span></span><br><span class="line">    ++imageChanges;               <span class="comment">//修改图像变更次数</span></span><br><span class="line">    bgImage = <span class="keyword">new</span> Image(imgSrc);  <span class="comment">//安装新的背景图像</span></span><br><span class="line">    unlock(&amp;mutex);               <span class="comment">//释放互斥器</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;从“异常安全性”的观点来看，这个函数很糟。“异常安全”有两个条件，而这个函数没有满足其中任何一个条件。</p>
-<p>&emsp;&emsp;当异常被抛出时，带有异常安全性的函数会：</p>
-<ul>
-<li><strong>不泄漏任何资源</strong>。上述代码没有做到这一点，因为一旦“new Image(imgSrc)”导致异常，对unlock的调用就绝不会执行。于是互斥器就永远被把持住了。</li>
-<li><strong>不允许数据破坏</strong>。如果“new Image(imgSrc)”抛出异常，bgImage就是指向一个已被删除的对象，imageChanges也已被累加，而其实并没有新的图像被成功安装起来。</li>
-</ul>
-<p>&emsp;&emsp;解决资源泄漏的问题很容易，因为之前的“<a href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/" title="以对象管理资源">以对象管理资源</a>”讨论过如何以对象管理资源，而在“<a href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/" title="在资源管理类中小心copying行为">在资源管理类中小心copying行为</a>”也导入了Lock class作为一种“确保互斥器被及时释放”的方法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PrettyMenu::changeBackground</span><span class="params">(<span class="built_in">std</span>::istream&amp; imgSrc)</span> </span>&#123;</span><br><span class="line">    <span class="function">Lock <span class="title">m1</span><span class="params">(&amp;mutex)</span></span>;</span><br><span class="line">    <span class="keyword">delete</span> bgImage;</span><br><span class="line">    ++imageChanges;</span><br><span class="line">    bgImage = <span class="keyword">new</span> Image(imgSrc);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;关于“管理资源类”如Lock者，一个最棒的事情是，它们通常使函数更短。你看，不再需要调用unlock了不是吗？有个一般性规则是这么说的：较少的码就是较好的码，因为出错机会比较少，而且一旦有所改变，被误解的机会也比较少。</p>
-<p>&emsp;&emsp;把资源泄漏抛诸脑后，现在我们可以专注解决数据的的败坏了。此刻我们需要做个抉择，但是在我们能够抉择之前，必须先面对一些用来定义选项的术语。</p>
-<ul>
-<li><p><strong>基本承诺</strong>：如果异常被抛出，程序内的任何事物仍然保持在有效状态下。没有任何对象或数据结构会因此而破坏，所有对象都处于一种内部前后一致的状态（例如所有的class约束条件都继续获得满足）。然而程序的现实状态恐怕不可预测。举个例子，我们可以撰写changeBackground使得一旦有异常被抛出时，PrettyMenu对象可以继续拥有原背景图像，或是令它拥有某个缺省背景图像，但客户无法预期哪一种情况。如果想知道，他们恐怕必须调用某个成员函数以得知当时的背景图像是什么。</p>
-</li>
-<li><p><strong>强烈保证</strong>：如果异常被抛出，程序状态不改变。调用这样的函数需有这样的认知：如果函数成功，就是完全成功，如果函数失败，程序会回复到“调用函数之前”的状态。</p>
-<p>&emsp;&emsp;和这种提供强烈保证的函数共事，比如刚才说的那种只提供基本承诺的函数共事，容易多了，因为在调用一个提供强烈保证的函数后，程序状态只有两种可能：如预期般地到达函数成功执行后的状态，或回到函数被调用前的状态。与此成对比的是，如果调用一个只提供基本承诺的函数，而真的出现异常，程序有可能处于任何状态——只要那是个合法状态。</p>
-</li>
-<li><p><strong>不抛掷保证</strong>，承诺绝不抛出异常，因为它们总是能够完成它们原先承诺的功能。作用于内置类型身上的所有操作都提供nothrow保证。这是异常安全码中一个必不可少的关键基础材料。</p>
-<p>&emsp;&emsp;如果我们假设，函数带着“空白的异常明细”者必为nothrow函数，似乎合情合理，其实不尽然。举个例子，考虑以下函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">doSomething</span><span class="params">()</span> <span class="title">throw</span><span class="params">()</span></span>;  <span class="comment">//空白的异常明细</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这并不是说doSomething绝不会抛出异常，而是说如果doSomething抛出异常，将是严重错误，会有你意想不到的函数被调用。实际上实际上doSomething也许完全没有提供任何异常保证。函数的声明式并不能够告诉你是否它是正确的、可移植的或高效的，也不能够告诉它是否提供任何异常安全性保证。所有那些性质都由函数的实现决定，无关乎声明。</p>
-</li>
-</ul>
-<p>&emsp;&emsp;异常安全码必须提供上述三种保证之一。如果它不这样做，它就不具备异常安全性。因此，我们的抉择是，该为我们所写的每一个函数提供哪一种保证？除非面对不具异常安全性的传统代码，否则你应该只在一种情况下才不提供任何异常安全保证：你那“天才班”需求分析团队确认你的应用程序有“泄漏资源”并“在执行过程中带着败坏数据”的需要。</p>
-<p>&emsp;&emsp;一般而言你应该会想提供可实施之最强烈保证。从异常安全性的观点视之，nothrow函数很棒，但我们很难在C part of  C++领域中完全没有调用任何一个可能抛出异常的函数。任何使用动态内存的东西如果无法找到足够内存以满足需求，通常便会抛出一个bad_alloc异常。是的，可能的话请提供nothrow保证，但对大部分函数而言，抉择往往落在基本保证和强烈保证之间。</p>
-<p>&emsp;&emsp;对changeBackground而言，提供强烈保证几乎不困难。首先改变PrettyMenu的bgImage成员变量的类型，从一个类型为Image*的内置指针改为一个“用于资源管理”的智能指针。坦白说，这个好构想纯粹只是帮助我们防止资源泄漏。它对“强烈之异常安全保证”的帮助仅仅只是强化了“<a href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/" title="以对象管理资源">以对象管理资源</a>”的论点：以对象（例如智能指针）管理资源是良好设计的根本。以下代码中我使用shared_ptr。</p>
-<p>&emsp;&emsp;第二，我们重新排列changeBackground内的语句次序，使得在更换图像之后才累加imageChanges，一般而言这是个好策略：不要为了表示某件事情发生而改变对象状态，除非那件事情真的发生了。</p>
-<p>&emsp;&emsp;下面是结果：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PrettyMenu</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Image&gt; bgImage;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PrettyMenu::changeBackground</span><span class="params">(<span class="built_in">std</span>::istream&amp; imgSrc)</span> </span>&#123;</span><br><span class="line">    <span class="function">Lock <span class="title">m1</span><span class="params">(&amp;mutex)</span></span>;</span><br><span class="line">    bgImage.reset(<span class="keyword">new</span> Image(imgSrc));  <span class="comment">//以“new Image”的执行结果设定bgImage内部指针</span></span><br><span class="line">    ++imageChanges;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;注意，这里不再需要手动delete旧图像，因为这个动作已经由智能指针内部处理掉了。此外，删除动作只发生在新图像被成功创建之后。更正确地说，shared_ptr::reset函数只有在其参数被成功生成之后才会被调用。delete只在reset函数内被使用，所以如果从未进入那个函数也就绝对不会使用delete。也请注意，以对象管理资源再次缩减了changeBackground的长度。</p>
-<p>&emsp;&emsp;如我之前所言，这两个改变几乎足够让changeBackground提供强烈的异常安全保证。美中不足的是参数imgSrc。如果Image构造函数抛出异常，有可能输入流的读取记号已被移走，而这样的搬移对程序其余部分是一种可见的状态改变。所以changeBackground在解决这个问题之前只提供基本的异常安全保证。</p>
-<p>&emsp;&emsp;然而，让我们把它放在一旁，佯装changeBackground的确提供了强烈保证。有个一般化的设计策略很典型地回导致强烈保证，很值得熟悉它。这个策略被称为copy and swap。原则很简单：为你打算修改的对象（原件）做出一份副本，然后在那副本身上做一切必要修改。若有任何修改动作抛出异常，原对象仍然保持未改变状态。待所有改变都成功后，再将修改过的那个副本和原对象在一个不抛出异常的操作中置换。</p>
-<p>&emsp;&emsp;实现上通常是将所有“隶属对象的数据”从原对象放进另一个对象内，然后赋予原对象一个指针，指向那个所谓的实现对象（即副本）。这种手法常被称为pimpl idiom。对PrettyMenu而言，典型写法如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">PMImpl</span> &#123;</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Image&gt; bgImage;</span><br><span class="line">    <span class="keyword">int</span> imageChange;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PrettyMenu</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Mutex mutex;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;PMImpl&gt; pImpl;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PrettyMenu::changeBackground</span><span class="params">(<span class="built_in">std</span>::istream&amp; imgSrc)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::swap;</span><br><span class="line">    <span class="function">Lock <span class="title">m1</span><span class="params">(&amp;mutex)</span></span>;  <span class="comment">//获得mutex的副本数据</span></span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;PMImpl&gt; <span class="title">pNew</span><span class="params">(<span class="keyword">new</span> PMImpl(*pImpl))</span></span>;</span><br><span class="line">  </span><br><span class="line">    pNew-&gt;bgImage.reset(<span class="keyword">new</span> Image(imgSrc));  <span class="comment">//修改副本</span></span><br><span class="line">    ++pNew-&gt;imageChanges;</span><br><span class="line">    </span><br><span class="line">    swap(pImpl, pNew);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;此例之中我选择让PMImpl成为一个struct而不是一个class，这是因为PrettyMenu的数据封装性已经由于“pImpl是private”而获得了保证。如果令PMImpl为一个class，虽然一样好，有时候却不太方便（但也保持了面向对象纯度）。如果你要，也可以将PMImpl嵌套于PrettyMenu内，但打包问题（例如“独立撰写异常安全码”）是我们这里所挂虑的事。</p>
-<p>&emsp;&emsp;“copy-and-swap”策略是对对象状态做出“全有或全无”改变的一个很好办法，但一般而言它并不保证整个函数有强烈的异常安全性。为了解原因，让我吗考虑changeBackground的一个抽象概念：someFunc。它使用copy-and-swap策略，但函数内还包含对另外两个函数f1和f2的调用：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">someFunc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...    <span class="comment">//对local状态做一份副本</span></span><br><span class="line">    f1();</span><br><span class="line">    f2();</span><br><span class="line">    ...    <span class="comment">//对修改后的状态置换过来</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;很明显，如果f1或f2的异常安全性必“强烈保证”低，就很难让someFunc成为“强烈异常安全”。举个例子，假设f1只提供基本保证，那么为了让someFunc提供强烈保证，我们必须写出代码获得调用f1之前的整个程序状态、捕捉f1的所有可能异常、然后恢复原状态。</p>
-<p>&emsp;&emsp;如果f1和f2都是“强烈异常安全”，情况并不就此好转。毕竟如果f1圆满结束，程序状态在任何方面都可能有所改变，因此如果f2随后抛出异常，程序状态和someFunc被调用前并不相同，甚至当f2没有改变任何东西时也是如此。</p>
-<p>&emsp;&emsp;问题出在“连带影响”。如果函数只操作局部性状态，便相对容易地提供强烈保证。但是当函数对“非局部性数据”有连带影响时，提供强烈保证就困难得多。举个例子，如果调用f1带来的影响是某个数据库被改动了，那就很难让someFunc具备强烈安全性。一般而言在“数据库修改动作”送出之后，没有什么做法可以取消并恢复数据库旧观，因为数据库的其它客户很可能已经看到这一笔新数据。</p>
-<p>&emsp;&emsp;这些议题想必会阻止你为函数提供强烈保证——即使你想那么做。另一个主题是效率。copy-and-swap的关键在于“修改对象数据的副本，然后在一个不抛异常的函数中将修改后的数据和原件置换”，因此必须为每一个即将被改动的对象做出一个副本，那得耗用你可能无法（或不愿意）供应的时间和空间。没错，大家都希望提供“强烈保证”：当它可被实现时你的确应该提供它，但“强烈保证”并非在任何时候都显得实际。</p>
-<p>&emsp;&emsp;当“强烈保证”不切实际时，你就必须提供“基本保证”。现实中你或许会发现，你可以为某些函数提供强烈保证，但效率和复杂度带来的成本会使它对许多人而言摇摇欲坠。只要你曾经付出适当的心力试图提供强烈保证，万一实际不可行，使你退而求其次地只提供基本保证，任何人都不该因此责难你。对许多函数而言，“异常安全性之基本保证”是一个绝对通情达理的选择。</p>
-<p>&emsp;&emsp;这令我想到怀孕，一位女性若非怀孕，就是没怀孕。不可能说她“部分怀孕”。同样的道理，一个软件系统要不就具备异常安全性，要不就全然否定，没有所谓的“局部异常安全性”。如果系统内有一个函数不具备异常安全性，整个系统就不具备异常安全性，因为调用那个（不具备异常安全性的）函数有可能导致资源泄漏或数据结构败坏。不幸的是许多老旧C++代码并不具备异常安全性，所以今天许多系统仍然不能够说是“异常安全”的，因为它们并入了一些并非“异常安全”的代码。</p>
-<p>&emsp;&emsp;没有理由让这种情况永垂不朽。当你撰写新码或修改旧码时，请仔细想想如何让它具备异常安全性。首先是“以对象管理资源”，那可阻止资源泄漏。然后是挑选三个“异常安全保证”中的某一个实施于你所写的每一个函数身上。你应该挑选“现实可施作”条件下的最强烈等级，只有当你的函数调用了传统代码，才别无选择地将它设为“无任何保证”。将你的决定写成文档，这一来是为你的函数用户着想，二来是为将来的维护者着想。函数的“异常安全性保证”是其可见接口的一部分，所以你应该慎重选择，就像选择函数接口的其它任何部分一样。</p>
-<p>&emsp;&emsp;四十年前，满载goto的代码被视为一种美好实践，而今我们却致力于写出结构化控制流。二十年前，全局数据被视为一种美好实践，而今我们却致力于数据的封装。十年前，撰写“未将异常考虑在内”的函数被视为一种美好实践，而今我们致力于写出“异常安全码”。</p>
-<blockquote>
-<p>异常安全函数即使发生异常也不会泄漏资源或允许任何数据结构败坏。这样的函数区分为三种可能的保证：基本型、强烈型、不抛异常型。</p>
-<p>“强烈保证”往往能够以copy-and-swap实现出来，但“强烈保证”并非对所有函数都可实现或具备现实意义。</p>
-<p>函数提供的“异常安全保证”通常最高只等于其所调用之各个函数的“异常安全保证”中的最弱者。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/08/11/%E4%B8%BA%E2%80%9C%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%E2%80%9D%E8%80%8C%E5%8A%AA%E5%8A%9B%E6%98%AF%E5%80%BC%E5%BE%97%E7%9A%84/">展开全文 >></a>
         </p>
       
 
