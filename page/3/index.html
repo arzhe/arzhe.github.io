@@ -134,6 +134,114 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-尽量延后变量定义式的出现时间" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/08/07/%E5%B0%BD%E9%87%8F%E5%BB%B6%E5%90%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E5%BC%8F%E7%9A%84%E5%87%BA%E7%8E%B0%E6%97%B6%E9%97%B4/">尽量延后变量定义式的出现时间</a>
+    </h1>
+  
+
+        
+        <a href="/2020/08/07/%E5%B0%BD%E9%87%8F%E5%BB%B6%E5%90%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E5%BC%8F%E7%9A%84%E5%87%BA%E7%8E%B0%E6%97%B6%E9%97%B4/" class="archive-article-date">
+  	<time datetime="2020-08-07T00:14:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-07</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="尽量延后变量定义式的出现时间"><a href="#尽量延后变量定义式的出现时间" class="headerlink" title="尽量延后变量定义式的出现时间"></a>尽量延后变量定义式的出现时间</h1><p>&emsp;&emsp;只要你定义了一个变量而其类型带有一个构造函数或析构函数，那么当程序的控制流到达这个变量定义式时，你便得承受构造成本；当这个变量离开其作用域时，你便得承受析构成本。即使这个变量最终并未被使用，仍需耗费这些成本，所以你应该尽可能避免这种情形。</p>
+<p>&emsp;&emsp;或许你会认为，你不可能定义一个不使用的变量，但话不要说得太早！考虑下面这个函数，它计算通行密码的加密版本而后返回，前提是密码够长。如果密码太短，函数会丢出一个异常，类型为logic_error：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这个函数过早定义变量“encrypted”</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line">    <span class="built_in">string</span> encrypted;</span><br><span class="line">    <span class="keyword">if</span>(password.length() &lt; MinimumPasswordLength) &#123;</span><br><span class="line">        <span class="keyword">throw</span> logic_error(<span class="string">"Password is too short"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ...  <span class="comment">//必要动作，将一个加密后的密码置入变量encrypted内</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;对象encrypted在此函数中并非完全未被使用，但如果有个异常被丢出，它就真的没被使用。也就是说如果函数encryptPassword丢出异常，你仍得付出encrypted的析构成本和构造成本。所以最好延后encrypted的定义式，直到确实需要它：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这个函数延后“encrypted”的定义，直到真正需要它</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line">    <span class="keyword">if</span>(password.length() &lt; MinimumPasswordLength) &#123;</span><br><span class="line">        <span class="keyword">throw</span> logic_error(<span class="string">"Password is too shrot"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">string</span> encrypted;</span><br><span class="line">    ...  <span class="comment">//必要动作，将一个加密后的密码置入变量encrypted内</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;但是这段代码仍然不够秾纤合度，因为encrypted虽获定义却无任何实参作为初值。这意味调用的是其default构造函数。许多时候你该对对象做的第一件事就是给它个值，通常是通过一个赋值动作达成。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//终于，这是定义并初始化encrypted的最佳做法</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    ...                               <span class="comment">//检查长度</span></span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encrypted</span><span class="params">(password)</span></span>;  <span class="comment">//通过copy构造函数定义并初始化</span></span><br><span class="line">    encrypt(encrypted);               <span class="comment">//在encrypt函数内对其加密</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这让我们联想起所谓“尽可能延后”的真正意义。你不只应该延后变量的定义，直到非得使用该变量的前一刻为止，甚至应该尝试延后这份定义直到能够给它初值实参为止。如果这样，不仅能够避免构造（和析构）非必要对象，还可以避免无意义的default构造行为。更深一层说，以“具明显意义之初值”将变量初始化，还可以附带说明变量的目的。</p>
+<p>&emsp;&emsp;“但循环怎么办？”你可能会感到疑惑。如果变量只在循环内使用，那么把它定义于循环外并在每次循环迭代时赋值给它比较好，还是该把它定义于循环内？也就是说下面两个一般性结构，哪一个比较好？</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//方法A</span></span><br><span class="line">Widget w;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">    w = i;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//方法B</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">    <span class="function">Widget <span class="title">w</span><span class="params">(i)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;在Widget函数内部，以上两种写法的成本如下：</p>
+<ul>
+<li>做法A：1个构造函数 + 1个析构函数 + n个赋值操作</li>
+<li>做法B：n个构造函数 + n个析构函数</li>
+</ul>
+<p>&emsp;&emsp;如果class的一个赋值成本低于一组构造+析构成本，做法A大体而言比较高效。尤其当n值很大时。否则做法B或许较好。此外做法A造成名称w的作用域（覆盖整个循环）比做法B更大，有时那对程序的可理解性和易维护性造成冲突。因此除非（1）你知道赋值成本比“构造+析构”成本低，（2）你正在处理代码中效率高度敏感的部分，否则你应该使用做法B。</p>
+<blockquote>
+<p>尽可能延后变量定义式的出现。这样做可增加程序的清晰度并改善程序效率。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/08/07/%E5%B0%BD%E9%87%8F%E5%BB%B6%E5%90%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E5%BC%8F%E7%9A%84%E5%87%BA%E7%8E%B0%E6%97%B6%E9%97%B4/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-考虑写出一个不抛出异常的swap函数" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1205,127 +1313,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-在资源管理类中提供对原始资源的访问" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/">在资源管理类中提供对原始资源的访问</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/" class="archive-article-date">
-  	<time datetime="2020-07-29T05:07:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-29</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="在资源管理类中提供对原始资源的访问"><a href="#在资源管理类中提供对原始资源的访问" class="headerlink" title="在资源管理类中提供对原始资源的访问"></a>在资源管理类中提供对原始资源的访问</h1><p>&emsp;&emsp;资源管理类很棒。它们是你对抗资源泄漏的堡垒。排除此等泄漏是良好设计系统的根本性质。在一个完美世界中我们将依赖这样的class来处理和资源之间的所有互动，而不是玷污双手直接处理原始资源。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pInv</span><span class="params">(createInvestment())</span></span>;  <span class="comment">//使用智能指针保存factory函数</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">daysHeld</span><span class="params">(<span class="keyword">const</span> Investment* pi)</span></span>;                    <span class="comment">//返回投资天数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> days = daysHeld(pInv);                             <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;dayHelds需要的是Investment*指针，我们传给它的却是个类型为std::shared_ptr&lt;Investment&gt;的对象。</p>
-<p>&emsp;&emsp;这时候我们需要一个函数可将RAII class对象转换为其所内含的原始资源。有两个做法可以达成目标：显式转换和隐式转换。</p>
-<p>&emsp;&emsp;shared_ptr提供一个get成员函数，用来执行显式转换，也就是它会返回智能指针内部的原始指针（的复件）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> days = daysHeld(pInv.<span class="built_in">get</span>());  <span class="comment">//将pInv内的原始指针传给daysHeld</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;shared_ptr重载了指针取值操作符（operator-&gt;和operator*），它们允许隐式转换至底部原始指针：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Investment</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isTaxFree</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">Investment* <span class="title">createInvestment</span><span class="params">()</span></span>;                       <span class="comment">//factory函数</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pi</span><span class="params">(createInvestment())</span></span>;  <span class="comment">//令指针指针管理一笔资源</span></span><br><span class="line"><span class="keyword">bool</span> taxable1 = !(pi-&gt;isTaxFree());                  <span class="comment">//经由operator-&gt;访问资源</span></span><br><span class="line"><span class="keyword">bool</span> taxable2 = !((*pi).isTaxFree());                <span class="comment">//经由operator*访问资源</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;再考虑下面这个用语字体的RAII class（对C API而言字体是一种原生数据结构）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">FontHandle <span class="title">getFont</span><span class="params">()</span></span>;  <span class="comment">//这是个C API，为求简化省略参数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">releaseFont</span><span class="params">(FontHandle fh)</span></span>;  <span class="comment">//来自同一组C API</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Font</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Font</span><span class="params">(FontHandle fh)</span>: <span class="title">f</span><span class="params">(fh)</span> </span>&#123;&#125;</span><br><span class="line">    ~Font() &#123; releaseFont(f); &#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    FontHandle f;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;假设有大量与字体相关的C API，它们处理的是FontHandle，那么“将Font对象转换为FontHandle”会是一种很频繁的需求。Font class可为此提供一个显式转换函数，像get那样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Font</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function">FontHandle <span class="title">get</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> f; &#125;  <span class="comment">//显式转换函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;不幸的是这使得客户每当想要使用API时就必须调用get：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">changeFontSize</span><span class="params">(FontHandle f, <span class="keyword">int</span> newSize)</span></span>;  <span class="comment">//C API</span></span><br><span class="line"><span class="function">Font <span class="title">f</span><span class="params">(getFont())</span></span>;</span><br><span class="line"><span class="keyword">int</span> newFontSize;</span><br><span class="line">...</span><br><span class="line">changeFontSize(f.<span class="built_in">get</span>(), newFontSize);  <span class="comment">//显式地将Font转换为FontHandle</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;某些程序员可能会认为，如此这般地到处要求显式转换，足以使人们倒尽胃口，不再愿意使用这个class，从而增加了泄漏字体的可能性，而Font class的主要设计目的就是为了防止资源（字体）泄漏。</p>
-<p>&emsp;&emsp;另一个办法是令Font提供隐式转换函数，转型为FontHandle：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Font</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">operator</span> <span class="title">FontHandle</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;  <span class="comment">//隐式转换函数</span></span><br><span class="line">        <span class="keyword">return</span> f;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//另外一种构造转换函数，与隐式转换函数相反，</span></span><br><span class="line">    <span class="comment">//是将其他类型转换为本类型，其也是构造函数的一种。</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这使得客户调用C API时比较轻松且自然：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Font <span class="title">f</span><span class="params">(getFont())</span></span>;</span><br><span class="line"><span class="keyword">int</span> newFontSize;</span><br><span class="line">...</span><br><span class="line">changeFontSize(f, newFontSize);  <span class="comment">//将Font隐式转换为FontHandle</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;但是这个隐式转换会增加错误发生机会。例如客户可能会在需要Font时意外创建一个FontHandle：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Font <span class="title">f1</span><span class="params">(getFont())</span></span>;</span><br><span class="line">...</span><br><span class="line">FontHandle f2 = f1;</span><br><span class="line"><span class="comment">//原意是要拷贝一个Font对象，</span></span><br><span class="line"><span class="comment">//却反而将f1隐式转换为其底部的FontHandle</span></span><br><span class="line"><span class="comment">//然后才复制它。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;是否该提供一个显式转换函数（例如get成员函数）将RAII class转换为其底部资源，或是应该提供隐式转换，答案主要取决于RAII class被设计执行的特性工作，以及它被使用的情况。</p>
-<p>&emsp;&emsp;RAII class并不是为了封装某物而存在的；它们的存在是为了确保一个特殊行为——资源释放——会发生。此外也有某些RAII class结合十分松散的底层资源封装，借以获得真正的封装实现。例如shared_ptr将它的所有引用计数机构封装了起来，但还是让外界很容易访问其所内含的原始指针。就像多数设计良好的class一样，它隐藏了客户不需要看的部分，但备妥客户需要的所有东西。</p>
-<blockquote>
-<p>API往往要求访问原始资源，所以每一个RAII class应该提供一个“取得其所管理的资源”的办法。</p>
-<p>对原始资源的访问可能经由显式转换或隐式转换。一般而言显式转换比较安全，但隐式转换对客户比较方便。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/">展开全文 >></a>
         </p>
       
 
