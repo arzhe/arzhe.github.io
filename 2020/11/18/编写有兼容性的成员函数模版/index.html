@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Tag: C++ | Hexo</title>
+  <title>编写有兼容性的成员函数模版 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/tags/C/page/4/index.html">
+  <meta name="description" content="编写有兼容性的成员函数模版&amp;emsp;&amp;emsp;STL容器的迭代器几乎总是智能指针，其优点不言而喻：可以在正确的时机自动删除heap-based资源。对于真实指针而言，做的较好的一件事是，支持隐式转换。Derived class指针可以隐式转换为base class指针，“指向non-const对象”的指针可以转换为“指向const对象”等等。以下为三层继承体系中的转换： 123456clas">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编写有兼容性的成员函数模版">
+<meta property="og:url" content="http://yoursite.com/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="编写有兼容性的成员函数模版&amp;emsp;&amp;emsp;STL容器的迭代器几乎总是智能指针，其优点不言而喻：可以在正确的时机自动删除heap-based资源。对于真实指针而言，做的较好的一件事是，支持隐式转换。Derived class指针可以隐式转换为base class指针，“指向non-const对象”的指针可以转换为“指向const对象”等等。以下为三层继承体系中的转换： 123456clas">
 <meta property="og:locale" content="zh">
+<meta property="article:published_time" content="2020-11-18T00:57:00.000Z">
+<meta property="article:modified_time" content="2020-11-19T11:51:31.000Z">
 <meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -132,36 +137,92 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-编写有兼容性的成员函数模版" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      编写有兼容性的成员函数模版
+    </h1>
+  
+
+        
+        <a href="/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/" class="archive-article-date">
+  	<time datetime="2020-11-18T00:57:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-18</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="编写有兼容性的成员函数模版"><a href="#编写有兼容性的成员函数模版" class="headerlink" title="编写有兼容性的成员函数模版"></a>编写有兼容性的成员函数模版</h1><p>&emsp;&emsp;STL容器的迭代器几乎总是智能指针，其优点不言而喻：可以在正确的时机自动删除heap-based资源。对于真实指针而言，做的较好的一件事是，支持隐式转换。Derived class指针可以隐式转换为base class指针，“指向non-const对象”的指针可以转换为“指向const对象”等等。以下为三层继承体系中的转换：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Top</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Middle</span> :</span> <span class="keyword">public</span> Top &#123; ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bottom</span> :</span> <span class="keyword">public</span> Middle &#123; ... &#125;;</span><br><span class="line">Top* pt1 = <span class="keyword">new</span> Middle;</span><br><span class="line">Top* pt2 = <span class="keyword">new</span> Bottom;</span><br><span class="line"><span class="keyword">const</span> Top* cpt = pt1;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;那么在智能指针中的转换又是如何呢？接下来我们希望以下代码可以通过编译：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SmartPtr</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">SmartPtr</span><span class="params">(T* realPtr)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">SmartPtr&lt;Top&gt; pt1 = SmartPtr&lt;Middle&gt;(<span class="keyword">new</span> Middle);</span><br><span class="line">SmartPtr&lt;Top&gt; pt2 = SmartPtr&lt;Bottom&gt;(<span class="keyword">new</span> Bottom);</span><br><span class="line">SmartPtr&lt;<span class="keyword">const</span> Top&gt; cpt = pt1;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;但是从同一个tamplate具现出来的不同具现体之间并没有任何“关系”，也就是说如果以带有base-derived关系的B，D类型分别具现化某个template，产生出来的两个具现体并不带有base-derived关系。所以编译器视SmartPtr&lt;Middle&gt;和SmartPtr&lt;Top&gt;为两个不同的class。为了使SmartPtr class之间具有转换能力，我们必须更进一步的将它们编写出来。</p>
+<p>&emsp;&emsp;在对上述代码进行修改前，你似乎会构思出这样的想法：根据一个SmartPtr&lt;Middle&gt;或一个SmartPtr&lt;Bottom&gt;构造出一个SmartPtr&lt;Top&gt;，以此来完成转换。但是如果这个继承体系未来将进一步扩充的话，我们需要的构造函数数量也会进一步扩充，对于一个template来说，这样的扩充似乎无穷无尽，因为template可以被无限量地具现化。因此，让我们换个思路来解决上述问题，我们需要的不是为SmartPtr写一个构造函数，而是为它写一个构造模版。这样的模版也就是所谓的member function template，其作用是为class生成函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SmartPtr</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="keyword">typename</span> U&gt;</span><br><span class="line">        SmartPtr(<span class="keyword">const</span> SmartPtr&lt;U&gt;&amp; other);</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;以上代码意思是，对于任何T类型和任何U类型，这里可以根据SmartPtr&lt;U&gt;生成一个SmartPtr&lt;T&gt;——因为SmartPtr&lt;T&gt;它的构造函数接受的是一个SmartPtr&lt;U&gt;参数。这一类构造函数根据对象u创建对象t（例如根据SmartPtr&lt;U&gt;创建一个SmartPtr&lt;T&gt;），而u和v的类型是同一个template的不同具现体，这类构造函数也就是泛化copy构造函数。</p>
+<p>&emsp;&emsp;你会注意到上述泛化copy构造函数并未被声明为explicit。因为原始指针类型之间的转换（例如从derived class指针转为base class指针）是隐式转换，没有必要写出转型动作（cast），所以为了让我们的智能指针也表现出这种行为，在模版化构造函数时，我们略去了explicit。</p>
+<p>&emsp;&emsp;现在我们可以对这个代码进行更进一步的优化。期望可以根据一个SmartPtr&lt;Bottom&gt;创建一个SmartPtr&lt;Top&gt;，而且我们不会期望根据一个SmartPtr&lt;Top&gt;创建一个SmartPtr&lt;Bottom&gt;，因为这对于public继承来说是矛盾的。当然，我们肯定也不会希望根据一个SmartPtr&lt;double&gt;创建出一个SmartPtr&lt;int&gt;，因为实际情况中并不会存在这样一个行为“将int*转换为double*”。也就是，我们必须要从某个方面来对member template所创建的成员函数簇进行一个剔除或筛选。</p>
+<p>&emsp;&emsp;现在让我们一步一步创建起来的SmartPtr遵循std::shared_ptr那样的模版，也提供一个get成员函数，返回智能指针对象所持有的那个原始指针的副本，那么我们可以在“构造模版”实现代码中约束转换行为，使它符合我们对它的期望：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SmartPtr</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="keyword">typename</span> U&gt;</span><br><span class="line">        SmartPtr(<span class="keyword">const</span> SmartPtr&lt;U&gt;&amp; other) </span><br><span class="line">            : heldPtr(other.<span class="built_in">get</span>()) &#123; ... &#125;</span><br><span class="line">        <span class="function">T* <span class="title">get</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> heldPtr; &#125;</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        T* heldPtr;  <span class="comment">//SmartPtr持有的内置（原始）指针</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我使用成员初值列来初始化SmartPtr&lt;T&gt;之类型为T*的成员变量，并用类型U*的指针（由SmartPtr&lt;U&gt;持有）作为初值。啊哈，这个结果正是我们想要的：只有当U*指针可以隐式转换为T*指针时该代码才可以通过编译。那么经过这一轮的优化，最终得到了我们想要的结果——这个构造函数只有在其所获得的实参属于兼容类型时才可以通过编译。</p>
+<p>&emsp;&emsp;同样的，member function template也常用于赋值操作。例如std::shared_ptr支持所有“来自兼容类型的内置指针、std::shared_ptr和std::weak_ptr”的构造行为。以及所有来自上述各物（std::weak_ptr除外）的赋值操作。以下是关于std::shared_ptr的一份简单摘要码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">shared_ptr</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt; </span></span><br><span class="line"><span class="class">        <span class="title">explicit</span> <span class="title">shared_ptr</span>(<span class="title">Y</span>* <span class="title">p</span>);</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="title">share_ptr</span>(<span class="title">const</span> <span class="title">shared_ptr</span>&lt;Y&gt;&amp; <span class="title">r</span>);</span></span><br><span class="line">  </span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="title">explicit</span> <span class="title">shared_ptr</span>(<span class="title">const</span> <span class="title">weak_ptr</span>&lt;Y&gt;&amp; <span class="title">r</span>);</span></span><br><span class="line">  </span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="title">shared_ptr</span>&amp; <span class="title">operator</span>=(<span class="title">const</span> <span class="title">shared_ptr</span>&lt;Y&gt;&amp; <span class="title">r</span>);</span></span><br><span class="line">  </span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;你会注意到上述所有构造函数都是explicit，除了“泛化copy构造函数”。这意味着从某个shared_ptr类型隐式转换至另一个shared_ptr类型是被允许的，但从某个内置指针或从其它智能指针类型进行隐式转换则不被允许（如果是显式转换，例如cast强制转型动作倒是可以）。</p>
+<p>&emsp;&emsp;虽然member function template（成员函数模版）趣味无穷，但它们并不影响语言基本规则的运行。那意味着编译器仍然可能会为我们产生四个成员函数，其中两个是copy构造函数和copy assignment操作符。问题来了，让我们把关注点放到std::shared_ptr的泛化copy构造函数上，一旦T和Y的类型相同，泛化copy构造函数会被具现化为“正常的”copy构造函数。那么究竟编译器会暗自为std::shared_ptr生成一个copy构造函数呢？亦或是当某个std::shared_ptr对象根据另一个同型的std::shared_ptr对象展开构造行为时，编译器会将“泛化copy构造函数”具现化呢？</p>
+<p>&emsp;&emsp;就像我所说的member template并不会改变语言规则，而语言规则说，如果程序需要一个copy构造函数，你却没有声明它，编译器会为你暗自生成一个。在class内声明泛化copy构造函数并不会阻止编译器生成它们自己的copy构造函数，所以如果你想要控制copy构造的方方面面，你必须同时声明泛化copy构造函数和“正常的”copy构造函数。这对于赋值操作也同样适用。以下代码展示了这一要点：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">shared_ptr</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">shared_ptr</span>(<span class="keyword">const</span> <span class="built_in">shared_ptr</span>&amp; r);  <span class="comment">//copy构造函数</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="title">shared_ptr</span>(<span class="title">const</span> <span class="title">shared_ptr</span>&lt;Y&gt;&amp; <span class="title">r</span>);</span></span><br><span class="line">  </span><br><span class="line">        <span class="built_in">shared_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="built_in">shared_ptr</span>&amp; r);</span><br><span class="line">  </span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="title">shared_ptr</span>&amp; <span class="title">operator</span>=(<span class="title">const</span> <span class="title">shared_ptr</span>&lt;Y&gt;&amp; <span class="title">r</span>);</span></span><br><span class="line">  </span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>请使用member function template（成员函数模版）生成“可接受所有兼容类型”的函数。</li>
+<li>如果你声明member template用于“泛化copy构造函数”或“泛化assignment操作”，你还是需要声明正常的copy构造函数和copy assignment操作符。</li>
+</ul>
+</blockquote>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/blogImg/wechatpay.jpeg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/" class="archive-article-date">
-  	<time datetime="2020-07-29T05:07:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-29</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/">在资源管理类中提供对原始资源的访问</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -173,7 +234,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -186,439 +247,103 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/" class="archive-article-date">
-  	<time datetime="2020-07-28T03:03:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/11/16/automake%E5%B7%A5%E5%85%B7%E2%80%94%E2%80%94%E4%BB%8B%E7%BB%8D/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">automake工具——介绍</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/">在资源管理类中小心copying行为</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/" class="archive-article-date">
-  	<time datetime="2020-07-27T08:16:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-27</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/">以对象管理资源</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/" class="archive-article-date">
-  	<time datetime="2020-07-26T00:28:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-26</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/">复制对象时勿忘其每一个成分</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/" class="archive-article-date">
-  	<time datetime="2020-07-25T07:19:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/">在operator=中处理“自我赋值”</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/" class="archive-article-date">
-  	<time datetime="2020-07-25T00:14:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/">令operator=返回一个reference to *this</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/" class="archive-article-date">
-  	<time datetime="2020-07-24T01:10:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-24</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/">绝不在构造和析构过程中调用virtual函数</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/" class="archive-article-date">
-  	<time datetime="2020-07-23T00:25:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-23</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/">别让异常逃离析构函数</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/22/%E4%B8%BA%E5%A4%9A%E6%80%81%E5%9F%BA%E7%B1%BB%E5%A3%B0%E6%98%8Evirtual%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/" class="archive-article-date">
-  	<time datetime="2020-07-22T08:22:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-22</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/22/%E4%B8%BA%E5%A4%9A%E6%80%81%E5%9F%BA%E7%B1%BB%E5%A3%B0%E6%98%8Evirtual%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/">为多态基类声明virtual析构函数</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/07/21/%E8%8B%A5%E4%B8%8D%E6%83%B3%E4%BD%BF%E7%94%A8%E7%BC%96%E8%AF%91%E5%99%A8%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E7%9A%84%E5%87%BD%E6%95%B0%E5%B0%B1%E8%AF%A5%E6%98%8E%E7%A1%AE%E6%8B%92%E7%BB%9D/" class="archive-article-date">
-  	<time datetime="2020-07-21T00:36:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-21</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/07/21/%E8%8B%A5%E4%B8%8D%E6%83%B3%E4%BD%BF%E7%94%A8%E7%BC%96%E8%AF%91%E5%99%A8%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E7%9A%84%E5%87%BD%E6%95%B0%E5%B0%B1%E8%AF%A5%E6%98%8E%E7%A1%AE%E6%8B%92%E7%BB%9D/">若不想使用编译器自动生成的函数就该明确拒绝</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/tags/C/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/tags/C/">1</a><a class="page-number" href="/tags/C/page/2/">2</a><a class="page-number" href="/tags/C/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/tags/C/page/5/">5</a><a class="extend next" rel="next" href="/tags/C/page/5/">Next &amp;raquo;</a>
-    </nav>
+  
+
+  
+
   
 
 
@@ -642,9 +367,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,

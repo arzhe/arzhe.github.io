@@ -134,6 +134,122 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-编写有兼容性的成员函数模版" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/">编写有兼容性的成员函数模版</a>
+    </h1>
+  
+
+        
+        <a href="/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/" class="archive-article-date">
+  	<time datetime="2020-11-18T00:57:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-18</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="编写有兼容性的成员函数模版"><a href="#编写有兼容性的成员函数模版" class="headerlink" title="编写有兼容性的成员函数模版"></a>编写有兼容性的成员函数模版</h1><p>&emsp;&emsp;STL容器的迭代器几乎总是智能指针，其优点不言而喻：可以在正确的时机自动删除heap-based资源。对于真实指针而言，做的较好的一件事是，支持隐式转换。Derived class指针可以隐式转换为base class指针，“指向non-const对象”的指针可以转换为“指向const对象”等等。以下为三层继承体系中的转换：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Top</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Middle</span> :</span> <span class="keyword">public</span> Top &#123; ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bottom</span> :</span> <span class="keyword">public</span> Middle &#123; ... &#125;;</span><br><span class="line">Top* pt1 = <span class="keyword">new</span> Middle;</span><br><span class="line">Top* pt2 = <span class="keyword">new</span> Bottom;</span><br><span class="line"><span class="keyword">const</span> Top* cpt = pt1;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;那么在智能指针中的转换又是如何呢？接下来我们希望以下代码可以通过编译：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SmartPtr</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">SmartPtr</span><span class="params">(T* realPtr)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">SmartPtr&lt;Top&gt; pt1 = SmartPtr&lt;Middle&gt;(<span class="keyword">new</span> Middle);</span><br><span class="line">SmartPtr&lt;Top&gt; pt2 = SmartPtr&lt;Bottom&gt;(<span class="keyword">new</span> Bottom);</span><br><span class="line">SmartPtr&lt;<span class="keyword">const</span> Top&gt; cpt = pt1;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;但是从同一个tamplate具现出来的不同具现体之间并没有任何“关系”，也就是说如果以带有base-derived关系的B，D类型分别具现化某个template，产生出来的两个具现体并不带有base-derived关系。所以编译器视SmartPtr&lt;Middle&gt;和SmartPtr&lt;Top&gt;为两个不同的class。为了使SmartPtr class之间具有转换能力，我们必须更进一步的将它们编写出来。</p>
+<p>&emsp;&emsp;在对上述代码进行修改前，你似乎会构思出这样的想法：根据一个SmartPtr&lt;Middle&gt;或一个SmartPtr&lt;Bottom&gt;构造出一个SmartPtr&lt;Top&gt;，以此来完成转换。但是如果这个继承体系未来将进一步扩充的话，我们需要的构造函数数量也会进一步扩充，对于一个template来说，这样的扩充似乎无穷无尽，因为template可以被无限量地具现化。因此，让我们换个思路来解决上述问题，我们需要的不是为SmartPtr写一个构造函数，而是为它写一个构造模版。这样的模版也就是所谓的member function template，其作用是为class生成函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SmartPtr</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="keyword">typename</span> U&gt;</span><br><span class="line">        SmartPtr(<span class="keyword">const</span> SmartPtr&lt;U&gt;&amp; other);</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;以上代码意思是，对于任何T类型和任何U类型，这里可以根据SmartPtr&lt;U&gt;生成一个SmartPtr&lt;T&gt;——因为SmartPtr&lt;T&gt;它的构造函数接受的是一个SmartPtr&lt;U&gt;参数。这一类构造函数根据对象u创建对象t（例如根据SmartPtr&lt;U&gt;创建一个SmartPtr&lt;T&gt;），而u和v的类型是同一个template的不同具现体，这类构造函数也就是泛化copy构造函数。</p>
+<p>&emsp;&emsp;你会注意到上述泛化copy构造函数并未被声明为explicit。因为原始指针类型之间的转换（例如从derived class指针转为base class指针）是隐式转换，没有必要写出转型动作（cast），所以为了让我们的智能指针也表现出这种行为，在模版化构造函数时，我们略去了explicit。</p>
+<p>&emsp;&emsp;现在我们可以对这个代码进行更进一步的优化。期望可以根据一个SmartPtr&lt;Bottom&gt;创建一个SmartPtr&lt;Top&gt;，而且我们不会期望根据一个SmartPtr&lt;Top&gt;创建一个SmartPtr&lt;Bottom&gt;，因为这对于public继承来说是矛盾的。当然，我们肯定也不会希望根据一个SmartPtr&lt;double&gt;创建出一个SmartPtr&lt;int&gt;，因为实际情况中并不会存在这样一个行为“将int*转换为double*”。也就是，我们必须要从某个方面来对member template所创建的成员函数簇进行一个剔除或筛选。</p>
+<p>&emsp;&emsp;现在让我们一步一步创建起来的SmartPtr遵循std::shared_ptr那样的模版，也提供一个get成员函数，返回智能指针对象所持有的那个原始指针的副本，那么我们可以在“构造模版”实现代码中约束转换行为，使它符合我们对它的期望：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SmartPtr</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="keyword">typename</span> U&gt;</span><br><span class="line">        SmartPtr(<span class="keyword">const</span> SmartPtr&lt;U&gt;&amp; other) </span><br><span class="line">            : heldPtr(other.<span class="built_in">get</span>()) &#123; ... &#125;</span><br><span class="line">        <span class="function">T* <span class="title">get</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> heldPtr; &#125;</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        T* heldPtr;  <span class="comment">//SmartPtr持有的内置（原始）指针</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我使用成员初值列来初始化SmartPtr&lt;T&gt;之类型为T*的成员变量，并用类型U*的指针（由SmartPtr&lt;U&gt;持有）作为初值。啊哈，这个结果正是我们想要的：只有当U*指针可以隐式转换为T*指针时该代码才可以通过编译。那么经过这一轮的优化，最终得到了我们想要的结果——这个构造函数只有在其所获得的实参属于兼容类型时才可以通过编译。</p>
+<p>&emsp;&emsp;同样的，member function template也常用于赋值操作。例如std::shared_ptr支持所有“来自兼容类型的内置指针、std::shared_ptr和std::weak_ptr”的构造行为。以及所有来自上述各物（std::weak_ptr除外）的赋值操作。以下是关于std::shared_ptr的一份简单摘要码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">shared_ptr</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt; </span></span><br><span class="line"><span class="class">        <span class="title">explicit</span> <span class="title">shared_ptr</span>(<span class="title">Y</span>* <span class="title">p</span>);</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="title">share_ptr</span>(<span class="title">const</span> <span class="title">shared_ptr</span>&lt;Y&gt;&amp; <span class="title">r</span>);</span></span><br><span class="line">  </span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="title">explicit</span> <span class="title">shared_ptr</span>(<span class="title">const</span> <span class="title">weak_ptr</span>&lt;Y&gt;&amp; <span class="title">r</span>);</span></span><br><span class="line">  </span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="title">shared_ptr</span>&amp; <span class="title">operator</span>=(<span class="title">const</span> <span class="title">shared_ptr</span>&lt;Y&gt;&amp; <span class="title">r</span>);</span></span><br><span class="line">  </span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;你会注意到上述所有构造函数都是explicit，除了“泛化copy构造函数”。这意味着从某个shared_ptr类型隐式转换至另一个shared_ptr类型是被允许的，但从某个内置指针或从其它智能指针类型进行隐式转换则不被允许（如果是显式转换，例如cast强制转型动作倒是可以）。</p>
+<p>&emsp;&emsp;虽然member function template（成员函数模版）趣味无穷，但它们并不影响语言基本规则的运行。那意味着编译器仍然可能会为我们产生四个成员函数，其中两个是copy构造函数和copy assignment操作符。问题来了，让我们把关注点放到std::shared_ptr的泛化copy构造函数上，一旦T和Y的类型相同，泛化copy构造函数会被具现化为“正常的”copy构造函数。那么究竟编译器会暗自为std::shared_ptr生成一个copy构造函数呢？亦或是当某个std::shared_ptr对象根据另一个同型的std::shared_ptr对象展开构造行为时，编译器会将“泛化copy构造函数”具现化呢？</p>
+<p>&emsp;&emsp;就像我所说的member template并不会改变语言规则，而语言规则说，如果程序需要一个copy构造函数，你却没有声明它，编译器会为你暗自生成一个。在class内声明泛化copy构造函数并不会阻止编译器生成它们自己的copy构造函数，所以如果你想要控制copy构造的方方面面，你必须同时声明泛化copy构造函数和“正常的”copy构造函数。这对于赋值操作也同样适用。以下代码展示了这一要点：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">shared_ptr</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">shared_ptr</span>(<span class="keyword">const</span> <span class="built_in">shared_ptr</span>&amp; r);  <span class="comment">//copy构造函数</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="title">shared_ptr</span>(<span class="title">const</span> <span class="title">shared_ptr</span>&lt;Y&gt;&amp; <span class="title">r</span>);</span></span><br><span class="line">  </span><br><span class="line">        <span class="built_in">shared_ptr</span>&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="built_in">shared_ptr</span>&amp; r);</span><br><span class="line">  </span><br><span class="line">        <span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Y</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="title">shared_ptr</span>&amp; <span class="title">operator</span>=(<span class="title">const</span> <span class="title">shared_ptr</span>&lt;Y&gt;&amp; <span class="title">r</span>);</span></span><br><span class="line">  </span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>请使用member function template（成员函数模版）生成“可接受所有兼容类型”的函数。</li>
+<li>如果你声明member template用于“泛化copy构造函数”或“泛化assignment操作”，你还是需要声明正常的copy构造函数和copy assignment操作符。</li>
+</ul>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-automake工具——介绍" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -156,6 +272,7 @@
       
         <h1 id="automake工具——介绍"><a href="#automake工具——介绍" class="headerlink" title="automake工具——介绍"></a>automake工具——介绍</h1><p>&emsp;&emsp;automake是一个自动化工具，可以通过一个名为Makefile.am的文件来自动生成Makefile.in文件。每一个Makefile.in文件本质上就是一连串的的make命令变量的定义，通常会伴有相关规则。生成的Makefile.in文件遵从GNU Makefile的标准。</p>
 <p>&emsp;&emsp;GNU Makefile的标准文档既冗长又复杂，并且随时都会更改。automake的目的就是要为GNU的个人维护者移除Makefile的维护负担（并且将其置于automake维护者的工作幕后）。</p>
+<p>&emsp;&emsp;典型的automake输入文件仅仅是一连串的变量定义。每个这样的文件都被进一步用来创建Makefile.in文件。</p>
 
       
 
@@ -1198,126 +1315,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/11/11/%E9%80%9A%E8%BF%87%E5%A4%8D%E5%90%88%E5%A1%91%E6%A8%A1%E5%87%BAhas-a%E6%88%96%E2%80%9C%E6%A0%B9%E6%8D%AE%E6%9F%90%E7%89%A9%E5%AE%9E%E7%8E%B0%E5%87%BA%E2%80%9D/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-绝不重新定义继承而来的缺省参数值" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/11/%E7%BB%9D%E4%B8%8D%E9%87%8D%E6%96%B0%E5%AE%9A%E4%B9%89%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E7%BC%BA%E7%9C%81%E5%8F%82%E6%95%B0%E5%80%BC/">绝不重新定义继承而来的缺省参数值</a>
-    </h1>
-  
-
-        
-        <a href="/2020/11/11/%E7%BB%9D%E4%B8%8D%E9%87%8D%E6%96%B0%E5%AE%9A%E4%B9%89%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E7%BC%BA%E7%9C%81%E5%8F%82%E6%95%B0%E5%80%BC/" class="archive-article-date">
-  	<time datetime="2020-11-11T11:05:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-11</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="绝不重新定义继承而来的缺省参数值"><a href="#绝不重新定义继承而来的缺省参数值" class="headerlink" title="绝不重新定义继承而来的缺省参数值"></a>绝不重新定义继承而来的缺省参数值</h1><p>&emsp;&emsp;让我们一开始就将讨论简化。你只能继承两种函数：virtual和non-virtual函数。然而重新定义一个继承而来的non-virtual函数永远是错误的，所以我们可以安全地将本条款的讨论局限于“继承一个带有缺省参数值的virtual函数”。</p>
-<p>&emsp;&emsp;这种情况下，本条款成立的理由就非常直接而明确了：virtual函数系动态绑定，而缺省参数值却是静态绑定。</p>
-<p>&emsp;&emsp;对象的所谓静态绑定类型，就是它在程序中被声明时所采用的类型。考虑以下的class继承体系：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//用以描述几何形状的class</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">enum</span> ShapeColor &#123; Red, Green, Blue &#125;;</span><br><span class="line">        <span class="comment">//所有形状都必须提供一个函数，用来绘出自己</span></span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(ShapeColor color = Red)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> :</span> <span class="keyword">public</span> Shape &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="comment">//注意，赋予不同的缺省参数值。这真糟糕！</span></span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(ShapeColor color = Green)</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Circle</span> :</span> <span class="keyword">public</span> Shape &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(ShapeColor color)</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="comment">//译注：请注意，以上这么写则当客户以对象调用此函数，一定要指定参数值。</span></span><br><span class="line">        <span class="comment">//     因为静态绑定下这个函数并不从其base继承缺省参数值。</span></span><br><span class="line">        <span class="comment">//     但若以指针（或reference）调用此函数，可以不指定参数值。</span></span><br><span class="line">        <span class="comment">//     因为动态绑定下这个函数会从其base继承缺省参数值。</span></span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在考虑这些指针：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Shape* ps;                  <span class="comment">//静态类型为Shape*</span></span><br><span class="line">Shape* pc = <span class="keyword">new</span> Circle;     <span class="comment">//静态类型为Shape*</span></span><br><span class="line">Shape* pr = <span class="keyword">new</span> Rectangle;  <span class="comment">//静态类型为Shape*</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;本例中ps，pc，pr都被声明为pointer-to-Shape类型，所以它们都以它为静态类型。注意，不论它们真正指向什么，它们的静态类型都是Shape*。</p>
-<p>&emsp;&emsp;对象的所谓动态类型则是指“目前所指对象的类型”。也就是说，动态类型可以表现出一个对象将会有什么行为。以上例而言，pc的动态类型是Circle*，pr的动态类型是Rectangle*。ps没有动态类型，因为它尚未指向任何对象。</p>
-<p>&emsp;&emsp;动态类型一如其名称所示，可在程序执行过程中改变（通常是经由赋值动作）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps = pc;  <span class="comment">//ps的动态类型如今是Circle*</span></span><br><span class="line">ps = pr;  <span class="comment">//ps的动态类型如今是Rectangle*</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;virtual函数系动态绑定而来，意思是调用一个virtual函数时，究竟调用哪一份函数实现代码，取决于发出调用的那个对象的动态类型：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pc-&gt;draw(Shape::Red);  <span class="comment">//调用Circle::draw(Shape::Red)</span></span><br><span class="line">pr-&gt;draw(Shape::Red);  <span class="comment">//调用Rectangle::draw(Shape::Red)</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我知道这些都是老调重弹；是的，你当然已经了解virtual函数。但是当你考虑带有缺省参数值的virtual函数，花样来了，因为就如我稍早所说，virtual函数是动态绑定，而缺省参数值却是静态绑定。意思是你可能会在“调用一个定义于derived class内的virtual函数”的同时，却使用base class为它所指定的缺省参数值：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pr-&gt;draw();  <span class="comment">//调用Rectangle::draw(Shape::Red)！</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;此例之中，pr的动态类型是Rectangle<em>，所以调用的是Rectangle的virtual函数，一如你所预期。Rectangle::draw函数的缺省参数值应该是GREEN，但由于pr的静态类型是Shape\</em>，所以此一调用的缺省参数值来自Shape class而非Rectangle class！结局是这个函数调用有着奇怪并且几乎绝对没人预料得到的组合，由Shape class和Rectangle class的draw声明式各出一半力。</p>
-<p>&emsp;&emsp;以上事实不只局限于“ps，pc和pr都是指针”的情况；即使把指针换成reference问题仍然存在。重点在于draw是个virtual函数，而它有个缺省参数值在derived class中被重新定义了。</p>
-<p>&emsp;&emsp;为什么C++坚持以这种乖张的方式来运作呢？答案在于运行期效率。如果缺省参数值是动态绑定，编译器就必须有某种方式在运行期为virtual函数决定适当的参数缺省值。这比目前实行的“在编译期决定”的机制更慢而且更复杂。为了程序的执行速度和编译器实现上的简易度，C++做了这样的取舍，其结果就是你如今所享受的执行效率。</p>
-<p>&emsp;&emsp;这一切都很好，但如果你试着遵守这条规则，并且同时提供缺省参数值给base和derived class的用户，又会发生什么事呢？</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">enum</span> ShapeColor &#123; Red, Green, Blue &#125;;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(ShapeColor color = Red)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> :</span> <span class="keyword">public</span> Shape &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(ShapeColor color = Red)</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;喔欧，代码重复。更糟的是，代码重复又带着相依性：如果Shape内的缺省参数值改变了，所有“重复给定缺省参数值”的那些derived class也必须改变，否则它们最终会导致“重复定义一个继承而来的缺省参数值”。怎么办？</p>
-<p>&emsp;&emsp;当你想令virtual函数表现出你所想要的行为但却遭遇麻烦，聪明的做法是考虑替代设计。提条款“<a href="/2020/10/31/%E8%80%83%E8%99%91virtual%E5%87%BD%E6%95%B0%E4%BB%A5%E5%A4%96%E7%9A%84%E5%85%B6%E4%BB%96%E9%80%89%E6%8B%A9/" title="考虑virtual函数以外的其他选择">考虑virtual函数以外的其他选择</a>”列了不少virtual函数的替代设计，其中之一是NVI手法：令base class内的一个public non-virtual函数调用private virtual函数，后者可被derived class重新定义。这里我们可以让non-virtual函数指定缺省参数，而private virtual函数负责真正的工作：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">enum</span> ShapeColor &#123; Red, Green, Blue &#125;;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">draw</span><span class="params">(ShapeColor color = Red)</span> <span class="keyword">const</span> </span>&#123;  <span class="comment">//如今它是non-virtual</span></span><br><span class="line">            doDraw(color);                         <span class="comment">//调用一个virtual</span></span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">doDraw</span><span class="params">(ShapeColor color)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;  <span class="comment">//真正的工作在此完成</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> :</span> <span class="keyword">public</span> Shape &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">doDraw</span><span class="params">(ShapeColor color)</span> <span class="keyword">const</span></span>;  <span class="comment">//注意，不须指定缺省参数值。</span></span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;由于non-virtual函数应该绝对不被derived class覆写，这个设计很清楚地使得draw函数的color缺省参数值总是Red。</p>
-<blockquote>
-<ul>
-<li>绝对不要重新定义一个继承而来的缺省参数值，因为缺省参数值都是静态绑定，而virtual函数——你唯一应该覆写的东西——却是动态绑定。</li>
-</ul>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/11/11/%E7%BB%9D%E4%B8%8D%E9%87%8D%E6%96%B0%E5%AE%9A%E4%B9%89%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E7%BC%BA%E7%9C%81%E5%8F%82%E6%95%B0%E5%80%BC/">展开全文 >></a>
         </p>
       
 
