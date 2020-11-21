@@ -134,6 +134,227 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-复制对象时勿忘其每一个成分" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/">复制对象时勿忘其每一个成分</a>
+    </h1>
+  
+
+        
+        <a href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/" class="archive-article-date">
+  	<time datetime="2020-07-26T00:28:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-26</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="复制对象时勿忘其每一个成分"><a href="#复制对象时勿忘其每一个成分" class="headerlink" title="复制对象时勿忘其每一个成分"></a>复制对象时勿忘其每一个成分</h1><p>&emsp;&emsp;设计良好的面向对象系统会将对象的内部封装起来，只留两个函数负责对象拷贝，这便是copy构造函数和copy assignment操作符，称它们为copying函数。</p>
+<p>&emsp;&emsp;如果我们声明自己的copying函数，意思就是告诉编译器我们并不喜欢缺省实现中的某些行为，编译器仿佛被冒犯似得，会以一种奇怪的方式回敬：当我们的实现代码几乎必然出错时却不告诉我们。</p>
+<p>&emsp;&emsp;考虑一个class用来表现顾客，其中手工写出copying函数，使得外界对它们的调用会被志记（logged）下来：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">logCall</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; funcName)</span></span>;  <span class="comment">//制造一个log entry</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Customer</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    Customer(<span class="keyword">const</span> Customer&amp; rhs);</span><br><span class="line">    Customer&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Customer&amp; rhs);</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">&#125;;</span><br><span class="line">Customer::Customer(<span class="keyword">const</span> Customer&amp; rhs): name(rhs.name) &#123;</span><br><span class="line">    logCall(<span class="string">"Customer copy constructor"</span>);</span><br><span class="line">&#125;</span><br><span class="line">Customer&amp; Customer::<span class="keyword">operator</span>=(<span class="keyword">const</span> Customer&amp; rhs) &#123;</span><br><span class="line">    logCall(<span class="string">"Customer copy assignment operator"</span>);</span><br><span class="line">    name = rhs.name;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这里的每一件事情都看起来很好，而实际上每件事情也的确都好，直到另一个成员变量加入战局：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Date</span> &#123;</span> ... &#125;;  <span class="comment">//日期</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Customer</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...              <span class="comment">//同前</span></span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">    Date lastTrasaction;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这时候现有的copying函数执行的是局部拷贝，并没有复制新添加的lastTransaction。大多数编译器对此不会发出任何怨言——即使在最高警告级别中。这是编译器对“我们自己写出copying函数”的报复行为。结论很明显：如果我们为class添加一个成员变量，我们必须同时修改copying函数。如果我们忘记，编译器不太可能提醒我们。</p>
+<p>&emsp;&emsp;一旦发生继承，可能会出现一个隐患：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PriorityCustomer</span>:</span> <span class="keyword">public</span> Customer &#123;  <span class="comment">//一个derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    PriorityCustomer（<span class="keyword">const</span> PriorityCustomer&amp; rhs）;</span><br><span class="line">    PriorityCustomer&amp; <span class="keyword">operator</span>=（<span class="keyword">const</span> PriorityCustomer&amp; rhs）;</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>：</span><br><span class="line">    <span class="keyword">int</span> priority;</span><br><span class="line">&#125;;</span><br><span class="line">PriorityCustomer::PriorityCustomer（<span class="keyword">const</span> PriorityCustomer&amp; rhs）</span><br><span class="line">: priority(rhs.priority) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy constructor"</span>);</span><br><span class="line">&#125;</span><br><span class="line">PriorityCustomer&amp;</span><br><span class="line">PriorityCustomer::<span class="keyword">operator</span>=(<span class="keyword">const</span> PriorityCustomer&amp; rhs) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy assignment operator"</span>);</span><br><span class="line">    priority = rhs.priority;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;看起来PriorityCustomer的copying函数好像复制了其内的每一样东西，但是它所继承的Customer成员变量却并未被复制。PriorityCustomer的copy构造函数并没有指定实参传给其base class构造函数（也就是说它在它的成员初值列中没有提到Customer），因此PriorityCustomer对象的Customer成分会被不带实参的Customer构造函数（即default构造函数）初始化。default构造函数将针对name和lastTransaction执行缺省的初始化动作。</p>
+<p>&emsp;&emsp;以上情况在PriorityCustomer的copy assignment操作符身上只有轻微不同。它不曾试图修改其base class的成员变量，所以那些成员变量保持不变。</p>
+<p>&emsp;&emsp;任何时候只要我们承担起“为derived class撰写copying函数”的重任，必须很小心地也复制其base class成分。那些成分往往是private，所以无法直接访问它们，我们应该让derived class的copying函数调用相应的base class函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">PriorityCustomer::PriorityCustomer(<span class="keyword">const</span> PriorityCustomer&amp; rhs)</span><br><span class="line">: Customer(rhs), priority(rhs.priority) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy constructor"</span>);</span><br><span class="line">&#125;</span><br><span class="line">PriorityCustomer&amp;</span><br><span class="line">PriorityCustomer::<span class="keyword">operator</span>=(<span class="keyword">const</span> PriorityCustomer&amp; rhs) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy assignment operator"</span>);</span><br><span class="line">    Customer::<span class="keyword">operator</span>=(rhs);</span><br><span class="line">    priority = rhs.priority;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当我们编写一个copying函数，请确保（1）复制所有local成员变量，（2）调用所有base class内的适当copying函数。</p>
+<p>&emsp;&emsp;如果你发现你的copy构造函数和copy assignment操作符有着相近的代码，消除重复代码的做法是，建立一个新成员函数给两者调用。这样的函数往往是private而且常被命名为init。这个策略可以安全地消除copy构造函数和copy assignment操作符之间的代码重复。</p>
+<blockquote>
+<p>Copying函数应该确保复制“对象内的所有成员变量”及“所有base class成分”。</p>
+<p>不要尝试以某个copying函数实现另一个copying函数。应该将共同机能放进第三个函数中，并由两个copying函数共同调用。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-在operator=中处理“自我赋值”" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/">在operator=中处理“自我赋值”</a>
+    </h1>
+  
+
+        
+        <a href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/" class="archive-article-date">
+  	<time datetime="2020-07-25T07:19:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-25</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="在operator-中处理“自我赋值”"><a href="#在operator-中处理“自我赋值”" class="headerlink" title="在operator=中处理“自我赋值”"></a>在operator=中处理“自我赋值”</h1><p>&emsp;&emsp;“自我赋值”发生在对象被赋值给自己时：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span> ... &#125;;</span><br><span class="line">Widget w;</span><br><span class="line">...</span><br><span class="line">w = w;  <span class="comment">//赋值给自己</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这看起来有点愚蠢，但它合法，所以不要认定客户绝不会那么做。此外赋值动作并不总是那么可被一眼识别出来，例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a[i] = a[j];  <span class="comment">//潜在的自我赋值</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果i和j有相同的值，这便是个自我赋值。再看：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*px = *py;  <span class="comment">//潜在的自我赋值</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果px和py恰巧指向同一个东西，这也是自我赋值。这些并不明显的自我赋值，是“别名”带来的结果：所谓“别名”就是“有一个以上的方法指涉某对象”。一般而言如果某段代码操作pointer或reference而它们被用来“指向多个相同类型的对象”，就需要考虑这些对象是否为同一个。实际上两个对象只要来自同一个继承体系，它们甚至不需声明为相同类型就可能造成“别名”，因为一个base class的reference或pointer可以指向一个derived class对象：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(<span class="keyword">const</span> Base&amp; rb, Derived* pd)</span></span>;  <span class="comment">//rb和*pd有可能其实是同一对象</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果我们尝试自行管理资源（如果我们打算写一个勇于资源管理的class就得这样做），可能会在停止使用资源之前就意外释放了它。假设我们建立一个class用来保存一个指针指向动态分配的位图（bitmap）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bitmap</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Bitmap* pb;  <span class="comment">//指针，指向一个从heap分配而得的对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;下面是operator=实现代码，表面上看起来合理，但自我赋值出现时并不安全（它也不具备异常安全性）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp;</span><br><span class="line">Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//一份不安全的operator=实现版本</span></span><br><span class="line">    <span class="keyword">delete</span> pb;                          <span class="comment">//停止使用当前的Bitmap</span></span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);           <span class="comment">//使用rhs的bitmap的副本</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;                       </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这里的自我赋值问题是，operator=函数内的*this（赋值的目的端）和rhs有可能是同一个对象。果真如此delete就不只是销毁当前对象的bitmap，它也销毁rhs的bitmap。在函数末尾，Widget——它原本不该被自我赋值动作改变的——发现自己持有一个指针指向一个已被删除的对象！</p>
+<p>&emsp;&emsp;欲阻止这种错误，传统做法是藉由operator=最前面的一个“证同测试”达到“自我赋值”的检测目的：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span> == &amp;rhs) <span class="keyword">return</span> *<span class="keyword">this</span>;  <span class="comment">//证同测试：如果是自我赋值，就不做任何事</span></span><br><span class="line">    <span class="keyword">delete</span> pb;</span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这样做行得通。前一版本的operator=不仅不具备“自我赋值安全性”，也不具备“异常安全性”，这个新版本仍然存在异常方面的麻烦。更明确地说，如果“new Bitmap”导致异常，Widget最终会持有一个指针指向一块被删除的Bitmap。这样的指针有害。我们无法安全地删除它们，甚至无法安全地读取它们。</p>
+<p>&emsp;&emsp;令人高兴的是，让operator=具备“异常安全性”往往自动获得“自我赋值安全”的回报。因此越来越多的人对“自我赋值”的处理态度是倾向于不去管它，把焦点放在实现“异常安全性”上。例如以下代码，我们只需注意在复制pb所指东西之前别删除pb：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    Bitmap* pOrig = pb;        <span class="comment">//记住原先的pb</span></span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);  <span class="comment">//令pb指向*pb的一个副本</span></span><br><span class="line">    <span class="keyword">delete</span> pOrig;              <span class="comment">//删除原先的pb</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在，如果“new Bitmap”抛出异常，pb（及其栖身的那个Widget）保持原状。即使没有证同测试，这段代码还是能够处理自我赋值，因为我们对原bitmap做了一份复件、删除原bitmap、然后指向新制造的那个复件。它或许不是处理“自我赋值”的最高效办法，但它行得通。</p>
+<p>&emsp;&emsp;如果你很关心效率，可以把“证同测试”再次放回函数起始处。然而这样做，我们得先问问自己，“自我赋值”的发生概率有多高？因为这项测试也需要成本。它会使代码变大一些并导入一个新的控制流分支，而两者都会降低执行速度。Prefetching、caching和pipelining等指令的效率都会因此降低。</p>
+<p>&emsp;&emsp;在operator=函数内手工排列语句（确保代码不但“异常安全”而且“自我赋值安全“）的一个替代方案是，使用所谓的copy and swap技术。这个技术和“异常安全性”有密切关系。然而由于它是一个常见而够好的operator=撰写办法，所以值得看看其实现手法像什么样子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; rhs)</span></span>;  <span class="comment">//交换*this和rhs的数据</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    Widget temp(rhs);        <span class="comment">//为rhs数据制作一份复件</span></span><br><span class="line">    swap(temp);              <span class="comment">//将*this数据和上述复件的数据交换</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;以下代码是上述代码的变奏曲：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(Widget rhs) &#123;  <span class="comment">//rhs是被传对象的一份复件</span></span><br><span class="line">    swap(rhs);                           <span class="comment">//将*this的数据和复件的数据互换</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我个人比较担忧这个做法，它为了“巧妙性”而牺牲了“清晰性”。然而将“copying动作”从函数本体内移至“函数参数构造阶段”却可令编译器有时生成更高效的代码。</p>
+<blockquote>
+<p>确保当对象自我赋值时operator=有良好行为。其中技术包括比较“来源对象”和“目标对象”的地址、精心周到的语句顺序、以及copy-and-swap。</p>
+<p>确定任何函数如果操作一个以上的对象，而其中多个对象是同一个对象时，其行为仍然正确。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-令operator=返回一个reference to *this" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1078,234 +1299,9 @@
 
 
   
-    <article id="post-尽量以const,enum,inline替换define" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/">尽量以const,enum,inline替换define</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/" class="archive-article-date">
-  	<time datetime="2020-07-17T07:17:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="尽量以const-enum-inline替换-define"><a href="#尽量以const-enum-inline替换-define" class="headerlink" title="尽量以const,enum,inline替换#define"></a>尽量以const,enum,inline替换#define</h1><p>&emsp;&emsp;宁可以编译器替换预处理器，因为或许#define不被视为语言的一部分。这正是问题的所在，当我们做出这样的事情：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASPECT_RATIO 1.653</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;记号名称ASPECT_RATIO也许从未被编译器看见；也许在编译器开始处理源代码之前它就被预处理器移走了。于是记号名称ASPECT_RATIO有可能没进入记号表内。于是当我们运行此常量但获得一个编译错误信息时，可能会带来困惑，因为这个错误信息也许会提到1.653而不是ASPECT_RATIO。如果ASPECT_RATIO被定义在一个非我们所写的头文件内，我们肯定对1.653以及它来自何处毫无概念，于是我们将因为追踪它而浪费时间。这个问题也可能出现在记号式调试器中，原因相同：我们所使用的名称可能并未进入记号表。</p>
-<p>&emsp;&emsp;解决之道是以一个常量替换上述的宏：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> AspectRatio = <span class="number">1.653</span>;  <span class="comment">//大写名称通常用于宏</span></span><br><span class="line">                                   <span class="comment">//因此这里改变名称写法</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;作为一个语言常量，AspectRatio肯定会被编译器看到，当然就会进入记号表内。此外对浮点常量而言，使用常量可能比使用#define导致较小量的码，因为预处理器“盲目地将宏名称ASPECT_RATIO替换为1.653”可能导致目标码出现多份1.653，若改用常量AspectRatio绝不会出现相同情况。</p>
-<p>&emsp;&emsp;当我们以常量替换#define，有两种特殊情况值得说说。第一是定义常量指针。由于常量定义式通常被放在头文件内（以便被不同的源码含入），因此有必要将指针声明为const。例如若要在头文件内定义一个常量char*-based字符串，我们必须写const两次：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span> authorName = <span class="string">"Guan Zhe"</span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;关于const的意义和使用（特别是当它与指针结合时），之后有完整的讨论。这里这里值得提醒的是，string对象通常比其前辈char*-based合宜，所以上述的authorName往往定义成这样更好些：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="built_in">std</span>:<span class="function"><span class="built_in">string</span> <span class="title">authorName</span><span class="params">(<span class="string">"Guan Zhe"</span>)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;第二个值得注意的是class专属常量。为了将常量的作用域限制于class内，你必须让它成为class的一个成员；而为确保此常量至多只有一份实体，我们必须让它成为一个static成员：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GamePlayer</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> NumTurns = <span class="number">5</span>;  <span class="comment">//常量声明式  </span></span><br><span class="line">    <span class="keyword">int</span> scores[NumTurns];           <span class="comment">//使用该常量</span></span><br><span class="line">...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;然而我们所看到的是NumTurns的声明式而非定义式。通常C++要求我们对我们所使用的任何东西提供一个定义式，但如果它是个class专属常量又是static且为整数类型，则需特殊处理。只要不取它们的地址，我们可以声明并使用它们而无须提供定义式。但如果我们取某个class专属常量的地址，或纵使我们不取其地址而我们的编译器却（不正确地）坚持要看到一个定义式，我们就必须另外提供定义式如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> GamePlayer::NumTurns;  <span class="comment">//NumTurns的定义</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;请把这个式子放进一个实现文件而非头文件。由于class常量已在声明时获得初值，因此定义时不可以再设初值。</p>
-<p>&emsp;&emsp;顺带一提，请注意，我们无法利用#define创建一个class专属常量，因为#define并不重视作用域。一旦宏被定义，它就在其后的编译过程中有效（除非在某处被#undef）。这意味着#defines不仅不能够用来定义class专属常量，也不能够提供任何封装性，也就是说没有所谓private #define这样的东西。而当然const成员变量是可以被封装的，NumTurns就是。</p>
-<p>&emsp;&emsp;旧式编译器也许不支持上述语法，它们不允许static成员在其声明式上获得初值。此外所谓的“in-class初值设定“也只允许对整数常量进行。如果我们的编译器不支持上述语法，则可以将初值放在定义时：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CostEstimate</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">double</span> FudgeFactor;  <span class="comment">//static class常量声明，位于头文件</span></span><br><span class="line">&#125;；</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> CostEstimate::FudgeFactor = <span class="number">1.35</span>;  <span class="comment">//static class常量定义，位于实现文件内</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这几乎是我们在任何时候唯一需要做的事。唯一例外是当我们在class编译期间需要一个class常量值，例如在上述的GamePlayer::scores的数组声明式中（编译器坚持必须在编译期间之道数组的大小）。这时候万一我们的编译器（错误地）不允许“static整数型class常量”完成“in class初值设定”，可改用所谓的“the enum hack”补偿做法。其理论基础是：“一个属于枚举类型的数值可当ints被使用，于是GamePlayer可定义如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GamePlayer</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">enum</span> &#123; NumTurns = <span class="number">5</span> &#125;;  <span class="comment">//"the enum hack"令NumTurns成为5的一个记号名称</span></span><br><span class="line">    <span class="keyword">int</span> scores[NumTurns];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;基于数个理由enum hack值得我们认识。第一，enum hack的行为某方面说比较像#define而不像const，有时候这正是我们想要的。例如取一个const的地址是合法的，但取一个enum的地址就不合法，而取一个#define的地址通常也不合法。如果我们不想让别人获得一个pointer或reference指向我们的某个整数常量，enum可以帮助我们实现这个约束。此外虽然优秀的编译器不会为“整数型const对象”设定另外的存储空间（除非我们创建一个pointer或reference指向该对象），不够优秀的编译器却可能如此，而这可能不是我们想要的。Enum和#define一样绝不会导致非必要的内存分配。</p>
-<p>&emsp;&emsp;认识enum hack的第二个理由纯粹是为了实用主义。许多代码用了它。事实上“enum hack”是template metaprogramming的基础技术。</p>
-<p>&emsp;&emsp;把焦点拉回预处理器。另一个常见的#define误用情况是以它实现宏（macros）。宏看起来像函数，但不会导致函数调用带来的额外开销。下面这个宏家呆着宏实参，调用函数f：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以a和b的较大值调用f</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CALL_WITH_MAX(a,b) f((a) &gt; (b) ? (a) : (b))</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这般长相的宏有着太多缺点，光是想到它们就让人痛苦不堪。</p>
-<p>&emsp;&emsp;无论何时当我们写出这种宏，我们必须记住为宏中的所有实参加上小括号，否则某些人在表达式中调用这个宏时可能会遭遇麻烦。但纵使我们为所有实参加上小括号，看看下面不可思议的事情：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">1</span>, b = <span class="number">0</span>;</span><br><span class="line">CALL_WITH_MAX(++a,b);     <span class="comment">//a被累加两次</span></span><br><span class="line">CALL_WITH_MAX(++a,b+<span class="number">10</span>);  <span class="comment">//a被累加一次</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;幸运的是我们可以避免这种无聊的事情发生。我们可以获得宏带来的效率以及一般函数的所有可预料行为和类型安全——只要我们写出template inline函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">callWithMax</span><span class="params">(<span class="keyword">const</span> T&amp; a, <span class="keyword">const</span> T&amp; b)</span> </span>&#123;</span><br><span class="line">    f(a &gt; b ? a : b);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个template产出一个组函数，每个函数都接受两个同型对象，并以其中较大者调用f。此外这里的callWithMax是个真正的函数，它遵循作用域和访问规则。例如我们绝对可以写出一个“class内的private inline函数”。一般而言宏无法完成此事。</p>
-<p>&emsp;&emsp;有了consts、enums和inlines，我们对于预处理器的需求降低了，但并非完全消除。#include仍然是必需品，而#ifdef／#ifndef也继续扮演着控制编译的重要角色。</p>
-<blockquote>
-<p>对于单纯变量，最好以const对象或enum替换#define。</p>
-<p>对于形似函数的宏，最好改用inline函数替换#define。</p>
-</blockquote>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-视C++为一个语言联邦" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/17/%E8%A7%86C++%E4%B8%BA%E4%B8%80%E4%B8%AA%E8%AF%AD%E8%A8%80%E8%81%94%E9%82%A6/">视C++为一个语言联邦</a>
-    </h1>
-  
-
-        
-        <a href="/2020/07/17/%E8%A7%86C++%E4%B8%BA%E4%B8%80%E4%B8%AA%E8%AF%AD%E8%A8%80%E8%81%94%E9%82%A6/" class="archive-article-date">
-  	<time datetime="2020-07-17T04:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="视C-为一个语言联邦"><a href="#视C-为一个语言联邦" class="headerlink" title="视C++为一个语言联邦"></a>视C++为一个语言联邦</h1><p>&emsp;&emsp;一开始，C++只是C加上一些面向对象特性。C++最初的名称C with Classes也反映了这个血缘关系。</p>
-<p>&emsp;&emsp;但是当这个语言逐渐成熟，它变得更活跃更无拘束，更大胆更冒险，开始接受不同于C with Classes的各种观念、特性和编程战略。Exception（异常）对函数的结构化带来不同的做法，templates（模板）将带来新的设计思考方式，STL则定义了一个全新的伸展性做法。</p>
-<p>&emsp;&emsp;今天的C++已经是一个多重范型编程语言，一个同时支持过程形式、面向对象形式、函数形式、泛型形式、元编程形式的语言。那么该如何理解这样的一个语言呢?</p>
-<p>&emsp;&emsp;最简单的方法是将C++视为一个由相关语言组成的联邦而非单一语言。在其某个次语言中，各种守则与通例都倾向简单、直观易懂、并且容易记住。然而从一个次语言移往另一个次语言，守则可能改变。所幸的是C++的次语言总共只有四个：</p>
-<ul>
-<li>C。说到底C++仍是以C为基础。区块、语句、预处理器、内置数据类型、数组、指针等统统来自C。许多时候C++对问题的解法其实不过就是较高级的C解法。</li>
-<li>Object-Oriented C++。这部分也就是C with Classes所诉求的：classes（包括构造函数和析构函数），封装、继承、多态、virtual函数（动态绑定）……等等。这一部分是面向对象设计之古典守则在C++上的最直接实施。</li>
-<li>Template C++。这是C++的泛型编程部分，也是大多数程序员经验最少的部分（C++程序员）。实际上由于templates威力强大，它带来了崭新的编程范式，也就是所谓的templates metaprogramming（TMP，模板元编程）。</li>
-<li>STL。STL是个tamplate程序库。它对容器、迭代器、算法以及函数对象的规约有极佳的紧密配合与协调。</li>
-</ul>
-<p>&emsp;&emsp;当我们从一个次语言切换到另一个，需要改变策略。例如对内置（也就是C-like）类型而言pass-by-value通常比pass-by-reference高效，但当我们从C part of C++移往Object-Oriented C++，由于用户自定义构造函数和析构函数的存在，pass-by-reference-to-const往往更好。然而一旦跨入STL就会了解，迭代器和函数对象都是在C指针之上塑造出来的，所以对STL的迭代器和函数对象而言，旧式的C pass-by-value守则在此之前适用。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/长篇大论//" class="article-tag-list-link color5">长篇大论</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/17/%E8%A7%86C++%E4%B8%BA%E4%B8%80%E4%B8%AA%E8%AF%AD%E8%A8%80%E8%81%94%E9%82%A6/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/4/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
+      <a class="extend prev" rel="prev" href="/page/4/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/">Next &amp;raquo;</a>
     </nav>
   
 
