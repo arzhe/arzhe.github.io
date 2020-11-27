@@ -200,6 +200,241 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/14/%E4%BA%86%E8%A7%A3%E9%9A%90%E5%BC%8F%E6%8E%A5%E5%8F%A3%E5%92%8C%E7%BC%96%E8%AF%91%E6%9C%9F%E5%A4%9A%E6%80%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/14/%E4%BA%86%E8%A7%A3%E9%9A%90%E5%BC%8F%E6%8E%A5%E5%8F%A3%E5%92%8C%E7%BC%96%E8%AF%91%E6%9C%9F%E5%A4%9A%E6%80%81/" class="post-title-link" itemprop="url">了解隐式接口和编译期多态</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-11-14 10:20:00 / Modified: 17:28:25" itemprop="dateCreated datePublished" datetime="2020-11-14T10:20:00+08:00">2020-11-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="了解隐式接口和编译期多态"><a href="#了解隐式接口和编译期多态" class="headerlink" title="了解隐式接口和编译期多态"></a>了解隐式接口和编译期多态</h1><p>&emsp;&emsp;面向对象编程世界总是以显式接口和运行期多态解决问题。举个例子子，给定这样（无意义）的class：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        Widget();</span><br><span class="line">        <span class="keyword">virtual</span> ~Widget();</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">normalize</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; other)</span></span>; </span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;和这样（也是无意义）的函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doProcessing</span><span class="params">(Widget&amp; w)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(w.<span class="built_in">size</span>() &gt; <span class="number">10</span> &amp;&amp; w != someNastyWidget) &#123;</span><br><span class="line">        <span class="function">Widget <span class="title">temp</span><span class="params">(w)</span></span>;</span><br><span class="line">        temp.normalize();</span><br><span class="line">        temp.swap(w);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我们可以这样说doProcessing内的w：</p>
+<ul>
+<li>由于w的类型被声明为Widget，所以w必须支持Widget接口。我们可以在源码中找出这个接口（例如在Widget的.h文件中），看看它是什么样子，所以我称此为一个显式接口，也就是它在源码中明确可见。</li>
+<li>由于Widget的某些成员函数是virtual，w对那些函数的调用将表现出运行期多态，也就是说将于运行期根据w的动态类型决定究竟调用哪一个函数。</li>
+</ul>
+<p>&emsp;&emsp;Template及泛型编程的世界，与面向对象有根本上的不同。在此世界中显式接口和运行期多态仍然存在，但重要性降低。反倒是隐式接口和编译期多态移到前头了。若想知道那是什么，看看当我们将doProcessing从函数转变成函数模版时发生什么事：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doProcessing</span><span class="params">(T&amp; w)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(w.<span class="built_in">size</span>() &gt; <span class="number">10</span> &amp;&amp; w != someNastyWidget) &#123;</span><br><span class="line">        <span class="function">T <span class="title">temp</span><span class="params">(w)</span></span>;</span><br><span class="line">        temp.normalize();</span><br><span class="line">        temp.swap(w);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在我们怎么说doProcessing内的w呢？</p>
+<ul>
+<li>w必须支持哪一种接口，系由template中执行于w身上的操作来决定。本例看来w的类型T好像必须支持size,normalize和swap成员函数、copy构造函数（用以建立temp）、不等比较（用来比较smeNasty-Widget）。我们很快会看到这并非完全正确，但对目前而言足够真实。重要的是，这一组表达式（对此template而言必须有效编译）便是T必须支持的一组隐式接口。</li>
+<li>凡涉及w的任何函数调用，例如operator&gt;和operator!=，有可能造成template具现化，使这些调用得以成功。这样的具现行为发生在编译期。“以不同的template参数具现化function template”会导致调用不同的函数，这便是所谓的编译期多态。</li>
+</ul>
+<p>&emsp;&emsp;纵使你从未用过template，应该不陌生“运行期多态”和“编译期多态”之间的差异，因为它类似于“哪一个重载函数该被调用”（发生在编译期）和“哪一个virtual函数该被绑定”（发生在运行期）之间的差异。显式接口和隐式接口的差异就比较新颖，需要更多更贴近的说明和解释。</p>
+<p>&emsp;&emsp;通常显示接口由函数的签名式（也就是函数名称、参数类型、返回类型）构成。例如Widget class：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        Widget();</span><br><span class="line">        <span class="keyword">virtual</span> ~Widget();</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">normalize</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; other)</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;其public接口由一个构造函数、一个析构函数、函数size，normalize，swap及其参数类型、返回类型、常量性构成。当然也包括编译器产生的copy构造函数和copy assignment操作符。另外也可以包括typedef。</p>
+<p>&emsp;&emsp;隐式接口就完全不同了。它并不基于函数签名式，而是由有效表达式组成。再次看看doProcessing template一开始的条件：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doProcessing</span><span class="params">(T&amp; w)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(w.<span class="built_in">size</span>() &gt; <span class="number">10</span> &amp;&amp; w != someNastyWidget) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;T（w的类型）的隐式接口看起来好像有这些约束：</p>
+<ul>
+<li>它必须提供一个名为size的成员函数，该函数返回一个整数值。</li>
+<li>它必须支持一个operator!=函数，用来比较两个T对象。这里我们假设someNastyWidget的类型是T。</li>
+</ul>
+<p>&emsp;&emsp;真要感谢操作符重载带来的可能性，这两个约束都不需要满足。是的，T必须支持size成员函数，然而这个函数也可能从base class继承而得。这个成员函数不需返回一个整数值，甚至不需返回一个数值类型。就此而言，它甚至不需要返回一个定义由operator&gt;的类型！它唯一需要做的是返回一个类型为X的对象，而X对象加上一个int（10的类型）必须能够调用一个operator&gt;。这个operator&gt;不需要非得取得一个类型为X的参数不可，因为它也可以取得类型Y的参数，只要存在一个隐式转换能够将类型X的对象转换为类型Y的对象！</p>
+<p>&emsp;&emsp;同样道理，T并不需要支持operator!=，因为以下这样也是可以的：operator!=接受一个类型为X的对象和一个类型为Y的对象，T可被转换为X而someNastyWidget的类型可被转换为Y，这样就可以有效调用operator!=。</p>
+<p>&emsp;&emsp;（偷偷告诉你，以上分析并未考虑这样的可能性：operator&amp;&amp;被重载，从一个连接词改变为或许完全不同的某种东西，从而改变上述表达式的意义。）</p>
+<p>&emsp;&emsp;当人们第一次以此种方式思考隐式接口，大多数的他们会感到头疼。但真的不需要阿司匹林来镇痛。隐式接口仅仅是由一组有效表达式构成，表达式自身可能看起来很复杂，但它们要求的约束条件一般而言相当直接又明确。例如一下条件式：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(w.<span class="built_in">size</span>() &gt; <span class="number">10</span> &amp;&amp; w != someNastyWidget) ...</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;关于函数size，operator&gt;，operator&amp;&amp;或operator!=身上的约束条件，我们很难就此说得太多，但整体确认表达式约束条件却很容易。if语句的条件式必须是个布尔表达式，所以无论涉及什么实际类型，无论“w.size() &gt; 10 &amp;&amp; w != someNastyWidget”导致什么，它都必须与bool兼容。这是template doProcessing加诸于其类型参数T的隐式接口的一部分。doProcessing要求其他隐式接口：copy构造函数、normalize和swap也都必须对T型对象有效。</p>
+<p>&emsp;&emsp;加诸于template参数身上的隐式接口，就像加诸于class对象身上的显式接口一样真实，而且两者都在编译期完成检查。就像你无法以一种“与class提供之显式接口矛盾”的方式来使用对象（代码将通不过编译），你也无法在template中使用“不支持template所要求之隐式接口”的对象（代码一样通不过编译）。</p>
+<blockquote>
+<ul>
+<li>class和template都支持接口和多态。</li>
+<li>对class而言接口是显式的，以函数签名为中心。多态则是通过virtual函数发生于运行期。</li>
+<li>对template参数而言，接口是隐式的，奠基于有效表达式。多态则是通过template具现化和函数重载解析发生于编译期。</li>
+</ul>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/13/%E6%98%8E%E6%99%BA%E8%80%8C%E5%AE%A1%E6%85%8E%E5%9C%B0%E4%BD%BF%E7%94%A8%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/13/%E6%98%8E%E6%99%BA%E8%80%8C%E5%AE%A1%E6%85%8E%E5%9C%B0%E4%BD%BF%E7%94%A8%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF/" class="post-title-link" itemprop="url">明智而审慎地使用多重继承</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-11-13 12:07:00 / Modified: 22:53:02" itemprop="dateCreated datePublished" datetime="2020-11-13T12:07:00+08:00">2020-11-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="明智而审慎地使用多重继承"><a href="#明智而审慎地使用多重继承" class="headerlink" title="明智而审慎地使用多重继承"></a>明智而审慎地使用多重继承</h1><p>&emsp;&emsp;一旦涉及多重继承（MI），C++社群便分为两个基本阵营。其中之一认为如果单一继承（SI）是好的，多重继承一定更好。另一派阵营则主张，单一继承是好的，但多重继承不值得拥有（或使用）。本条款的主要目的是带领大家了解多重继承的两个观点。</p>
+<p>&emsp;&emsp;最先需要认清的一件事是，当MI进入设计景框，程序有可能从一个以上的base class继承相同名称（如函数、typedef等等）。那会导致较多的歧义机会。例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BorrowableItem</span> &#123;</span>    <span class="comment">//图书馆允许你借某些东西</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">checkOut</span><span class="params">()</span></span>;  <span class="comment">//离开时进行检查</span></span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ElectronicGadget</span> &#123;</span></span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="function"><span class="keyword">bool</span> <span class="title">checkOut</span><span class="params">()</span> <span class="keyword">const</span></span>;  <span class="comment">//执行自我检测，返回是否测试成功</span></span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MP3Player</span> :</span> </span><br><span class="line">    <span class="keyword">public</span> BorrowableItem,</span><br><span class="line">    <span class="keyword">public</span> ElectronicGadget &#123; ... &#125;;</span><br><span class="line"></span><br><span class="line">MP3Player mp;</span><br><span class="line">mp.checkOut();  <span class="comment">//歧义！调用的是哪个checkOut？</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;注意此例之中对checkOut的调用是歧义（模棱两可）的，即使两个函数之中只有一个可取用（BorrowableItem内的checkOut是public，ElectronicGadget内的却是private）。这与C++用来解析重载函数调用的规则相符：在看到是否有个函数可取用之前，C++首先确认这个函数对此调用之言是最佳匹配。找出最佳匹配函数后才检验其可取用性。本例的两个checkOut有相同的匹配程度，没有所谓最佳匹配。因此ElectronicGadget::checkOut的可取用性也就从未被编译器审查。</p>
+<p>&emsp;&emsp;为了解决这个歧义，你必须明白指出你要调用哪一个base class内的函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mp.BorrowableItem::checkOut();  <span class="comment">//哎呀，原来是这个checkOut</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当然你也可以尝试明确调用ElectronicGadget::checkOut，但然后你会获得一个“尝试调用private成员函数”的错误。</p>
+<p>&emsp;&emsp;多重继承的意思是继承一个以上的base class，但这些base class并不常在继承体系中又有更高级的base class，因为那会导致要命的“钻石型多重继承”：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">File</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">InputFile</span> :</span> <span class="keyword">public</span> <span class="built_in">File</span> &#123; ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">OutputFile</span> :</span> <span class="keyword">public</span> <span class="built_in">File</span> &#123; ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IOFile</span> :</span> <span class="keyword">public</span> InputFile, <span class="keyword">public</span> OutputFile &#123; ... &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;任何时候如果你有一个继承体系而其中某个base class和某个derived class之间有一条以上的相通路线（就像上述File和IOFile之间有两条路径，分别穿越InputFile和OutputFile），你就必须面对这样一个问题：是否打算让base class内的成员变量经由每一条路径被复制？假设File class有个成员变量fileName，那么IOFile内该有多少笔这个名称的数据呢？从某个角度说，IOFile从其每一个base class继承一份，所以其对象内应该有两份fileName成员变量。但从另一个角度说，简单的逻辑告诉我们，IOFile对象只该有一个文件名称，所以它继承自两个base class而来的fileName不该重复。</p>
+<p>&emsp;&emsp;C++在这场辩论中并没有倾斜立场；两个方案它都支持——虽然其缺省做法是执行复制（也就是上一阶段所说的第一个做法）。如果那不是你要的，你必须令那个带有此数据的class（也就是File）成为一个virtual base class。为了这样做，你必须令所有直接继承自它的class采用“virtual继承”：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">File</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">InputFile</span> :</span> <span class="keyword">virtual</span> <span class="keyword">public</span> <span class="built_in">File</span> &#123; ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">OutputFile</span> :</span> <span class="keyword">virtual</span> <span class="keyword">public</span> <span class="built_in">File</span> &#123; ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IOFile</span> :</span> <span class="keyword">public</span> InputFile, <span class="keyword">public</span> OutputFile &#123; ... &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;C++标准程序库内含一个多重继承体系，其结构就如上述那样，只不过其class其实是class template，名称分别是basic_ios，basic_istream，basic_ostream和basic_iostream，而非这里的File，InputFile，OutputFile和IOFile。</p>
+<p>&emsp;&emsp;从正确行为的观点看，public继承应该总是virtual。如果这是唯一一个观点，规则很简单：任何时候当你使用public继承，请改用virtual public继承。但是，啊呀，正确性并不是唯一观点。为避免继承得来的成员变量重复，编译器必须提供若干幕后戏法，而其后果是：使用virtual继承的那些class所产生的对象往往比使用non-virtual继承的兄弟们体积大，访问virtual base class的成员变量时，也比访问non-virtual base class的成员变量速度慢。种种细节因编译器不同而异，但基本重点很清楚：你得为virtual继承付出代价。</p>
+<p>&emsp;&emsp;virtual继承的成本还包括其他方面。支配“virtual base class初始化”的规则比起non-virtual base的情况远为复杂且不直观。virtual base的初始化责任是由继承体系中的最低层class负责，这暗示（1）class若派生自virtual base而需要初始化，必须认知其virtual base——不论那些base距离多远，（2）当一个新的derived class加入继承体系中，它必须承担其virtual base（不论直接或间接）的初始化责任。</p>
+<p>&emsp;&emsp;我对virtual base class（也相当于对virtual继承）的忠告很简单。第一，非必要不使用virtual base。平常请使用non-virtual继承。第二，如果你必须使用virtual base class，尽可能避免在其中放置数据。这么一来你就不需担心这些class身上的初始化（和赋值）所带来的诡异事情了。Java和.NET的Interface值得注意，它在许多方面兼容于C++的virtual base class，而且也不允许含有任何数据。</p>
+<p>&emsp;&emsp;现在让我们看看下面这个用来塑模“人”的C++Interface class：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">virtual</span> ~IPerson();</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">birthDate</span><span class="params">()</span> cosnt </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;IPerson的客户必须以IPerson的的pointer和reference来编写程序，因为抽象class无法被实体化创建对象。为了创建一些可被当作IPerson来使用的对象，IPerson的客户使用factory function（工厂函数）将“派生自IPerson的具象class”实体化：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;IPerson&gt; <span class="title">makePerson</span><span class="params">(DatabaseID personIdentifier)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//这个函数从使用者手上取得一个数据库ID</span></span><br><span class="line"><span class="function">DatabaseID <span class="title">id</span><span class="params">(askUserForDatabaseID())</span></span>;</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;IPerson&gt; <span class="title">pp</span><span class="params">(makePerson(id))</span></span>;  <span class="comment">//创建一个对象支持IPerson接口，</span></span><br><span class="line">                                              <span class="comment">//藉由IPerson成员函数处理*pp。</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;但是makePerson如何创建对象并返回一个指针指向它呢？无疑地一定有某些派生自IPerson的具象class，在其中makePerson可以创建对象。</p>
+<p>&emsp;&emsp;假设这个class名为CPerson。就像具象class一样，CPerson必须提供“继承自IPerson”的pure virtual函数的实现代码。我们可以从无到有写出这些东西，但更好的是利用既有组件，后者做了大部分或所有必要事情。例如，假设有个既有的数据库相关class，名为PersonInfo，提供CPeron所需要的实质东西：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PersonInfo</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">PersonInfo</span><span class="params">(DatabaseID pid)</span></span>;</span><br><span class="line">        <span class="keyword">virtual</span> ~PersonInfo();</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">theName</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">theBirthDate</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">valueDelimOpen</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">valueDelimClose</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;你可以说这是个旧式class，因为其成员函数返回const char*而不是string对象。尽管如此，如果鞋子合脚，干嘛不穿它？这个class的成员函数的名称已经暗示我们其结果有可能很令人满意。</p>
+<p>&emsp;&emsp;你会发现，PersonInfo被设计用来协助以各种格式打印数据库字段，每个字段值的起始点和结束点以特殊字符串为界。缺省的头尾界限符号是方括号（中括号），所以（例如）字段值“Ring-tailed Lemur”被格式化为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Ring-tailed Lemur]</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;但由于方括号并非放之四海人人喜爱的界限符号，所以两个virtual函数valueDelimOpen和valueDelimClose允许derived class设定它们自己的头尾界限符号。PersonInfo成员函数将调用这些virtual函数，把适当的界限符号添加到它们的返回值上。以PersonInfo::theName为例，代码看起来像这样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">PersonInfo::valueDelimOpen</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"["</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">PersonInfo::valueDelimClose</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"]"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">PersonInfo::theName</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    <span class="comment">//保留缓冲区给返回值使用；由于缓冲区是static，因此会被自动初始化为“全部是0”</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">char</span> value[Max_Formatted_Field_Value_Length];</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//写入起始符号</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">strcpy</span>(value, valueDelimOpen());</span><br><span class="line">    <span class="comment">//现在，将value内的字符串添附到这个对象的name成员变量中（小心，避免缓冲区超限）</span></span><br><span class="line">    <span class="comment">//写入结尾符号</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">strcat</span>(value, valueDelimClose());</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;或许有人质疑PersonInfo::theName的老旧设计（特别是它竟然使用固定大小的static缓冲区，那将充斥超限问题和线程问题），但是不妨暂时把这样的疑问放两旁，把以下焦点摆中间：theName调用valueDelimOpen产生字符串起始符号，然后产生name值，然后调用valueDelimClose。由于valueDelimOpen和valueDelimClose都是virtual函数，theName返回的结果不仅取决于PersonInfo也取决于从PersonInfo派生下去的class。</p>
+<p>&emsp;&emsp;身为CPerson实现者，这是个好消息，因为仔细阅读IPerson文档后，你发现name和birthDate两函数必须返回未经装饰（不带起始符号和结尾符号）的值。也就是说如果有人名为Homer，调用其name函数理应获得“Homer”而不是“[Homer]”。</p>
+<p>&emsp;&emsp;CPerson和PersonInfo的关系是，PersonInfo刚好有若干函数可帮助CPerson比较容易实现出来。就这样。它们的关系因此是is-implemented-in-terms-of（根据某物实现出），而我们知道这种关系可以两种技术实现：复合和private继承。复合通常是较受欢迎的做法，但如果需要重新定义virtual函数，那么继承是必要的。本例之中CPerson需要重新定义valueDelimOpen和valueDelimClose，所以单纯的复合无法应付。最直接的解法就是令CPerson以private形式继承PersonInfo。CPerson也可以结合“复合+继承”技术以求有效重新定义PersonInfo的virtual函数。此处我将使用private继承。</p>
+<p>&emsp;&emsp;但CPerson也必须实现IPerson接口，那需得以public继承才能完成。这导致多重继承的一个通情达理的应用：将“public继承自某接口”和“private继承自某实现”结合在一起：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IPerson</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">virtual</span> ~IPerson();</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">birthDate</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DatabaseID</span> &#123;</span> ... &#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PersonInfo</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">PersonInfo</span><span class="params">(DatabaseID pid)</span></span>;</span><br><span class="line">        <span class="keyword">virtual</span> ~PersonInfo();</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">theName</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">theBirthDate</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">valueDelimOpen</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">valueDelimClose</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CPerson</span> :</span> <span class="keyword">public</span> IPerson, <span class="keyword">private</span> PersonInfo &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">CPerson</span><span class="params">(DatabaseID pid)</span> : <span class="title">PersonInfo</span><span class="params">(pid)</span> </span>&#123;&#125;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> PersonInfo::theName();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">birthDate</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> PersonInfo::theBirthDate();</span><br><span class="line">        &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">valueDelimOpen</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> <span class="string">""</span>; &#125;</span><br><span class="line">        <span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">valueDelimClose</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> <span class="string">""</span>; &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个例子告诉我们，多重继承也有它的合理用途。</p>
+<p>&emsp;&emsp;故事结束前，请容我说，多重继承只是面向对象工具箱里的一个工具而已。和单一继承比较，它通常比较复杂，使用上也比较难以理解，所以如果你有个单一继承的设计方案，而它大约等价于一个多重继承设计方案，那么单一继承设计方案几乎一定比较受欢迎。如果你唯一能够提出的设计方案涉及多重继承，你应该更努力想一想——几乎可以说一定会有某些方案让单一继承行得通。然而多重继承有时候的确是完成任务之最简洁、最易维护、最合理的做法，果真如此就别害怕使用它。只要确定，你的确是在明智而审慎地情况下使用它。</p>
+<blockquote>
+<ul>
+<li>多重继承比单一继承复杂。它可能导致新的歧义性，以及对virtual继承的需要。</li>
+<li>virtual继承会增加大小、速度、初始化（及赋值）复杂度等等成本。如果virtual base class不带任何数据，将是最具实用价值的情况。</li>
+<li>多重继承的确有正当用途。其中一个情节涉及“public继承某个Interface class”和“private继承某个协助实现的class”的两相组合。</li>
+</ul>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/12/%E6%98%8E%E6%99%BA%E8%80%8C%E5%AE%A1%E6%85%8E%E5%9C%B0%E4%BD%BF%E7%94%A8private%E7%BB%A7%E6%89%BF/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1124,295 +1359,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/18/pkg-config/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/09/18/pkg-config/" class="post-title-link" itemprop="url">pkg-config</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-09-18 15:55:00" itemprop="dateCreated datePublished" datetime="2020-09-18T15:55:00+08:00">2020-09-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-25 16:33:16" itemprop="dateModified" datetime="2020-09-25T16:33:16+08:00">2020-09-25</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%9D%82%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">杂记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="pkg-config详解"><a href="#pkg-config详解" class="headerlink" title="pkg-config详解"></a>pkg-config详解</h1><h2 id="什么是pkg-config"><a href="#什么是pkg-config" class="headerlink" title="什么是pkg-config"></a>什么是pkg-config</h2><p>&emsp;&emsp;Pkg-config是一个linux下的命令，用于获取某一个库／模块的所有编译相关的信息。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkg-config opencv --libs --cflags</span><br></pre></td></tr></table></figure>
-
-<p>结果是解析出了所有该库的头文件以及链接库</p>
-<h2 id="为什么要有pkg-config"><a href="#为什么要有pkg-config" class="headerlink" title="为什么要有pkg-config"></a>为什么要有pkg-config</h2><p>&emsp;&emsp;就上述列子来看，所有用到opencv的其他程序，在编译时，只需要写出<code>pkg-config opencv --libs --cflags</code>，而不需要自己去找opencv的头文件以及库文件在哪。</p>
-<p>&emsp;&emsp;如果你写了一个库，不管是静态的还是动态的，要提供给第三方使用，那除了给人家库／头文件，最好也写一个pc文件（package configure是库配置文件，保存在PKG_CONFIG_PATH = xxx。pc文件保存了该库的头文件、库所在的路径信息。GCC等编译器编译时，比如编译某个工程用到glib-2.0这个库，pkg-config会按照PKG_CONFIG_PATH中的路径进行搜索glib-2.0.pc，然后把glib-2.0.pc作为参数传给GCC，那么GCC就可以找到该库了），这样别人使用就方便很多，不用自己再动手写依赖了你哪些库，只需要敲一个<code>pkg-config [YOUR_LIB] --libs --cflag</code>。</p>
-<h2 id="pkg-config的信息从哪里来"><a href="#pkg-config的信息从哪里来" class="headerlink" title="pkg-config的信息从哪里来"></a>pkg-config的信息从哪里来</h2><p>&emsp;&emsp;有两种途径：</p>
-<ol>
-<li>取系统的/usr/lib下的所有*.pc文件。</li>
-<li>PKG_CONFIG_PATH环境变量所指向的路径下的所有*.pc文件。</li>
-</ol>
-<p>&emsp;&emsp;这些pc文件什么时候有的？</p>
-<p>&emsp;&emsp;都是在你安装某个库／模块的时候添加的。比如你往系统里面安装opencv时，就会在/usr/lib64/pkgconfig目录下，放一个opencv.pc。比如我个人电脑上就没有pc文件，那么pc文件到底写了什么？</p>
-<p>&emsp;&emsp;以我本人的电脑为例，在/usr/lib64/pkgconfig目录下有一个lua.pc文件，其内容如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">V&#x3D;5.1</span><br><span class="line">R&#x3D;5.1.4</span><br><span class="line">prefix&#x3D;&#x2F;usr</span><br><span class="line">exe_prefix&#x3D;$&#123;prefix&#125;</span><br><span class="line">libdir&#x3D;&#x2F;usr&#x2F;lib64</span><br><span class="line">includedir&#x3D;$&#123;prefix&#125;&#x2F;include</span><br><span class="line"></span><br><span class="line">Name: Lua</span><br><span class="line">Description: An Extensible Extension Language</span><br><span class="line">Version: $&#123;R&#125;</span><br><span class="line">Requires: </span><br><span class="line">Libs: -llua -lm -ldl</span><br><span class="line">Cflags: -I$&#123;includedir&#125;</span><br></pre></td></tr></table></figure>
-
-<p>当我在本地电脑上面输入如下命令行：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkg-config lua --libs --cflags</span><br></pre></td></tr></table></figure>
-
-<p>显示出如下：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-llua -lm -ldl</span><br></pre></td></tr></table></figure>
-
-<h2 id="如何添加自己的pc文件"><a href="#如何添加自己的pc文件" class="headerlink" title="如何添加自己的pc文件"></a>如何添加自己的pc文件</h2><p>&emsp;&emsp;如上文所说，有2种方式：</p>
-<ol>
-<li><p>把你的pc文件，直接放在/usr/lib64/pkgconfig…默认路径下。</p>
-</li>
-<li><p>把你的pc文件的路径写到PKG_CONFIG_PATH环境变量里。比如，你可以在/etc/.bashrc或者/home/[your count]/.bashrc的文件末尾添加：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PKG_CONFIG_PATH=$PGK_CONFIG_PATH:/home/[your count]/[your project]/lib/pkgconfig</span><br><span class="line">export PKG_CONFIG_PATH</span><br></pre></td></tr></table></figure>
-
-<p>那么，pkg-config就会到该目录下寻找*.pc文件。</p>
-<p>那么这个pc文件何时生效呢？</p>
-<p>如果是/usr/lib64/pkgconfig下，立马生效！！！</p>
-<p>如果在环境变量里，只要先source ~/.bashrc一下，让环境变量生成，也立马生效。</p>
-</li>
-</ol>
-<h2 id="如何自己写pkg-config的pc文件"><a href="#如何自己写pkg-config的pc文件" class="headerlink" title="如何自己写pkg-config的pc文件"></a>如何自己写pkg-config的pc文件</h2><p>&emsp;&emsp;其实很简单，只需要拿别人的pc文件改一改就行了。</p>
-<p>&emsp;&emsp;pc文件的所有参数：</p>
-<ul>
-<li><p>Name：该模块的的名字，比如你的pc名字是xxx.pc，那么名字最好也是xxx。</p>
-</li>
-<li><p>Description：模块的简单描述。<code>pkg-config --list-all</code>该命令可以查看到所有的模块信息，该命令的结果，每个模块的名字后面就是description。</p>
-</li>
-<li><p>URL：用户可以通过该URL获得更多的信息，或者下载信息。也是辅助的，可要可不要。</p>
-</li>
-<li><p>Version：版本号。</p>
-</li>
-<li><p>Requires：该模块有没有依赖其他模块。一般没有。</p>
-</li>
-<li><p>Requires.private：该模块有没有依赖其他模块，并且还不需要第三方知道的。一般也没有。</p>
-</li>
-<li><p>Conflicts：有没有和别的模块冲突。常用于版本冲突。比如，Confilcts: opencv &lt; 1.0.0，表示和opencv模块的1.0.0以下的版本有冲突。</p>
-</li>
-<li><p>Cflags：这个就很重要了。pkg-config的参数<code>--cflags</code>就指向这里。主要用于写本模块的头文件路径。</p>
-</li>
-<li><p>Libs：也很重要，pkg-config的参数<code>--libs</code>就指向这里。主要用于写本模块的库／依赖库的路径。</p>
-</li>
-<li><p>Libs.private：本模块依赖的库，但不需要第三方知道。</p>
-</li>
-</ul>
-<p>其实必须写的只有5个：Name、Description、Version、Cflags、Libs。</p>
-<p>举个例子。一个动态库，一个静态库。</p>
-<p>例子1:动态库的pc文件。</p>
-<p>假设我写了libfoo.so，我的库会被安装到/usr/local/lib/，头文件会放到/usr/local/include/。那么pc文件可以这样写：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">prefix&#x3D;&#x2F;usr&#x2F;local</span><br><span class="line">exe_prefix&#x3D;$&#123;prefix&#125;</span><br><span class="line">includedir&#x3D;$&#123;prefix&#125;&#x2F;include</span><br><span class="line">libdir&#x3D;$&#123;prefix&#125;&#x2F;lib</span><br><span class="line"></span><br><span class="line">Name: foo</span><br><span class="line">Description: The foo library</span><br><span class="line">Version: 1.0.0</span><br><span class="line">Cflags: -I$&#123;includedir&#125;&#x2F;</span><br><span class="line">Libs: -L$&#123;libdir&#125; -lfoo</span><br></pre></td></tr></table></figure>
-
-<p>例子2:静态库的pc文件</p>
-<p>静态库链接动态库时，如何使用该静态库，如果我有个静态库libXXX.a，它依赖了很多其他动态库libAA.so，libBB.so，那么第三方程序要使用libXXX.a时，编译时还得链接libAA.so，libBB.so。为了让第三方程序不用操心我这个libXXX.a到底依赖了什么，可以为我的libXXX.a写一个pc文件。路径位于工程的文件下的lib/pkgconfig/。之后唯一需要做的就是把这些pc文件的路径，写到PKG_CONFIG_PATH。</p>
-<p>在/home/parallels/.bashrc内添加</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PKG_CONFIG_PATH=$PKG_CONFIG_PATH:[your path]</span><br><span class="line">export PKG_CONFIG_PATH</span><br></pre></td></tr></table></figure>
-
-<p>然后<code>source /home/parallels/.bashrc</code>，最后就可以使用了！</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/" class="post-title-link" itemprop="url">关于GNU make工具的汇总（3）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-09-14 16:32:00" itemprop="dateCreated datePublished" datetime="2020-09-14T16:32:00+08:00">2020-09-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 13:13:16" itemprop="dateModified" datetime="2020-09-27T13:13:16+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="Makefile规则"><a href="#Makefile规则" class="headerlink" title="Makefile规则"></a>Makefile规则</h1><h2 id="规则语法"><a href="#规则语法" class="headerlink" title="规则语法"></a>规则语法</h2><p>&emsp;&emsp;通常规则的语法格式如下：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">TARGETS: PREQUISITES</span></span><br><span class="line">    COMMAND</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
-
-<p>或者：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">TARGETS: PREQUISITES; COMMAND</span></span><br><span class="line">    COMMAND</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
-
-<p>书写规则时，需要注意以下几点：</p>
-<ol>
-<li><p>规则的命令部分有两种书写方式：a.命令可以和目标：依赖描述放在同一行。命令在依赖文件列表后并使用分号（；）和依赖文件列表分开。b.命令在目标：依赖描述的下一行。作为独立的命令行。</p>
-<p>当作为独立的命令行时此行必须以“TAB”字符开始。在Makefile中，在第一个规则之后出现的所有以“TAB”字符开始的行都会被当作命令来处理。</p>
-</li>
-<li><p>Makefile中符号“$”有特殊的含义（表示变量或者函数的引用），在规则中需要用到符号“$”的地方，需要书写两个连续的（“$$”）。</p>
-</li>
-<li><p>前边已提到过，对于Makefile中一个较长的行，我们可以使用反斜线“\”将其书写到几个独立的行上。虽然make对Makefile文本行的最大长度是没有限制的，但还是建议这样做。</p>
-</li>
-</ol>
-<p>规则的中心思想是：目标文件的内容是由依赖文件决定的，依赖文件的任何一处改动，将导致目前已经存在的目标文件的内容过期。规则的命令为重建目标提供了方法，这些命令运行在系统shell之上。</p>
-<h2 id="依赖的类型"><a href="#依赖的类型" class="headerlink" title="依赖的类型"></a>依赖的类型</h2><p>&emsp;&emsp;有时候，需要定义一个这样的规则，在更新目标（目标文件已经存在）时只需要根据依赖文件中的部分来决定目标是否需要被重建，而不是在依赖文件里的任何一个被修改后都重建目标。为了实现这一目的，相应的就需要对规则的依赖就行分类，一类是在这些依赖文件被更新后，需要更新规则的目标；另一类是更新这些依赖后，可以不需要更新规则的目标。我们把第二类称为：“ordered-only”依赖。书写规则时，“ordered-only”依赖使用管道符号“|”开始，作为目标的一个依赖文件。规则依赖列表中管道符号“|”左边是常规依赖，管道右边的就是“ordered-only”依赖。这样的规则书写格式如下：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">TARGETS: NORMAL-PREREQUISITES | ORDER-ONLY-PREREQUISITES</span></span><br></pre></td></tr></table></figure>
-
-<p>这样的规则中常规依赖文件可以是空；同样也可以对一个目标就行多次追加依赖。注意：规则依赖文件列表中如果一个文件同时出现在常规列表和“ordered-only”列表中，那么此文件被作为常规依赖处理（因为常规依赖所实现的动作是“ordered-only”依赖所实现的动作的一个超集）。</p>
-<h2 id="通配符存在的缺陷"><a href="#通配符存在的缺陷" class="headerlink" title="通配符存在的缺陷"></a>通配符存在的缺陷</h2><p>&emsp;&emsp;在我们的Makefile中，期望能够根据所有的.o文件生成可执行文件“demo”：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">objects = *.o</span><br><span class="line"></span><br><span class="line"><span class="section">demo: <span class="variable">$(objects)</span></span></span><br><span class="line">    cc -o demo <span class="variable">$(CFLAGS)</span> <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
-
-<p>这里变量“objects”的值是一个字符串“*.o”。在重建“demo”的规则中对变量“objects”进行展开，目标“demo”的依赖就是“*.o”，即所有的.o文件列表。如果在工作目录下已经存在必需的.o文件，那么这些.o文件将成为目标的依赖文件，目标“demo”将根据规则重建。</p>
-<p>&emsp;&emsp;但是如果将工作目录下的所有.o文件删除，重新执行make将会得到一个类似于“没有创建*.0文件的规则”的错误提示。这当然不是我们想要的结果。为了达到我们想要的结果，在对变量进行定义时需要使用一些高级的技巧，包括使用“wildcard”函数（定义为“objects =$(wildcard *.o)”）和字符串的置换。</p>
-<h2 id="函数wildcard"><a href="#函数wildcard" class="headerlink" title="函数wildcard"></a>函数wildcard</h2><p>&emsp;&emsp;在规则中，通配符会被自动展开。但在变量的定义和函数引用时，通配符将失效。这种情况下如果需要通配符有效，就需要使用“wildcard”，它的用法是：$(wildcard PATTERN…)。在Makefile中，它被展开为已经存在的、使用空格分开的、匹配此模式的所有文件列表。但如果不存在任何符合此模式的文件，函数会忽略模式字符并返回空。</p>
-<p>&emsp;&emsp;一般来说，我们可以使用“$(wildcard *.c)”来获取工作目录下的所有的.c文件列表。复杂一些的用法，可以使用“$(patsubst %.c,%.o,$(wildcard *.c))”，首先使用“wildcard”函数获取工作目录下的.c文件列表；之后将列表中所有文件名的后缀.c替换为.o。这样我们就可以得到在当前目录下可生成的.o文件列表。因此在一个目录下可以使用如下内容的Makefile来将工作目录下的所有.c文件进行编译并最后连接成为一个可执行文件：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#sample Makefile</span></span><br><span class="line">objects := <span class="variable">$(<span class="built_in">patsubst</span> %.c,%.o,$(<span class="built_in">wildcard</span> *.c)</span>)</span><br><span class="line"></span><br><span class="line"><span class="section">foo: <span class="variable">$(objects)</span></span></span><br><span class="line">    cc -o foo <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里使用了make的隐含规则来编译.c的源文件。</p>
-<h2 id="Makefile伪命令"><a href="#Makefile伪命令" class="headerlink" title="Makefile伪命令"></a>Makefile伪命令</h2><p>&emsp;&emsp;伪目标：它不代表一个真正的文件名，在执行make时可以指定这个目标来执行其所在规则定义的命令，有时也可以将一个伪目标称为一个标签。使用伪目标有两个原因：</p>
-<ol>
-<li>避免在我们的Makefile中定义的只执行命令的目标和工作目录下的实际文件名出线名字冲突。</li>
-<li>提高执行make时的效率，特别是对一个大型的工程来说，编译的效率我们同时关心。</li>
-</ol>
-<p>以下就这两个问题我们进行分析讨论：</p>
-<ol>
-<li><p>如果我们需要编写这样的一个规则：规则所定义的命令不是去创建目标文件，而是通过make命令行指定它来执行一些特定的命令。像很常见的clean目标:</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm *.o temp</span><br></pre></td></tr></table></figure>
-
-<p>规则中“rm”不是创建文件“clean”的命令，而是删除当前目录下的所有.o文件和temp文件。当工作目录下不存在“clean”这个文件时，我们输入“make clean”，“rm *.o temp”总会被执行，这是我们的初衷。</p>
-<p>&emsp;&emsp;但是如果当前工作目录下存在文件“clean”，情况就不一样了，同样我们输入“make clean”，由于这个规则没有任何依赖文件，所以目标被认为是最新的而不去执行规则所定义的命令，因此“rm”命令不会被执行。这并不是我们的初衷。为了解决这个问题，我们需要将目标“clean”声明为伪目标。如下：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br></pre></td></tr></table></figure>
-
-<p>这样目标“clean”就被声明为一个伪目标，无论在当前目录下是否存在“clean”这个文件，我们输入“make clean”之后，“rm”命令都会被执行。而且，当一个目标被声明为伪目标后，make在执行此规则时不会去试图查找隐含规则来创建它。其完整格式如下：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm *.o temp</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>伪目标的另一种使用场合是在make的并行和递归执行过程中。此情况下一般会存在一个变量，定义为所有需要make的子目录。对多个目录进行make对实现方式可以是：在一个规则的命令行中使用shell循环来完成。如下：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SUBDIR = one two three</span><br><span class="line"></span><br><span class="line"><span class="section">subdirs:</span></span><br><span class="line">    for dir in <span class="variable">$(SUBDIR)</span>; do\</span><br><span class="line">        <span class="variable">$(MAKE)</span> -C $$dir;\</span><br><span class="line">    done</span><br></pre></td></tr></table></figure>
-
-<p>但这种实现方法存在以下几个问题。1.当子目录执行make出现错误时，make不会退出。也就是说，在对某一个目录执行make失败后，会继续对其他的目录进行make。在最终执行失败的情况下，我们很难根据错误提示定位出具体是在哪个目录下执行make时发生错误。2.另一个问题就是使用这种shell的循环方式时，没有用到make对目录的并行处理功能，由于规则的命令是一条完整的shell命令，不能被并行处理。</p>
-<p>有了为目标后，我们可以用它来克服上述2个问题：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SUBDIRS = one two three</span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: subdirs $(SUBDIRS)</span></span><br><span class="line"><span class="section">subdirs: <span class="variable">$(SUBDIRS)</span></span></span><br><span class="line"><span class="variable">$(SUBDIRS)</span>:</span><br><span class="line">    <span class="variable">$(MAKE)</span> -C <span class="variable">$@</span></span><br><span class="line"><span class="section">one: two</span></span><br></pre></td></tr></table></figure>
-
-<p>上述的实现中有一个没有命令行的规则“one: two”，此规则用来限制子目录的make顺序。</p>
-<p>&emsp;&emsp;一般情况下，一个伪目标不作为另外一个目标的依赖。这是因为当一个目标文件的依赖包含伪目标时，每一次在执行这个规则时伪目标所定义的命令都会被执行。当一个伪目标没有作为任何目标的依赖时，我们只能通过make的命令行来指定它为make的终极目标，来执行它所在规则所定义的命令。例如“make clean”。</p>
-<p>&emsp;&emsp;在Makefile中，一个伪目标可以有自己的依赖（可以是一个或者多个文件、一个或者多个伪目标）。在一个目录下如果需要创建多个可执行程序，我们可以将所有程序的重建规则在一个Makefile中描述。因为Makefile中第一个目标是“终极目标”，约定的做法是使用一个“all”的伪目标来作为终极目标，它的依赖文件就是那些需要创建的程序，以下就是一个例子：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">all: one two three</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: all</span></span><br><span class="line"></span><br><span class="line"><span class="section">one: one.o func.o</span></span><br><span class="line">    cc -o one one.o func.o</span><br><span class="line"><span class="section">two: two.o func.o</span></span><br><span class="line">    cc -o two two.o func.o</span><br><span class="line"><span class="section">three: three.o func.o</span></span><br><span class="line">    cc -o three three.o func.o</span><br></pre></td></tr></table></figure>
-
-<p>执行make时，目标“all”被作为终极目标。为了完成对它的更新，make会创建或者重建目标“all”的所有依赖文件。当需要单独更新某一个程序时，我们可以通过make的命令行选项来目前指定需要重建的程序（例如：“make one”）。</p>
-<p>&emsp;&emsp;当一个伪目标作为另一个伪目标的依赖时，make将其作为另外一个伪目标的子例程来处理（就跟C语言中的函数调用一样）。下面就是这个做法的例子：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: cleanall cleanobj cleandiff</span></span><br><span class="line"><span class="section">cleanall: cleanobj cleandiff</span></span><br><span class="line">    rm program</span><br><span class="line"><span class="section">cleanobj:</span></span><br><span class="line">    rm *.o</span><br><span class="line"><span class="section">cleandiff:</span></span><br><span class="line">    rm *.diff</span><br></pre></td></tr></table></figure>
-
-<p>我们可以输入“make cleanall”和“make cleanobj”和“make cleandiff”命令来达到清除不同种类文件的目的。</p>
-<p>&emsp;&emsp;说明：</p>
-<p>&emsp;&emsp;通常在清除文件的伪目标所定义的命令中“rm”使用选项“-f（–force）”来防止在缺少删除文件时出错并退出。也可以在“rm”之前加上“-”来防止“rm”错误退出，使用这个方法时make会提示错误信息但不会退出。为了不看到这些讨厌的信息，需要使用上述第一种方式。</p>
-<p>&emsp;&emsp;另外make存在一个内嵌的隐含变量“RM”。它被定义为：“RM=rm -f”。因此在书写“clean”规则的命令时可以使用变量“$(RM)”来替代“rm”。</p>
-</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1483,7 +1429,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

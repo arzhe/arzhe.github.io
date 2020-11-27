@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="什么是new-handler？&amp;emsp;&amp;emsp;在调用operator new动作时，如果没有满足要求的内存可供分配，该动作会抛出一个异常。而在此“抛出异常”动作之前，它operator new会先调用一个客户指定的错误处理函数，也就是所谓的new-handler。（其实operator new正真做的事情稍微更加复杂些）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="对new-handler这一技术的探讨">
+<meta property="og:url" content="http://yoursite.com/2020/11/23/%E5%AF%B9new-handler%E8%BF%99%E4%B8%80%E6%8A%80%E6%9C%AF%E7%9A%84%E6%8E%A2%E8%AE%A8/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="什么是new-handler？&amp;emsp;&amp;emsp;在调用operator new动作时，如果没有满足要求的内存可供分配，该动作会抛出一个异常。而在此“抛出异常”动作之前，它operator new会先调用一个客户指定的错误处理函数，也就是所谓的new-handler。（其实operator new正真做的事情稍微更加复杂些）。">
+<meta property="article:published_time" content="2020-11-23T12:41:00.000Z">
+<meta property="article:modified_time" content="2020-11-27T14:09:51.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/11/23/%E5%AF%B9new-handler%E8%BF%99%E4%B8%80%E6%8A%80%E6%9C%AF%E7%9A%84%E6%8E%A2%E8%AE%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>对new-handler这一技术的探讨 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/23/%E5%AF%B9new-handler%E8%BF%99%E4%B8%80%E6%8A%80%E6%9C%AF%E7%9A%84%E6%8E%A2%E8%AE%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          对new-handler这一技术的探讨
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-11-23 20:41:00" itemprop="dateCreated datePublished" datetime="2020-11-23T20:41:00+08:00">2020-11-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-11-27 22:09:51" itemprop="dateModified" datetime="2020-11-27T22:09:51+08:00">2020-11-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="什么是new-handler？"><a href="#什么是new-handler？" class="headerlink" title="什么是new-handler？"></a>什么是new-handler？</h1><p>&emsp;&emsp;在调用operator new动作时，如果没有满足要求的内存可供分配，该动作会抛出一个异常。而在此“抛出异常”动作之前，它operator new会先调用一个客户指定的错误处理函数，也就是所谓的new-handler。（其实operator new正真做的事情稍微更加复杂些）。</p>
+<a id="more"></a>
+
+<h1 id="使用new-handler的一个简单实例"><a href="#使用new-handler的一个简单实例" class="headerlink" title="使用new-handler的一个简单实例"></a>使用new-handler的一个简单实例</h1><p>&emsp;&emsp;为了指定这个“用以处理内存不足”的函数，客户必须调用set_new_handler，这是声明于&lt;new&gt;的一个标准程序库函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*new_handler)</span> <span class="params">()</span></span>;                      <span class="comment">//new_handler是个函数指针</span></span><br><span class="line">    <span class="function">new_handler <span class="title">set_new_handler</span><span class="params">(new_handler p)</span> <span class="title">throw</span><span class="params">()</span></span>;  <span class="comment">//不抛出异常</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> &emsp;&emsp;set_new_handler的参数是一个指针，指向operator new无法分配足够内存时该被调用的函数。其返回值也是个指针，指向set_new_handler被调用前正在执行（但马上就要被替换）的那个new-handler函数。</p>
+<p>&emsp;&emsp;你可以这样使用set_new_handler：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以下是当operator new无法分配足够内存时，该被调用的函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">outOfMem</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; <span class="string">"Unable to satisfy request for memory\n"</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">abort</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::set_new_handler(outOfMem);</span><br><span class="line">    <span class="keyword">int</span>* pBigDataArray = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">100000000L</span>];</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;就本例而言，如果operator new无法为100000000分配足够空间，outOfMem就会被调用。</p>
+<p>&emsp;&emsp;当operator new无法满足内存申请时，它会不断调用new-handler函数，直到找到足够内存。</p>
+<h1 id="设计良好的new-handler函数必须要做的事"><a href="#设计良好的new-handler函数必须要做的事" class="headerlink" title="设计良好的new-handler函数必须要做的事"></a>设计良好的new-handler函数必须要做的事</h1><ul>
+<li><strong>让更多内存可被使用</strong>。这样的策略可能会使operator new内的下一次内存分配动作成功。实现此策略的一个做法是，程序一开始执行就分配一大块内存，然后当new-handler第一次被调用，将它们释放还给程序使用。</li>
+<li><strong>安排另一个new-handler</strong>。如果目前这个new-handler无法取得更多可用内存，或许它知道另外哪个new-handler有这个能力。那么，目前这个new-handler就可以安装另外那个new-handler来替换自己（只要调用set_new_handler）。下次当operator new调用new-handler，调用的将是最新安装的那个。关于new-handler有一件值得关注的事，我们可以让new-handler修改自己的行为，于是当它下次被调用，就会做某些不同的事。为了达到这个功效，做法之一就是令new-handler修改“会影响new-handler行为”的static数据、namespace数据或global数据。</li>
+<li><strong>卸除new-handler</strong>。也就是将null指针传给set_new_handler。一旦没有安装任何new-handler，operator new会在内存分配不成功时抛出异常。</li>
+<li><strong>抛出bad_alloc（或派生自bad_alloc）的异常</strong>。这样的异常不会被operator new捕捉，因此会被传播到内存索求处。</li>
+<li><strong>不返回</strong>。通常调用abort或exit。</li>
+</ul>
+<h1 id="C-并不支持class的专属new-handler"><a href="#C-并不支持class的专属new-handler" class="headerlink" title="C++并不支持class的专属new-handler"></a>C++并不支持class的专属new-handler</h1><p>&emsp;&emsp;虽然说C++并不支持class的专属new-handler，但其实也不需要。你可以自己实现出这种行为。只需要令每一个class提供自己的set_new_handler和operator new即可。其中set_new_handler允许客户指定class专属的new-handler（就像标准的set_new_handler允许客户指定global new-handler），至于operator new则确保在分配class对象内存的过程中以class专属的new-handler替换global new-handler。</p>
+<h1 id="定制专属class的set-new-handler和operator-new"><a href="#定制专属class的set-new-handler和operator-new" class="headerlink" title="定制专属class的set_new_handler和operator new"></a>定制专属class的set_new_handler和operator new</h1><h2 id="普通版本"><a href="#普通版本" class="headerlink" title="普通版本"></a>普通版本</h2><p>&emsp;&emsp;现在我们拥有一个Widget class，假设我们打算处理Widget class的内存分配情况。当operator new无法为一个Widget对象分配足够内存时，我们需要声明一个类型为new_handler的static成员，用以指向class Widget的new-handler，相关代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="built_in">std</span>::new_handler <span class="title">set_new_handler</span><span class="params">(<span class="built_in">std</span>::new_handler p)</span> <span class="title">throw</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alloc)</span></span>;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="keyword">static</span> <span class="built_in">std</span>::new_handler currentHandler;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;static成员必须在class定义式之外被定义（除非它们是const而且是整数型），所以需要这样写：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::new_handler Widget::currentHandler = <span class="number">0</span>;  <span class="comment">//初始化为null</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;Widget内的set_new_handler函数会将它获得的指针存储起来，然后返回先前（在此调用之前）存储的指针：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::new_handler <span class="title">Widget::set_new_handler</span><span class="params">(<span class="built_in">std</span>::new_handler p)</span> <span class="title">throw</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::new_handler oldHandler= currentHandler;</span><br><span class="line">    currentHandler = p;</span><br><span class="line">    <span class="keyword">return</span> oldHandler;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;最后，Widget的operator new会做以下事情：</p>
+<ol>
+<li>调用标准set_new_handler，告知Widget的错误处理函数。这会将Widget的new-handler安装为global new-handler。</li>
+<li>调用global operator new，执行实际的内存分配。如果分配失败，global operator new会调用Widget的new-handler，因为这个函数才刚被安装为global new-handler。如果global operator new最终无法分配足够内存，会抛出一个bad_alloc异常。在此情况下Widget的operator new必须恢复原本的global new-handler，然后再传播该异常。为确保原本的new-handler总是能够被重新安装回去，Widget将global new-handler视为资源，并运用资源管理对象（例如智能指针）防止资源泄漏。</li>
+<li>如果global operator new能够分配足够一个Widget对象所用的内存，Widget的operator new会返回一个指针，指向分配所得的内存空间。Widget析构函数会管理global new-handler，它会自动将Widget的operator new被调用前的那个global new-handler恢复回来。</li>
+</ol>
+<p>&emsp;&emsp;下面用C++作为实例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NewHandlerHolder</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">NewHandlerHolder</span><span class="params">(<span class="built_in">std</span>::new_handler nh)</span> : <span class="title">handler</span><span class="params">(nh)</span> </span>&#123;&#125;</span><br><span class="line">        ~NewHandlerHolder() &#123;</span><br><span class="line">            <span class="built_in">std</span>::set_new_handler(handler);</span><br><span class="line">        &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="built_in">std</span>::new_handler handler;</span><br><span class="line">        NewHandlerHolder(<span class="keyword">const</span> NewHandlerHolder&amp;);  <span class="comment">//阻止copying	</span></span><br><span class="line">        NewHandler&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> NewHandlerHolder&amp;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这就使得Widget的operator new的实现相当简单：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* Widget::<span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alloc)</span> </span>&#123;</span><br><span class="line">    <span class="function">NewHandlerHolder <span class="title">h</span><span class="params">(<span class="built_in">std</span>::set_new_handler(currentHandler))</span></span>;</span><br><span class="line">    <span class="keyword">return</span> ::<span class="keyword">operator</span> <span class="keyword">new</span>(<span class="built_in">size</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;Widget的客户应该类似这样使用其new-handler：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">outOfMem</span><span class="params">()</span></span>;  <span class="comment">//函数声明。此函数在Widget对象分配失败时被调用。</span></span><br><span class="line"></span><br><span class="line">Widget::set_new_handler(outOfMem);  <span class="comment">//设定outOfMem为Widget的new-handler函数。</span></span><br><span class="line"></span><br><span class="line">Widget* pw1 = <span class="keyword">new</span> Widget;  <span class="comment">//如果内存分配失败，调用outOfMem。</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* ps = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>;  <span class="comment">//如果内存分配失败，调用global new-handler函数（如果有的话）。</span></span><br><span class="line"></span><br><span class="line">Widget::set_new_handler(<span class="number">0</span>);  <span class="comment">//设定Widget专属的new-handler函数为null。</span></span><br><span class="line"></span><br><span class="line">Widget* pw2 = <span class="keyword">new</span> Widget;  <span class="comment">//如果内存分配失败，立刻抛出异常（class Widget并没有专属的new-handler函数）。</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="template版本"><a href="#template版本" class="headerlink" title="template版本"></a>template版本</h2><p>&emsp;&emsp;现在让我们用template方式来实现上述代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NewHandlerSupport</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="built_in">std</span>::new_handler <span class="title">set_new_handler</span><span class="params">(<span class="built_in">std</span>::new_handler p)</span> <span class="title">throw</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alooc)</span></span>;</span><br><span class="line">        ...  <span class="comment">//其他的operator版本</span></span><br><span class="line">          </span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="keyword">static</span> <span class="built_in">std</span>::new_handler currentHandler;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="built_in">std</span>::new_handler</span><br><span class="line">NewHandlerSuppport&lt;T&gt;::set_new_handler(<span class="built_in">std</span>::new_handler p) <span class="keyword">throw</span>() &#123;</span><br><span class="line">    <span class="built_in">std</span>::new_handler oldHandler = currentHandler;</span><br><span class="line">    currentHandler = p;</span><br><span class="line">    <span class="keyword">return</span> oldHandler;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">void</span>* NewHandlerSupport&lt;T&gt;::<span class="function"><span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alloc)</span> </span>&#123;</span><br><span class="line">    <span class="function">NewHandlerHolder <span class="title">h</span><span class="params">(<span class="built_in">std</span>::set_new_handler(currentHandler))</span></span>;</span><br><span class="line">    <span class="keyword">return</span> ::<span class="keyword">operator</span> <span class="keyword">new</span>(<span class="built_in">size</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//以下将每一个currentHandler初始化为null</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="built_in">std</span>::new_handler NewHandlerSupport&lt;T&gt;::currentHandler = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;有了这个class template，为Widget添加set_new_handler支持能力就轻而易举了：只要令Widget继承自NewHandlerSupport&lt;Widget&gt;就可以了，像下面这样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> :</span> <span class="keyword">public</span> NewHandlerSupport&lt;Widget&gt; &#123;</span><br><span class="line">    ...  <span class="comment">//和之前一样，但不必声明set_new_handler或operator new</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="operator-new的异常处理"><a href="#operator-new的异常处理" class="headerlink" title="operator new的异常处理"></a>operator new的异常处理</h1><p>&emsp;&emsp;直到1993年，C++都还要求operator new必须在无法分配足够内存时返回null。新一代的operator new则应该抛出bad_alloc异常，但很多C++程序是在编译器开始支持新修改规范前写出来的。C++标准委员会不想抛弃那些“侦测null”的族群，于是提供了另一形式的operator new，负责支持传统的“分配失败便返回null”行为。这个形式被称为“nothrow”形式——某种程度上是因为他们在new的使用场合用了nothrow对象（定义于头文件&lt;new&gt;）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span> ... &#125;;</span><br><span class="line">Widget* pw1 = <span class="keyword">new</span> Widget;  <span class="comment">//如果分配失败，抛出bad_alloc</span></span><br><span class="line"><span class="keyword">if</span>(pw1 == <span class="number">0</span>) ...  <span class="comment">//这个结果一定为false</span></span><br><span class="line">Widget* pw2 = <span class="keyword">new</span> (<span class="built_in">std</span>::nothrow) Widget;  <span class="comment">//如果分配Widget失败，返回0</span></span><br><span class="line"><span class="keyword">if</span>(pw2 == <span class="number">0</span>) ...  <span class="comment">//这个结果可能为true</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;nothrow new对异常的强制性保证并不会像你所想的那样如此的可靠。要知道，表达式“new (std::nothrow) Widget”发生两件事，第一，nothrow版的operator new被调用，用以分配足够内存给Widget对象。如果分配失败便会返回null指针。如果分配成功，接下来Widget构造函数会被调用，而这之后之前nothrow new所做的保证便一去不复返了，因为Widget构造函数可以做它想做的任何事。它有可能又new一些内存，而没人可以强迫它再次使用nothrow new。因此虽然“new (std::nothrow) Widget”调用的operator new并不抛出异常，但Widget构造函数却可能会。</p>
+<p>&emsp;&emsp;结论就是：使用nothrow new只能保证operator new不抛出异常，不保证像“new (nothrow) Widget”这样的表达式绝不导致异常。因此你其实没有使用nothrow new的必要。</p>
+<p>&emsp;&emsp;无论使用正常（会抛出异常）的new，还是其或多或少有点发育不良等nothrow兄弟，重要的是你需要了解new-handler的行为，因为两种形式都使用它。</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><blockquote>
+<ul>
+<li>set_new_handler允许客户指定一个函数，在内存分配无法获得满足时被调用。</li>
+<li>nothrow new是一个有局限性的工具，因为它只适用于内存分配；后续的构造函数调用还是可能抛出异常。</li>
+</ul>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/22/template%E5%85%83%E7%BC%96%E7%A8%8B/" rel="prev" title="template元编程">
+      <i class="fa fa-chevron-left"></i> template元编程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/11/27/%E5%85%B3%E4%BA%8E%E6%9B%BF%E6%8D%A2new%E5%92%8Cdelete%E7%9A%84%E6%8A%80%E6%9C%AF/" rel="next" title="关于替换new和delete的技术">
+      关于替换new和delete的技术 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是new-handler？"><span class="nav-number">1.</span> <span class="nav-text">什么是new-handler？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用new-handler的一个简单实例"><span class="nav-number">2.</span> <span class="nav-text">使用new-handler的一个简单实例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设计良好的new-handler函数必须要做的事"><span class="nav-number">3.</span> <span class="nav-text">设计良好的new-handler函数必须要做的事</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#C-并不支持class的专属new-handler"><span class="nav-number">4.</span> <span class="nav-text">C++并不支持class的专属new-handler</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#定制专属class的set-new-handler和operator-new"><span class="nav-number">5.</span> <span class="nav-text">定制专属class的set_new_handler和operator new</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#普通版本"><span class="nav-number">5.1.</span> <span class="nav-text">普通版本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#template版本"><span class="nav-number">5.2.</span> <span class="nav-text">template版本</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#operator-new的异常处理"><span class="nav-number">6.</span> <span class="nav-text">operator new的异常处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">7.</span> <span class="nav-text">结论</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

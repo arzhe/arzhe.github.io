@@ -200,6 +200,295 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/18/pkg-config/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/18/pkg-config/" class="post-title-link" itemprop="url">pkg-config</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-18 15:55:00" itemprop="dateCreated datePublished" datetime="2020-09-18T15:55:00+08:00">2020-09-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-25 16:33:16" itemprop="dateModified" datetime="2020-09-25T16:33:16+08:00">2020-09-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">杂记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="pkg-config详解"><a href="#pkg-config详解" class="headerlink" title="pkg-config详解"></a>pkg-config详解</h1><h2 id="什么是pkg-config"><a href="#什么是pkg-config" class="headerlink" title="什么是pkg-config"></a>什么是pkg-config</h2><p>&emsp;&emsp;Pkg-config是一个linux下的命令，用于获取某一个库／模块的所有编译相关的信息。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkg-config opencv --libs --cflags</span><br></pre></td></tr></table></figure>
+
+<p>结果是解析出了所有该库的头文件以及链接库</p>
+<h2 id="为什么要有pkg-config"><a href="#为什么要有pkg-config" class="headerlink" title="为什么要有pkg-config"></a>为什么要有pkg-config</h2><p>&emsp;&emsp;就上述列子来看，所有用到opencv的其他程序，在编译时，只需要写出<code>pkg-config opencv --libs --cflags</code>，而不需要自己去找opencv的头文件以及库文件在哪。</p>
+<p>&emsp;&emsp;如果你写了一个库，不管是静态的还是动态的，要提供给第三方使用，那除了给人家库／头文件，最好也写一个pc文件（package configure是库配置文件，保存在PKG_CONFIG_PATH = xxx。pc文件保存了该库的头文件、库所在的路径信息。GCC等编译器编译时，比如编译某个工程用到glib-2.0这个库，pkg-config会按照PKG_CONFIG_PATH中的路径进行搜索glib-2.0.pc，然后把glib-2.0.pc作为参数传给GCC，那么GCC就可以找到该库了），这样别人使用就方便很多，不用自己再动手写依赖了你哪些库，只需要敲一个<code>pkg-config [YOUR_LIB] --libs --cflag</code>。</p>
+<h2 id="pkg-config的信息从哪里来"><a href="#pkg-config的信息从哪里来" class="headerlink" title="pkg-config的信息从哪里来"></a>pkg-config的信息从哪里来</h2><p>&emsp;&emsp;有两种途径：</p>
+<ol>
+<li>取系统的/usr/lib下的所有*.pc文件。</li>
+<li>PKG_CONFIG_PATH环境变量所指向的路径下的所有*.pc文件。</li>
+</ol>
+<p>&emsp;&emsp;这些pc文件什么时候有的？</p>
+<p>&emsp;&emsp;都是在你安装某个库／模块的时候添加的。比如你往系统里面安装opencv时，就会在/usr/lib64/pkgconfig目录下，放一个opencv.pc。比如我个人电脑上就没有pc文件，那么pc文件到底写了什么？</p>
+<p>&emsp;&emsp;以我本人的电脑为例，在/usr/lib64/pkgconfig目录下有一个lua.pc文件，其内容如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">V&#x3D;5.1</span><br><span class="line">R&#x3D;5.1.4</span><br><span class="line">prefix&#x3D;&#x2F;usr</span><br><span class="line">exe_prefix&#x3D;$&#123;prefix&#125;</span><br><span class="line">libdir&#x3D;&#x2F;usr&#x2F;lib64</span><br><span class="line">includedir&#x3D;$&#123;prefix&#125;&#x2F;include</span><br><span class="line"></span><br><span class="line">Name: Lua</span><br><span class="line">Description: An Extensible Extension Language</span><br><span class="line">Version: $&#123;R&#125;</span><br><span class="line">Requires: </span><br><span class="line">Libs: -llua -lm -ldl</span><br><span class="line">Cflags: -I$&#123;includedir&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当我在本地电脑上面输入如下命令行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkg-config lua --libs --cflags</span><br></pre></td></tr></table></figure>
+
+<p>显示出如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-llua -lm -ldl</span><br></pre></td></tr></table></figure>
+
+<h2 id="如何添加自己的pc文件"><a href="#如何添加自己的pc文件" class="headerlink" title="如何添加自己的pc文件"></a>如何添加自己的pc文件</h2><p>&emsp;&emsp;如上文所说，有2种方式：</p>
+<ol>
+<li><p>把你的pc文件，直接放在/usr/lib64/pkgconfig…默认路径下。</p>
+</li>
+<li><p>把你的pc文件的路径写到PKG_CONFIG_PATH环境变量里。比如，你可以在/etc/.bashrc或者/home/[your count]/.bashrc的文件末尾添加：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PKG_CONFIG_PATH=$PGK_CONFIG_PATH:/home/[your count]/[your project]/lib/pkgconfig</span><br><span class="line">export PKG_CONFIG_PATH</span><br></pre></td></tr></table></figure>
+
+<p>那么，pkg-config就会到该目录下寻找*.pc文件。</p>
+<p>那么这个pc文件何时生效呢？</p>
+<p>如果是/usr/lib64/pkgconfig下，立马生效！！！</p>
+<p>如果在环境变量里，只要先source ~/.bashrc一下，让环境变量生成，也立马生效。</p>
+</li>
+</ol>
+<h2 id="如何自己写pkg-config的pc文件"><a href="#如何自己写pkg-config的pc文件" class="headerlink" title="如何自己写pkg-config的pc文件"></a>如何自己写pkg-config的pc文件</h2><p>&emsp;&emsp;其实很简单，只需要拿别人的pc文件改一改就行了。</p>
+<p>&emsp;&emsp;pc文件的所有参数：</p>
+<ul>
+<li><p>Name：该模块的的名字，比如你的pc名字是xxx.pc，那么名字最好也是xxx。</p>
+</li>
+<li><p>Description：模块的简单描述。<code>pkg-config --list-all</code>该命令可以查看到所有的模块信息，该命令的结果，每个模块的名字后面就是description。</p>
+</li>
+<li><p>URL：用户可以通过该URL获得更多的信息，或者下载信息。也是辅助的，可要可不要。</p>
+</li>
+<li><p>Version：版本号。</p>
+</li>
+<li><p>Requires：该模块有没有依赖其他模块。一般没有。</p>
+</li>
+<li><p>Requires.private：该模块有没有依赖其他模块，并且还不需要第三方知道的。一般也没有。</p>
+</li>
+<li><p>Conflicts：有没有和别的模块冲突。常用于版本冲突。比如，Confilcts: opencv &lt; 1.0.0，表示和opencv模块的1.0.0以下的版本有冲突。</p>
+</li>
+<li><p>Cflags：这个就很重要了。pkg-config的参数<code>--cflags</code>就指向这里。主要用于写本模块的头文件路径。</p>
+</li>
+<li><p>Libs：也很重要，pkg-config的参数<code>--libs</code>就指向这里。主要用于写本模块的库／依赖库的路径。</p>
+</li>
+<li><p>Libs.private：本模块依赖的库，但不需要第三方知道。</p>
+</li>
+</ul>
+<p>其实必须写的只有5个：Name、Description、Version、Cflags、Libs。</p>
+<p>举个例子。一个动态库，一个静态库。</p>
+<p>例子1:动态库的pc文件。</p>
+<p>假设我写了libfoo.so，我的库会被安装到/usr/local/lib/，头文件会放到/usr/local/include/。那么pc文件可以这样写：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">prefix&#x3D;&#x2F;usr&#x2F;local</span><br><span class="line">exe_prefix&#x3D;$&#123;prefix&#125;</span><br><span class="line">includedir&#x3D;$&#123;prefix&#125;&#x2F;include</span><br><span class="line">libdir&#x3D;$&#123;prefix&#125;&#x2F;lib</span><br><span class="line"></span><br><span class="line">Name: foo</span><br><span class="line">Description: The foo library</span><br><span class="line">Version: 1.0.0</span><br><span class="line">Cflags: -I$&#123;includedir&#125;&#x2F;</span><br><span class="line">Libs: -L$&#123;libdir&#125; -lfoo</span><br></pre></td></tr></table></figure>
+
+<p>例子2:静态库的pc文件</p>
+<p>静态库链接动态库时，如何使用该静态库，如果我有个静态库libXXX.a，它依赖了很多其他动态库libAA.so，libBB.so，那么第三方程序要使用libXXX.a时，编译时还得链接libAA.so，libBB.so。为了让第三方程序不用操心我这个libXXX.a到底依赖了什么，可以为我的libXXX.a写一个pc文件。路径位于工程的文件下的lib/pkgconfig/。之后唯一需要做的就是把这些pc文件的路径，写到PKG_CONFIG_PATH。</p>
+<p>在/home/parallels/.bashrc内添加</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PKG_CONFIG_PATH=$PKG_CONFIG_PATH:[your path]</span><br><span class="line">export PKG_CONFIG_PATH</span><br></pre></td></tr></table></figure>
+
+<p>然后<code>source /home/parallels/.bashrc</code>，最后就可以使用了！</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/" class="post-title-link" itemprop="url">关于GNU make工具的汇总（3）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-14 16:32:00" itemprop="dateCreated datePublished" datetime="2020-09-14T16:32:00+08:00">2020-09-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 13:13:16" itemprop="dateModified" datetime="2020-09-27T13:13:16+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="Makefile规则"><a href="#Makefile规则" class="headerlink" title="Makefile规则"></a>Makefile规则</h1><h2 id="规则语法"><a href="#规则语法" class="headerlink" title="规则语法"></a>规则语法</h2><p>&emsp;&emsp;通常规则的语法格式如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">TARGETS: PREQUISITES</span></span><br><span class="line">    COMMAND</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>或者：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">TARGETS: PREQUISITES; COMMAND</span></span><br><span class="line">    COMMAND</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>书写规则时，需要注意以下几点：</p>
+<ol>
+<li><p>规则的命令部分有两种书写方式：a.命令可以和目标：依赖描述放在同一行。命令在依赖文件列表后并使用分号（；）和依赖文件列表分开。b.命令在目标：依赖描述的下一行。作为独立的命令行。</p>
+<p>当作为独立的命令行时此行必须以“TAB”字符开始。在Makefile中，在第一个规则之后出现的所有以“TAB”字符开始的行都会被当作命令来处理。</p>
+</li>
+<li><p>Makefile中符号“$”有特殊的含义（表示变量或者函数的引用），在规则中需要用到符号“$”的地方，需要书写两个连续的（“$$”）。</p>
+</li>
+<li><p>前边已提到过，对于Makefile中一个较长的行，我们可以使用反斜线“\”将其书写到几个独立的行上。虽然make对Makefile文本行的最大长度是没有限制的，但还是建议这样做。</p>
+</li>
+</ol>
+<p>规则的中心思想是：目标文件的内容是由依赖文件决定的，依赖文件的任何一处改动，将导致目前已经存在的目标文件的内容过期。规则的命令为重建目标提供了方法，这些命令运行在系统shell之上。</p>
+<h2 id="依赖的类型"><a href="#依赖的类型" class="headerlink" title="依赖的类型"></a>依赖的类型</h2><p>&emsp;&emsp;有时候，需要定义一个这样的规则，在更新目标（目标文件已经存在）时只需要根据依赖文件中的部分来决定目标是否需要被重建，而不是在依赖文件里的任何一个被修改后都重建目标。为了实现这一目的，相应的就需要对规则的依赖就行分类，一类是在这些依赖文件被更新后，需要更新规则的目标；另一类是更新这些依赖后，可以不需要更新规则的目标。我们把第二类称为：“ordered-only”依赖。书写规则时，“ordered-only”依赖使用管道符号“|”开始，作为目标的一个依赖文件。规则依赖列表中管道符号“|”左边是常规依赖，管道右边的就是“ordered-only”依赖。这样的规则书写格式如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">TARGETS: NORMAL-PREREQUISITES | ORDER-ONLY-PREREQUISITES</span></span><br></pre></td></tr></table></figure>
+
+<p>这样的规则中常规依赖文件可以是空；同样也可以对一个目标就行多次追加依赖。注意：规则依赖文件列表中如果一个文件同时出现在常规列表和“ordered-only”列表中，那么此文件被作为常规依赖处理（因为常规依赖所实现的动作是“ordered-only”依赖所实现的动作的一个超集）。</p>
+<h2 id="通配符存在的缺陷"><a href="#通配符存在的缺陷" class="headerlink" title="通配符存在的缺陷"></a>通配符存在的缺陷</h2><p>&emsp;&emsp;在我们的Makefile中，期望能够根据所有的.o文件生成可执行文件“demo”：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">objects = *.o</span><br><span class="line"></span><br><span class="line"><span class="section">demo: <span class="variable">$(objects)</span></span></span><br><span class="line">    cc -o demo <span class="variable">$(CFLAGS)</span> <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
+
+<p>这里变量“objects”的值是一个字符串“*.o”。在重建“demo”的规则中对变量“objects”进行展开，目标“demo”的依赖就是“*.o”，即所有的.o文件列表。如果在工作目录下已经存在必需的.o文件，那么这些.o文件将成为目标的依赖文件，目标“demo”将根据规则重建。</p>
+<p>&emsp;&emsp;但是如果将工作目录下的所有.o文件删除，重新执行make将会得到一个类似于“没有创建*.0文件的规则”的错误提示。这当然不是我们想要的结果。为了达到我们想要的结果，在对变量进行定义时需要使用一些高级的技巧，包括使用“wildcard”函数（定义为“objects =$(wildcard *.o)”）和字符串的置换。</p>
+<h2 id="函数wildcard"><a href="#函数wildcard" class="headerlink" title="函数wildcard"></a>函数wildcard</h2><p>&emsp;&emsp;在规则中，通配符会被自动展开。但在变量的定义和函数引用时，通配符将失效。这种情况下如果需要通配符有效，就需要使用“wildcard”，它的用法是：$(wildcard PATTERN…)。在Makefile中，它被展开为已经存在的、使用空格分开的、匹配此模式的所有文件列表。但如果不存在任何符合此模式的文件，函数会忽略模式字符并返回空。</p>
+<p>&emsp;&emsp;一般来说，我们可以使用“$(wildcard *.c)”来获取工作目录下的所有的.c文件列表。复杂一些的用法，可以使用“$(patsubst %.c,%.o,$(wildcard *.c))”，首先使用“wildcard”函数获取工作目录下的.c文件列表；之后将列表中所有文件名的后缀.c替换为.o。这样我们就可以得到在当前目录下可生成的.o文件列表。因此在一个目录下可以使用如下内容的Makefile来将工作目录下的所有.c文件进行编译并最后连接成为一个可执行文件：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#sample Makefile</span></span><br><span class="line">objects := <span class="variable">$(<span class="built_in">patsubst</span> %.c,%.o,$(<span class="built_in">wildcard</span> *.c)</span>)</span><br><span class="line"></span><br><span class="line"><span class="section">foo: <span class="variable">$(objects)</span></span></span><br><span class="line">    cc -o foo <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这里使用了make的隐含规则来编译.c的源文件。</p>
+<h2 id="Makefile伪命令"><a href="#Makefile伪命令" class="headerlink" title="Makefile伪命令"></a>Makefile伪命令</h2><p>&emsp;&emsp;伪目标：它不代表一个真正的文件名，在执行make时可以指定这个目标来执行其所在规则定义的命令，有时也可以将一个伪目标称为一个标签。使用伪目标有两个原因：</p>
+<ol>
+<li>避免在我们的Makefile中定义的只执行命令的目标和工作目录下的实际文件名出线名字冲突。</li>
+<li>提高执行make时的效率，特别是对一个大型的工程来说，编译的效率我们同时关心。</li>
+</ol>
+<p>以下就这两个问题我们进行分析讨论：</p>
+<ol>
+<li><p>如果我们需要编写这样的一个规则：规则所定义的命令不是去创建目标文件，而是通过make命令行指定它来执行一些特定的命令。像很常见的clean目标:</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm *.o temp</span><br></pre></td></tr></table></figure>
+
+<p>规则中“rm”不是创建文件“clean”的命令，而是删除当前目录下的所有.o文件和temp文件。当工作目录下不存在“clean”这个文件时，我们输入“make clean”，“rm *.o temp”总会被执行，这是我们的初衷。</p>
+<p>&emsp;&emsp;但是如果当前工作目录下存在文件“clean”，情况就不一样了，同样我们输入“make clean”，由于这个规则没有任何依赖文件，所以目标被认为是最新的而不去执行规则所定义的命令，因此“rm”命令不会被执行。这并不是我们的初衷。为了解决这个问题，我们需要将目标“clean”声明为伪目标。如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br></pre></td></tr></table></figure>
+
+<p>这样目标“clean”就被声明为一个伪目标，无论在当前目录下是否存在“clean”这个文件，我们输入“make clean”之后，“rm”命令都会被执行。而且，当一个目标被声明为伪目标后，make在执行此规则时不会去试图查找隐含规则来创建它。其完整格式如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm *.o temp</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>伪目标的另一种使用场合是在make的并行和递归执行过程中。此情况下一般会存在一个变量，定义为所有需要make的子目录。对多个目录进行make对实现方式可以是：在一个规则的命令行中使用shell循环来完成。如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SUBDIR = one two three</span><br><span class="line"></span><br><span class="line"><span class="section">subdirs:</span></span><br><span class="line">    for dir in <span class="variable">$(SUBDIR)</span>; do\</span><br><span class="line">        <span class="variable">$(MAKE)</span> -C $$dir;\</span><br><span class="line">    done</span><br></pre></td></tr></table></figure>
+
+<p>但这种实现方法存在以下几个问题。1.当子目录执行make出现错误时，make不会退出。也就是说，在对某一个目录执行make失败后，会继续对其他的目录进行make。在最终执行失败的情况下，我们很难根据错误提示定位出具体是在哪个目录下执行make时发生错误。2.另一个问题就是使用这种shell的循环方式时，没有用到make对目录的并行处理功能，由于规则的命令是一条完整的shell命令，不能被并行处理。</p>
+<p>有了为目标后，我们可以用它来克服上述2个问题：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SUBDIRS = one two three</span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: subdirs $(SUBDIRS)</span></span><br><span class="line"><span class="section">subdirs: <span class="variable">$(SUBDIRS)</span></span></span><br><span class="line"><span class="variable">$(SUBDIRS)</span>:</span><br><span class="line">    <span class="variable">$(MAKE)</span> -C <span class="variable">$@</span></span><br><span class="line"><span class="section">one: two</span></span><br></pre></td></tr></table></figure>
+
+<p>上述的实现中有一个没有命令行的规则“one: two”，此规则用来限制子目录的make顺序。</p>
+<p>&emsp;&emsp;一般情况下，一个伪目标不作为另外一个目标的依赖。这是因为当一个目标文件的依赖包含伪目标时，每一次在执行这个规则时伪目标所定义的命令都会被执行。当一个伪目标没有作为任何目标的依赖时，我们只能通过make的命令行来指定它为make的终极目标，来执行它所在规则所定义的命令。例如“make clean”。</p>
+<p>&emsp;&emsp;在Makefile中，一个伪目标可以有自己的依赖（可以是一个或者多个文件、一个或者多个伪目标）。在一个目录下如果需要创建多个可执行程序，我们可以将所有程序的重建规则在一个Makefile中描述。因为Makefile中第一个目标是“终极目标”，约定的做法是使用一个“all”的伪目标来作为终极目标，它的依赖文件就是那些需要创建的程序，以下就是一个例子：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">all: one two three</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: all</span></span><br><span class="line"></span><br><span class="line"><span class="section">one: one.o func.o</span></span><br><span class="line">    cc -o one one.o func.o</span><br><span class="line"><span class="section">two: two.o func.o</span></span><br><span class="line">    cc -o two two.o func.o</span><br><span class="line"><span class="section">three: three.o func.o</span></span><br><span class="line">    cc -o three three.o func.o</span><br></pre></td></tr></table></figure>
+
+<p>执行make时，目标“all”被作为终极目标。为了完成对它的更新，make会创建或者重建目标“all”的所有依赖文件。当需要单独更新某一个程序时，我们可以通过make的命令行选项来目前指定需要重建的程序（例如：“make one”）。</p>
+<p>&emsp;&emsp;当一个伪目标作为另一个伪目标的依赖时，make将其作为另外一个伪目标的子例程来处理（就跟C语言中的函数调用一样）。下面就是这个做法的例子：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: cleanall cleanobj cleandiff</span></span><br><span class="line"><span class="section">cleanall: cleanobj cleandiff</span></span><br><span class="line">    rm program</span><br><span class="line"><span class="section">cleanobj:</span></span><br><span class="line">    rm *.o</span><br><span class="line"><span class="section">cleandiff:</span></span><br><span class="line">    rm *.diff</span><br></pre></td></tr></table></figure>
+
+<p>我们可以输入“make cleanall”和“make cleanobj”和“make cleandiff”命令来达到清除不同种类文件的目的。</p>
+<p>&emsp;&emsp;说明：</p>
+<p>&emsp;&emsp;通常在清除文件的伪目标所定义的命令中“rm”使用选项“-f（–force）”来防止在缺少删除文件时出错并退出。也可以在“rm”之前加上“-”来防止“rm”错误退出，使用这个方法时make会提示错误信息但不会退出。为了不看到这些讨厌的信息，需要使用上述第一种方式。</p>
+<p>&emsp;&emsp;另外make存在一个内嵌的隐含变量“RM”。它被定义为：“RM=rm -f”。因此在书写“clean”规则的命令时可以使用变量“$(RM)”来替代“rm”。</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/12/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%882%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1186,232 +1475,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/07/%E5%B0%BD%E9%87%8F%E5%BB%B6%E5%90%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E5%BC%8F%E7%9A%84%E5%87%BA%E7%8E%B0%E6%97%B6%E9%97%B4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/07/%E5%B0%BD%E9%87%8F%E5%BB%B6%E5%90%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E5%BC%8F%E7%9A%84%E5%87%BA%E7%8E%B0%E6%97%B6%E9%97%B4/" class="post-title-link" itemprop="url">尽量延后变量定义式的出现时间</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-08-07 08:14:00 / Modified: 11:30:15" itemprop="dateCreated datePublished" datetime="2020-08-07T08:14:00+08:00">2020-08-07</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="尽量延后变量定义式的出现时间"><a href="#尽量延后变量定义式的出现时间" class="headerlink" title="尽量延后变量定义式的出现时间"></a>尽量延后变量定义式的出现时间</h1><p>&emsp;&emsp;只要你定义了一个变量而其类型带有一个构造函数或析构函数，那么当程序的控制流到达这个变量定义式时，你便得承受构造成本；当这个变量离开其作用域时，你便得承受析构成本。即使这个变量最终并未被使用，仍需耗费这些成本，所以你应该尽可能避免这种情形。</p>
-<p>&emsp;&emsp;或许你会认为，你不可能定义一个不使用的变量，但话不要说得太早！考虑下面这个函数，它计算通行密码的加密版本而后返回，前提是密码够长。如果密码太短，函数会丢出一个异常，类型为logic_error：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这个函数过早定义变量“encrypted”</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line">    <span class="built_in">string</span> encrypted;</span><br><span class="line">    <span class="keyword">if</span>(password.length() &lt; MinimumPasswordLength) &#123;</span><br><span class="line">        <span class="keyword">throw</span> logic_error(<span class="string">"Password is too short"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ...  <span class="comment">//必要动作，将一个加密后的密码置入变量encrypted内</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;对象encrypted在此函数中并非完全未被使用，但如果有个异常被丢出，它就真的没被使用。也就是说如果函数encryptPassword丢出异常，你仍得付出encrypted的析构成本和构造成本。所以最好延后encrypted的定义式，直到确实需要它：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这个函数延后“encrypted”的定义，直到真正需要它</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line">    <span class="keyword">if</span>(password.length() &lt; MinimumPasswordLength) &#123;</span><br><span class="line">        <span class="keyword">throw</span> logic_error(<span class="string">"Password is too shrot"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">string</span> encrypted;</span><br><span class="line">    ...  <span class="comment">//必要动作，将一个加密后的密码置入变量encrypted内</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;但是这段代码仍然不够秾纤合度，因为encrypted虽获定义却无任何实参作为初值。这意味调用的是其default构造函数。许多时候你该对对象做的第一件事就是给它个值，通常是通过一个赋值动作达成。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//终于，这是定义并初始化encrypted的最佳做法</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    ...                               <span class="comment">//检查长度</span></span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encrypted</span><span class="params">(password)</span></span>;  <span class="comment">//通过copy构造函数定义并初始化</span></span><br><span class="line">    encrypt(encrypted);               <span class="comment">//在encrypt函数内对其加密</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这让我们联想起所谓“尽可能延后”的真正意义。你不只应该延后变量的定义，直到非得使用该变量的前一刻为止，甚至应该尝试延后这份定义直到能够给它初值实参为止。如果这样，不仅能够避免构造（和析构）非必要对象，还可以避免无意义的default构造行为。更深一层说，以“具明显意义之初值”将变量初始化，还可以附带说明变量的目的。</p>
-<p>&emsp;&emsp;“但循环怎么办？”你可能会感到疑惑。如果变量只在循环内使用，那么把它定义于循环外并在每次循环迭代时赋值给它比较好，还是该把它定义于循环内？也就是说下面两个一般性结构，哪一个比较好？</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//方法A</span></span><br><span class="line">Widget w;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">    w = i;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//方法B</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">    <span class="function">Widget <span class="title">w</span><span class="params">(i)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;在Widget函数内部，以上两种写法的成本如下：</p>
-<ul>
-<li>做法A：1个构造函数 + 1个析构函数 + n个赋值操作</li>
-<li>做法B：n个构造函数 + n个析构函数</li>
-</ul>
-<p>&emsp;&emsp;如果class的一个赋值成本低于一组构造+析构成本，做法A大体而言比较高效。尤其当n值很大时。否则做法B或许较好。此外做法A造成名称w的作用域（覆盖整个循环）比做法B更大，有时那对程序的可理解性和易维护性造成冲突。因此除非（1）你知道赋值成本比“构造+析构”成本低，（2）你正在处理代码中效率高度敏感的部分，否则你应该使用做法B。</p>
-<blockquote>
-<p>尽可能延后变量定义式的出现。这样做可增加程序的清晰度并改善程序效率。</p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/05/%E8%80%83%E8%99%91%E5%86%99%E5%87%BA%E4%B8%80%E4%B8%AA%E4%B8%8D%E6%8A%9B%E5%87%BA%E5%BC%82%E5%B8%B8%E7%9A%84swap%E5%87%BD%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/05/%E8%80%83%E8%99%91%E5%86%99%E5%87%BA%E4%B8%80%E4%B8%AA%E4%B8%8D%E6%8A%9B%E5%87%BA%E5%BC%82%E5%B8%B8%E7%9A%84swap%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">考虑写出一个不抛出异常的swap函数</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-05 16:22:00" itemprop="dateCreated datePublished" datetime="2020-08-05T16:22:00+08:00">2020-08-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-07 10:00:50" itemprop="dateModified" datetime="2020-08-07T10:00:50+08:00">2020-08-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="考虑写出一个不抛出异常的swap函数"><a href="#考虑写出一个不抛出异常的swap函数" class="headerlink" title="考虑写出一个不抛出异常的swap函数"></a>考虑写出一个不抛出异常的swap函数</h1><p>&emsp;&emsp;swap是个有趣的函数。原本它只是STL的一部分，而后成为异常安全性编程的脊柱，以及用来处理自我赋值可能性的一个常见机制。由于swap如此有用，适当的实现很重要。然而在非凡的重要性之外它也带来了非凡的复杂性。</p>
-<p>&emsp;&emsp;所谓swap两对象值，意思是将两对象的值彼此赋予对方。缺省情况下swap动作可由标准程序库提供的swap算法完成。其典型实现完全如你所预期：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(T&amp; a, T&amp; b)</span> </span>&#123;</span><br><span class="line">    <span class="function">T <span class="title">temp</span><span class="params">(a)</span></span>;</span><br><span class="line">    a = b;</span><br><span class="line">    b = temp;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;只要类型T支持copying（通过copy构造函数和copy assignment操作符完成），缺省的swap实现代码就会帮你置换类型为T的对象，你不需要为此另外再做任何工作。</p>
-<p>&emsp;&emsp;这缺省的swap实现版本十分平淡，无法刺激你的肾上腺。它涉及三个对象的复制：a复制到temp，b复制到a，以及temp复制到b。但是对某些类型而言，这些复制动作无一必要；对它们而言swap缺省行为等于是把高速公路铺设在慢速小巷内。</p>
-<p>&emsp;&emsp;其中最主要的就是“以指针指向一个对象，内含真正数据”那种类型。这种设计的常见表现形式是所谓“pimpl手法”。如果是以这种手法设计Widget class，看起来会像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WidgetImpl</span> &#123;</span>          <span class="comment">//针对Widget数据而设计的class</span></span><br><span class="line"><span class="keyword">public</span>:                     <span class="comment">//细节不重要</span></span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> a, b, c;            <span class="comment">//可能有很多数据，</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; v;  <span class="comment">//意味复制时间很长</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span>       </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget(<span class="keyword">const</span> Widget&amp; rhs);</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//复制Widget时，令它复制其WidgetImpl对象</span></span><br><span class="line">        ...                                 <span class="comment">//关于operator=的一般性实现细节</span></span><br><span class="line">        *pImpl = *(rhs.pImpl);</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    WidgetImpl* pImpl;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;一旦要置换两个Widget对象值，我们唯一需要做的就是置换其pImpl指针，但缺省的swap算法不知道这一点。它不只复制三个Widget，还复制三个WidgetImpl对象，非常缺乏效率！一点也不令人兴奋。</p>
-<p>&emsp;&emsp;我们希望能够告诉std::swap：当Widget被置换时真正该做的是置换其内部的pImpl指针。确切实践这个思路的一个做法是：将std::swap针对Widget特化。下面是基本构想，但目前这个形式无法通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line"><span class="keyword">void</span> swap&lt;Widget&gt;(Widget&amp; a, Widget&amp; b) &#123;  <span class="comment">//目前还不能通过编译。</span></span><br><span class="line">    swap(a.pImpl, b.pImpl);                <span class="comment">//只要置换其pImpl指针就好了。</span></span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个函数一开始的“template&lt;&gt;”表示它是std::swap的一个全特化版本，函数名称之后的“&lt;Widget&gt;”表示这一特化版本是针对“T是Widget”而设计。换句话说当一般性的swap template施行于Widget身上便会启用这个版本。通常我们不能够（不被允许）改变std命名空间内的任何东西，但可以为标准template制造特化版本，使它专属于我们自己的class。以上作为正是如此。</p>
-<p>&emsp;&emsp;但是，这个函数无法通过编译。因为它企图访问a和b内的pImpl指针，而那却是private。我们可以将这个特化版本说明为friend，但和以往的规矩不太一样：我们令Widget声明一个名为swap的public成员函数做真正的置换工作，然后将std::swap特化，令它调用该成员函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; other)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">using</span> <span class="built_in">std</span>::swap;</span><br><span class="line">        swap(pImpl, other.pImpl);  <span class="comment">//若要置换Widget就置换其pImpl指针</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line"><span class="keyword">void</span> swap&lt;Widget&gt;(Widget&amp; a, Widget&amp; b) &#123;</span><br><span class="line">    a.swap(b);  <span class="comment">//若要置换Widget，调用其swap成员函数</span></span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这种做法不只能够通过编译，还与STL容器有一致性，因为所有STL容器也都提供有public swap成员函数和std::swap特化版本（用以调用前者）。</p>
-<p>&emsp;&emsp;然而假设Widget和WidgetImpl都是class template而非class，也许我们可以试试将WidgetImpl内的数据加以参数化：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WidgetImpl</span> &#123;</span> ... &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span> ... &#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;在Widget内（以及WidgetImpl内，如果需要的话）放个swap成员函数就像以往一样简单，但我们却在特化std::swap时遇上乱流。我们想写成这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">void</span> swap&lt; Widget&lt;T&gt; &gt; (Widget&lt;T&gt;&amp; a, Widget&lt;T&gt; b) &#123;  <span class="comment">//错误！不合法！</span></span><br><span class="line">    a.swap(b);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;看起来合情合理，却不合法。是这样的，我们企图偏特化一个function template（std::swap），但C++只允许对class template偏特化，在function template身上偏特化是行不通的。这段代码不该通过编译（虽然有些编译器错误地接受了它）。</p>
-<p>&emsp;&emsp;当你打算偏特化一个function template时，习惯做法是简单地为它添加一个重载版本，像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b)</span> </span>&#123;  <span class="comment">//这也不合法</span></span><br><span class="line">    a.swap(b);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;一般而言，重载functon template没有问题，但std是个特殊的命名空间，其管理规则也比较特殊。客户可以全特化std内的template，但不可以添加新的template（或class或function或其它任何东西）到std里头。std的内容完全由C++标准委员会决定，标准委员会禁止我们膨胀那些已经声明好的东西。所谓“禁止”可能会使我们沮丧，其实跨越红线的程序几乎仍可以编译和执行，但它们的行为没有明确定义，如果你希望你的软件有可预期的行为，请不要添加任何新东西到std里头。</p>
-<p>&emsp;&emsp;那该如何是好？毕竟我们总是需要一个办法让其它人调用swap时能够取得我们提供的高效的template特定版本。答案很简单，我们还是声明一个non-member swap让它调用member swap，但不再将那个non-member swap声明为std::swap的特化版本或重载版本。为求简化起见，假设Widget的所有相关机能都被置于命名空间WidgetStuff内，整个结果看起来便像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> WidgetStuff &#123;</span><br><span class="line">...                   <span class="comment">//模版化的WidgetImpl等等</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;  <span class="comment">//同前，内含swap成员函数</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span> ... &#125;;</span><br><span class="line">...</span><br><span class="line">  </span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b)</span> </span>&#123;</span><br><span class="line">    a.swap(b);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，任何地点的任何代码如果打算置换两个Widget对象，因而调用swap，C++的名称查找法则会找到WidgetStuff内的Widget专属版本。那正是我们所要的。</p>
-<p>&emsp;&emsp;这个做法对class和class template都行得通，所以似乎我们应该在任何时候都使用它，不幸的是有一个理由使你应该为class特化std::swap，所以如果你想让你的“class专属版”swap在尽可能多的语境下被调用，你需得同时在该class所在命名空间内写一个non-member版本以及一个std::swap特化版本。</p>
-<p>&emsp;&emsp;顺带一提，如果没有像上面那样额外使用某个命名空间，上述每件事仍然适用（也就是说你还是需要一个non-member swap来调用member swap）。但，何必在global命名空间内塞满各式各样的class，template，functioin，enum，enumerant以及typedef名称呢？难道你对所谓“得体与适度”失去判断力了吗？</p>
-<p>&emsp;&emsp;目前为止我所写的每一样东西都和swap编写者有关。换位思考，从客户观点看看事情也有必要。假设你正在写一个function template，其内需要置换两个对象值：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(T&amp; obj1, T&amp; obj2)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    swap(obj1, obj2);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;应该调用哪个swap？是std既有的那个一般化版本？还是某个可能存在的特化版本？抑或是一个可能存在的T专属版本而且可能栖身于某个命名空间（但当然不可能是std）内？你希望的应该是调用T专属版本，并在该版本不存在的情况下调用std内的一般化版本。下面是你希望发生的事：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(T&amp; obj1, T&amp; obj2)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::swap;   <span class="comment">//令std::swap在此函数内可用</span></span><br><span class="line">    ...</span><br><span class="line">    swap(obj1, obj2);  <span class="comment">//为T型对象调用最佳swap版本</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;一旦编译器看到对swap的调用，它们便查找适当的swap并调用之。C++的名称查找法则确保将找到global作用域或T所在之命名空间内的任何T专属的swap。如果T是Widget并位于命名空间WidgetStuff内，编译器会使用“实参取决之查找范围”找出WidgetStuff内的swap。如果没有T专属之swap存在，编译器就使用std内的swap，只得感谢using声明式让std::swap在函数内曝光。然而即便如此编译器还是比较喜欢std::swap的T专属特化版，而非一般化的那个template，所以如果你已针对T将std::swap特化，特化版会被编译器挑中。</p>
-<p>&emsp;&emsp;因此，令适当的swap被调用是很容易的。需要小心的是，别为这一调用添加额外修饰符，因为那会影响C++挑选适当函数。假设你以这种方式调用swap：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::swap(obj1, obj2);  <span class="comment">//这是错误的swap调用方式</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这便迫使编译器只认std内的swap（包括其任何template特化），因而不再可能调用一个定义于它处的较适当T专属版本。某些迷途程序员的确以此方式修饰swap调用式，而那正是“你的class对std::swap进行全特化”的重要原因：它使得类型专属之swap实现版本也可被这些“迷途代码”所用（这样的代码出现在某些标准程序库实现版中，如果你有兴趣不妨帮助这些代码尽可能高效运作）。</p>
-<p>&emsp;&emsp;此刻，我们已经讨论过default swap、member swap、non-member swap、std::swap特化版本、以及对swap的调用，现在让我把整个形势做个总结。</p>
-<p>&emsp;&emsp;首先，如果swap的缺省实现版的效率不足（那几乎总是意味你的class或template使用了某种pimpl手法），试着做以下事情：</p>
-<ol>
-<li>提供一个public swap成员函数，让它高效地置换你的类型的两个对象值。这个函数绝不该抛出异常。</li>
-<li>在你的class或template所在的命名空间内提供一个non-member swap，并令它调用上述swap成员函数。</li>
-<li>如果你正编写一个class（而非class template），为你的class特化std::swap。并令它调用你的swap成员函数。</li>
-</ol>
-<p>&emsp;&emsp;最后，如果你调用swap，请确定包含一个using声明式，以便让std::swap在你的函数内曝光可见，然后不加任何namespace修饰符，赤裸裸地调用swap。</p>
-<p>&emsp;&emsp;唯一还未明确的是我的劝告：成员版swap绝不可抛出异常。那是因为swap的一个最好的应用是帮助class（和class template）提供强烈的异常安全性保障。但此技术基于一个假设：成员版的swap绝不抛出异常。这一约束只施行于成员版！不可施行于非成员版，因为swap缺省版本是以copy构造函数和copy assignment操作符为基础，而一般情况下两者都允许抛出异常。因此当你写下一个自定版本的swap，往往提供的不只是高效置换对象值的办法，而且不抛出异常。一般而言这两个swap特性是连在一起的，因为高效率的swap几乎总是基于对内置类型的操作（例如pimpl手法的底层指针），而内置类型上的操作绝不会抛出异常。</p>
-<blockquote>
-<p>当std::swap对你的类型效率不高时，提供一个swap成员函数，并确定这个函数部抛出异常。</p>
-<p>如果你提供一个member swap，也该提供一个non-member swap用来调用前者。对于class（而非template），也请特化std::swap。</p>
-<p>调用swap时应针对std::swap使用using声明式，然后调用swap并且不带任何“命名空间资格修饰”。</p>
-<p>为“用户定义类型”进行std template全特化是好的，但千万不要尝试在std内加入某些队std而言全新的对象。</p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1482,7 +1545,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
