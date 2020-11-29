@@ -2813,7 +2813,39 @@
   <entry>
     <title>关于替换new和delete的技术</title>
     <url>/2020/11/27/%E5%85%B3%E4%BA%8E%E6%9B%BF%E6%8D%A2new%E5%92%8Cdelete%E7%9A%84%E6%8A%80%E6%9C%AF/</url>
-    <content><![CDATA[<h1 id="想要替换operator-new或operator-delete的原因"><a href="#想要替换operator-new或operator-delete的原因" class="headerlink" title="想要替换operator new或operator delete的原因"></a>想要替换operator new或operator delete的原因</h1><p>&emsp;&emsp;为什么会有人想要替换编译器提供的operator new或operator delete呢？下面是三个最常见的理由：</p>
+    <content><![CDATA[<hr>
+<h1 id="想要替换operator-new或operator-delete的原因"><a href="#想要替换operator-new或operator-delete的原因" class="headerlink" title="想要替换operator new或operator delete的原因"></a>想要替换operator new或operator delete的原因</h1><p>&emsp;&emsp;为什么会有人想要替换编译器提供的operator new或operator delete呢？下面是三个最常见的理由：</p>
+<a id="more"></a>
+
+<ul>
+<li><p><strong>用来检测运用上的错误</strong>。如果将“new所得内存”delete掉却不幸失败，这就会导致内存泄漏。如果在“new所得内存”身上多次delete则会导致不确定行为。如果operator new持有一串动态分配所得地址，而operator delete将地址从中移走，倒是很容易检测出上述错误用法。此外各式各样的编程错误可能导致数据“overrun”（写入点在分配区块尾端之后）或“underruns”（写入点在分配区块起点之前）。如果我们自定定义一个operator new，使得可以超额分配内存，以额外空间（位于客户所得区块之前或之后）放置特定的byte patterns（即签名，signatures）。operator delete便得以检查上述签名是否原封不动，若否就表示在分配区的某个生命时间点发生了overrun或underrun，这时候operator delete可以志记（log）所发生的事情以及那个罪魁祸首的指针。</p>
+</li>
+<li><p><strong>为了强化效能</strong>。编译器所带的operator new和operator delete主要用于一般目的，它们不但可被长时间执行的程序（例如网页服务器，web serves）接受，也可被执行时间少于一秒的程序接受。它们必须处理一系列需求，包括大块内存、小块内存、大小混合型内存。它们必须接纳各种分配形态，范围从程序存活期间的少量区块动态分配，到大数量短命对象的持续分配和归还。此外还有一个问题也是它们需要考虑的——内存碎片：即使有时候内存空间总量足够但由于它们分散为许多小区块的自由内存，这也就导致了程序无法满足大区块内存的要求。</p>
+<p>&emsp;&emsp;通常我们可以发现，定制版的operator new和operator delete性能胜过缺省版本。也就是说它们更快，有时候甚至会快很多，而且它们需要的内存比较少，最高可省50%。对某些应用程序而言，将旧有的（编译器自带的）new和delete替换为定制版本，是获得重大效能提升的办法之一。</p>
+</li>
+<li><p><strong>为了收集使用上的统计数据</strong>。在你开始定制new和delete之前，应该先弄清楚你的软件如何使用其动态内存。分配区块的大小分布如何？寿命分布如何？它们倾向于以FIFO（先进先出）次序或LIFO（后进先出）次序或随机次序来分配和归还？它们的运用形态是否随时间改变，也就是说你的软件在不同的执行阶段有不同的分配／归还形态吗？任何时刻所使用的最大动态分配量（高水位）是多少？自行定义operator new和operator delete使我们得以轻松收集到这些信息。</p>
+</li>
+</ul>
+<h1 id="定制我们自己的operator-new所需要注意的问题"><a href="#定制我们自己的operator-new所需要注意的问题" class="headerlink" title="定制我们自己的operator new所需要注意的问题"></a>定制我们自己的operator new所需要注意的问题</h1><p>&emsp;&emsp;理论上，写一个定制型operator new十分简单。举个例子，下面是一个global operator new，可以帮助检测“overrun”或“underrun”。其中还有不少小错误，稍后我们会完善它：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> signature = <span class="number">0xDEADBEEF</span>;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">char</span> Byte;</span><br><span class="line"><span class="comment">//这段代码还有若干小错误，详下。</span></span><br><span class="line"><span class="keyword">void</span>* <span class="keyword">operator</span> <span class="keyword">new</span>（<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>) <span class="keyword">throw</span>(<span class="built_in">std</span>::bad_alloc) &#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line">    <span class="keyword">size_t</span> realSize = <span class="built_in">size</span> + <span class="number">2</span> * <span class="keyword">sizeof</span>(<span class="keyword">int</span>);  <span class="comment">//增加大小，使能够塞入两个signatures。</span></span><br><span class="line">    <span class="keyword">void</span>* pMem = <span class="built_in">malloc</span>(realSize);  <span class="comment">//调用malloc取得内存。</span></span><br><span class="line">    <span class="keyword">if</span>(!pMem) <span class="keyword">throw</span> bad_alloc();</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//将signature写入内存的最前端和最后端。</span></span><br><span class="line">    *(<span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>*&gt;(pMem)) = signature;</span><br><span class="line">    *(<span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">int</span>*&gt;(<span class="keyword">static_cast</span>&lt;Byte*&gt;(pMem)</span><br><span class="line">        + realSize - <span class="keyword">sizeof</span>(<span class="keyword">int</span>))) = signature;</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//返回指针，指向位于第一个signature之后的内存位置。</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">static_cast</span>&lt;Byte*&gt;(pMem) + <span class="keyword">sizeof</span>(<span class="keyword">int</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;上述operator new的缺点主要在于它没有履行身为这个特殊函数所应该“坚持C++规矩”的职责。举个例子operator new都应该内含一个循环，反复调用某个new-handler函数，这里却没有。另外还有一个比较微妙的主题：齐位（alignment）。</p>
+<p>&emsp;&emsp;许多计算机体系结构要求特定的类型必须放在特定的内存地址上。例如它可能会要求指针的地址必须是4倍数或double的地址必须是8倍数。如果没有遵循这个约束条件，可能导致运行期硬件异常。有些体系结构比较慈悲，不需要我们严格遵守上述规则，当然，如果满足齐位条件，程序便可以获得更佳的效率。例如Intel x86体系结构上的double可被对齐于任何byte边界，但如果它是8-byte齐位，其访问速度会快许多。</p>
+<p>&emsp;&emsp;C++要求所有operator new返回的指针都有适当的对齐（取决于数据类型）。malloc就是在这样的要求下工作，所以令operator new返回一个取得自malloc的指针是安全的。然而上述operator new中我并未返回一个取得自malloc的指针，而是返回一个得自malloc且偏移一个int大小的指针。没人能够保证它的安全！如果客户端调用operator new希望获取一个double所需的内存，而我们在一部“int为4byte且double必须为8byte齐位”的机器上跑，我们可能会获得一个没有适当齐位的指针。这可能会造成程序崩溃或执行速度变慢。不论哪种情况都不是我们所愿意见到的。</p>
+<p>&emsp;&emsp;其实很多时候定制我们需要的高效的new和delete并非是必要的。许多平台上面已有商业产品可以替代编译器子自带的内存管理器。如果需要它们来为你的程序提高技能和改善效能，你唯一需要做的就是重新连接（relink）。当然啦，首先你得花点钱买下它们。</p>
+<p>&emsp;&emsp;另一个选择是open source社区里面的内存管理器。它们在许多平台上面都可以用，你可以下载并试试。很多时候我们编写的内存管理器可能会遗漏可移植性和齐位考虑、线程安全性等等令人厌恶的麻烦细节。真正配得上程序库这个称号的“程序库”，必然十分的健全。</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><blockquote>
+<ul>
+<li>有许多理由需要写个自定的new和delete，包括改善效能、对heap运用错误进行调试、收集heap使用信息。</li>
+</ul>
+</blockquote>
+<p>&emsp;&emsp;</p>
 ]]></content>
+      <categories>
+        <category>长篇大论</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
   </entry>
 </search>
