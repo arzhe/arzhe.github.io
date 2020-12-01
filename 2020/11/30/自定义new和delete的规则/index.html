@@ -28,9 +28,10 @@
 <meta property="og:url" content="http://yoursite.com/2020/11/30/%E8%87%AA%E5%AE%9A%E4%B9%89new%E5%92%8Cdelete%E7%9A%84%E8%A7%84%E5%88%99/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="C++关于new的奇怪规定&amp;emsp;&amp;emsp;在new的规定上面，C++有一点非常奇怪，即使客户要求0bytes，operator new也得返回一个合法指针。这种看似诡异的行为其实是为了简化C++这个语言联邦中的其他“语言成分”。以下是个non-memer operator new伪码：">
-<meta property="article:published_time" content="2020-11-30T02:31:33.000Z">
-<meta property="article:modified_time" content="2020-11-30T12:34:26.000Z">
+<meta property="article:published_time" content="2020-11-30T02:31:00.000Z">
+<meta property="article:modified_time" content="2020-12-01T12:14:18.000Z">
 <meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://yoursite.com/2020/11/30/%E8%87%AA%E5%AE%9A%E4%B9%89new%E5%92%8Cdelete%E7%9A%84%E8%A7%84%E5%88%99/">
@@ -227,9 +228,24 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-11-30 10:31:33 / Modified: 20:34:26" itemprop="dateCreated datePublished" datetime="2020-11-30T10:31:33+08:00">2020-11-30</time>
+              <time title="Created: 2020-11-30 10:31:00" itemprop="dateCreated datePublished" datetime="2020-11-30T10:31:00+08:00">2020-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-12-01 20:14:18" itemprop="dateModified" datetime="2020-12-01T20:14:18+08:00">2020-12-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                </span>
             </span>
 
           
@@ -266,19 +282,33 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="C-关于new的奇怪规定"><a href="#C-关于new的奇怪规定" class="headerlink" title="C++关于new的奇怪规定"></a>C++关于new的奇怪规定</h1><p>&emsp;&emsp;在new的规定上面，C++有一点非常奇怪，即使客户要求0bytes，operator new也得返回一个合法指针。这种看似诡异的行为其实是为了简化C++这个语言联邦中的其他“语言成分”。以下是个non-memer operator new伪码：</p>
+        <hr>
+<h1 id="C-关于new的奇怪规定"><a href="#C-关于new的奇怪规定" class="headerlink" title="C++关于new的奇怪规定"></a>C++关于new的奇怪规定</h1><p>&emsp;&emsp;在new的规定上面，C++有一点非常奇怪，即使客户要求0bytes，operator new也得返回一个合法指针。这种看似诡异的行为其实是为了简化C++这个语言联邦中的其他“语言成分”。以下是个non-memer operator new伪码：</p>
 <a id="more"></a>
 
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alloc)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">size</span> == <span class="number">0</span>) &#123;  <span class="comment">//处理0-byte申请</span></span><br><span class="line">        <span class="built_in">size</span> = <span class="number">1</span>;    <span class="comment">//将它视为1-byte申请</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(<span class="literal">true</span>) &#123;</span><br><span class="line">        尝试分配<span class="built_in">size</span> bytes;</span><br><span class="line">        <span class="keyword">if</span>(分配成功)</span><br><span class="line">        <span class="keyword">return</span> (一个指针，指向分配得来的内存);</span><br><span class="line">      </span><br><span class="line">        <span class="comment">//分配失败；找出目前的new-handler函数</span></span><br><span class="line">        new_handler globalHandler = set_new_handler(<span class="number">0</span>);</span><br><span class="line">        set_new_handler(globalHandler);</span><br><span class="line">      </span><br><span class="line">        <span class="keyword">if</span>(globalHandler) (*globalHandler)();</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">throw</span> <span class="built_in">std</span>::bad_alloc();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;你可能会觉得这份代码有点奇怪，它将new-handler函数指针设为null而后又立刻恢复原样。但这是没有办法的事情，因为我们无法直接取得new-handler函数指针，所以必须调用set_new_handler找出它来。</p>
 <h1 id="operator-new无限循环内所做的事情"><a href="#operator-new无限循环内所做的事情" class="headerlink" title="operator new无限循环内所做的事情"></a>operator new无限循环内所做的事情</h1><p>&emsp;&emsp;上述伪码内有一个无限循环。退出此循环的唯一办法是：内存被成功分配或new-handler函数使用到了“<a href="/2020/11/23/%E5%AF%B9new-handler%E8%BF%99%E4%B8%80%E6%8A%80%E6%9C%AF%E7%9A%84%E6%8E%A2%E8%AE%A8/" title="对new-handler这一技术的探讨">对new-handler这一技术的探讨</a>”内所谈及到的技术：让更多内存可用、安装另一个new-handler、卸除new-handler、抛出bad_alloc异常（或其派生物），或是承认失败而直接return。</p>
-<h1 id="operator-new成员函数会被derived-class继承"><a href="#operator-new成员函数会被derived-class继承" class="headerlink" title="operator new成员函数会被derived class继承"></a>operator new成员函数会被derived class继承</h1><p>&emsp;&emsp;operator new成员函数会被derived class继承，这会导致某些有趣的复杂度。定制型内存管理器是为针对某特定class的对象内存分配行为提供最佳的优化，而不是为了该class的任何derived class。也就是说，针对class X而设计的operator new，其行为只是为大小刚好为sizeof(X)的对象而设计的。然而一旦被继承下去，有可能base class的operator new被调用用以分配derived class对象：</p>
+<h1 id="operator-new／delete成员函数会被derived-class继承"><a href="#operator-new／delete成员函数会被derived-class继承" class="headerlink" title="operator new／delete成员函数会被derived class继承"></a>operator new／delete成员函数会被derived class继承</h1><p>&emsp;&emsp;operator new成员函数会被derived class继承，这会导致某些有趣的复杂度。定制型内存管理器是为针对某特定class的对象内存分配行为提供最佳的优化，而不是为了该class的任何derived class。也就是说，针对class X而设计的operator new，其行为只是为大小刚好为sizeof(X)的对象而设计的。然而一旦被继承下去，有可能base class的operator new被调用用以分配derived class对象：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alloc)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span> :</span> <span class="keyword">public</span> Base &#123; ... &#125;;  <span class="comment">//假设Derived未声明operator new</span></span><br><span class="line">Derived* p = <span class="keyword">new</span> Derived;             <span class="comment">//这里调用的是Base::operator new</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;如果Base class专属的operator new并非是用来为Derived class服务的，那么处理这种情况的最佳做法是将“内存申请量错误”的调用行为改为采用标准operator new，像这样：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* Base::<span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alloc)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">size</span> != <span class="keyword">sizeof</span>(Base))          <span class="comment">//如果大小错误，</span></span><br><span class="line">        <span class="keyword">return</span> ::<span class="keyword">operator</span> <span class="keyword">new</span>(<span class="built_in">size</span>);  <span class="comment">//让标准的operator new来处理</span></span><br><span class="line">    ...                               <span class="comment">//否则在这里处理。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>&emsp;&emsp;在这里，我们将“检验size等于0的情况”与“size与sizeof(Base)的检测”融合在一起了。C++认为所有的非附属（独立式）对象必须有非零大小（见“<a href="/2020/11/12/%E6%98%8E%E6%99%BA%E8%80%8C%E5%AE%A1%E6%85%8E%E5%9C%B0%E4%BD%BF%E7%94%A8private%E7%BB%A7%E6%89%BF/" title="明智而审慎地使用private继承">明智而审慎地使用private继承</a>”。因此sizeof(Base)无论如何不能为零，所以如果size是0，这份申请会被转交到::operator new手上，后者必须以某种合理的方式来处理这种情况。</p>
+<h1 id="C-关于delete的规定"><a href="#C-关于delete的规定" class="headerlink" title="C++关于delete的规定"></a>C++关于delete的规定</h1><p>&emsp;&emsp;operator new情况比new要简单些，你唯一需要记住的就是C++保证“删除null指针永远安全”，所以你必须兑现这份承诺。下面是non-member operator delete的伪码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="keyword">operator</span> <span class="title">delete</span><span class="params">(<span class="keyword">void</span>* rawMemory)</span> <span class="title">throw</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(rawMemory == <span class="number">0</span>) <span class="keyword">return</span>;  <span class="comment">//如果被删除的是个null指针，</span></span><br><span class="line">                                <span class="comment">//那就什么都不做。</span></span><br><span class="line">    现在，归还rawMemory所指的内存;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个函数的member版本也很简单，只需要多加一个动作检查删除数量。万一你的class专属的operator new将大小有误的分配行为转交::operator new执行，你也必须将大小有误的删除行为转交::operator delete执行：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alloc)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="keyword">operator</span> <span class="title">delete</span><span class="params">(<span class="keyword">void</span>* rawMemory, <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">()</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> Base::<span class="keyword">operator</span> <span class="title">delete</span><span class="params">(<span class="keyword">void</span>* rawMemory, <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(rawMemory == <span class="number">0</span>) <span class="keyword">return</span>;  <span class="comment">//检查null指针。</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">size</span> != <span class="keyword">sizeof</span>(Base)) &#123;</span><br><span class="line">        ::<span class="function"><span class="keyword">operator</span> <span class="title">delete</span><span class="params">(rawMemory)</span></span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    现在，归还rawMemory所指的内存;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><blockquote>
+<ul>
+<li>operator new应该内含一个无穷循环，并在其中尝试分配内存，如果它无法满足内存需求，就该调用new-handler。它也应该有能力处理0bytes申请。class专属版本则还应该处理“比正确大小更大的（错误）申请”。</li>
+<li>operator delete应该在收到null指针时不做任何事。class专属版本则还应该处理“比正确大小更大的（错误）申请”。</li>
+</ul>
+</blockquote>
 
     </div>
 
@@ -307,6 +337,10 @@
 
 
       <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
+          </div>
 
         
 
@@ -381,7 +415,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#C-关于new的奇怪规定"><span class="nav-number">1.</span> <span class="nav-text">C++关于new的奇怪规定</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#operator-new无限循环内所做的事情"><span class="nav-number">2.</span> <span class="nav-text">operator new无限循环内所做的事情</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#operator-new成员函数会被derived-class继承"><span class="nav-number">3.</span> <span class="nav-text">operator new成员函数会被derived class继承</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#C-关于new的奇怪规定"><span class="nav-number">1.</span> <span class="nav-text">C++关于new的奇怪规定</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#operator-new无限循环内所做的事情"><span class="nav-number">2.</span> <span class="nav-text">operator new无限循环内所做的事情</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#operator-new／delete成员函数会被derived-class继承"><span class="nav-number">3.</span> <span class="nav-text">operator new／delete成员函数会被derived class继承</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#C-关于delete的规定"><span class="nav-number">4.</span> <span class="nav-text">C++关于delete的规定</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
