@@ -2886,4 +2886,29 @@
         <tag>C++</tag>
       </tags>
   </entry>
+  <entry>
+    <title>placement new与placement delete一定要成双成对</title>
+    <url>/2020/12/02/placement%20new%E4%B8%8Eplacement%20delete%E4%B8%80%E5%AE%9A%E8%A6%81%E6%88%90%E5%8F%8C%E6%88%90%E5%AF%B9/</url>
+    <content><![CDATA[<h1 id="运行期系统对于正常形式new／delete所做出的决策"><a href="#运行期系统对于正常形式new／delete所做出的决策" class="headerlink" title="运行期系统对于正常形式new／delete所做出的决策"></a>运行期系统对于正常形式new／delete所做出的决策</h1><p>&emsp;&emsp;当你写一个像这样的new表达式：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">Widget* pw = <span class="keyword">new</span> Widget;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;共有两个函数被调用：一个是用以分配内存的operator new，一个是Widget的default构造函数。</p>
+<p>&emsp;&emsp;假设其中第一个函数调用成功，第二个函数抛出异常。那么这种情况下，第一步内存分配的空间必须取消并恢复原状，否则会造成内存泄漏。但是由于Widget构造函数抛出异常，pw尚未被赋值，那么客户手上自然就没有指针指向应该被归还的内存。</p>
+<a id="more"></a>
+
+<p>&emsp;&emsp;C++运行期系统会调用第一步所调用的operator new的相应operator delete版本，前提当然是它必须知道哪一个（因为可能有多个）operator delete该被调用。在上述情况下，我们面对的是拥有正常签名式的new和delete：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alloc)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="keyword">operator</span> <span class="title">delete</span><span class="params">(<span class="keyword">void</span>* rawMemory)</span> <span class="title">throw</span><span class="params">()</span></span>;  <span class="comment">//global作用域中的正常签名式</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="keyword">operator</span> <span class="title">delete</span><span class="params">(<span class="keyword">void</span>* rawMemory, <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span> <span class="title">throw</span><span class="params">()</span></span>;  <span class="comment">//class作用域中典型的签名式</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;因此，当你使用正常形式的new和delete，运行期系统很自然地可以找出那个“知道如何取消new所作所为并恢复原状”的delete。</p>
+<h1 id="非正常形式的new浮现出的问题"><a href="#非正常形式的new浮现出的问题" class="headerlink" title="非正常形式的new浮现出的问题"></a>非正常形式的new浮现出的问题</h1><p>&emsp;&emsp;然而，当你开始声明非正常形式的operator new，也就是带有附加参数的operator new，“究竟哪一个delete伴随这个new”的问题便浮现了。</p>
+<p>&emsp;&emsp;举个例子，假设你写了一个class专属的operator new，要求接受一个ostream，用来志记（log）相关分配信息，同时又写了一个正常形式的class专属operator delete：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>, <span class="built_in">std</span>::ostream&amp; logStream)</span> </span></span><br><span class="line"><span class="function">            <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alloc)</span></span>;  <span class="comment">//非正常形式的new</span></span><br><span class="line">        </span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="keyword">operator</span> <span class="title">delete</span><span class="params">(<span class="keyword">void</span>* pMemory, <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span></span></span><br><span class="line"><span class="function">            <span class="title">throw</span><span class="params">()</span></span>;  <span class="comment">//正常的class专属delete</span></span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个设计有点问题，但现在我们可以先绕开这个问题。简要的讨论以下概念。</p>
+<p>&emsp;&emsp;什么是placement new：如果operator new接受的参数除了一定会有的那个size_t之外还有其他的，这个便是所谓的placement new。因此上述的operator new是一个placement版本。在众多的placement new版本中特别有用的一个是“接受一个指针指向对象该被构造之处”，那样的operator new长相如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span>, <span class="keyword">void</span>* pMemory)</span> <span class="title">throw</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个版本的new已被纳入C++标准程序库，你只要#include &lt;new&gt;就可以使用它。这个new的用途之一是负责在vector的未使用空间上创建对象。它同时也是最早的placement new版本。实际上它正是这个函数的命名依据：一个特定位置上的new。</p>
+]]></content>
+  </entry>
 </search>

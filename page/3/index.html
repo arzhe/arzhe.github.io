@@ -19,7 +19,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null,"activeClass":"changyan"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="you never can tell">
@@ -202,6 +202,165 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/29/%E5%8C%BA%E5%88%86%E6%8E%A5%E5%8F%A3%E7%BB%A7%E6%89%BF%E5%92%8C%E5%AE%9E%E7%8E%B0%E7%BB%A7%E6%89%BF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/29/%E5%8C%BA%E5%88%86%E6%8E%A5%E5%8F%A3%E7%BB%A7%E6%89%BF%E5%92%8C%E5%AE%9E%E7%8E%B0%E7%BB%A7%E6%89%BF/" class="post-title-link" itemprop="url">区分接口继承和实现继承</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-10-29 16:18:00" itemprop="dateCreated datePublished" datetime="2020-10-29T16:18:00+08:00">2020-10-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-11-11 16:35:52" itemprop="dateModified" datetime="2020-11-11T16:35:52+08:00">2020-11-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2020/10/29/%E5%8C%BA%E5%88%86%E6%8E%A5%E5%8F%A3%E7%BB%A7%E6%89%BF%E5%92%8C%E5%AE%9E%E7%8E%B0%E7%BB%A7%E6%89%BF/" class="post-meta-item leancloud_visitors" data-flag-title="区分接口继承和实现继承" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="区分接口继承和实现继承"><a href="#区分接口继承和实现继承" class="headerlink" title="区分接口继承和实现继承"></a>区分接口继承和实现继承</h1><p>&emsp;&emsp;表面上直截了当的public继承概念，经过更严密的检查之后，发现它由两部分组成：函数接口继承和函数实现继承。这两种继承的差异，很像函数声明与函数定义之间的差异。</p>
+<p>&emsp;&emsp;身为class设计者，有时候我们会希望derived class只继承成员函数的接口（也就是声明）；有时候又会希望derived class同时继承函数的接口和实现，但又希望能够覆写它们所继承的实现；又有时候希望derived class同时继承函数的接口和实现，并且不允许覆写任何东西。</p>
+<p>&emsp;&emsp;为了更好地感觉上述选择之间的差异，让我们考虑一个展现绘图程序中各种几何形状的class继承体系：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> vod <span class="title">draw</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">error</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; msg)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">objectID</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> :</span> <span class="keyword">public</span> Shape &#123; ... &#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ellipse</span> :</span> <span class="keyword">public</span> Shape &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;Shape是个抽象class；它的pure virtual函数draw使他成为一个抽象class。所以客户不能够创建Shape class的实体，只能创建其derived class的实体。尽管如此，Shape还是强烈影响了所有以public形式继承它的derived class，因为：</p>
+<ul>
+<li>成员函数的接口总是会被继承，public继承意味着is-a，所以对base class为真的任何事情一定也对其derived class为真。因此，如果某个函数可施行于某class身上，一定也可施行于其derived class身上。</li>
+</ul>
+<p>&emsp;&emsp;Shape class声明了三个函数。第一个是draw，于某个隐喻的视屏中画出当前对象。第二个是error，准备让那些“需要报导某个错误”的成员函数调用。第三个是objectID，返回当前对象的一个独立无二的整数识别码。每个函数的声明方式都不相同：draw是个pure virtual函数；error是个简朴的（非纯）impure virtual函数；objectID是个non-virtual函数。这些不同的声明带来什么样的暗示呢？</p>
+<p>&emsp;&emsp;首先考虑pure virtual函数draw：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;pure virtual函数有两个最突出的特性：它们必须被任何“继承了它们”的具象class重新声明，而且它们在抽象class中通常没有定义。把这两个性质摆在一起，你就会明白：</p>
+<ul>
+<li>声明一个pure virtual函数的目的是为了让derived class只继承函数接口。</li>
+</ul>
+<p>&emsp;&emsp;这对Shape::draw函数是再合理不过的事了，因为所有Shape对象都应该是可绘出的，这是合理的要求。但Shape class无法为此函数提供合理的缺省实现，毕竟椭圆形绘法迥异于矩形绘法。Shape::draw的声明式乃是对具象derived class设计者说，“你必须提供一个draw函数，但我不干涉你怎么实现它。”</p>
+<p>&emsp;&emsp;令人意外的是，我们竟然可以为pure virtual函数提供定义。也就是说你可以为Shape::draw供应一份实现代码，C++并不会发出怨言，但调用它的唯一途径是“调用时明确指出其class名称”：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Shape* ps = <span class="keyword">new</span> Shape;       <span class="comment">//错误！Shape是抽象的</span></span><br><span class="line">Shape* ps1 = <span class="keyword">new</span> Rectangle;  <span class="comment">//没问题</span></span><br><span class="line">ps1-&gt;draw();                 <span class="comment">//调用Rectangle::draw</span></span><br><span class="line">Shape* ps2 = <span class="keyword">new</span> Ellipse;    <span class="comment">//没问题</span></span><br><span class="line">ps2-&gt;draw();                 <span class="comment">//调用Ellipse::draw</span></span><br><span class="line">ps1-&gt;Shape::draw();          <span class="comment">//调用Shape::draw</span></span><br><span class="line">ps2-&gt;Shape::draw();          <span class="comment">//调用Shape::draw</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;除了能够帮助你在高雅酒会上留给大师级程序员一个深刻的印象，一般而言这项性质用途有限。但是稍后你将看到，它可以实现一种机制，为简朴的（非纯）impure virtual函数提供更平常更安全的缺省实现。</p>
+<p>&emsp;&emsp;简朴的impure virtual函数背后的故事和pure virtual函数有点不同。一如往常，derived class继承其函数接口，但impure virtual函数会提供一份实现代码，derived class可能覆写它。稍加思索，你就会明白：</p>
+<ul>
+<li>声明简朴的（非纯）impure virtual函数的目的，是让derived class继承该函数的接口和缺省实现。</li>
+</ul>
+<p>&emsp;&emsp;考虑Shape::error这个例子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">error</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; msg)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;其接口表示，每个class都必须支持一个“当遇上错误时可调用”的函数，但每个class都可自由处理错误。如果某个class不想针对错误做出任何特殊行为，它可以退回到Shape class提供的缺省错误处理行为。也就是说Shape::error的声明式告诉derived class的设计者，“你必须支持一个error函数，但如果你不想自己写一个，可以使用Shape class提供的缺省版本”。</p>
+<p>&emsp;&emsp;但是，允许impure virtual函数同时指定函数声明和函数缺省行为，却有可能造成危险。欲探讨原因，让我们考虑XYZ航空公司设计的飞行继承体系。该公司只有A型和B型飞机，两者都以相同方式飞行。因此XYZ设计出这样的继承体系：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Airport</span> &#123;</span> ... &#125;;  <span class="comment">//用以表现机场</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Airplane</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Airplane::fly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span> </span>&#123;</span><br><span class="line">    缺省代码，将飞机飞至指定的目的地</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelA</span> :</span> <span class="keyword">public</span> Airplane &#123; ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelB</span> :</span> <span class="keyword">public</span> Airplane &#123; ... &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;为了表示所有飞机都一定能飞，并阐明“不同型飞机原则上需要不同的fly实现”，Airplane::fly被声明为virtual。然而为了避免在ModelA和ModelB中撰写相同代码，缺省飞行行为由Airplane::fly提供，它同时被ModelA和ModelB继承。</p>
+<p>&emsp;&emsp;这是个典型的面相对象设计。两个class共享一份相同性质（也就是它们实现fly的方式），所以共同性质被搬到base class中，然后被这两个class继承。这个设计突显出共同性质，避免代码重复，并提升未来的强化能力，减缓长期维护所需的成本。所有这些都是面相对象技术如此受到欢迎的原因。XYZ航空公司应该感到骄傲。</p>
+<p>&emsp;&emsp;现在，假设XYZ盈余大增，决定购买一种新式C型飞机。C型和A型以及B型有某些不同。更明确地说，它的飞行方式不同。</p>
+<p>&emsp;&emsp;XYZ公司的程序员正在继承体系中针对C型飞机添加了一个class，但由于他们急着让新飞机上线服务，竟忘了重新定义其fly函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelC</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    ...  <span class="comment">//未声明fly函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;然后代码中有一些诸如此类的动作：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Airport <span class="title">MLP</span><span class="params">(...)</span></span>;  <span class="comment">//MLP是某个机场</span></span><br><span class="line">Airplane* pa = <span class="keyword">new</span> ModelC;</span><br><span class="line">...</span><br><span class="line">pa-&gt;fly(MLP);      <span class="comment">//调用Airplane::fly</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这将酿成大祸；这个程序试图以ModelA或ModelB的飞行方式来飞ModelC。</p>
+<p>&emsp;&emsp;问题不在Airplane::fly有缺省行为，而在于ModelC在未明白说出“我要”的情况下就继承了该缺省行为。幸运的是我们可以轻易做到“提供缺省实现给derived class，但除非它们明白要求否则免谈”。此间伎俩在于切断“virtual函数接口”和其”缺省实现“之间的连接。下面是一种做法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Airplane</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span> </span>= <span class="number">0</span>;</span><br><span class="line">        ...</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">protected</span>:</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">defaultFly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Airplane::defaultFly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span> </span>&#123;</span><br><span class="line">    缺省行为，将飞行飞至指定目的地。</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;请注意，Airplane::fly已被改为一个pure virtual函数，只提供飞行接口。其缺省行为也出现在Airplane class中，但此次系以独立函数defaultFly的姿态出现。若想使用缺省实现（例如ModelA和ModelB），可以在其fly函数中对defaultFly做一个inline调用：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelA</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123;</span><br><span class="line">            defaultFly(destination);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelB</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123;</span><br><span class="line">            defaultFly(destination);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在ModelC class不可能意外继承不正确的fly实现代码了，因为Airplane中的pure virtual函数迫使ModelC必须提供自己的fly版本：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelC</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ModelC::fly</span><span class="params">(<span class="keyword">const</span> Airport&amp; destination)</span> </span>&#123;</span><br><span class="line">    将C型飞机飞至指定目的地</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这个方案并非安全无虞，程序员还是可能因为剪贴代码而招来麻烦，但它的确比原先的设计值得依赖。至于Airplane::defaultFly，请注意它现在成了protected，因为它是Airplane及其derived class的实现细目。乘客应该只在意飞机能不能飞，不在意它们怎么飞。</p>
+<p>&emsp;&emsp;Airplane::defaultFly是个non-virtual函数，这一点也很重要。因为没有任何一个derived class应该重新定义此函数。如果defaultFly是virtual函数，就会出现一个循环问题：万一某些derived class忘记重新定义defaultFly，会怎样？</p>
+<p>&emsp;&emsp;有些人反对以不同的函数分别提供接口和缺省实现，像上述的fly和defaultFly那样。他们关心因过度雷同的函数名称而引起的class命名空间污染问题。但是他们也同意，接口和缺省实现应该分开。这个表面上看起来的矛盾该如何解决？唔，我们可以利用“pure virtual函数必须在derived class中重新声明，但它们也可以拥有自己的实现”这一事实。下面便是Airplane继承体系如何给pure virtual函数一份定义：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Airplane</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>= <span class="number">0</span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Airplane::fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123; <span class="comment">//pure virtual函数实现</span></span><br><span class="line">    缺省行为，将飞机飞至指定的目的地</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelA</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123;</span><br><span class="line">            Airplane::fly(destination);</span><br><span class="line">        &#125; </span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelB</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123;</span><br><span class="line">            Airplane::fly(destination);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelC</span> :</span> <span class="keyword">public</span> Airplane &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ModelC::fly</span><span class="params">(<span class="keyword">const</span> Airplane&amp; destination)</span> </span>&#123;</span><br><span class="line">    将C型飞机飞至指定的目的地</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这几乎和前一个设计一摸一样，只不过pure virtual函数Airplane:fly替换了独立函数Airplane::defaultFly。本质上，现在的fly被分割为两个基本要素：其声明部分表现的是接口（那是derived class必须使用的），其定义部分则表现出缺省行为（那是derived class可能使用的，但只有在它们明确提出申请时才是）。如果合并fly和defaultFly，就丧失了“让两个函数享有不同保护级别”的机会：习惯上被设为protected的函数（defaultFly）如今成了public（因为它在fly之中）。</p>
+<p>&emsp;&emsp;最后，让我们看看Shape的non-virtual函数objectID：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">objectID</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果成员函数是个non-virtual函数，意味着它并不打算在derived class中有不同的行为。实际上一个non-virtual成员函数所表现的不变性凌驾其特异性，因为它表示不论derived class变得多么特异化，它的行为都不可以改变。就其自身而言：</p>
+<ul>
+<li>声明non-virtual函数的目的是为了令derived class继承函数的接口及一份强制性实现。</li>
+</ul>
+<p>&emsp;&emsp;你可以把Shape::objectID的声明想做是：“每个Shape对象都有一个用来产生对象识别码的函数；此识别码总是采用相同计算方法，该方法由Shape::objectID的定义式决定，任何derived class都不应该尝试改变其行为”。由于non-virtual函数代表的意义是不变性凌驾特异性，所以它绝不该在derived class中被重新定义。</p>
+<p>&emsp;&emsp;pure virtual函数、simple（impure）virtual函数、non-virtual函数之间的差异，使你得以精确指定你想要derived class继承的东西：只继承接口，或是继承接口和一份缺省实现，或是继承接口和一份强制实现。由于这些不同类型的声明意味着根本意义并不相同的事情，当你声明你的成员函数时，必须谨慎选择。如果你确实履行，应该能够避免经验不足的class设计者最常犯的两个错误。</p>
+<p>&emsp;&emsp;第一个错误是将所有函数声明为non-virtual。这使得derived class没有余裕空间进行特化工作。non-virtual析构函数尤其会带来问题（见“<a href="/2020/07/22/%E4%B8%BA%E5%A4%9A%E6%80%81%E5%9F%BA%E7%B1%BB%E5%A3%B0%E6%98%8Evirtual%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/" title="为多态基类声明virtual析构函数">为多态基类声明virtual析构函数</a>”）。当然啦，设计一个并不想成为base class的class是绝对合理的，既然这样，将其所有成员函数都声明为non-virtual也很适当。但这种声明如果不是忽略了virtual和non-virtual函数之间的差异，就是过度担心virtual函数的效率成本。实际上任何class如果打算被用来当做一个base class，都会拥有若干virtual函数。</p>
+<p>&emsp;&emsp;如果你关心virtual函数的成本，请容许我介绍所谓的80-20法则（也可见“<a href="/2020/08/12/%E9%80%8F%E5%BD%BB%E4%BA%86%E8%A7%A3inlining%E7%9A%84%E9%87%8C%E9%87%8C%E5%A4%96%E5%A4%96/" title="透彻了解inlining的里里外外">透彻了解inlining的里里外外</a>。这个法则说，一个典型的程序有80%的执行时间花费在20%的代码身上。此一法则十分重要，因为它意味，平均而言你的函数调用中可以有80%是virtual而不冲击程序的大体效率。所以当你担心是否有能力负担virtual函数的成本之前，请先将心力放在那举足轻重的20%代码上头，它才是关键。</p>
+<p>&emsp;&emsp;另一个常见错误是将所有成员函数声明为virtual。有时候这样做是正确的，例如“<a href="/2020/08/13/%E5%B0%86%E6%96%87%E4%BB%B6%E9%97%B4%E7%9A%84%E7%BC%96%E8%AF%91%E4%BE%9D%E5%AD%98%E5%85%B3%E7%B3%BB%E9%99%8D%E8%87%B3%E6%9C%80%E4%BD%8E/" title="将文件间的编译依存关系降至最低">将文件间的编译依存关系降至最低</a>”的interface class。然而这也可能是class设计者缺乏坚定立场的前兆。某些函数就是不该在derived class中被重新定义，果真如此你应该将那些函数声明为non-virtual。没有人有权利妄称你的class适用于任何人任何事物而他们只需花点时间重新定义你的函数就可以享受一切。如果你的不变性凌驾特异性，别害怕说出来。</p>
+<blockquote>
+<ul>
+<li>接口继承和实现继承不同。在public继承之下，derived class总是继承base class的接口。</li>
+<li>pure virtual函数只具体指定接口继承。</li>
+<li>简朴的（非纯）impure virtual函数具体指定接口继承及缺省实现继承。</li>
+<li>non-virtual函数具体指定接口以及强制性实现继承。</li>
+</ul>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/28/%E9%81%BF%E5%85%8D%E9%81%AE%E6%8E%A9%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E5%90%8D%E7%A7%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -247,22 +406,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/10/28/%E9%81%BF%E5%85%8D%E9%81%AE%E6%8E%A9%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E5%90%8D%E7%A7%B0/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/10/28/%E9%81%BF%E5%85%8D%E9%81%AE%E6%8E%A9%E7%BB%A7%E6%89%BF%E8%80%8C%E6%9D%A5%E7%9A%84%E5%90%8D%E7%A7%B0/" class="cy_cmt_count" data-xid="2020/10/28/避免遮掩继承而来的名称/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -384,22 +527,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/09/18/pkg-config/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/09/18/pkg-config/" class="cy_cmt_count" data-xid="2020/09/18/pkg-config/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -552,22 +679,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/" class="cy_cmt_count" data-xid="2020/09/14/关于GNU make工具的汇总（3）/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -719,22 +830,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/09/12/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%882%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/09/12/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%882%EF%BC%89/" class="cy_cmt_count" data-xid="2020/09/12/关于GNU make工具的汇总（2）/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -859,22 +954,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/09/11/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%881%EF%BC%89/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/09/11/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%881%EF%BC%89/" class="cy_cmt_count" data-xid="2020/09/11/关于GNU make工具的汇总（1）/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -1021,22 +1100,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/09/06/%E7%A1%AE%E5%AE%9A%E4%BD%A0%E7%9A%84public%E7%BB%A7%E6%89%BF%E5%A1%91%E6%A8%A1%E5%87%BAis-a%E5%85%B3%E7%B3%BB/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/09/06/%E7%A1%AE%E5%AE%9A%E4%BD%A0%E7%9A%84public%E7%BB%A7%E6%89%BF%E5%A1%91%E6%A8%A1%E5%87%BAis-a%E5%85%B3%E7%B3%BB/" class="cy_cmt_count" data-xid="2020/09/06/确定你的public继承塑模出is-a关系/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -1155,22 +1218,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/08/13/%E5%B0%86%E6%96%87%E4%BB%B6%E9%97%B4%E7%9A%84%E7%BC%96%E8%AF%91%E4%BE%9D%E5%AD%98%E5%85%B3%E7%B3%BB%E9%99%8D%E8%87%B3%E6%9C%80%E4%BD%8E/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/08/13/%E5%B0%86%E6%96%87%E4%BB%B6%E9%97%B4%E7%9A%84%E7%BC%96%E8%AF%91%E4%BE%9D%E5%AD%98%E5%85%B3%E7%B3%BB%E9%99%8D%E8%87%B3%E6%9C%80%E4%BD%8E/" class="cy_cmt_count" data-xid="2020/08/13/将文件间的编译依存关系降至最低/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -1324,22 +1371,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/08/12/%E9%80%8F%E5%BD%BB%E4%BA%86%E8%A7%A3inlining%E7%9A%84%E9%87%8C%E9%87%8C%E5%A4%96%E5%A4%96/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/08/12/%E9%80%8F%E5%BD%BB%E4%BA%86%E8%A7%A3inlining%E7%9A%84%E9%87%8C%E9%87%8C%E5%A4%96%E5%A4%96/" class="cy_cmt_count" data-xid="2020/08/12/透彻了解inlining的里里外外/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -1457,22 +1488,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/08/11/%E4%B8%BA%E2%80%9C%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%E2%80%9D%E8%80%8C%E5%8A%AA%E5%8A%9B%E6%98%AF%E5%80%BC%E5%BE%97%E7%9A%84/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/08/11/%E4%B8%BA%E2%80%9C%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%E2%80%9D%E8%80%8C%E5%8A%AA%E5%8A%9B%E6%98%AF%E5%80%BC%E5%BE%97%E7%9A%84/" class="cy_cmt_count" data-xid="2020/08/11/为“异常安全”而努力是值得的/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -1560,123 +1575,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/10/%E9%81%BF%E5%85%8D%E8%BF%94%E5%9B%9Ehandles%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1%E5%86%85%E9%83%A8%E6%88%90%E5%88%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/10/%E9%81%BF%E5%85%8D%E8%BF%94%E5%9B%9Ehandles%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1%E5%86%85%E9%83%A8%E6%88%90%E5%88%86/" class="post-title-link" itemprop="url">避免返回handles指向对象内部成分</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-08-10 12:15:00 / Modified: 20:55:14" itemprop="dateCreated datePublished" datetime="2020-08-10T12:15:00+08:00">2020-08-10</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/08/10/%E9%81%BF%E5%85%8D%E8%BF%94%E5%9B%9Ehandles%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1%E5%86%85%E9%83%A8%E6%88%90%E5%88%86/" class="post-meta-item leancloud_visitors" data-flag-title="避免返回handles指向对象内部成分" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/08/10/%E9%81%BF%E5%85%8D%E8%BF%94%E5%9B%9Ehandles%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1%E5%86%85%E9%83%A8%E6%88%90%E5%88%86/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/08/10/%E9%81%BF%E5%85%8D%E8%BF%94%E5%9B%9Ehandles%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1%E5%86%85%E9%83%A8%E6%88%90%E5%88%86/" class="cy_cmt_count" data-xid="2020/08/10/避免返回handles指向对象内部成分/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="避免返回handles指向对象内部成分"><a href="#避免返回handles指向对象内部成分" class="headerlink" title="避免返回handles指向对象内部成分"></a>避免返回handles指向对象内部成分</h1><p>&emsp;&emsp;假设你的程序设计矩形。每个矩形由其左上角和右下角表示。为了让一个Rectangle对象尽可能小，你可能会决定不把定义矩形的这些点存放在Rectangle对象内，而是放在一个辅助的struct内再让Rectangle去指它：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Point(<span class="keyword">int</span> x, <span class="keyword">int</span> y);</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setX</span><span class="params">(<span class="keyword">int</span> newVal)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setY</span><span class="params">(<span class="keyword">int</span> newVal)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">RectData</span> &#123;</span>  <span class="comment">//这些“点”数据用来表现一个矩形</span></span><br><span class="line">    Point ulhc;    <span class="comment">//左上角</span></span><br><span class="line">    Point lrhc;    <span class="comment">//右下角</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;RectData&gt; pData;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;Rectangle的客户必须能够计算Rectangle的范围，所以这个class提供upperLeft函数和lowerRight函数。Point是个用户自定义类型，这些函数返回reference，代表底层的Point对象：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function">Point&amp; <span class="title">upperLeft</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;ulhc; &#125;</span><br><span class="line">    <span class="function">Point&amp; <span class="title">lowerRight</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;lrhc; &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这样的设计可以通过编译，但却是错误的。实际上它是自我矛盾的。一方面upperLeft和lowerRight被声明为const成员函数，因为它们的目的只是为了提供客户一个得知Rectangle相关坐标点的方法，而不是让客户修改Rectangle。另一方面两个函数都返回reference指向private内部数据，调用者于是可以通过这些reference更改内部数据！例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Point <span class="title">coord1</span><span class="params">(<span class="number">0</span>, <span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="function">Point <span class="title">coord2</span><span class="params">(<span class="number">100</span>, <span class="number">100</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">const</span> Rectangle <span class="title">rec</span><span class="params">(coord1, coord2)</span></span>;  <span class="comment">//rec是个const矩形，从（0，0）到（100，100）</span></span><br><span class="line">rec.upperLeft().setX(<span class="number">50</span>);             <span class="comment">//现在却变成从（50，0）到（100，100）</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里立刻带给我们两个教训。第一，成员变量的封装性最多只等于“返回其reference”的函数的访问级别。本例之中虽然ulhc和lrhc都被声明为private，它们实际上却是public，因为public函数upperLeft和lowerRight传出它们的reference。第二，如果const成员函数传出一个reference，后者所指数据与对象自身有关联，而它又被存储于对象之外，那么这个函数的调用者可以修改那笔数据。这正是bitwise constness的一个附带结果。</p>
-<p>&emsp;&emsp;我们在这些函数身上遭遇的两个问题可以轻松去除，只要对它们的返回类型加上const即可：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">const</span> Point&amp; <span class="title">upperLeft</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;ulhc; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">const</span> Point&amp; <span class="title">lowerRight</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;lrhc; &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;有了这样的改变，客户可以读取矩形的Point，但不能涂写它们。这意味当初声明upperLeft和upperRight为const不再是个谎言，因为它们不在允许客户更改对象状态。至于封装问题，我们总是愿意让客户看到Rectangle的外围Point，所以这里是蓄意放松封装。更重要的是这是个有限度的放松：这些函数只让渡读取权。涂写权仍然是被禁止的。</p>
-<p>&emsp;&emsp;但即使如此，upperLeft和lowerRight还是返回了“代表对象内部”的handle，有可能在其它场合带来问题。更明确地说，它可能导致dangling handle（空悬号码牌）：这种handle所指东西（的所属对象）不复存在。这种“不复存在的对象”最常见的来源就是函数返回值。例如某个函数返回GUI对象的外框，这个外框采用矩形形式：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GUIObject</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="keyword">const</span> Rectangle</span><br><span class="line">boundingBox(<span class="keyword">const</span> GUIObject&amp; obj);</span><br></pre></td></tr></table></figure>
-
-<p>现在，客户有可能这么使用这个函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GUIObject* pgo;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> Point* pUpperLeft = &amp;(boundingBox(*pgo).upperLeft());</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;对boundingBox的调用获得一个新的、暂时的Rectangle对象。这个对象没有名称，所以我们权且称它为temp。随后upperLeft作用于temp身上，返回一个reference指向temp的一个内部成分，更具体地说是指向一个用以标示temp的Point。于是pUpperLeft指向那个Point对象。目前为止一切还好，但故事尚未结束，因为在那个语句结束之后，boundingBox的返回值，也就是我们所说的temp，将被销毁，而那间接导致temp内的Point析构。最终导致pUpperLeft指向一个不再存在的对象：也就是说一旦产出pUpperLeft的那个语句结束，pUpperLeft也就变成空悬、虚吊！</p>
-<p>&emsp;&emsp;这就是为什么函数如果“返回一个handle代表对象内部成分”总是危险的原因。不论这所谓的handle是个指针或迭代器或reference，也不论这个handle是否为const，也不论那个返回handle的成员函数是否为const。这里的唯一关键是，有个handle被传出去了，一旦如此你就是暴露在“handle比其所指对象更长寿”的风险下。</p>
-<p>&emsp;&emsp;这并不意味你绝对不可以让成员函数返回handle。有时候你必须那么做。例如operator[]就允许你“摘采”string和vector的个别元素，而这些operator[]就是返回reference指向“容器内的数据”，那些数据会随着容器被销毁而销毁。尽管如此，这样的函数毕竟是少数，不是常态。</p>
-<blockquote>
-<p>避免返回handle（包括reference、指针、迭代器）指向对象内部。遵守这个条款可增加封装性，帮助const成员函数的行为像个const，并将发生“虚吊号码牌”的可能性降至最低。</p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1747,7 +1645,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-count">57</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -2002,9 +1900,6 @@ window.addEventListener('pjax:success', () => {
   
 
   
-
-  <script id="cy_cmt_num" src="https://changyan.sohu.com/upload/plugins/plugins.list.count.js?clientId=cyvbkKrw4"></script>
-
 
     </div>
 </body>

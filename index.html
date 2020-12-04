@@ -19,7 +19,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null,"activeClass":"changyan"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="you never can tell">
@@ -202,6 +202,89 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/02/placement%20new%E4%B8%8Eplacement%20delete%E4%B8%80%E5%AE%9A%E8%A6%81%E6%88%90%E5%8F%8C%E6%88%90%E5%AF%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/12/02/placement%20new%E4%B8%8Eplacement%20delete%E4%B8%80%E5%AE%9A%E8%A6%81%E6%88%90%E5%8F%8C%E6%88%90%E5%AF%B9/" class="post-title-link" itemprop="url">placement new与placement delete一定要成双成对</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-12-02 10:23:55" itemprop="dateCreated datePublished" datetime="2020-12-02T10:23:55+08:00">2020-12-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-12-03 22:27:32" itemprop="dateModified" datetime="2020-12-03T22:27:32+08:00">2020-12-03</time>
+              </span>
+
+          
+            <span id="/2020/12/02/placement%20new%E4%B8%8Eplacement%20delete%E4%B8%80%E5%AE%9A%E8%A6%81%E6%88%90%E5%8F%8C%E6%88%90%E5%AF%B9/" class="post-meta-item leancloud_visitors" data-flag-title="placement new与placement delete一定要成双成对" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="运行期系统对于正常形式new／delete所做出的决策"><a href="#运行期系统对于正常形式new／delete所做出的决策" class="headerlink" title="运行期系统对于正常形式new／delete所做出的决策"></a>运行期系统对于正常形式new／delete所做出的决策</h1><p>&emsp;&emsp;当你写一个像这样的new表达式：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Widget* pw = <span class="keyword">new</span> Widget;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;共有两个函数被调用：一个是用以分配内存的operator new，一个是Widget的default构造函数。</p>
+<p>&emsp;&emsp;假设其中第一个函数调用成功，第二个函数抛出异常。那么这种情况下，第一步内存分配的空间必须取消并恢复原状，否则会造成内存泄漏。但是由于Widget构造函数抛出异常，pw尚未被赋值，那么客户手上自然就没有指针指向应该被归还的内存。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/12/02/placement%20new%E4%B8%8Eplacement%20delete%E4%B8%80%E5%AE%9A%E8%A6%81%E6%88%90%E5%8F%8C%E6%88%90%E5%AF%B9/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/30/%E8%87%AA%E5%AE%9A%E4%B9%89new%E5%92%8Cdelete%E7%9A%84%E8%A7%84%E5%88%99/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -253,22 +336,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/11/30/%E8%87%AA%E5%AE%9A%E4%B9%89new%E5%92%8Cdelete%E7%9A%84%E8%A7%84%E5%88%99/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/11/30/%E8%87%AA%E5%AE%9A%E4%B9%89new%E5%92%8Cdelete%E7%9A%84%E8%A7%84%E5%88%99/" class="cy_cmt_count" data-xid="2020/11/30/自定义new和delete的规则/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -358,22 +425,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/11/27/%E5%85%B3%E4%BA%8E%E6%9B%BF%E6%8D%A2new%E5%92%8Cdelete%E7%9A%84%E6%8A%80%E6%9C%AF/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/11/27/%E5%85%B3%E4%BA%8E%E6%9B%BF%E6%8D%A2new%E5%92%8Cdelete%E7%9A%84%E6%8A%80%E6%9C%AF/" class="cy_cmt_count" data-xid="2020/11/27/关于替换new和delete的技术/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -463,22 +514,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/11/23/%E5%AF%B9new-handler%E8%BF%99%E4%B8%80%E6%8A%80%E6%9C%AF%E7%9A%84%E6%8E%A2%E8%AE%A8/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/11/23/%E5%AF%B9new-handler%E8%BF%99%E4%B8%80%E6%8A%80%E6%9C%AF%E7%9A%84%E6%8E%A2%E8%AE%A8/" class="cy_cmt_count" data-xid="2020/11/23/对new-handler这一技术的探讨/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -553,22 +588,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/11/22/template%E5%85%83%E7%BC%96%E7%A8%8B/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/11/22/template%E5%85%83%E7%BC%96%E7%A8%8B/" class="cy_cmt_count" data-xid="2020/11/22/template元编程/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -646,22 +665,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/11/21/traits%20class%E4%B8%8E%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF%E4%B9%8B%E9%97%B4%E7%9A%84%E5%A6%99%E7%94%A8/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/11/21/traits%20class%E4%B8%8E%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF%E4%B9%8B%E9%97%B4%E7%9A%84%E5%A6%99%E7%94%A8/" class="cy_cmt_count" data-xid="2020/11/21/traits class与类型信息之间的妙用/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -804,22 +807,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/11/19/%E4%BD%BF%E7%94%A8friend%20non-member%20function%E6%9D%A5%E5%AE%8C%E6%88%90template%E4%B8%AD%E7%9A%84%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%9C%BA%E8%83%BD/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/11/19/%E4%BD%BF%E7%94%A8friend%20non-member%20function%E6%9D%A5%E5%AE%8C%E6%88%90template%E4%B8%AD%E7%9A%84%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%9C%BA%E8%83%BD/" class="cy_cmt_count" data-xid="2020/11/19/使用friend non-member function来完成template中的类型转换机能/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -932,22 +919,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/" class="cy_cmt_count" data-xid="2020/11/18/编写有兼容性的成员函数模版/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -1051,22 +1022,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/11/16/automake%E5%B7%A5%E5%85%B7%E2%80%94%E2%80%94%E4%BB%8B%E7%BB%8D/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/11/16/automake%E5%B7%A5%E5%85%B7%E2%80%94%E2%80%94%E4%BB%8B%E7%BB%8D/" class="cy_cmt_count" data-xid="2020/11/16/automake工具——介绍/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -1150,22 +1105,6 @@
               <span class="post-meta-item-text">Views: </span>
               <span class="leancloud-visitors-count"></span>
             </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/11/16/%E5%89%94%E9%99%A4template%E5%86%85%E4%B8%8E%E5%8F%82%E6%95%B0%E6%97%A0%E5%85%B3%E7%9A%84%E4%BB%A3%E7%A0%81/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/11/16/%E5%89%94%E9%99%A4template%E5%86%85%E4%B8%8E%E5%8F%82%E6%95%B0%E6%97%A0%E5%85%B3%E7%9A%84%E4%BB%A3%E7%A0%81/" class="cy_cmt_count" data-xid="2020/11/16/剔除template内与参数无关的代码/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
 
         </div>
       </header>
@@ -1218,143 +1157,6 @@
 </ul>
 </blockquote>
 <p>&emsp;&emsp;</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/15/%E5%AD%A6%E4%B9%A0%E5%A4%84%E7%90%86%E6%A8%A1%E7%89%88%E5%8C%96%E5%9F%BA%E7%B1%BB%E5%86%85%E7%9A%84%E5%90%8D%E7%A7%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/15/%E5%AD%A6%E4%B9%A0%E5%A4%84%E7%90%86%E6%A8%A1%E7%89%88%E5%8C%96%E5%9F%BA%E7%B1%BB%E5%86%85%E7%9A%84%E5%90%8D%E7%A7%B0/" class="post-title-link" itemprop="url">学习处理模版化基类内的名称</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-15 16:25:00" itemprop="dateCreated datePublished" datetime="2020-11-15T16:25:00+08:00">2020-11-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-16 16:12:09" itemprop="dateModified" datetime="2020-11-16T16:12:09+08:00">2020-11-16</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/11/15/%E5%AD%A6%E4%B9%A0%E5%A4%84%E7%90%86%E6%A8%A1%E7%89%88%E5%8C%96%E5%9F%BA%E7%B1%BB%E5%86%85%E7%9A%84%E5%90%8D%E7%A7%B0/" class="post-meta-item leancloud_visitors" data-flag-title="学习处理模版化基类内的名称" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Changyan: </span>
-    
-    
-      <a title="changyan" href="/2020/11/15/%E5%AD%A6%E4%B9%A0%E5%A4%84%E7%90%86%E6%A8%A1%E7%89%88%E5%8C%96%E5%9F%BA%E7%B1%BB%E5%86%85%E7%9A%84%E5%90%8D%E7%A7%B0/#SOHUCS" itemprop="discussionUrl">
-        <span id="url::http://yoursite.com/2020/11/15/%E5%AD%A6%E4%B9%A0%E5%A4%84%E7%90%86%E6%A8%A1%E7%89%88%E5%8C%96%E5%9F%BA%E7%B1%BB%E5%86%85%E7%9A%84%E5%90%8D%E7%A7%B0/" class="cy_cmt_count" data-xid="2020/11/15/学习处理模版化基类内的名称/" itemprop="commentCount"></span>
-      </a>
-    
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="学习处理模版化基类内的名称"><a href="#学习处理模版化基类内的名称" class="headerlink" title="学习处理模版化基类内的名称"></a>学习处理模版化基类内的名称</h1><p>&emsp;&emsp;假设我们需要撰写一个程序，它能够传送信息到若干不同的公司去。信息要不译成密码，要不就是未经加工的文字。如果编译期间我们有足够信息来决定哪一个信息传至哪一家公司，就可以采用基于template的解法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CompanyA</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendCleartext</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; msg)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendEncrypted</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; msg)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CompanyB</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendCleartext</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; msg)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendEncrypted</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; msg)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line">...                     <span class="comment">//针对其他公司设计的class</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MsgInfo</span> &#123;</span> ... &#125;;  <span class="comment">//这个class用来保存信息，以备将来产生信息</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Company&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MsgSender</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendClear</span><span class="params">(<span class="keyword">const</span> MsgInfo&amp; info)</span> </span>&#123;</span><br><span class="line">            <span class="built_in">std</span>::<span class="built_in">string</span> msg;</span><br><span class="line">            <span class="comment">//在这里，根据info产生信息</span></span><br><span class="line">            Company c;</span><br><span class="line">            c.sendCleartext(msg);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendSecret</span><span class="params">(<span class="keyword">const</span> MsgInfo&amp; info)</span> </span>&#123;</span><br><span class="line">            ...  <span class="comment">//类似sendClear，唯一不同的是这里调用c.sendEncrypted</span></span><br><span class="line">        &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个做法行得通。但假设我们有时候想要在每次送出信息时志记某些信息。derived class可轻易加上这样的生产力，那似乎是个合情合理的解法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Company&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoggingMsgSender</span> :</span> <span class="keyword">public</span> MsgSender&lt;Company&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendClearMsg</span><span class="params">(<span class="keyword">const</span> MsgInfo&amp; info)</span> </span>&#123;</span><br><span class="line">            <span class="comment">//将“传送前”的信息写至log</span></span><br><span class="line">            sendClear(info);  <span class="comment">//调用base class函数，这段代码无法通过编译。</span></span><br><span class="line">            <span class="comment">//将“传送后”的信息写至log</span></span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;注意这个derived class的信息传送函数有一个不同的名称（sendClearMsg），与其base class内的名称（sendClear）不同。那是个好设计，因为它避免遮掩“继承而得的名称”，也避免重新定义一个继承而得的non-virtual函数。但上述代码无法通过编译，至少对严守规律的编译器而言。这样的编译器会抱怨sendClear不存在。我们的眼睛可以看到sendClear的确在base class内，编译器却看不到它们。为什么？</p>
-<p>&emsp;&emsp;问题在于，当编译器遭遇class template LoggingMsgSender定义式时，并不知道它继承什么样的class。当然它继承的是MsgSender&lt;Company&gt;，但其中的Company是个template参数，不到后来（当LoggingMsgSender被具现化）无法确切知道它是什么，而如果不知道Company是什么，就无法知道class MsgSender&lt;Company&gt;看起来像什么——更明确地说是没办法知道它是个sendClear函数。</p>
-<p>&emsp;&emsp;为了让问题更具现化，假设我们有个class CompanyZ坚持使用加密通讯：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CompanyZ</span> &#123;</span>  <span class="comment">//这个class不提供sendClearText函数</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendEncrypted</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; msg)</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;一般性的MsgSender template对CompanyZ并不合适，因为那个template提供了一个sendClear函数（其中针对其类型参数Company调用了sendCleartext函数），而这对CompanyZ对象并不合理。欲矫正这个问题，我们可以针对CompanyZ产生一个MsgSender特化版：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MsgSender</span> &lt;CompanyZ&gt; &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendSecret</span><span class="params">(<span class="keyword">const</span> MsgInfo&amp; info)</span> </span>&#123; ... &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;注意class定义式最前头的“template &lt;&gt;”语法象征这既不是template也不是标准class，而是个特化版的MsgSender template，在template实参是CompanyZ时被使用。这是所谓的模版全特化：template MsgSender针对类型CompanyZ特化了，而且其特化是全面性的，也就是说一旦类型参数被定义为CompanyZ，再没有其他template参数可供变化。</p>
-<p>&emsp;&emsp;现在，MsgSender针对CompanyZ进行了全特化，让我们再次考虑derived class LoggingMsgSender：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Company&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LogginMsgSender</span> :</span> <span class="keyword">public</span> MsgSender&lt;Company&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendClearMsg</span><span class="params">(<span class="keyword">const</span> MsgInfo&amp; info)</span> </span>&#123;</span><br><span class="line">            <span class="comment">//将“传送前”的信息写至log</span></span><br><span class="line">            sendClear(info);  <span class="comment">//如果Company == CompanyZ，这个函数不存在。</span></span><br><span class="line">            <span class="comment">//将“传送后”的信息写至log</span></span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;正如注释所言，当base class被指定为MsgSender&lt;CompanyZ&gt;时这段代码不合法，因为那个class并未提供sendClear函数！那就是为什么C++拒绝这个调用的原因：它知道base class template有可能被特化，而那个特化版本不可能提供和一般性template相同的接口。因此它往往拒绝在templatized base class（模版化基类，本例的MsgSender&lt;Company&gt;）内寻找继承而来的名称（本例的SendClear）。就某种意义而言，当我们从Object Oriented C++跨进Template C++。继承就不像以前那般畅行无阻了。</p>
-<p>&emsp;&emsp;为了重头来过，我们必须有某种办法令C++“不进入templatized base class观察”的行为失效。有三个办法，第一是在base class函数调用动作之前加上“this-&gt;”：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Company&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LogginMsgSender</span> :</span> <span class="keyword">public</span> MsgSender&lt;Company&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendClearMsg</span><span class="params">(<span class="keyword">const</span> MsgInfo&amp; info)</span> </span>&#123;</span><br><span class="line">            <span class="comment">//将“传送前”的信息写至log</span></span><br><span class="line">            <span class="keyword">this</span>-&gt;sendClear(info);  <span class="comment">//成立，假设sendClear将被继承</span></span><br><span class="line">            <span class="comment">//将“传送后”的信息写至log</span></span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;第二是使用using声明式。“”描述using声明式如何将“被遮掩的base class名称”带入一个derived class作用域内。我们可以这样写下sendClearMsg：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Company&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoggingMsgSender</span> :</span> <span class="keyword">public</span> MsgSender&lt;Company&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">using</span> MsgSender&lt;Company&gt;::sendClear;  <span class="comment">//告诉编译器，请它假设</span></span><br><span class="line">        ...                                   <span class="comment">//sendClear位于base class内。</span></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendClearMsg</span><span class="params">(<span class="keyword">const</span> MsgInfo&amp; info)</span> </span>&#123;</span><br><span class="line">            ...</span><br><span class="line">            sendClear(info);  <span class="comment">//OK，假设sendClear将被继承下来</span></span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;（虽然using声明式在这里或在“”都可有效运行，但两处解决的问题其实不同。这里的情况并不是base class名称被derived class名称遮掩，而是编译器不进入base class作用域内查找，于是我们通过using告诉它，请它那么做。）</p>
-<p>&emsp;&emsp;第三个做法，明白指出被调用函数位于base class内：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Company&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoggingMsgSender</span> :</span> <span class="keyword">public</span> MsgSender&lt;Company&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">sendCLearMsg</span><span class="params">(<span class="keyword">const</span> MsgInfo&amp; info)</span> </span>&#123;</span><br><span class="line">            ...</span><br><span class="line">            MsgSender&lt;Company&gt;::sendClear(info);  <span class="comment">//OK，假设sendClear将被继承下来。</span></span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;但这往往是最不让人满意的一个解法，因为如果被调用的是virtual函数，上述的明确资格修饰会关闭“virtual绑定行为”。</p>
-<p>&emsp;&emsp;从名称可视点的角度出发，上述每一个解法做的事情都相同：对编译器承诺“base class template的任何特化版本都将支持其一般（泛化）版本所提供的接口”。这样一个承诺是编译器在解析像LoggingMsgSender这样的derived class template时需要的。但如果这个承诺最终未被实践出来，往后的编译最终还是会还给事实一个公道。举个例子，如果稍后的源码内含这个：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LoggingMsgSender&lt;CompanyZ&gt; zMsgSender;</span><br><span class="line">MsgInfo msgData;</span><br><span class="line">...                                <span class="comment">//在msgData内放置信息。</span></span><br><span class="line">zMsgSender.sendClearMsg(msgData);  <span class="comment">//错误！无法通过编译。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;其中对sendClearMsg的调用动作将无法通过编译，因为在那个点上，编译器知道base class是个template特化版本MsgSender&lt;CompanyZ&gt;，而且它们知道那个class不提供sendClear函数，而后者却是sendClearMsg尝试调用的函数。</p>
-<p>&emsp;&emsp;根本而言，本条款探讨的是，面对“指涉base class members”之无效reference，编译器的诊断时间可能发生在早期（当解析derived class template的定义式时）。C++的政策是宁愿较早诊断，这就是为什么“当base class从template中被具现化时”它假设它对那些base class的内容毫无所悉的缘故。</p>
-<blockquote>
-<ul>
-<li>可在derived class template内通过“this-&gt;”指涉base class template内的成员名称，或藉由一个明白写出的“base class资格修饰符”完成。</li>
-</ul>
-</blockquote>
 
       
     </div>
@@ -1440,7 +1242,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-count">57</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1695,9 +1497,6 @@ window.addEventListener('pjax:success', () => {
   
 
   
-
-  <script id="cy_cmt_num" src="https://changyan.sohu.com/upload/plugins/plugins.list.count.js?clientId=cyvbkKrw4"></script>
-
 
     </div>
 </body>
