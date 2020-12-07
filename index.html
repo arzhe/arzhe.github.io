@@ -226,15 +226,24 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-12-02 10:23:55" itemprop="dateCreated datePublished" datetime="2020-12-02T10:23:55+08:00">2020-12-02</time>
+              <time title="Created: 2020-12-02 10:23:00" itemprop="dateCreated datePublished" datetime="2020-12-02T10:23:00+08:00">2020-12-02</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-12-03 22:27:32" itemprop="dateModified" datetime="2020-12-03T22:27:32+08:00">2020-12-03</time>
+                <time title="Modified: 2020-12-07 18:19:43" itemprop="dateModified" datetime="2020-12-07T18:19:43+08:00">2020-12-07</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                </span>
+            </span>
 
           
             <span id="/2020/12/02/placement%20new%E4%B8%8Eplacement%20delete%E4%B8%80%E5%AE%9A%E8%A6%81%E6%88%90%E5%8F%8C%E6%88%90%E5%AF%B9/" class="post-meta-item leancloud_visitors" data-flag-title="placement new与placement delete一定要成双成对" title="Views">
@@ -254,7 +263,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="运行期系统对于正常形式new／delete所做出的决策"><a href="#运行期系统对于正常形式new／delete所做出的决策" class="headerlink" title="运行期系统对于正常形式new／delete所做出的决策"></a>运行期系统对于正常形式new／delete所做出的决策</h1><p>&emsp;&emsp;当你写一个像这样的new表达式：</p>
+          <hr>
+<h1 id="运行期系统对于正常形式new／delete所做出的决策"><a href="#运行期系统对于正常形式new／delete所做出的决策" class="headerlink" title="运行期系统对于正常形式new／delete所做出的决策"></a>运行期系统对于正常形式new／delete所做出的决策</h1><p>&emsp;&emsp;当你写一个像这样的new表达式：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Widget* pw = <span class="keyword">new</span> Widget;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;共有两个函数被调用：一个是用以分配内存的operator new，一个是Widget的default构造函数。</p>

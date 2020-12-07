@@ -2889,7 +2889,8 @@
   <entry>
     <title>placement new与placement delete一定要成双成对</title>
     <url>/2020/12/02/placement%20new%E4%B8%8Eplacement%20delete%E4%B8%80%E5%AE%9A%E8%A6%81%E6%88%90%E5%8F%8C%E6%88%90%E5%AF%B9/</url>
-    <content><![CDATA[<h1 id="运行期系统对于正常形式new／delete所做出的决策"><a href="#运行期系统对于正常形式new／delete所做出的决策" class="headerlink" title="运行期系统对于正常形式new／delete所做出的决策"></a>运行期系统对于正常形式new／delete所做出的决策</h1><p>&emsp;&emsp;当你写一个像这样的new表达式：</p>
+    <content><![CDATA[<hr>
+<h1 id="运行期系统对于正常形式new／delete所做出的决策"><a href="#运行期系统对于正常形式new／delete所做出的决策" class="headerlink" title="运行期系统对于正常形式new／delete所做出的决策"></a>运行期系统对于正常形式new／delete所做出的决策</h1><p>&emsp;&emsp;当你写一个像这样的new表达式：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">Widget* pw = <span class="keyword">new</span> Widget;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;共有两个函数被调用：一个是用以分配内存的operator new，一个是Widget的default构造函数。</p>
@@ -2905,10 +2906,17 @@
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>, <span class="built_in">std</span>::ostream&amp; logStream)</span> </span></span><br><span class="line"><span class="function">            <span class="title">throw</span><span class="params">(<span class="built_in">std</span>::bad_alloc)</span></span>;  <span class="comment">//非正常形式的new</span></span><br><span class="line">        </span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="keyword">operator</span> <span class="title">delete</span><span class="params">(<span class="keyword">void</span>* pMemory, <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">size</span>)</span></span></span><br><span class="line"><span class="function">            <span class="title">throw</span><span class="params">()</span></span>;  <span class="comment">//正常的class专属delete</span></span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;这个设计有点问题，但现在我们可以先绕开这个问题。简要的讨论以下概念。</p>
-<p>&emsp;&emsp;什么是placement new：如果operator new接受的参数除了一定会有的那个size_t之外还有其他的，这个便是所谓的placement new。因此上述的operator new是一个placement版本。在众多的placement new版本中特别有用的一个是“接受一个指针指向对象该被构造之处”，那样的operator new长相如下：</p>
+<h1 id="什么是placement-new"><a href="#什么是placement-new" class="headerlink" title="什么是placement new"></a>什么是placement new</h1><p>&emsp;&emsp;什么是placement new：如果operator new接受的参数除了一定会有的那个size_t类型参数之外还有其他的，这个便是所谓的placement new。因此上述的operator new是一个placement版本。在众多的placement new版本中特别有用的一个是“接受一个指针指向对象该被构造之处”，这样的operator new长相如下：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span>* <span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="built_in">std</span>::<span class="keyword">size_t</span>, <span class="keyword">void</span>* pMemory)</span> <span class="title">throw</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;这个版本的new已被纳入C++标准程序库，你只要#include &lt;new&gt;就可以使用它。这个new的用途之一是负责在vector的未使用空间上创建对象。它同时也是最早的placement new版本。实际上它正是这个函数的命名依据：一个特定位置上的new。</p>
+<p>&emsp;&emsp;这个版本的new已被纳入C++标准程序库，你只要#include &lt;new&gt;就可以使用它。这个new的用途之一是负责在vector的未使用空间上创建对象。它同时也是最早的placement new版本。实际上它正是这个函数的命名依据：一个特定位置上进行new操作。</p>
+<p>&emsp;&emsp;大多数情况下，当人谈及placement new，往往指的是“唯一额外实参是个void*”这个特定版本。</p>
 ]]></content>
+      <categories>
+        <category>长篇大论</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
   </entry>
 </search>
