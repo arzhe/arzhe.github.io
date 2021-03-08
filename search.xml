@@ -2509,14 +2509,6 @@
       </tags>
   </entry>
   <entry>
-    <title>automake工具——介绍</title>
-    <url>/2020/11/16/automake%E5%B7%A5%E5%85%B7%E2%80%94%E2%80%94%E4%BB%8B%E7%BB%8D/</url>
-    <content><![CDATA[<h1 id="automake工具——介绍"><a href="#automake工具——介绍" class="headerlink" title="automake工具——介绍"></a>automake工具——介绍</h1><p>&emsp;&emsp;automake是一个自动化工具，可以通过一个名为Makefile.am的文件来自动生成Makefile.in文件。每一个Makefile.in文件本质上就是一连串的的make命令变量的定义，通常会伴有相关规则。生成的Makefile.in文件遵从GNU Makefile的标准。</p>
-<p>&emsp;&emsp;GNU Makefile的标准文档既冗长又复杂，并且随时都会更改。automake的目的就是要为GNU的个人维护者移除Makefile的维护负担（并且将其置于automake维护者的工作幕后）。</p>
-<p>&emsp;&emsp;典型的automake输入文件仅仅是一连串的变量定义。每个这样的文件都被进一步用来创建Makefile.in文件。</p>
-]]></content>
-  </entry>
-  <entry>
     <title>剔除template内与参数无关的代码</title>
     <url>/2020/11/16/%E5%89%94%E9%99%A4template%E5%86%85%E4%B8%8E%E5%8F%82%E6%95%B0%E6%97%A0%E5%85%B3%E7%9A%84%E4%BB%A3%E7%A0%81/</url>
     <content><![CDATA[<hr>
@@ -2918,5 +2910,411 @@
       <tags>
         <tag>C++</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>CMake工具教程（一）</title>
+    <url>/2021/01/01/CMake%E5%B7%A5%E5%85%B7%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89/</url>
+    <content><![CDATA[<hr>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>&emsp;&emsp;该教程将逐步讲解CMake工具在构建一个工程项目中的每一个细节与步骤。CMake最终目的是创建出makefile文件，而不是直接构建出一个工程项目。</p>
+<h1 id="初步构建（步骤1）"><a href="#初步构建（步骤1）" class="headerlink" title="初步构建（步骤1）"></a>初步构建（步骤1）</h1><p>&emsp;&emsp;最为简单基本的项目是一个从源代码文件中构建出来的可执行文件。对于简单的项目，只需要一个包含三行命令的CMakeLists.txt文件。这将是所有基于CMake工具的项目的起点。CMakeLists.txt在该情况下的内容如下：</p>
+<a id="more"></a>
+
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># set the project name</span></span><br><span class="line"><span class="keyword">project</span>(Tutorial)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the executable</span></span><br><span class="line"><span class="keyword">add_executable</span>(Tutorial tutorial.cxx)</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加一个版本号和一个配置头文件"><a href="#添加一个版本号和一个配置头文件" class="headerlink" title="添加一个版本号和一个配置头文件"></a>添加一个版本号和一个配置头文件</h2><p>&emsp;&emsp;接下来我们添加的第一个功能是为我们的可执行文件和项目提供版本号。尽管我们也可以仅在源代码中执行此操作，但使用CMakeLists.txt可以提供更大的灵活性。</p>
+<p>&emsp;&emsp;首先，修改CMakeLists.txt文件，使用<code>project()</code>命令设置项目名称和版本号：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># set the project name and version</span></span><br><span class="line"><span class="keyword">project</span>(Tutorial VERSION <span class="number">1.0</span>)</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;然后，配置头文件来将版本号传递给源代码：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">configure_file</span>(TutorialConfig.h.in TutorialConfig.h)</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;由于已配置的文件将被写入二进制树，因此我们必须将该目录添加到路径列表中来搜索包含的文件。将以下命令添加到CMakeLists.txt文件等末尾：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">target_include_directories</span>(Tutorial PUBLIC</span><br><span class="line">                           <span class="string">"$&#123;PROJECT_BINARY_DIR&#125;"</span></span><br><span class="line">                           )</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;使用编辑器，在源目录下创建TutorialConfig.h.in文件，内容如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// the configured options and settings for Tutorial</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> Tutorial_VERSION_MAJOR @Tutorial_VERSION_MAJOR@</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> Tutorial_VERSION_MINOR @Tutorial_VERSION_MINOR@</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当CMake配置TutorialConfig.h头文件时，@Tutorial_VERSION_MAJOR@和@Tutorial_VERSION_MINOR@将被替换（它们的值在CMakeLists.txt中被定义）。接下来，在tutorial.cpp文件中include被配置的TutorialConfig.h头文件。最后，在tutorial.cpp文件中编入下列代码来打印出可执行文件的名称和版本号：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(argc &lt; <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; argv[<span class="number">0</span>] &lt;&lt; <span class="string">" VERSION "</span> &lt;&lt; Tutorial_VERSION_MAJOR &lt;&lt; <span class="string">"."</span></span><br><span class="line">              &lt;&lt; Tutorial_VERSION_MINOR &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Usage: "</span> &lt;&lt; argv[<span class="number">0</span>] &lt;&lt; <span class="string">"number"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="指定C-标准"><a href="#指定C-标准" class="headerlink" title="指定C++标准"></a>指定C++标准</h2><p>&emsp;&emsp;接下来，给我们的项目添加一些C++11的特性，在tutorial.cpp中将atof替换为std::stod。与此同时，将<code>#include &lt;cstdlib&gt;</code>移除：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> inputValue = <span class="built_in">std</span>::stod(argv[<span class="number">1</span>]);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;在这种情况下，我们需要在CMAKE中使用<code>CMAKE_CXX_STANDARD</code>变量来启用某种特定的C++标准。对于我们的Tutorial，在CMakeLists.txt中设置<code>CMAKE_CXX_STANDARD</code>变量为11并且设置<code>CMAKE_CXX_STANDARD_REQUIRED</code>为True。确保在<code>add_executable</code>调用之前添加<code>CMAKE_CXX_STANDARD</code>声明：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># set the project name and version</span></span><br><span class="line"><span class="keyword">project</span>(Tutorial VERSION <span class="number">1.0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># specify the C++ standard</span></span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="keyword">True</span>)</span><br></pre></td></tr></table></figure>
+
+<h1 id="添加一个库（步骤2）"><a href="#添加一个库（步骤2）" class="headerlink" title="添加一个库（步骤2）"></a>添加一个库（步骤2）</h1><p>&emsp;&emsp;现在我们将为项目添加一个库。这个库包含我们自己的实现，用于计算数字的平方根。然后可执行文件可以使用此库而不是编译器提供的标准平方根函数。</p>
+<p>&emsp;&emsp;我们将库放入名为MathFunctions的子目录中。该目录包含一个头文件MathFunctions.h和一个源文件mysqrt.cxx。源文件具有一个mysqrt函数，该函数有着与编译器所提供的sqrt函数相似的的功能。</p>
+<p>&emsp;&emsp;将具有以下一行代码的CMakeLists.txt文件添加到MathFunctions目录中：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">add_library</span>(MathFunctions mysqrt.cxx)</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;为了使用新库，我们在顶级CMakeLists.txt文件中添加一个<code>add_subdirectory()</code>，以便构建库。将新库添加到可执行文件中，为了使得mysqrt.h头文件可以被找到，需要添加MathFunctions目录作为include directory。最后，我们的顶级CMakeLists.txt最后几行看起来会是这样的：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># add the MathFunctions library</span></span><br><span class="line"><span class="keyword">add_subdirectory</span>(MathFunctions)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the executable</span></span><br><span class="line"><span class="keyword">add_executable</span>(Tutorial tutorial.cxx)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_link_libraries</span>(Tutorial PUBLIC MathFunctions)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the binary tree to the search path for include files</span></span><br><span class="line"><span class="comment"># so that we will find TutorialConfig.h</span></span><br><span class="line"><span class="keyword">target_include_directories</span>(Tutorial PUBLIC</span><br><span class="line">                           <span class="string">"$&#123;PROJECT_BINARY_DIR&#125;"</span></span><br><span class="line">                           <span class="string">"$&#123;PROJECT_SOURCE_DIR&#125;/MathFunctions"</span></span><br><span class="line">                           )</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;现在让我们将MathFunctions库设为可选。虽然对于本文来说确实没有任何必要，但是对于任何大型的项目，这是非常常用的。第一步，我们将在顶层的CMakeLists.txt文件添加一个选项：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># macro USE_MTMATH is provided by cmake command to be used in source file</span></span><br><span class="line"><span class="keyword">option</span>(USE_MYMATH <span class="string">"Use tutorial provided math implementation"</span> <span class="keyword">ON</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># configure a header file to pass some of the CMake settings to source code</span></span><br><span class="line"><span class="keyword">configure_file</span>(TutorialConfig.h.in TutorialConfig.h)</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;option选项中的<code>USE_MYMATH</code>在cmake-gui和ccmake中的将会以默认值ON展示出来，它的值之后也可以被再次修改。这个设置会被保存在缓存里，这样一来在构建目录下运行cmake命令时，用户就不需要每次都设置一遍变量。</p>
+<p>&emsp;&emsp;下一个改进是将构建与链接MathFunctions库变为可选的。为了完成该目的，我们将顶层的CMakeLists.txt文件最后几行修改如下：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(USE_MYMATH)</span><br><span class="line">    <span class="keyword">add_subdirectory</span>(MathFunctions)</span><br><span class="line">    <span class="keyword">list</span>(APPEND EXTRA_LIBS MathFunctions)</span><br><span class="line">    <span class="keyword">list</span>(APPEND EXTRA_INCLUDES <span class="string">"$&#123;PROJECT_SOURCE_DIR&#125;/MathFunctions"</span>)</span><br><span class="line"><span class="keyword">endif</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the executable</span></span><br><span class="line"><span class="keyword">add_executable</span>(Tutorial tutorial.cxx)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_link_libraries</span>(Tutorial PUBLIC MathFunctions)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the library tree to the search path for include files</span></span><br><span class="line"><span class="comment"># so that we will find TutorialConfig.h</span></span><br><span class="line"><span class="keyword">target_include_directories</span>(Tutorial PUBLIC</span><br><span class="line">                           <span class="string">"$&#123;PROJECT_BINARY_DIR&#125;"</span></span><br><span class="line">                           <span class="variable">$&#123;EXTRA_INCLUDES&#125;</span></span><br><span class="line">                           )</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;将变量<code>EXTRA_LIBS</code>的值设置为可选的MathFunctions库，并为之后链接可执行文件提供链接库。将变量<code>EXTRA_INCLUDES</code>的值设置为可选的MathFunctions库头文件的路径。这是处理多个可选组件的经典办法，接下来我们将讨论现代化办法。</p>
+<p>&emsp;&emsp;对于源代码的更改是相当直接的。首先，在<code>tutorial.txt</code>中，按照我们的需求来include<code>MathFunctions.h</code>头文件：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> USE_MYMATH</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"MathFunctions.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>cmake工具教程</category>
+      </categories>
+      <tags>
+        <tag>cmake</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CMake命令之configure_file</title>
+    <url>/2021/01/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Bconfigure_file/</url>
+    <content><![CDATA[<hr>
+<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">configure_file</span>(&lt;input&gt; &lt;output&gt;</span><br><span class="line">               [COPYONLY] [ESCAPE_QUOTES] [@ONLY]</span><br><span class="line">               [NO_SOURCE_PERMISSIONS]</span><br><span class="line">               [NEWLINE_STYLE [UNIX|DOS|WIN32|LF|CRLF] ])</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;将&lt;input&gt;文件复制到&lt;output&gt;文件，并替换在input文件中的<code>@var@</code>或<code>${var}</code>为cmake中指定的值。根据cmake中是否定义了var来决定<code>#cmakedefine VAR ...</code>会被替换为<code>#define VAR ...</code>还是<code>#undef VAR</code>。同样的，<code>#cmakedefine01 VAR</code>会被替换为<code>#define VAR 1</code>或是<code>#define VAR 0</code>。</p>
+<a id="more"></a>
+
+<p>&emsp;&emsp;除了<code>#undef</code>以外，<code>#</code>与<code>cmakedefine</code>或<code>cmakedefine01</code>之间可以使用space或者是tabs来进行缩进，并且缩进的空格将会在输出文件中保留下来。如下：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment">#  cmakedefine VAR</span></span><br><span class="line"><span class="comment">#  cmakedefine01 VAR</span></span><br></pre></td></tr></table></figure>
+
+<p>如果VAR被定义了，上述命令会被替换为：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment">#  define VAR</span></span><br><span class="line"><span class="comment">#  define VAR 1</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="命令参数"><a href="#命令参数" class="headerlink" title="命令参数"></a>命令参数</h1><p>&emsp;&emsp;相关的命令参数有以下几个：</p>
+<ul>
+<li><code>&lt;input&gt;</code>：输入文件的路径。相对路径是相对于<code>CMAKE_CURRENT_SOURCE_DIR</code>变量的值。该路径必须是文件，不能是目录。</li>
+<li><code>&lt;output&gt;</code>：输出文件或目录的路径。相对路径是相对于<code>CMAKE_CURRENT_BINARY_DIR</code>变量的值。如果路径的名称是已经存在的目录，则输出文件会被置于那个目录下，并且其名称会与输入文件的名称一样。</li>
+<li><code>COPYONLY</code>：仅仅拷贝文件，不会替换任何的引用变量以及其他的内容。该选项不能与<code>NEWLINE_STYLE</code>同时使用。</li>
+<li><code>ESCAPE_QUOTES</code>：不对反斜杠进行转义。</li>
+<li><code>@ONLY</code>：限制变量只能在<code>@VAR@</code>形式下进行替换。</li>
+<li><code>NO_SOURCE_PERMISSIONS</code>：拷贝后的文件不会拥有与原来文件相同的访问权限。拷贝后的文件的权限默认为644（-rw-r-r）。</li>
+<li><code>NEWLINE_STYLE &lt;style&gt;</code>：为输出文件也就是<code>&lt;output&gt;</code>确定换行符的格式。UNIX或者LF系统为<code>\n</code>换行符格式，DOS、WIN32和CRLF系统为<code>\r\n</code>换行符格式。这个选项不能与<code>COPYONLY</code>同时使用。</li>
+</ul>
+<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><p>&emsp;&emsp;考虑一个源代码树，其包含一个<code>foo.h.in</code>文件：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment">#cmakedefine FOO_ENABLE</span></span><br><span class="line"><span class="comment">#cmakedefine FOO_STRING "@FOO_STRING@"</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;其邻近的<code>CMakeLists.txt</code>可以使用<code>configure_file</code>来配置头文件：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">option</span>(FOO_ENABLE <span class="string">"Enable Foo"</span> <span class="keyword">ON</span>)</span><br><span class="line"><span class="keyword">if</span>(FOO_ENABLE)</span><br><span class="line">    <span class="keyword">set</span>(FOO_SRTING <span class="string">"foo"</span>)</span><br><span class="line"><span class="keyword">endif</span>()</span><br><span class="line"><span class="keyword">configure_file</span>(foo.h.in foo.h @ONLY)</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这将会在与源目录相对应的构建目录下创建出一个<code>foo.h</code>文件。如果<code>FOO_ENABLE</code>选项是开启的，则配置头文件会包含：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FOO_ENABLE</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FOO_STRING <span class="meta-string">"foo"</span></span></span><br></pre></td></tr></table></figure>
+
+<p>如果<code>FOO_ENABLE</code>没有开启，则配置头文件如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* #undef FOO_ENABLE */</span></span><br><span class="line"><span class="comment">/* #undef FOO_STRING */</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;之后便可以使用<code>include_directories()</code>命令来定义一个输出目录（output directory）作为包含目录（include directory）：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">include_directories</span>(<span class="variable">$&#123;CMAKE_CURRENT_BINARY_DIR&#125;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>然后我们的源文件就可以使用<code>#include &quot;foo.h&quot;</code>来包含该头文件。</p>
+]]></content>
+      <categories>
+        <category>cmake命令</category>
+      </categories>
+      <tags>
+        <tag>cmake</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>linux软件包安装管理</title>
+    <url>/2021/03/08/linux%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>&emsp;&emsp;软件厂商在他们的系统上面编译好了我们用户需要的软件，然后将这个编译好的并可执行的软件直接发布给用户安装。不同的linux发行版使用不同的打包系统，一般而言，大多数发行版分别属于两大包管理技术阵营：Debian的“*.deb”，和Red Hat的“*.rpm”。也有一些例外，但大多数会使用这两个基本系统中的一个。</p>
+<a id="more"></a>
+
+<h1 id="dpkg与apt的关系"><a href="#dpkg与apt的关系" class="headerlink" title="dpkg与apt的关系"></a>dpkg与apt的关系</h1><p>&emsp;&emsp;dpkg（debian packager）是debian的底层包管理工具，主要用于对已下载到本地和已安装的软件包进行管理。其软件包的命名规则：</p>
+<p>格式为：<code>Package_Version-Build_Architecture.deb</code></p>
+<ul>
+<li>软件包名称：Package</li>
+<li>版本：Version</li>
+<li>修订号：Build</li>
+<li>平台：Architecture</li>
+</ul>
+<p>&emsp;&emsp;虽然在使用dpkg时，已经解决了软件安装过程中的大量问题，但是当依赖关系不满足时，仍然需要手动解决，而apt工具解决了这样的问题，linux distribution先将软件放置到对应的服务器中，然后分析软件的依赖关系，并且记录下来，然后当客户端有安装软件需求时，通过清单列表与本地的dpkg已存在的软件数据相比较，就能从网络端获取所有需要的具有依赖属性的软件了。</p>
+<h2 id="apt的工作原理"><a href="#apt的工作原理" class="headerlink" title="apt的工作原理"></a>apt的工作原理</h2><p>&emsp;&emsp;ubuntu采用集中式的软件仓库机制，将各式各样的软件包分门别类地存放在软件仓库中，进行有效地组织和管理。然后，将软件仓库置于许许多多的镜像服务器中，并保持基本一致。这样，所有的ubuntu用户随时都能获得最新版本的安装软件包。因此，对于用户，这些镜像服务器就是他们的软件源。</p>
+<p>&emsp;&emsp;然而，由于每位用户所处的网络环境不同，不可能随意地访问各镜像站点。为了能够有选择地访问，在ubuntu系统中，使用软件源配置文件/etc/apt/sources.list列出最合适访问的镜像站点地址。</p>
+<p>例1:apt-get的更新过程：</p>
+<ul>
+<li>执行apt-get update</li>
+<li>程序分析/etc/apt/sources.list</li>
+<li>自动连网寻找list中对应的列表文件，如果有更新则下载之，存入/var/lib/apt/lists/目录</li>
+<li>然后apt-get install相应的包，下载并安装</li>
+</ul>
+<p>&emsp;&emsp;即使这样，软件源配置文件也只是告知Ubuntu系统可以访问的镜像站点地址，但那些镜像站点具体都拥有什么软件资源并不清楚。若每安装一个软件包，就在服务器上寻找一遍，效率是很低的。因而，就有必要为这些软件资源列个清单（建立索引文件），以便本地主机查询。</p>
+<p>&emsp;&emsp;用户可以使用“apt-get update”命令刷新软件源，建立更新软件包列表。在Ubuntu Linux中，“apt-get update”命令会扫描每一个软件源服务器，并为该服务器所具有软件包资源建立索引文件，存放在本地的/var/lib/apt/lists/目录中。 使用apt-get执行安装、更新操作时，都将依据这些索引文件，向软件源服务器申请资源。因此，在计算机设备空闲时，经常使用“apt-get update”命令刷新软件源，是一个好的习惯。</p>
+<p>例2:apt-get install原理：</p>
+<ul>
+<li>扫描本地存放的软件包更新列表（由“apt-get update”命令刷新更新列表，也就是/var/lib/apt/lists/），找到最新版本的软件包</li>
+<li>进行软件包依赖关系检查，找到支持该软件正常运行的所有软件包</li>
+<li>从软件源所指的镜像站点中，下载相关软件包</li>
+<li>解压软件包，并自动完成应用程序的安装和配置</li>
+</ul>
+<h2 id="apt相关文件"><a href="#apt相关文件" class="headerlink" title="apt相关文件"></a>apt相关文件</h2><ul>
+<li>/var/lib/dpkg/available：文件的内容是软件包的描述信息，该软件包括当前系统所使用的Debian安装源中的所有软件包，其中包括当前系统中已安装和未安装的软件包</li>
+<li>/etc/apt/sources.list：记录软件源的地址</li>
+<li>/var/cache/apt/archives：已经下载的软件包都存放在这里（使用apt-get install安装软件包时，软件包的临时存放路径）</li>
+<li>/var/lib/apt/lists：使用apt-get update命令会从/etc/apt/sources.list中下载软件列表，并保存到该目录</li>
+</ul>
+<h1 id="dpkg命令"><a href="#dpkg命令" class="headerlink" title="dpkg命令"></a>dpkg命令</h1><table>
+<thead>
+<tr>
+<th>命令行</th>
+<th>用途</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dpkg -i</td>
+<td>安装软件包</td>
+<td>比如手动下载的文件</td>
+</tr>
+<tr>
+<td>dpkg -R</td>
+<td>安装一个目录下所有的软件包</td>
+<td></td>
+</tr>
+<tr>
+<td>dpkg –unpack</td>
+<td>释放软件包</td>
+<td>不进行配置，可以和-R一起用</td>
+</tr>
+<tr>
+<td>dpkg -r</td>
+<td>删除软件包（保留其配置文件）</td>
+<td></td>
+</tr>
+<tr>
+<td>dpkg -P</td>
+<td>删除软件包（完全删除，包括其配置文件）</td>
+<td></td>
+</tr>
+<tr>
+<td>dpkg -l</td>
+<td>显示已安装软件包列表</td>
+<td></td>
+</tr>
+<tr>
+<td>dpkg -L</td>
+<td>显示与软件包关联的文件</td>
+<td></td>
+</tr>
+<tr>
+<td>dpkg -c</td>
+<td>显示软件包内文件列表</td>
+<td></td>
+</tr>
+<tr>
+<td>dpkg –configure</td>
+<td>重新配置和释放软件包</td>
+<td></td>
+</tr>
+<tr>
+<td>dpkg -s</td>
+<td>报告指定包的状态信息</td>
+<td></td>
+</tr>
+<tr>
+<td>dpkg –get-selections</td>
+<td>取得软件包的当前状态</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;关于软件包的信息，当键入<code>dpkg -l</code>时，如以下示例：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/dpkg-l-options.png" alt="示例"></p>
+<p>&emsp;&emsp;如上图，每条记录对应一个软件包，每条记录的第一、二、三个字符，就是软件包的状态标识，后边依次是软件包名称、版本号和简单描述。</p>
+<p>1）第一个字符为期望值，包括：</p>
+<table>
+<thead>
+<tr>
+<th>状态标识</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>u</td>
+<td>（Unkown）状态未知，意味着软件包未安装，并且用户也未发出安装请求</td>
+</tr>
+<tr>
+<td>i</td>
+<td>（Install）用户请求安装软件包</td>
+</tr>
+<tr>
+<td>r</td>
+<td>（Remove）用户请求卸载软件包（保留配置信息）</td>
+</tr>
+<tr>
+<td>p</td>
+<td>（Purge）用户请求清除软件包（彻底清除）</td>
+</tr>
+<tr>
+<td>h</td>
+<td>（Hold）用户请求保持软件包版本锁定</td>
+</tr>
+</tbody></table>
+<p>2）第二个字符是软件包当前状态，包括：</p>
+<table>
+<thead>
+<tr>
+<th>状态标识</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>n</td>
+<td>（Not）软件包未安装</td>
+</tr>
+<tr>
+<td>i</td>
+<td>（Inst）软件包安装并完成配置</td>
+</tr>
+<tr>
+<td>c</td>
+<td>（Conf-files）软件包以前安装过，现在删除了，但是它的配置文件还留在系统中</td>
+</tr>
+<tr>
+<td>u</td>
+<td>（Unpacked）软件包被解包，但还未配置</td>
+</tr>
+<tr>
+<td>f</td>
+<td>（Half-conf）试图配置软件包，但是失败了</td>
+</tr>
+<tr>
+<td>h</td>
+<td>（Half-inst）软件包安装，但是没有成功</td>
+</tr>
+<tr>
+<td>w</td>
+<td>（Trig-await）触发器等待</td>
+</tr>
+<tr>
+<td>t</td>
+<td>（Trig-pend）触发器未决</td>
+</tr>
+</tbody></table>
+<p>3）第三个字符标识错误状态，第一种状态标识没有问题，为空。其他情况则为：</p>
+<table>
+<thead>
+<tr>
+<th>状态标识</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>h</td>
+<td>软件包被强制保持，因为有其它软件包依赖需求，无法升级</td>
+</tr>
+<tr>
+<td>r</td>
+<td>Reinst-required，软件包被破坏，可能需要重新安装才能正常使用（包括删除）</td>
+</tr>
+<tr>
+<td>x</td>
+<td>软件包被破坏，并且被强制保持</td>
+</tr>
+</tbody></table>
+<h1 id="apt-get命令"><a href="#apt-get命令" class="headerlink" title="apt-get命令"></a>apt-get命令</h1><p>下载，安装</p>
+<table>
+<thead>
+<tr>
+<th>命令行</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>apt-get update</td>
+<td>更新源</td>
+</tr>
+<tr>
+<td>apt-get dist-upgrade</td>
+<td>升级系统到相应的发行版（根据source.list的配置）</td>
+</tr>
+<tr>
+<td>apt-get upgrade</td>
+<td>更新所有已经安装的软件包</td>
+</tr>
+<tr>
+<td>apt-get install [package_name]</td>
+<td>安装软件包（加上–reinstall重新安装）</td>
+</tr>
+<tr>
+<td>apt-get install [package_name=version]</td>
+<td>安装指定版本的软件包</td>
+</tr>
+<tr>
+<td>apt-get -f install</td>
+<td>安装依赖（一般跟在安装包之后）</td>
+</tr>
+</tbody></table>
+<p>删除，卸载</p>
+<table>
+<thead>
+<tr>
+<th>命令行</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>apt-get remove [package_name]</td>
+<td>删除已安装的软件包（保留配置文件），不会删除依赖软件包</td>
+</tr>
+<tr>
+<td>apt-get –purge remove [package_name]</td>
+<td>删除已安装的软件包（不保留配置文件）</td>
+</tr>
+<tr>
+<td>apt-get autoremove</td>
+<td>删除为了满足依赖而安装的，但现在不再需要的软件包（包括已安装的），保留配置文件</td>
+</tr>
+</tbody></table>
+<p>清理缓存</p>
+<table>
+<thead>
+<tr>
+<th>命令行</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>apt-get autoclean</td>
+<td>定期运行这个命令来清除那些已经卸载的软件包的.deb文件。APT的底层包是dpkg，而dpkg安装软件包时，会将*.deb放在/var/cache/apt/archives/中。此命令只会删除该目录中已经过期的deb</td>
+</tr>
+<tr>
+<td>apt-get clean</td>
+<td>会将/var/cache/apt/archives/所有的deb删掉</td>
+</tr>
+</tbody></table>
+<h1 id="apt-cache命令"><a href="#apt-cache命令" class="headerlink" title="apt-cache命令"></a>apt-cache命令</h1><table>
+<thead>
+<tr>
+<th>命令行</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>apt-cache depends</td>
+<td>了解该包使用哪些依赖</td>
+</tr>
+<tr>
+<td>apt-cache redepends</td>
+<td>查看该包被哪些包依赖</td>
+</tr>
+<tr>
+<td>apt-cache search</td>
+<td>搜索软件包，可以按关键字查找</td>
+</tr>
+<tr>
+<td>apt-cache show</td>
+<td>查询软件包的详情，不管是否已经安装</td>
+</tr>
+<tr>
+<td>apt-cache showpkg</td>
+<td>显示软件包的大致信息</td>
+</tr>
+</tbody></table>
+]]></content>
   </entry>
 </search>

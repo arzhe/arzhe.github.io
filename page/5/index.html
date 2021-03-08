@@ -202,6 +202,229 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/01/%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/01/%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type/" class="post-title-link" itemprop="url">设计class犹如设计type</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-08-01 08:01:00 / Modified: 15:36:45" itemprop="dateCreated datePublished" datetime="2020-08-01T08:01:00+08:00">2020-08-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2020/08/01/%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type/" class="post-meta-item leancloud_visitors" data-flag-title="设计class犹如设计type" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="设计class犹如设计type"><a href="#设计class犹如设计type" class="headerlink" title="设计class犹如设计type"></a>设计class犹如设计type</h1><p>&emsp;&emsp;C++就像在其它OOP语言一样，当我们定义一个新class，也就定义了一个新type。身为C++程序员，我们的许多时间主要用来扩张我们的类型系统。这意味着我们并不只是class设计者，还是type设计者。</p>
+<p>&emsp;&emsp;设计优秀的class是一项艰巨的工作，因为设计好的type是一项艰巨的工作。好的type有自然的语法，直观的语义，以及一或多个高效实现品。在C++中，一个不良规划下的class定义恐怕无法达到上述任何一个目标。</p>
+<p>&emsp;&esmp;那么，如何设计高效的class呢？几乎每个class都要求我们面对以下提问，而我们的回答往往导致我们的设计规范：</p>
+<ul>
+<li><strong>新type的对象应该如何被创建和销毁？</strong>这会影响到我们的class的构造函数和析构函数以及内存分配函数和释放函数的设计，当然前提是如果我们打算编写它们。</li>
+<li><strong>对象的初始化和对象的赋值该有什么样的差别？</strong>这个答案决定我们的构造函数和赋值操作符的行为，以及其间的差异。重要的是别混淆了“初始化”和赋值“，因为它们对应不同的函数调用。</li>
+<li><strong>新type的对象如果被passed by value，意味着什么？</strong>记住，copy构造函数用来定义一个type的pass-by-value该如何实现。</li>
+<li><strong>什么是新type的“合法值”？</strong>对class的成员变量而言，通常只有某些数值集是有效的，那些数值集决定了我们的class必须维护的约束条件，也就决定了我们的成员函数（特别是构造函数、赋值操作符和所谓“setter”函数）必须进行的错误检查工作，它也影响函数抛出的异常。</li>
+<li><strong>你的新type需要配合某个继承图系吗？</strong>如果我们继承自某些既有的class，我们就受那些class的设计的束缚，特别是受到”它们的函数是virtual或non-virtual“的影响。如果我们允许其它class继承我们的class，这会影响我们所声明的函数——尤其是析构函数——是否为virtual。</li>
+<li><strong>你的新type需要什么样的转化？</strong>如果希望允许类型T1之物被隐式转换为类型T2之物，就必须在class T1内写一个类型转换函数（operator T2）或在class T2内写一个non-explicit-one-argument（可被单一实参调用）的构造函数。如果我们只允许explicit构造函数存在，就得写出专门负责执行转换的函数，且不得为类型转换操作符或non-explicit-one-argument构造函数。</li>
+<li><strong>什么样的操作符和函数对此新type而言是合理的？</strong>这个问题的答案决定你将为你的class声明哪些函数。其中某些该是member函数，某些则否。</li>
+<li><strong>什么样的标准函数应该驳回？</strong>那些正是你必须声明为private者。</li>
+<li><strong>谁该取用新type的成员？</strong>这个提问可以帮助你决定哪个成员为public，哪个为protected，哪个为private。它也帮助你决定哪一个class或function应该是friend，以及将它们嵌套于另一个之内是否合理。</li>
+<li><strong>什么是新type的“未声明接口”？</strong>它对效率、异常安全性以及资源运用提供何种保证？你在这些方面提供的保证将为你的class实现代码加上相应的约束条件。</li>
+<li><strong>你的新type有多么一般化？</strong>或许你其实并非定义一个新type，而是定义一整个type家族。果真如此你就不该定义一个新class，而是定义一个新的class template。</li>
+<li><strong>你真的需要一个新type吗？</strong>如果只是定义新的derived class以便为既有的class添加机能，那么说不定单纯定义一个或多个non-member函数或template，更能够达到目标。</li>
+</ul>
+<p>&emsp;&emsp;这些问题不容易回答，所以定义出高效的class是一种挑战。然而如果能够设计出至少像C++内置类型一样好的用户自定义class，一切汗水便都值得。</p>
+<blockquote>
+<p>class的设计就是type的设计。在定义一个新type之前，请确定你已经考虑过本条款所覆盖的所有讨论主题。</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/31/%E8%AE%A9%E6%8E%A5%E5%8F%A3%E5%AE%B9%E6%98%93%E8%A2%AB%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%93%E8%A2%AB%E8%AF%AF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/31/%E8%AE%A9%E6%8E%A5%E5%8F%A3%E5%AE%B9%E6%98%93%E8%A2%AB%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%93%E8%A2%AB%E8%AF%AF%E7%94%A8/" class="post-title-link" itemprop="url">让接口容易被正确使用，不易被误用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-07-31 20:27:00 / Modified: 22:45:45" itemprop="dateCreated datePublished" datetime="2020-07-31T20:27:00+08:00">2020-07-31</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2020/07/31/%E8%AE%A9%E6%8E%A5%E5%8F%A3%E5%AE%B9%E6%98%93%E8%A2%AB%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%93%E8%A2%AB%E8%AF%AF%E7%94%A8/" class="post-meta-item leancloud_visitors" data-flag-title="让接口容易被正确使用，不易被误用" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="让接口容易被正确使用，不易被误用"><a href="#让接口容易被正确使用，不易被误用" class="headerlink" title="让接口容易被正确使用，不易被误用"></a>让接口容易被正确使用，不易被误用</h1><p>&emsp;&emsp;C++在接口之海漂浮。function接口、class接口、template接口……每一种接口都是客户与我们的代码互动的手段。理想上，如果客户企图使用某个接口而却没有获得他所预期的行为，这个代码不该通过编译；如果代码通过了编译，它的作为就是客户所想要的。</p>
+<p>&emsp;&emsp;欲开发一个“容易被正确使用，不容易被误用”的接口，首先必须考虑客户可能做出什么样的错误。假设我们为一个用来表现日期的class设计构造函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Date</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Date(<span class="keyword">int</span> month, <span class="keyword">int</span> day, <span class="keyword">int</span> year);</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;乍看之下这个接口通情达理（至少在美国如此），但它的客户很容易犯下两个错误，第一，他们也许会以错误的次序传递参数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(<span class="number">20</span>, <span class="number">2</span>, <span class="number">2020</span>)</span></span>;  <span class="comment">//应该是“2，20”而不是“20，2”</span></span><br></pre></td></tr></table></figure>
+
+<p>第二，他们可能传递一个无效的月份或天数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(<span class="number">3</span>, <span class="number">20</span>, <span class="number">2020</span>)</span>  <span class="comment">//应该是“2，20”而不是“3，20”</span></span></span><br></pre></td></tr></table></figure>
+
+<p>（上面一个例子也许看起来很蠢，但别忘了，键盘上的2就在3旁边。打岔一个键的情况并不是太罕见。）</p>
+<p>&emsp;&emsp;许多客户端错误可以因为导入新类型而获得预防。在防范“不值得拥有的代码”上，类型系统是我们的主要同盟国。既然这样，就让我们导入简单的外覆类型来区别天数、月份和年份，然后于Date构造函数中使用这些类型：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Day</span> &#123;</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Day</span><span class="params">(<span class="keyword">int</span> d)</span>: <span class="title">val</span><span class="params">(d)</span> </span>&#123;&#125;</span><br><span class="line"><span class="keyword">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Month</span> &#123;</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Month</span><span class="params">(<span class="keyword">int</span> m)</span>: <span class="title">val</span><span class="params">(m)</span> </span>&#123;&#125;</span><br><span class="line"><span class="keyword">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">year</span> &#123;</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Year</span><span class="params">(<span class="keyword">int</span> y)</span>: <span class="title">val</span><span class="params">(y)</span> </span>&#123;&#125;</span><br><span class="line"><span class="keyword">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Date</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Date(<span class="keyword">const</span> Month&amp; m, <span class="keyword">const</span> Day&amp; d, <span class="keyword">const</span> Year&amp; y);</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(<span class="number">20</span>, <span class="number">2</span>, <span class="number">2020</span>)</span></span>;                    <span class="comment">//错误！不正确的类型</span></span><br><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(Day(<span class="number">20</span>), Month(<span class="number">2</span>), Year(<span class="number">2020</span>))</span></span>;  <span class="comment">//错误！不正确的类型</span></span><br><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(Month(<span class="number">2</span>), Day(<span class="number">20</span>), Year(<span class="number">2020</span>))</span></span>;  <span class="comment">//正确！</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;令Day，Month和Year成为成熟且经过充分锻炼的class并封装其内部数据，比简单使用上述的struct好。但即使struct也已经足够示范：明智而谨慎地导入新类型对预防“接口被误用”有神奇疗效。</p>
+<p>&emsp;&emsp;一旦正确的类型就位，限制其值有时候是通情达理的。例如一年只有12个月份，所以Month应该反映这一事实。办法之一是利用enum表现月份，但enums不具备我们希望拥有的类型安全性，例如enums可被拿来当一个int使用，比较安全的解法是预先定义所有有效的Month：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Month</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> Month <span class="title">Jan</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> Month(<span class="number">1</span>); &#125;  <span class="comment">//函数，返回有效月份</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> Month <span class="title">Feb</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> Month(<span class="number">2</span>); &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">static</span> Month <span class="title">Dec</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> Month(<span class="number">12</span>); &#125;</span><br><span class="line">    ...</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Month</span><span class="params">(<span class="keyword">int</span> m)</span></span>;  <span class="comment">//阻止生成新的月份</span></span><br><span class="line">    ...                     <span class="comment">//这是月份专属数据</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(Month::Feb(), Day(<span class="number">20</span>), Year(<span class="number">2020</span>))</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;“以函数替代对象，表现某个特定月份”这并不像你所想象的那样诡异，这是因为non-local static对象的初始化次序有可能出现问题。</p>
+<p>&emsp;&emsp;预防客户错误的另一个办法是，限制类型内什么事可做，什么事不能做。常见的限制是加上const。</p>
+<p>&emsp;&emsp;避免无端与内置类型不兼容，真正的理由是为了提供行为一致的接口。很少有其它性质比得上“一致性”更能导致“接口容易被正确使用”，也很少有其它性质比得上“不一致性”更加剧接口的恶化。STL容器的接口十分一致（虽然不是完美地一致），这使它们非常容易被使用。例如每个STL容器都有一个名为size的成员函数，它会告诉调用者目前容器内有多少对象。与此对比的是Java，它允许我们针对数组使用length property，对String使用length method，而对List使用size method；.Net也一样混乱。有些开发人员会以为整合开发环境（IDE）能使这样的不一致性变得不重要，但他们错了。不一致性对开发人员造成的心理和精神上的摩擦与争执，没有任何一个IDE可以完全抹除。</p>
+<p>&emsp;&emsp;任何接口如果要求客户必须记得做某些事情，就是有着“不正确使用”的倾向，因为客户有可能会忘记做那件事。例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Investment* <span class="title">createInvestment</span><span class="params">()</span></span>;  ／／factory函数</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;为避免资源泄漏，createInvestment返回的指针最终必须被删除，但这至少给了客户两个犯错的机会：没有删除指针，或删除同一个指针超过一次。</p>
+<p>&emsp;&emsp;许多时候较佳接口的设计原则是先发制人，就令factory函数返回一个智能指针：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">createInvestment</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这便实质上强迫客户将返回值存储于一个shared_ptr内，几乎消除了忘记删除底部Investment对象的可能性。</p>
+<p>&emsp;&emsp;shared_ptr允许当智能指针被建立起来时指定一个资源释放函数（所谓删除器，“deleter”）绑定于智能指针身上。</p>
+<p>&emsp;&emsp;假设class设计者期许那些“从createInvestment取得Investment*指针”的客户将该指针传递给一个名为getRidOfInvestment的函数，而不是直接在它身上动刀子（使用delete）。这样一个接口又开启通往另一个客户错误的大门，该错误是“企图使用错误的资源析构机制”（也就是拿delete替换getRidOfInvestment）。createInvestment的设计者可以针对此问题先发制人：返回一个“将getRidOfInvestment绑定为删除器（deleter）”的shared_ptr。</p>
+<p>&emsp;&emsp;shared_ptr提供的某个构造函数接受两个实参：一个是被管理的指针，另一个是引用次数变成0时将被调用的“删除器”。这启发我们创建一个null shared_ptr并以getRidOfInvestment作为其删除器，像这样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pInv</span><span class="params">(<span class="number">0</span>, getRidOfInvestment)</span></span>; </span><br><span class="line"><span class="comment">//此式无法通过编译</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这并不是有效的C++。shared_ptr构造函数坚持其第一参数必须是个指针，而0不是指针，是个int。没错，它可被转换为指针，但在此情况下并不够好，因为shared_ptr坚持要一个不折不扣的指针。转型可以解决这个问题：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt;</span><br><span class="line">    pInv(<span class="keyword">static_cast</span>&lt;Investment*&gt;(<span class="number">0</span>),</span><br><span class="line">        getRidOfInvestment);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;因此，如果我们要实现createInvestment使它返回一个shared_ptr并夹带getRidOfInvestment函数作为删除器，代码看起来像这样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">createInvestment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">retVal</span><span class="params">(<span class="keyword">static_cast</span>&lt;Investment*&gt;(<span class="number">0</span>),</span></span></span><br><span class="line"><span class="function"><span class="params">                                       getRidOfInvestment)</span></span>;</span><br><span class="line">    retVal = ...;  <span class="comment">//令retVal指向正确对象</span></span><br><span class="line">    <span class="keyword">return</span> retVal;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;当然啦，如果被pInv管理的原始指针可以在建立pInv之前先确定下来，那么“将原始指针传给pInv构造函数”会比“先将pInv初始化为null再对它做一次赋值操作”为佳。</p>
+<p>&emsp;&emsp;shared_ptr有一个特别好的性质是：它会自动使用它的“每个指针专属的删除器”，因而消除另一个潜在的客户错误：所谓的“cross-DLL problem”。这个问题发生于“对象在动态链接程序库（DLL）中被new创建，却在另一个DLL内被delete销毁”。在许多平台上，这一类“跨DLL之new／delete成对运用”会导致运行期错误。shared_ptr没有这个问题，因为它缺省的删除器是来自“shared_ptr诞生所在的那个DLL”的delete。例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">createInvestment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt;(<span class="keyword">new</span> Stock);  <span class="comment">//Stock派生自Investment</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;返回的那个shared_ptr可被传递给任何其它DLL，无需在意“cross-DLL problem”。这个指向Stock的shared_ptr会追踪记录“当Stock的运用次数变成0时该调用的那个DLL’s delete”。</p>
+<p>&emsp;&emsp;shared_ptr是原始指针的两倍大，以动态分配内存作为记录用途和“删除器的专属数据”，并以virtual形式调用删除器，并在多线程程序修改运用次数时承受线程同步化的额外开销。（只要定义一个预处理器符号就可以关闭多线程支持）。总之，它比原始指针大且慢，而且使用辅助动态内存。在许多运用程序中这些额外的执行成本并不显著。然而其“降低客户错误”的成效却是每个人都看得到的。</p>
+<blockquote>
+<p>好的接口很容易被正确使用，不容易被误用。我们应该在所有的接口中努力达成这些性质</p>
+<p>“促进正确使用”的办法包括接口的一致性，以及与内置类型的行为兼容。</p>
+<p>“阻止误用”的办法包括建立新类型、限制类型上的操作、束缚对象值，以及消除客户的资源管理责任。</p>
+<p>shared_ptr支持定制删除器。这可防范DLL问题，可被用来自动解除互斥锁等等。</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/30/%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86new%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1044,229 +1267,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">绝不在构造和析构过程中调用virtual函数</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-07-24 09:10:00" itemprop="dateCreated datePublished" datetime="2020-07-24T09:10:00+08:00">2020-07-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:14:40" itemprop="dateModified" datetime="2020-07-30T09:14:40+08:00">2020-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/" class="post-meta-item leancloud_visitors" data-flag-title="绝不在构造和析构过程中调用virtual函数" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="绝不在构造和析构过程中调用virtual函数"><a href="#绝不在构造和析构过程中调用virtual函数" class="headerlink" title="绝不在构造和析构过程中调用virtual函数"></a>绝不在构造和析构过程中调用virtual函数</h1><p>&emsp;&emsp;我们不该在构造函数和析构函数期间调用virtual函数，因为这样的调用不会带来我们预想的结果，就算有我们也不会高兴。如果你同时也是一位Java或C#程序员，那么就更加要注意了，因为这是C++与它们不同的一个地方。</p>
-<p>&emsp;&emsp;假设我们有个class继承体系，用来塑模股市交易如买进、卖出的订单等等。这样的交易一定要经过审计，所以每当创建一个交易对象，在审计日志中也需要创建一笔适当记录。下面是一个看起来颇为合理的做法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span>                           <span class="comment">//所有交易的base class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Transaction();</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;  <span class="comment">//做出一份因类型不同而不同</span></span><br><span class="line">                                              <span class="comment">//的日志记录（log entry）</span></span><br><span class="line">    ...</span><br><span class="line">&#125;；</span><br><span class="line">Transaction::Transactionn() &#123;                 <span class="comment">//base class构造函数的实现</span></span><br><span class="line">    ...</span><br><span class="line">    logTransaction();                         <span class="comment">//最后动作是记录这笔交易</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BuyTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;    <span class="comment">//derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span></span>;      <span class="comment">//记录此类交易</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SellTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;   <span class="comment">//derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span></span>;      <span class="comment">//记录此类交易</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，当执行一下这行时，会发生什么事：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BuyTransaction b;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;无疑会有一个BuyTransaction构造函数被调用，但首先Transaction构造函数一定会更早被调用；没错，derived class对象内的base class成分会在derived class自身成分被构造之前先构造妥当。Transaction构造函数的最后一行调用virtual函数logTransaction，这正是奇怪的地方。这时候被调用的logTransaction是Transaction内的版本，不是buyTransaction内的版本——即使目前即将建立的对象类型是buyTransaction。没错，base class构造期间virtual函数绝不会下降到derived classs阶层。取而代之的是，对象的作为就像隶属base类型一样。非正式的说法或许比较传神：在base class构造期间，virtual函数不是virtual函数。</p>
-<p>&emsp;&emsp;这一似乎反直觉的行为有个好的解释。由于base class构造函数的执行更早于derived class构造函数，当base class构造函数执行时derived class的成员变量尚未初始化。如果此期间调用的virtual函数下降至derived class阶层，要知道derived class的函数几乎必然取用local成员变量，而那些成员变量尚未初始化。这将是一张通往不明确行为和彻夜调试大会的直达车票。“使用对象内部尚未初始化的成分”是及其危险的，所以C++允许我们这样做。</p>
-<p>&emsp;&emsp;其实还有比上述理由更根本的原因：在derived class对象的base class构造期间，对象的类型是base class而不是derived class。不只virtual函数会被编译器解析至base class，若使用运行期类型信息（例如dynamic_cast和typeid），也会把对象视为base class类型。本例之中，当Transaction构造函数正执行起来打算初始化“BuyTransaction对象内的base class成分”时，该对象的类型时Transaction。这个对象内的“BuyTransaction专属成分”尚未被初始化，所以面对它们，最安全的做法就是视它们不存在。对象在derived class构造函数开始执行前不会成为一个derive的对象。</p>
-<p>&emsp;&emsp;相同的道理也适用于析构函数。一旦derived class析构函数开始执行，对象内的derived class成员变量便呈现未定义值，所以C++视它们仿佛不再存在。进入base class析构函数后对象就成为一个base class对象，而C++的任何部分包括virtual函数、dynamic_cast等等也就会那么看待它。</p>
-<p>&emsp;&emsp;在上述示例中，Transaction构造函数直接调用一个virtual函数，这很明显而且容易看出来，某些编译器会为此发出一个警告信息。即使没有这些警告信息，这个问题在执行前也几乎肯定会变得显而易见，因为logTransaction函数在Transaction内是个pure virtual。除非它被定义（不太有可能）否则程序无法连接，因为连接器找不到必要的Transaction::logTransaction实现代码。</p>
-<p>&emsp;&emsp;但是侦测“构造函数或析构函数运行期是否调用virtual函数”并不总是这样轻松。如果Transaction有多个构造函数，每个都需要执行某些相同的工作，那么避免代码重复的一个优秀做法是把共同的初始化代码（其中包括对logTransaction的调用）放进一个初始化函数如init内：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Transaction() &#123; init(); &#125;  <span class="comment">//调用non-virtual</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        logTransaction();  <span class="comment">//这里调用virtual！</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这段代码概念上和之前版本相同，但它比较隐蔽，因为它通常不会引发任何编译器和连接器的抱怨。此时由于logTransaction是Transaction内的一个pure virtual函数，当pure virtual函数被调用，大多数执行系统会中止程序（通常会对此结果发出一个信息）。然而如果logTransaction是个正常的virtual函数并在Transaction内带有一份实现代码，该版本就会被调用，而程序也就会兴高采烈地继续向前执行，之后我们便会百思不得其解：为什么建立一个derived class对象时会调用错误版本的logTransaction。唯一能够避免此问题的做法就是：确定我们的构造函数和析构函数都没有（在对象被创建和被销毁期间）调用virtual函数，而它们调用的所有函数也都服从同一个约束。</p>
-<p>&emsp;&emsp;但我们如何确保每次一有Transaction继承体系上的对象被创建，就会有适当版本的logTransaction被调用呢？很显然，在Transaction构造函数内对对象调用virtual函数是一种错误做法。</p>
-<p>&emsp;&emsp;有其他方案可以解决这个问题，一种做法是在class Transaction内将logTransaction函数改为non-virtual，然后要求derived class构造函数传递必要信息给Transaction构造函数，而后那个构造函数便可安全地调用non-virtual logTransaction。像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Transaction</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">(cosnt <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo)</span> cosnt</span>;  <span class="comment">//如今是个non-virtual函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">Transaction::Transaction(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo) &#123;</span><br><span class="line">    ...</span><br><span class="line">    logTransaction(logInfo);  <span class="comment">//如今是个non-virtual调用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BuyTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    BuyTransaction(parameters)</span><br><span class="line">        : Transaction(createLogString(parameters)) &#123;  <span class="comment">//将log信息传给base class构造函数</span></span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">createLogString</span><span class="params">(parameters)</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;换句话说由于我们无法使用virtual函数从base class向下调用，在构造期间，我们可以藉由“令derived class将必要的构造信息向上传递至base class构造函数”替换之而加以弥补。</p>
-<p>&emsp;&emsp;在本例中BuyTransaction内的private static函数createLogString的作用：比起在成员初值列内给予base class所需数据，利用辅助函数创建一个值传给base class构造函数往往比较方便（也比较可读）。令此函数为static，也就不可能意外指向“初期未成熟的BuyTransaction对象内尚未初始化的成员变量”。这很重要，正是因为“那些成员变量处于未定义状态”，所以“在base class构造和析构期间调用的virtual函数不可下降至derived class”。</p>
-<blockquote>
-<p>在构造和析构期间不要调用virtual函数，因为这类调用从不下降至derived class。</p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">别让异常逃离析构函数</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-07-23 08:25:00" itemprop="dateCreated datePublished" datetime="2020-07-23T08:25:00+08:00">2020-07-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:15:07" itemprop="dateModified" datetime="2020-07-30T09:15:07+08:00">2020-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/" class="post-meta-item leancloud_visitors" data-flag-title="别让异常逃离析构函数" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="别让异常逃离析构函数"><a href="#别让异常逃离析构函数" class="headerlink" title="别让异常逃离析构函数"></a>别让异常逃离析构函数</h1><p>&emsp;&emsp;C++并不禁止析构函数吐出异常，但它不鼓励我们这样做。这是有理由的。考虑以下代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    ~Widget() &#123; ... &#125;  <span class="comment">//假设这个可能吐出一个异常</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Widget&gt; v;</span><br><span class="line">    ...</span><br><span class="line">&#125;                      <span class="comment">//v在这里被自动销毁</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当vector v被销毁，它有责任销毁其内含的所有Widgets。假设v内含十个Widgets，而在析构第一个元素期间，有个异常被抛出。其他九个Widgets还是应该被销毁（否则它们保存的任何资源都会发生泄漏），因此v应该调用它们各个析构函数。但假设在那些调用期间，第二个Widget析构函数又抛出异常。现在有两个同时作用的异常，这对C++而言太多了。在两个异常同时存在的情况下，程序若不是结束执行就是导致不明确的行为。本例中它会导致不明确的行为。使用标准程序库的任何其他容器或TR1的任何容器或甚至array，也会出现相同情况。只要析构函数吐出异常，即使并非使用容器或array，程序也可能过早结束或出现不明确行为。没错，C++不喜欢析构函数吐出异常！</p>
-<p>&emsp;&emsp;这很容易理解，但如果我们的析构函数必须执行一个动作，而该动作可能会在失败时抛出异常，该怎么办？举个例子，假设我们使用一个class负责数据库连接：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DBConnection</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">static</span> DBConnection <span class="title">create</span><span class="params">()</span></span>;  <span class="comment">//这个函数返回DBConnection对象；</span></span><br><span class="line">                                   <span class="comment">//为求简化暂略参数。</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">close</span><span class="params">()</span></span>;                  <span class="comment">//关闭联机；失败则抛出异常。</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为确保客户不忘记在DBConnection对象身上调用close()，一个合理的想法是创建一个用来管理DBConnection资源的class，并在其析构函数中调用close：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DBConn</span> &#123;</span>    <span class="comment">//这个class用来管理DBConnection对象</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    ~DBConn() &#123;   <span class="comment">//确保数据库连接总是会被关闭</span></span><br><span class="line">      db.<span class="built_in">close</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    DBConnetion db;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这便允许客户写出这样的代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;                                    <span class="comment">//开启一个区块</span></span><br><span class="line"><span class="function">DBConn <span class="title">dbc</span><span class="params">(DBConnection::create())</span></span>;  <span class="comment">//建立DBConnection对象</span></span><br><span class="line">                                     <span class="comment">//  并交给DBConn对象以便管理。</span></span><br><span class="line">...                                  <span class="comment">//通过DBConn的接口</span></span><br><span class="line">                                     <span class="comment">//  使用DBConnection对象。</span></span><br><span class="line">&#125;                                    <span class="comment">//在区块结束点，DBConn对象被销毁，</span></span><br><span class="line">                                     <span class="comment">//因而自动为DBConnection对象调用close。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;只要调用close成功，一切都美好。但是如果该调用导致异常，DBConn析构函数会传播该异常，也就是允许它离开这个析构函数。这会造成问题，因为这就是抛出了难以驾驭的麻烦。</p>
-<p>&emsp;&emsp;两个办法可以避免这一问题。DBConn的析构函数可以：</p>
-<ul>
-<li>如果close抛出异常就结束程序。通常通过调用abort完成：</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DBConn::~DBConn() &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123; db.<span class="built_in">close</span>(); &#125;</span><br><span class="line">    <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">        <span class="comment">//制作运转记录，记下对close的调用失败；</span></span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">abort</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果程序遭遇一个“于析构期间发生的错误”后无法继续执行，“强迫结束程序”是个合理选项。毕竟它可以阻止异常从析构函数传播出去。也就是说调用abort可以抢先置“不明确行为”于死地。</p>
-<ul>
-<li>吞下因调用close而发生的异常：</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DBConn::~DBConn() &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123; db.<span class="built_in">close</span>(); &#125; </span><br><span class="line">    <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">        <span class="comment">//制作运转记录，记下对close的调用失败；</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;一般而言，将异常吞掉是个坏主意，因为它压制了“某些动作失败”的重要信息！然而有时候吞下异常也比负担“草率结束程序”或“不明确行为带来的风险”好。为了让这成为一个可行方案，程序必须能够继续可靠地执行，即使在遭遇并忽略一个错误之后。</p>
-<p>&emsp;&emsp;这些办法都没什么吸引力。问题在于两者都无法对“导致close抛出异常”的情况做出反应。</p>
-<p>&emsp;&emsp;一个较佳策略是重新设计DBConn接口，使其客户有机会对可能出现的问题做出反应。例如DBConn自己可以提供一个close函数，因而赋予客户一个机会得以处理“因该操作而发生的异常”。DBConn也可以追踪其所管理的DBConnection是否已被关闭，并在答案为否的情况下由其析构函数关闭之。这可防止遗失数据库连接。然而如果DBConnection析构函数调用close失败，我们将又退回“强迫结束程序”或“吞下异常”的老路：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DBConn</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;  <span class="comment">//供客户使用的新函数</span></span><br><span class="line">       db.<span class="built_in">close</span>();</span><br><span class="line">       closed = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ~DBConn() &#123;</span><br><span class="line">        <span class="keyword">if</span>(!closed) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;  <span class="comment">//关闭连接（如果客户不那么做的话）</span></span><br><span class="line">                db.<span class="built_in">close</span>();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">                <span class="comment">//制作运转记录，记下对close的调用失败；</span></span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    DBConnection db;</span><br><span class="line">    <span class="keyword">bool</span> closed;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;把调用close的责任从DBConn析构函数手上移到DBConn客户手上（但DBConn析构函数内仍内含一个“双保险”调用）可能会给我们“肆无忌惮转移负担”的印象。实际上在这里并无大碍。如果某个操作可能在失败时抛出异常，而又存在某种需要必须处理该异常，那么这个异常必须来自析构函数以外的某个函数。因为析构函数吐出异常就是危险，总会带来“过早结束程序”或“发生不明确行为”的风险。本例要说的是，由客户自己调用close并不会对他们带来负担，而是给他们一个处理错误的机会，否则他们没机会响应。如果他们不认为这个机会有用（或许他们坚信不会有错误发生），可以忽略它，依赖DBConn析构函数去调用close。</p>
-<blockquote>
-<p>析构函数绝对不要抛出异常。如果一个被析构函数调用的函数可能抛出异常，析构函数应该捕捉任何异常，然后吞下它们（不传播）或结束程序。</p>
-<p>如果客户需要对某个操作函数运行期间抛出的异常做出反应，那么class应该提供一个普通函数（而非在析构函数中）执行该操作。</p>
-</blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1337,18 +1337,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">59</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1379,8 +1379,8 @@
 
 <div class="copyright">
   
-  &copy; 
-  <span itemprop="copyrightYear">2020</span>
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
