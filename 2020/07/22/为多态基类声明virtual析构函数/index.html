@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="为多态基类声明virtual析构函数&amp;emsp;&amp;emsp;有许多种做法可以记录时间，因此，设计一个TimeKeeper base class和一些derived classes作为不同的计时方法，相当合情合理： 123456789class TimeKeeper &amp;#123;public:    TimeKeeper();    ~TimeKeeper();    ...&amp;#125;;clas">
 <meta property="article:published_time" content="2020-07-22T08:22:00.000Z">
-<meta property="article:modified_time" content="2020-07-30T01:12:40.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:34:38.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:12:40" itemprop="dateModified" datetime="2020-07-30T09:12:40+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:34:38" itemprop="dateModified" datetime="2021-03-10T20:34:38+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -269,6 +269,8 @@
         <hr>
 <h1 id="为多态基类声明virtual析构函数"><a href="#为多态基类声明virtual析构函数" class="headerlink" title="为多态基类声明virtual析构函数"></a>为多态基类声明virtual析构函数</h1><p>&emsp;&emsp;有许多种做法可以记录时间，因此，设计一个TimeKeeper base class和一些derived classes作为不同的计时方法，相当合情合理：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TimeKeeper</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    TimeKeeper();</span><br><span class="line">    ~TimeKeeper();</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AtomicClock</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//原子钟</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WaterClock</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//水钟</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WristWatch</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//腕表</span></span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
 
 <p>&emsp;&emsp;许多客户只想在程序中使用时间，不想操心时间如何计算等细节，这时候我们可以设计factory函数，返回指针指向一个计时对象。Factory函数会“返回一个base class指针，指向新生成的derived class对象”：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">TimeKeeper* <span class="title">getTimeKeeper</span><span class="params">()</span></span>;  <span class="comment">//返回一个指针，指向一个</span></span><br><span class="line">                              <span class="comment">//TimeKeeper派生类的动态分配对象</span></span><br></pre></td></tr></table></figure>
@@ -434,7 +436,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

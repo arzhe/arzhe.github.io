@@ -225,10 +225,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-08-12 09:57:00 / Modified: 22:26:52" itemprop="dateCreated datePublished" datetime="2020-08-12T09:57:00+08:00">2020-08-12</time>
+              <time title="Created: 2020-08-12 09:57:00" itemprop="dateCreated datePublished" datetime="2020-08-12T09:57:00+08:00">2020-08-12</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:34:14" itemprop="dateModified" datetime="2021-03-10T20:34:14+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -260,41 +266,14 @@
           <hr>
 <h1 id="透彻了解inlining的里里外外"><a href="#透彻了解inlining的里里外外" class="headerlink" title="透彻了解inlining的里里外外"></a>透彻了解inlining的里里外外</h1><p>&emsp;&emsp;inline函数，多棒的点子！它们看起来像函数，动作像函数，比宏好得多（见“<a href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/" title="尽量以const,enum,inline替换define">尽量以const,enum,inline替换define</a>”），可以调用它们又不需要蒙受函数调用所招致的额外开销。你还能要求更多吗？</p>
 <p>&emsp;&emsp;你实际获得的比想到的还多，因为“免除函数调用成本”只是故事的一部分而已。编译器最优化机制通常被设计用来浓缩那些“不含函数调用”的代码，所以当你inline某个函数，或许编译器就因此有能力对它（函数本体）执行语境相关最优化。大部分编译器绝不会对着一个“outlined函数调用”动作执行如此之最优化。</p>
-<p>&emsp;&emsp;然而编写程序就像现实生活一样，没有白吃的午餐。inline函数也不例外。inline函数背后的整体观念是，将“对此函数的每一个调用”都以函数本体替换之。我想不需要统计学博士来告诉你，这样做可能增加你的目标码大小。在一台内存有限的机器上，过度热衷inlining会造成程序体积太大（对可用空间而言）。即使拥有虚内存，inline造成的代码膨胀亦会导致额外的换页行为，降低指令高速缓存装置的击中率，以及伴随这些而来的效率损失。</p>
-<p>&emsp;&emsp;换个角度说，如果inline函数的本体很小，编译器针对“函数本体”所产出的码可能比针对“函数调用”所产出的码更小。果真如此，将函数inlining确实可能导致较小的目标码和较高的指令高速缓存装置击中率！</p>
-<p>&emsp;&emsp;记住，inline只是对编译器的一个申请，不是强制命令。这项申请可以隐喻提出，也可以明确提出。隐喻方式是将函数定义于class定义式内：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">age</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> theAge; &#125;  <span class="comment">//一个隐喻的inline申请</span></span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> theAge;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这样的函数通常是成员函数，但friend函数也可被定义于class内，如果真是那样，它们也是被隐喻声明为inline。</p>
-<p>&emsp;&emsp;明确声明inline函数的做法则是在其定义式前加上关键字inline。例如标准的max template（来自&lt;algorithm&gt;）往往这样实现出来：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">const</span> T&amp; <span class="title">std::max</span><span class="params">(<span class="keyword">const</span> T&amp; a, <span class="keyword">const</span> T&amp; b)</span> </span>&#123;  <span class="comment">//明确申请inline</span></span><br><span class="line">    <span class="keyword">return</span> a &lt; b ? b : a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;“max是个template”带出了一项观察结果：我们发现inline函数和template两者通常都是被定义于头文件内。这使得某些程序员以为function template一定必须是inline。这个结论不但无效而且可能有害，值得深入看一看。</p>
-<p>&emsp;&emsp;inline函数通常一定被置于头文件内，因为大多数建置环境在编译过程中进行inlining，而为了将一个“函数调用”替换为“被调用函数的本体”，编译器必须知道那个函数长什么样子。某些建置环境可以在连接期完成inlining，少量建置环境如基于.NET CLI（Common Language Infrastructure：公共语言基础设施）的托管环境竟可在运行期完成inlining。然而这样的环境毕竟是例外，不是通例。inlining在大多数C++程序中是编译期行为。</p>
-<p>&emsp;&emsp;template通常也被置于头文件内，因为它一旦被使用，编译器为了将它具现化，需要知道它长什么样子。（某些建置环境可以在连接期才执行template具现化。只不过编译期完成具现化动作比较常见。）</p>
-<p>&emsp;&emsp;template的具现化与inlining无关。如果你正在写一个template而你认为所有根据此template具现出来的函数都应该inline，请将此template声明为inline：这就是上述std::max代码的作为。但如果你写的template没有理由要求它所具现的每一个函数都是inline，就应该避免将这个template声明为inline（不论显式或隐式）。inlining需要成本，你不会想在没有事先考虑的情况下就招来那些成本吧。我已经提过inlining如何引发代码膨胀，但还存在其它成本，稍后再讨论。</p>
-<p>&emsp;&emsp;现在让我们先结束“inline是个申请，编译器可以加以忽略”的观察。大部分编译器拒绝将太过复杂的函数inlining，而所有对virtual函数的调用也都会使inlining落空。这不该令你惊讶，因为virtual意味“等待，知道运行期才确定调用哪个函数”，而inline意味“执行前，先将调用动作替换为被调用函数本体”。如果编译器不知道该调用哪个函数，你就很难责备它们拒绝将函数本体inlining。</p>
-<p>&emsp;&emsp;这些整合起来的意思就是：一个表面上看似inline的函数是否真是inline，取决于你的建置环境，主要取决于编译器。幸运的是大多数编译器提供了一个诊断级别：如果它们无法将你要求的函数inline化，会给你一个警告信息。</p>
-<p>&emsp;&emsp;有时候虽然编译器有意愿inlining某个函数，还是可能为该函数生成一个函数本体。举个例子，如果程序要取某个inline函数的地址，编译器通常必须为此函数生成一个outline函数本体。毕竟编译器哪有能力提出一个指针指向并不存在的函数呢？与此并提的是，编译器通常不对“通过函数指针而进行的调用”实施inlining，这意味对inline函数的调用有可能被inline，也可能不被inline，取决于对该调用的实施方式：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123; ... &#125;</span><br><span class="line"><span class="keyword">void</span> (*pf)() = f;  <span class="comment">//pf指向f</span></span><br><span class="line">...</span><br><span class="line">f();   <span class="comment">//这个调用将被inline，因为它是一个正常调用</span></span><br><span class="line">pf();  <span class="comment">//这个调用或许不被inline，因为它通过函数指针达成</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;即使你从未使用函数指针，“未被成功inline”的inline函数还是有可能缠住你，因为程序员并非唯一要求函数指针的人。有时候编译器会生成构造函数和析构函数的outline副本，如此一来它们就可以获得指针指向那些函数，在array内部元素的构造和析构过程中使用。</p>
-<p>&emsp;&emsp;实际上构造函数和析构函数往往是inlining的糟糕候选人——虽然漫不经心的情况下你不会这么认为。考虑以下Derived class构造函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> bm1, bm2;  <span class="comment">//base成员1和2</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Derived() &#123;&#125;</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> dm1, dm2, dm3;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个构造函数看起来是inlining的绝佳候选人，因为它根本不含任何代码。但是你的眼睛可能会欺骗你。</p>
-<p>&emsp;&emsp;C++对于“对象被创建和被销毁时发生什么事”做了各式各样的保证。当你使用new，动态创建的对象被其构造函数自动初始化；当你使用delete，对应的析构函数会被调用。当你创建一个对象，其每一个base class及每一个成员变量都会被自动构造；当你销毁一个对象，反向程序的析构行为亦会自动发生。如果有个异常在对象构造期间被抛出，该对象已构造好的那一部分会被自动销毁。在这些情况中C++描述了什么一定会发生，但没有说如何发生。“事情如何发生”是编译器实现者的权责，不过至少有一点很清楚，那就是它们不可能凭空发生。你的程序内一定有某些代码让那些事情发生，而那些代码——由编译器于编译期代为产生并安插到你的程序中的代码——肯定存在于某个地方。有时候就放在你的构造函数和析构函数内，所以我们可以想象，编译器为稍早说的那个表面上看起来为空的Derived构造函数所产生的代码，相当于以下所列：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Derived::Derived() &#123;</span><br><span class="line">    Base::Base();                       <span class="comment">//初始化“Base成分”</span></span><br><span class="line">    <span class="keyword">try</span> &#123; dm1.<span class="built_in">std</span>::<span class="built_in">string</span>::<span class="built_in">string</span>(); &#125;  <span class="comment">//试图构造代码dm1</span></span><br><span class="line">    <span class="keyword">catch</span>(...) &#123;                        <span class="comment">//如果抛出异常就</span></span><br><span class="line">        Base::~Base();                  <span class="comment">//销毁base class成分，并</span></span><br><span class="line">        <span class="keyword">throw</span>;                          <span class="comment">//传播该异常</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123; dm2.<span class="built_in">std</span>::<span class="built_in">string</span>::<span class="built_in">string</span>(); &#125;</span><br><span class="line">    <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">        dm1.<span class="built_in">std</span>::<span class="built_in">string</span>::~<span class="built_in">string</span>();</span><br><span class="line">        Base::~Base();</span><br><span class="line">        <span class="keyword">throw</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123; dm3.<span class="built_in">std</span>::<span class="built_in">string</span>::<span class="built_in">string</span>(); &#125;</span><br><span class="line">    <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">        dm2.<span class="built_in">std</span>::<span class="built_in">string</span>::~<span class="built_in">string</span>();</span><br><span class="line">        dm1.<span class="built_in">std</span>::<span class="built_in">string</span>::~<span class="built_in">string</span>();</span><br><span class="line">        Base::~Base();</span><br><span class="line">        <span class="keyword">throw</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这段代码并不能代表编译器真正制造出来的代码，因为真正的编译器会以更精致复杂的做法来处理异常，尽管如此，这已能准确反映Derived的空白构造函数必须提供的行为。不论编译器在其内所做的异常处理多么精致复杂，Derived构造函数至少一定会陆续调用其成员变量和base class两者的构造函数，而那些调用会影响编译器是否对此空白函数inlining。</p>
-<p>&emsp;&emsp;相同的道理也适用于Base构造函数，所以如果它被inline，所有替换“Base构造函数调用”而插入的代码也都会被插入到“Derived构造函数调用”内（因为Derived构造函数调用了Base构造函数）。试想下这对于上述代码会带来怎样的灾难。</p>
-<p>&emsp;&emsp;程序库设计者必须评估“将函数声明为inline”的冲击：inline函数无法随着程序库的升级而升级。换句话说如果f是程序库内的一个inline函数，客户将“f函数本体”编进其程序中，一旦程序库设计者决定改变f，所有用到f的客户端程序都必须重新编译。这往往是大家不愿意见到的。然而如果f是non-inline函数，一旦它有任何修改，客户端只需重新连接就好，远比重新编译的负担少很多。如果程序库采取动态连接，升级版函数甚至可以不知不觉地被应用程序吸纳。</p>
-<p>&emsp;&emsp;对程序开发而言，将上述所有考虑牢记在心很是重要，但若从纯粹实用观点出发，有一个事实比其它因素更重要：大部分调试器面对inline函数都束手无策。这对你应该不是太大的意外。毕竟你如何在一个并不存在的函数内设立断点呢？虽然某些建置环境勉强支持对inline函数的调试，其它许多建置环境仅仅只能“在调试版程序中禁止发生inlining”。</p>
-<blockquote>
-<p>将太多inlining限制在小型、被频繁调用的函数身上。这可使日后的调试过程和二进制升级更容易，也可使潜在的代码膨胀问题最小化，使程序的速度提升机会最大化。</p>
-<p>不要只因为function template出现在头文件，就将它们声明为inline。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/12/%E9%80%8F%E5%BD%BB%E4%BA%86%E8%A7%A3inlining%E7%9A%84%E9%87%8C%E9%87%8C%E5%A4%96%E5%A4%96/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -344,7 +323,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-12 09:56:23" itemprop="dateModified" datetime="2020-08-12T09:56:23+08:00">2020-08-12</time>
+                <time title="Modified: 2021-03-10 20:34:23" itemprop="dateModified" datetime="2021-03-10T20:34:23+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -377,66 +356,14 @@
           <hr>
 <h1 id="为“异常安全”而努力是值得的"><a href="#为“异常安全”而努力是值得的" class="headerlink" title="为“异常安全”而努力是值得的"></a>为“异常安全”而努力是值得的</h1><p>&emsp;&emsp;异常安全有几分像是……呃……怀孕。但等等，在我们完成求偶之前，实在无法确实地谈论生育。</p>
 <p>&emsp;&emsp;假设有个class用来表现夹带背景图案的GUI菜单。这个class希望用语多线程环境，所以它有个互斥器作为并发控制之用：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PrettyMenu</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">changeBackground</span><span class="params">(<span class="built_in">std</span>::istream&amp; imgSrc)</span></span>;  <span class="comment">//改变背景图像</span></span><br><span class="line">    ...</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Mutex mutex;       <span class="comment">//互斥器</span></span><br><span class="line">    Image* bgImage;    <span class="comment">//目前的背景图像</span></span><br><span class="line">    <span class="keyword">int</span> imageChanges;  <span class="comment">//背景图像被改变的次数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>下面是PrettyMenu的changeBackground函数的一个可能实现：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PrettyMenu::changeBackground</span><span class="params">(<span class="built_in">std</span>::istream&amp; imgSrc)</span> </span>&#123;</span><br><span class="line">    lock(&amp;mutex);                 <span class="comment">//取得互斥器</span></span><br><span class="line">    <span class="keyword">delete</span> bgImage;               <span class="comment">//摆脱旧的背景图像</span></span><br><span class="line">    ++imageChanges;               <span class="comment">//修改图像变更次数</span></span><br><span class="line">    bgImage = <span class="keyword">new</span> Image(imgSrc);  <span class="comment">//安装新的背景图像</span></span><br><span class="line">    unlock(&amp;mutex);               <span class="comment">//释放互斥器</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;从“异常安全性”的观点来看，这个函数很糟。“异常安全”有两个条件，而这个函数没有满足其中任何一个条件。</p>
-<p>&emsp;&emsp;当异常被抛出时，带有异常安全性的函数会：</p>
-<ul>
-<li><strong>不泄漏任何资源</strong>。上述代码没有做到这一点，因为一旦“new Image(imgSrc)”导致异常，对unlock的调用就绝不会执行。于是互斥器就永远被把持住了。</li>
-<li><strong>不允许数据破坏</strong>。如果“new Image(imgSrc)”抛出异常，bgImage就是指向一个已被删除的对象，imageChanges也已被累加，而其实并没有新的图像被成功安装起来。</li>
-</ul>
-<p>&emsp;&emsp;解决资源泄漏的问题很容易，因为之前的“<a href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/" title="以对象管理资源">以对象管理资源</a>”讨论过如何以对象管理资源，而在“<a href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/" title="在资源管理类中小心copying行为">在资源管理类中小心copying行为</a>”也导入了Lock class作为一种“确保互斥器被及时释放”的方法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PrettyMenu::changeBackground</span><span class="params">(<span class="built_in">std</span>::istream&amp; imgSrc)</span> </span>&#123;</span><br><span class="line">    <span class="function">Lock <span class="title">m1</span><span class="params">(&amp;mutex)</span></span>;</span><br><span class="line">    <span class="keyword">delete</span> bgImage;</span><br><span class="line">    ++imageChanges;</span><br><span class="line">    bgImage = <span class="keyword">new</span> Image(imgSrc);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;关于“管理资源类”如Lock者，一个最棒的事情是，它们通常使函数更短。你看，不再需要调用unlock了不是吗？有个一般性规则是这么说的：较少的码就是较好的码，因为出错机会比较少，而且一旦有所改变，被误解的机会也比较少。</p>
-<p>&emsp;&emsp;把资源泄漏抛诸脑后，现在我们可以专注解决数据的的败坏了。此刻我们需要做个抉择，但是在我们能够抉择之前，必须先面对一些用来定义选项的术语。</p>
-<ul>
-<li><p><strong>基本承诺</strong>：如果异常被抛出，程序内的任何事物仍然保持在有效状态下。没有任何对象或数据结构会因此而破坏，所有对象都处于一种内部前后一致的状态（例如所有的class约束条件都继续获得满足）。然而程序的现实状态恐怕不可预测。举个例子，我们可以撰写changeBackground使得一旦有异常被抛出时，PrettyMenu对象可以继续拥有原背景图像，或是令它拥有某个缺省背景图像，但客户无法预期哪一种情况。如果想知道，他们恐怕必须调用某个成员函数以得知当时的背景图像是什么。</p>
-</li>
-<li><p><strong>强烈保证</strong>：如果异常被抛出，程序状态不改变。调用这样的函数需有这样的认知：如果函数成功，就是完全成功，如果函数失败，程序会回复到“调用函数之前”的状态。</p>
-<p>&emsp;&emsp;和这种提供强烈保证的函数共事，比如刚才说的那种只提供基本承诺的函数共事，容易多了，因为在调用一个提供强烈保证的函数后，程序状态只有两种可能：如预期般地到达函数成功执行后的状态，或回到函数被调用前的状态。与此成对比的是，如果调用一个只提供基本承诺的函数，而真的出现异常，程序有可能处于任何状态——只要那是个合法状态。</p>
-</li>
-<li><p><strong>不抛掷保证</strong>，承诺绝不抛出异常，因为它们总是能够完成它们原先承诺的功能。作用于内置类型身上的所有操作都提供nothrow保证。这是异常安全码中一个必不可少的关键基础材料。</p>
-<p>&emsp;&emsp;如果我们假设，函数带着“空白的异常明细”者必为nothrow函数，似乎合情合理，其实不尽然。举个例子，考虑以下函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">doSomething</span><span class="params">()</span> <span class="title">throw</span><span class="params">()</span></span>;  <span class="comment">//空白的异常明细</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这并不是说doSomething绝不会抛出异常，而是说如果doSomething抛出异常，将是严重错误，会有你意想不到的函数被调用。实际上实际上doSomething也许完全没有提供任何异常保证。函数的声明式并不能够告诉你是否它是正确的、可移植的或高效的，也不能够告诉它是否提供任何异常安全性保证。所有那些性质都由函数的实现决定，无关乎声明。</p>
-</li>
-</ul>
-<p>&emsp;&emsp;异常安全码必须提供上述三种保证之一。如果它不这样做，它就不具备异常安全性。因此，我们的抉择是，该为我们所写的每一个函数提供哪一种保证？除非面对不具异常安全性的传统代码，否则你应该只在一种情况下才不提供任何异常安全保证：你那“天才班”需求分析团队确认你的应用程序有“泄漏资源”并“在执行过程中带着败坏数据”的需要。</p>
-<p>&emsp;&emsp;一般而言你应该会想提供可实施之最强烈保证。从异常安全性的观点视之，nothrow函数很棒，但我们很难在C part of  C++领域中完全没有调用任何一个可能抛出异常的函数。任何使用动态内存的东西如果无法找到足够内存以满足需求，通常便会抛出一个bad_alloc异常。是的，可能的话请提供nothrow保证，但对大部分函数而言，抉择往往落在基本保证和强烈保证之间。</p>
-<p>&emsp;&emsp;对changeBackground而言，提供强烈保证几乎不困难。首先改变PrettyMenu的bgImage成员变量的类型，从一个类型为Image*的内置指针改为一个“用于资源管理”的智能指针。坦白说，这个好构想纯粹只是帮助我们防止资源泄漏。它对“强烈之异常安全保证”的帮助仅仅只是强化了“<a href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/" title="以对象管理资源">以对象管理资源</a>”的论点：以对象（例如智能指针）管理资源是良好设计的根本。以下代码中我使用shared_ptr。</p>
-<p>&emsp;&emsp;第二，我们重新排列changeBackground内的语句次序，使得在更换图像之后才累加imageChanges，一般而言这是个好策略：不要为了表示某件事情发生而改变对象状态，除非那件事情真的发生了。</p>
-<p>&emsp;&emsp;下面是结果：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PrettyMenu</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Image&gt; bgImage;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PrettyMenu::changeBackground</span><span class="params">(<span class="built_in">std</span>::istream&amp; imgSrc)</span> </span>&#123;</span><br><span class="line">    <span class="function">Lock <span class="title">m1</span><span class="params">(&amp;mutex)</span></span>;</span><br><span class="line">    bgImage.reset(<span class="keyword">new</span> Image(imgSrc));  <span class="comment">//以“new Image”的执行结果设定bgImage内部指针</span></span><br><span class="line">    ++imageChanges;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;注意，这里不再需要手动delete旧图像，因为这个动作已经由智能指针内部处理掉了。此外，删除动作只发生在新图像被成功创建之后。更正确地说，shared_ptr::reset函数只有在其参数被成功生成之后才会被调用。delete只在reset函数内被使用，所以如果从未进入那个函数也就绝对不会使用delete。也请注意，以对象管理资源再次缩减了changeBackground的长度。</p>
-<p>&emsp;&emsp;如我之前所言，这两个改变几乎足够让changeBackground提供强烈的异常安全保证。美中不足的是参数imgSrc。如果Image构造函数抛出异常，有可能输入流的读取记号已被移走，而这样的搬移对程序其余部分是一种可见的状态改变。所以changeBackground在解决这个问题之前只提供基本的异常安全保证。</p>
-<p>&emsp;&emsp;然而，让我们把它放在一旁，佯装changeBackground的确提供了强烈保证。有个一般化的设计策略很典型地回导致强烈保证，很值得熟悉它。这个策略被称为copy and swap。原则很简单：为你打算修改的对象（原件）做出一份副本，然后在那副本身上做一切必要修改。若有任何修改动作抛出异常，原对象仍然保持未改变状态。待所有改变都成功后，再将修改过的那个副本和原对象在一个不抛出异常的操作中置换。</p>
-<p>&emsp;&emsp;实现上通常是将所有“隶属对象的数据”从原对象放进另一个对象内，然后赋予原对象一个指针，指向那个所谓的实现对象（即副本）。这种手法常被称为pimpl idiom。对PrettyMenu而言，典型写法如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">PMImpl</span> &#123;</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Image&gt; bgImage;</span><br><span class="line">    <span class="keyword">int</span> imageChange;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PrettyMenu</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Mutex mutex;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;PMImpl&gt; pImpl;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PrettyMenu::changeBackground</span><span class="params">(<span class="built_in">std</span>::istream&amp; imgSrc)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::swap;</span><br><span class="line">    <span class="function">Lock <span class="title">m1</span><span class="params">(&amp;mutex)</span></span>;  <span class="comment">//获得mutex的副本数据</span></span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;PMImpl&gt; <span class="title">pNew</span><span class="params">(<span class="keyword">new</span> PMImpl(*pImpl))</span></span>;</span><br><span class="line">  </span><br><span class="line">    pNew-&gt;bgImage.reset(<span class="keyword">new</span> Image(imgSrc));  <span class="comment">//修改副本</span></span><br><span class="line">    ++pNew-&gt;imageChanges;</span><br><span class="line">    </span><br><span class="line">    swap(pImpl, pNew);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;此例之中我选择让PMImpl成为一个struct而不是一个class，这是因为PrettyMenu的数据封装性已经由于“pImpl是private”而获得了保证。如果令PMImpl为一个class，虽然一样好，有时候却不太方便（但也保持了面向对象纯度）。如果你要，也可以将PMImpl嵌套于PrettyMenu内，但打包问题（例如“独立撰写异常安全码”）是我们这里所挂虑的事。</p>
-<p>&emsp;&emsp;“copy-and-swap”策略是对对象状态做出“全有或全无”改变的一个很好办法，但一般而言它并不保证整个函数有强烈的异常安全性。为了解原因，让我吗考虑changeBackground的一个抽象概念：someFunc。它使用copy-and-swap策略，但函数内还包含对另外两个函数f1和f2的调用：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">someFunc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...    <span class="comment">//对local状态做一份副本</span></span><br><span class="line">    f1();</span><br><span class="line">    f2();</span><br><span class="line">    ...    <span class="comment">//对修改后的状态置换过来</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;很明显，如果f1或f2的异常安全性必“强烈保证”低，就很难让someFunc成为“强烈异常安全”。举个例子，假设f1只提供基本保证，那么为了让someFunc提供强烈保证，我们必须写出代码获得调用f1之前的整个程序状态、捕捉f1的所有可能异常、然后恢复原状态。</p>
-<p>&emsp;&emsp;如果f1和f2都是“强烈异常安全”，情况并不就此好转。毕竟如果f1圆满结束，程序状态在任何方面都可能有所改变，因此如果f2随后抛出异常，程序状态和someFunc被调用前并不相同，甚至当f2没有改变任何东西时也是如此。</p>
-<p>&emsp;&emsp;问题出在“连带影响”。如果函数只操作局部性状态，便相对容易地提供强烈保证。但是当函数对“非局部性数据”有连带影响时，提供强烈保证就困难得多。举个例子，如果调用f1带来的影响是某个数据库被改动了，那就很难让someFunc具备强烈安全性。一般而言在“数据库修改动作”送出之后，没有什么做法可以取消并恢复数据库旧观，因为数据库的其它客户很可能已经看到这一笔新数据。</p>
-<p>&emsp;&emsp;这些议题想必会阻止你为函数提供强烈保证——即使你想那么做。另一个主题是效率。copy-and-swap的关键在于“修改对象数据的副本，然后在一个不抛异常的函数中将修改后的数据和原件置换”，因此必须为每一个即将被改动的对象做出一个副本，那得耗用你可能无法（或不愿意）供应的时间和空间。没错，大家都希望提供“强烈保证”：当它可被实现时你的确应该提供它，但“强烈保证”并非在任何时候都显得实际。</p>
-<p>&emsp;&emsp;当“强烈保证”不切实际时，你就必须提供“基本保证”。现实中你或许会发现，你可以为某些函数提供强烈保证，但效率和复杂度带来的成本会使它对许多人而言摇摇欲坠。只要你曾经付出适当的心力试图提供强烈保证，万一实际不可行，使你退而求其次地只提供基本保证，任何人都不该因此责难你。对许多函数而言，“异常安全性之基本保证”是一个绝对通情达理的选择。</p>
-<p>&emsp;&emsp;这令我想到怀孕，一位女性若非怀孕，就是没怀孕。不可能说她“部分怀孕”。同样的道理，一个软件系统要不就具备异常安全性，要不就全然否定，没有所谓的“局部异常安全性”。如果系统内有一个函数不具备异常安全性，整个系统就不具备异常安全性，因为调用那个（不具备异常安全性的）函数有可能导致资源泄漏或数据结构败坏。不幸的是许多老旧C++代码并不具备异常安全性，所以今天许多系统仍然不能够说是“异常安全”的，因为它们并入了一些并非“异常安全”的代码。</p>
-<p>&emsp;&emsp;没有理由让这种情况永垂不朽。当你撰写新码或修改旧码时，请仔细想想如何让它具备异常安全性。首先是“以对象管理资源”，那可阻止资源泄漏。然后是挑选三个“异常安全保证”中的某一个实施于你所写的每一个函数身上。你应该挑选“现实可施作”条件下的最强烈等级，只有当你的函数调用了传统代码，才别无选择地将它设为“无任何保证”。将你的决定写成文档，这一来是为你的函数用户着想，二来是为将来的维护者着想。函数的“异常安全性保证”是其可见接口的一部分，所以你应该慎重选择，就像选择函数接口的其它任何部分一样。</p>
-<p>&emsp;&emsp;四十年前，满载goto的代码被视为一种美好实践，而今我们却致力于写出结构化控制流。二十年前，全局数据被视为一种美好实践，而今我们却致力于数据的封装。十年前，撰写“未将异常考虑在内”的函数被视为一种美好实践，而今我们致力于写出“异常安全码”。</p>
-<blockquote>
-<p>异常安全函数即使发生异常也不会泄漏资源或允许任何数据结构败坏。这样的函数区分为三种可能的保证：基本型、强烈型、不抛异常型。</p>
-<p>“强烈保证”往往能够以copy-and-swap实现出来，但“强烈保证”并非对所有函数都可实现或具备现实意义。</p>
-<p>函数提供的“异常安全保证”通常最高只等于其所调用之各个函数的“异常安全保证”中的最弱者。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/11/%E4%B8%BA%E2%80%9C%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%E2%80%9D%E8%80%8C%E5%8A%AA%E5%8A%9B%E6%98%AF%E5%80%BC%E5%BE%97%E7%9A%84/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -478,10 +405,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-08-10 12:15:00 / Modified: 20:55:14" itemprop="dateCreated datePublished" datetime="2020-08-10T12:15:00+08:00">2020-08-10</time>
+              <time title="Created: 2020-08-10 12:15:00" itemprop="dateCreated datePublished" datetime="2020-08-10T12:15:00+08:00">2020-08-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:24:06" itemprop="dateModified" datetime="2021-03-10T20:24:06+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -513,31 +446,14 @@
           <hr>
 <h1 id="避免返回handles指向对象内部成分"><a href="#避免返回handles指向对象内部成分" class="headerlink" title="避免返回handles指向对象内部成分"></a>避免返回handles指向对象内部成分</h1><p>&emsp;&emsp;假设你的程序设计矩形。每个矩形由其左上角和右下角表示。为了让一个Rectangle对象尽可能小，你可能会决定不把定义矩形的这些点存放在Rectangle对象内，而是放在一个辅助的struct内再让Rectangle去指它：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Point(<span class="keyword">int</span> x, <span class="keyword">int</span> y);</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setX</span><span class="params">(<span class="keyword">int</span> newVal)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setY</span><span class="params">(<span class="keyword">int</span> newVal)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">RectData</span> &#123;</span>  <span class="comment">//这些“点”数据用来表现一个矩形</span></span><br><span class="line">    Point ulhc;    <span class="comment">//左上角</span></span><br><span class="line">    Point lrhc;    <span class="comment">//右下角</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;RectData&gt; pData;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;Rectangle的客户必须能够计算Rectangle的范围，所以这个class提供upperLeft函数和lowerRight函数。Point是个用户自定义类型，这些函数返回reference，代表底层的Point对象：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function">Point&amp; <span class="title">upperLeft</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;ulhc; &#125;</span><br><span class="line">    <span class="function">Point&amp; <span class="title">lowerRight</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;lrhc; &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这样的设计可以通过编译，但却是错误的。实际上它是自我矛盾的。一方面upperLeft和lowerRight被声明为const成员函数，因为它们的目的只是为了提供客户一个得知Rectangle相关坐标点的方法，而不是让客户修改Rectangle。另一方面两个函数都返回reference指向private内部数据，调用者于是可以通过这些reference更改内部数据！例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Point <span class="title">coord1</span><span class="params">(<span class="number">0</span>, <span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="function">Point <span class="title">coord2</span><span class="params">(<span class="number">100</span>, <span class="number">100</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">const</span> Rectangle <span class="title">rec</span><span class="params">(coord1, coord2)</span></span>;  <span class="comment">//rec是个const矩形，从（0，0）到（100，100）</span></span><br><span class="line">rec.upperLeft().setX(<span class="number">50</span>);             <span class="comment">//现在却变成从（50，0）到（100，100）</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里立刻带给我们两个教训。第一，成员变量的封装性最多只等于“返回其reference”的函数的访问级别。本例之中虽然ulhc和lrhc都被声明为private，它们实际上却是public，因为public函数upperLeft和lowerRight传出它们的reference。第二，如果const成员函数传出一个reference，后者所指数据与对象自身有关联，而它又被存储于对象之外，那么这个函数的调用者可以修改那笔数据。这正是bitwise constness的一个附带结果。</p>
-<p>&emsp;&emsp;我们在这些函数身上遭遇的两个问题可以轻松去除，只要对它们的返回类型加上const即可：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">const</span> Point&amp; <span class="title">upperLeft</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;ulhc; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">const</span> Point&amp; <span class="title">lowerRight</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;lrhc; &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;有了这样的改变，客户可以读取矩形的Point，但不能涂写它们。这意味当初声明upperLeft和upperRight为const不再是个谎言，因为它们不在允许客户更改对象状态。至于封装问题，我们总是愿意让客户看到Rectangle的外围Point，所以这里是蓄意放松封装。更重要的是这是个有限度的放松：这些函数只让渡读取权。涂写权仍然是被禁止的。</p>
-<p>&emsp;&emsp;但即使如此，upperLeft和lowerRight还是返回了“代表对象内部”的handle，有可能在其它场合带来问题。更明确地说，它可能导致dangling handle（空悬号码牌）：这种handle所指东西（的所属对象）不复存在。这种“不复存在的对象”最常见的来源就是函数返回值。例如某个函数返回GUI对象的外框，这个外框采用矩形形式：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GUIObject</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="keyword">const</span> Rectangle</span><br><span class="line">boundingBox(<span class="keyword">const</span> GUIObject&amp; obj);</span><br></pre></td></tr></table></figure>
-
-<p>现在，客户有可能这么使用这个函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GUIObject* pgo;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> Point* pUpperLeft = &amp;(boundingBox(*pgo).upperLeft());</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;对boundingBox的调用获得一个新的、暂时的Rectangle对象。这个对象没有名称，所以我们权且称它为temp。随后upperLeft作用于temp身上，返回一个reference指向temp的一个内部成分，更具体地说是指向一个用以标示temp的Point。于是pUpperLeft指向那个Point对象。目前为止一切还好，但故事尚未结束，因为在那个语句结束之后，boundingBox的返回值，也就是我们所说的temp，将被销毁，而那间接导致temp内的Point析构。最终导致pUpperLeft指向一个不再存在的对象：也就是说一旦产出pUpperLeft的那个语句结束，pUpperLeft也就变成空悬、虚吊！</p>
-<p>&emsp;&emsp;这就是为什么函数如果“返回一个handle代表对象内部成分”总是危险的原因。不论这所谓的handle是个指针或迭代器或reference，也不论这个handle是否为const，也不论那个返回handle的成员函数是否为const。这里的唯一关键是，有个handle被传出去了，一旦如此你就是暴露在“handle比其所指对象更长寿”的风险下。</p>
-<p>&emsp;&emsp;这并不意味你绝对不可以让成员函数返回handle。有时候你必须那么做。例如operator[]就允许你“摘采”string和vector的个别元素，而这些operator[]就是返回reference指向“容器内的数据”，那些数据会随着容器被销毁而销毁。尽管如此，这样的函数毕竟是少数，不是常态。</p>
-<blockquote>
-<p>避免返回handle（包括reference、指针、迭代器）指向对象内部。遵守这个条款可增加封装性，帮助const成员函数的行为像个const，并将发生“虚吊号码牌”的可能性降至最低。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/10/%E9%81%BF%E5%85%8D%E8%BF%94%E5%9B%9Ehandles%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1%E5%86%85%E9%83%A8%E6%88%90%E5%88%86/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -587,7 +503,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-09 19:56:43" itemprop="dateModified" datetime="2020-08-09T19:56:43+08:00">2020-08-09</time>
+                <time title="Modified: 2021-03-10 20:27:51" itemprop="dateModified" datetime="2021-03-10T20:27:51+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -620,69 +536,14 @@
           <hr>
 <h1 id="尽量少做转型动作"><a href="#尽量少做转型动作" class="headerlink" title="尽量少做转型动作"></a>尽量少做转型动作</h1><p>&emsp;&emsp;C++规则的设计目标之一是，保证“类型错误”绝不可能发生。理论上如果你的程序很“干净地”通过编译，就表示它并不企图在任何对象身上执行任何不安全、无意义、愚蠢荒谬的操作。这是个极具价值的保证，可别草率地放弃它。</p>
 <p>&emsp;&emsp;不幸的是，转型破坏了类型系统。那可能导致任何种类的麻烦，有些容易辨识，有些非常隐晦。如果你来自C，Java或C#阵营，请特别注意，因为那些语言中的转型比较必要而无法避免，也比较不危险（与C++相较）。但C++不是C，也不是Java或C#。在C++中转型是一个你会想带着极大尊重去亲近的一个特性。</p>
-<p>&emsp;&emsp;让我们首先回顾转型语法，因为通常有三种不同的形式，可写出相同的转型动作。C风格的转型动作看起来像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(T)expression  <span class="comment">//将expression转型为T</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;函数风格的转型动作看起来像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T(expression)  <span class="comment">//将expression转型为T</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;两种形式并无差别，纯粹只是小括号的摆放位置不同而已。为称此二种形式为“旧式转型”。</p>
-<p>&emsp;&emsp;C++还提供四种新式转型：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="keyword">dynamic_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="keyword">reinterpret_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="keyword">static_cast</span>&lt;T&gt;( expression )</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;各有不同的目的：</p>
-<ul>
-<li>const_cast通常被用将对象的常量性转除。它也是唯一有此能力的C++-style转型操作符。</li>
-<li>dynamic_cast主要用来执行“安全向下转型”，也就是用来决定对象是否归属继承体系中的某个类型。它是唯一无法由旧式语法执行的动作，也是唯一可能消耗重大运行成本低转型动作。</li>
-<li>reinterpret_cast意图执行低级转型，实际动作（及结果）可能取决于编译器，这也就表示它不可移植。例如将一个pointer to int转型为一个int。这一类转型在低级代码以外很少见。</li>
-<li>static_cast用来强迫隐式转换，例如将non-const对象转为const对象，或将int转为double等等。它也可以用来执行上述多种转换的反向转换，例如将void*指针转为typed指针，将pointer-to-derived转为pointer-to-base。但它无法将const转为non-const——这个只有const_cast才办得到。</li>
-</ul>
-<p>&emsp;&emsp;旧式转型仍然合法，但新式转型较受欢迎。原因是：第一，它们很容易在代码中被辨识出来，因而得以简化“找出类型系统在哪个地点被破坏”的过程。第二，各种转型动作的目标愈窄化，编译器愈可能诊断出错误的运用。举个例子，如果你打算将常量性去掉，除非使用新式转型中的const_cast否则无法通过编译。</p>
-<p>&emsp;&emsp;我唯一使用旧式转型的时机是，当为要调用一个explicit构造函数将一个对象传递给一个函数时。例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Widget</span><span class="params">(<span class="keyword">int</span> <span class="built_in">size</span>)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomeWork</span><span class="params">(<span class="keyword">const</span> Widget&amp; w)</span></span>;</span><br><span class="line"></span><br><span class="line">doSomeWork(Widget(<span class="number">15</span>));               <span class="comment">//以一个int加上“函数风格”的转型动作创建一个Widget</span></span><br><span class="line"></span><br><span class="line">doSomeWork(<span class="keyword">static_cast</span>&lt;Widget&gt;(<span class="number">15</span>));  <span class="comment">//以一个int加上“C++风格”的转型动作创建一个Widget</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;从某个角度来说，蓄意的“对象生成”动作感觉不怎么像“转型”，所以我很可能使用函数风格的转型而不适用static_cast。但我要再说一次，当我我们写下一段日后出错导致“core dump”的代码时，撰写之时我们往往“觉得”通情达理，所以或许最好是忽略你的感觉，始终理智地使用新式转型。</p>
-<p>&emsp;&emsp;许多程序员相信，转型其实什么都没做，只是告诉编译器把某种类型视为另一种类型。这是错误的概念。任何一个类型转换往往真的令编译器编译出运行期间执行的码。例如在这段程序中：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x, y;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">double</span> d = <span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>&gt;(x) / y;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;将int x转型为double几乎肯定会产生一些代码，因为在大部分计算器体系结构中，int的底层表述不同于double的底层表述。这或许不会让你惊讶，但下面这个例子就有可能让你稍微睁大眼睛了：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line">Derived d;</span><br><span class="line">Base* pb = &amp;d;  <span class="comment">//隐喻地将Derived*转换为Base*</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里我们不过是建立一个base class指针指向一个derived class对象，但有时候上述的两个指针值并不相同。这种情况下会有个偏移量在运行期被施行于Derived*指针身上，用以取得正确的Base*指针值。</p>
-<p>&emsp;&emsp;上个例子表明，单一对象（例如一个类型为Derived的对象）可能拥有一个以上的地址（例如“以Base*指向它”时的地址和“以Derived*指向它”时的地址。）。C不可能发生这种事，Java不可能发生这种事，C#也不可能发生这种事。但C++可能！实际上一旦使用多重继承，这事几乎一直发生着。即使在单一继承中也可能发生。虽然这还有其它涵义但至少意味你通常应该避免做出“对象在C++中如何如何布局”的假设。当然更不该以此假设为基础执行任何转型动作。例如，将对象地址转型为char*指针然后在它们身上进行指针算术。几乎总是会导致无定义行为。</p>
-<p>&emsp;&emsp;但请注意，我说的是有时候需要一个偏移量。对象的布局方式和它们的地址计算方式随编译器的不同而不同，那意味着“由于知道对象如何布局”而设计的转型，在某一平台行得通，在其它平台不一定行得通。这个世界有许多悲惨的程序员，他们历尽千辛万苦才学到这个教训。</p>
-<p>&emsp;&emsp;另一件关于转型的有趣事情是：我们很容易写出某些似是而非的代码。例如许多应用框架都要求derived class内的virtual函数代码的第一个动作就先调用base class的对应函数。假设我们有个Window base class和一个SpecialWindow derived class，两者都定义了virtual函数onResize。进一步假设SpecialWindow的onResize函数被要求首先调用Window的onResize。下面是实现方式之一，它看起来对，但实际上错：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">onResize</span><span class="params">()</span> </span>&#123; ... &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">onResize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">static_cast</span>&lt;Windwo&gt;(*<span class="keyword">this</span>).onResize();</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我在代码中强调了转型动作。一如你所预期，这段程序将*this转型为Window，对函数onResize的调用也因此调用了Window::onResize。但恐怕你没想到，它调用的并不是当前对象上的函数，而是稍早转型动作所建立的一个“*this对象之base class成分”的暂时副本身上的onResize！再说一次，上述代码并非在当前对象身上调用Window::onResize之后又在该对象身上执行SpecialWindow专属动作。如果Window::onResize修改了对象内容（不能说没有可能性，因为onResize是个non-const成员函数），当前对象其实没被改动，改动的是副本。然而SpecialWindow::onResize内如果也修改对象，当前对象真的会被改动，这使当前对象进入一种“伤残”状态：其base class成分的更改没有落实，而derived class成分倒是落实。</p>
-<p>&emsp;&emsp;解决之道是拿掉转型动作，代之以你真正想说的话。你并不想哄编译器将*this视为一个base class对象，你只是想调用base class版本的onResize函数，令它作用于当前对象身上，所以请这么写：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">onResize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Window::onResize();  <span class="comment">//调用Window::onResize作用于*this身上</span></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个例子也说明，如果你发现你自己打算转型，那活脱是个警告信号：你可能正将局面发展至错误的方向上。如果你用的是dynamic_cast更是如此。</p>
-<p>&emsp;&emsp;在探究dynamic_cast设计意涵之前，值得注意的是，dynamic_cast的许多实现版本执行速度相当慢。例如至少有一个很普遍的实现版本基于“class名称之字符串比较”，如果你在四层深的单继承体系内的某个对象身上执行dynamic_cast，刚才说的那个实现版本所提供的每一次dynamic_cast可能会耗用多达四次的strcmp调用，用以比较class名称。深度继承或多重继承的成本更高！某些实现版本这样做是有其原因（它们必须支持动态连接）。然而我还是要强调，除了对一般转型保持机敏与猜疑，更应该在注重效率的代码中对dynamic_cast保持机敏与猜疑。</p>
-<p>&emsp;&emsp;之所以需要dynamic_cast，通常是因为你想在一个你认定为derived class对象身上执行derived class操作函数，但你手上却只有一个“指向base”的pointer或reference，你只能靠它们来处理对象。有两个一般性做法可以避免这个问题。</p>
-<p>&emsp;&emsp;第一，使用容器并在其中存储直接指向derived class对象的指针（通常是智能指针），如此便消除了“通过base class接口处理对象”的需要。假设先前的Window/SpecialWindow继承体系中只有SpecialWindow才支持闪烁效果，试着不要这样做：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">blink</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;window&gt; &gt; VPW;</span><br><span class="line">VPW winPtrs;</span><br><span class="line">...</span><br><span class="line">  <span class="keyword">for</span>(VPW::iterator iter = winPtrs.<span class="built_in">begin</span>();</span><br><span class="line">      iter != winPtrs.<span class="built_in">end</span>(); ++iter) &#123;</span><br><span class="line">      <span class="keyword">if</span>(SpecialWindow* psw = <span class="keyword">dynamic_cast</span>&lt;SpecialWindow*&gt;(iter-&gt;<span class="built_in">get</span>()))</span><br><span class="line">          psw-&gt;<span class="built_in">blink</span>();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>应该改而这样做：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;SpecialWindow&gt; &gt; VPSW;</span><br><span class="line">VPSW winPtrs;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">for</span>(VPSW::iterator iter = winPtrs.<span class="built_in">begin</span>();  <span class="comment">//这样写比较好</span></span><br><span class="line">    iter != winPtrs.<span class="built_in">end</span>(); ++iter)          <span class="comment">//不使用dynamic_cast</span></span><br><span class="line">(*iter)-&gt;<span class="built_in">blink</span>();</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当然啦，这种做法使你无法在同一个容器内存储指针“指向所有可能之多种Window派生类”。如果真要处理多种窗口类型，你可能需要多个容器，它们都必须具备类型安全性。</p>
-<p>&emsp;&emsp;另一种做法可让你通过base class接口处理“所有可能之各种window派生类”，那就是在base class内提供virtual函数做你想对各个Window派生类做的事。举个例子，虽然只有SpecialWindow可以闪烁，但或许将闪烁函数声明于base class内并提供一份“什么也没做”的缺省实现代码是有意义的：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">blink</span><span class="params">()</span> </span>&#123;&#125;  <span class="comment">//缺省实现代码“什么也没做”</span></span><br><span class="line">    ...                      <span class="comment">//缺省实现代码可能是个馊主意</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialWindow</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">blink</span><span class="params">()</span> </span>&#123; ... &#125;;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::share_ptr&lt;Window&gt; &gt; VPW;</span><br><span class="line">VPW winPtrs;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">for</span>(VPW::iterator iter = winPtrs.<span class="built_in">begin</span>();</span><br><span class="line">    iter != winPtrs.<span class="built_in">end</span>();</span><br><span class="line">    ++iter)</span><br><span class="line">(*iter)-&gt;<span class="built_in">blink</span>();</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;不论哪种写法——“使用类型安全容器”或“将virtual函数往继承体系上方移动”——都并非放之四海而皆准，但在许多情况下它们都提供一个可行的dynamic_cast替代方案。当它们有此功效时，你应该欣然拥抱它们。</p>
-<p>&emsp;&emsp;绝对必须避免的一件事是所谓的“连串dynamic_cast”，也就是看起来像这样的东西：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span> ... &#125;;</span><br><span class="line">...  <span class="comment">//derived class定义在这里</span></span><br><span class="line"><span class="keyword">typedef</span> </span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Window&gt; &gt; VPW;</span><br><span class="line">VPW winPtrs;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">for</span>(VPW::iterator iter = winPtrs.<span class="built_in">begin</span>();</span><br><span class="line">    iter != winPtrs.<span class="built_in">end</span>(); ++iter) &#123;</span><br><span class="line">    <span class="keyword">if</span>(SpecialWindow1* psw1 =</span><br><span class="line">       <span class="keyword">dynamic_cast</span>&lt;SpecialWindow1*&gt;(iter-&gt;<span class="built_in">get</span>())) &#123; ... &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(SpecialWindow2* psw2 =</span><br><span class="line">            <span class="keyword">dynamic_cast</span>&lt;SpecialWindow2*&gt;(iter-&gt;<span class="built_in">get</span>())) &#123; ... &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(SpecialWindow3* psw3 =</span><br><span class="line">            <span class="keyword">dynamic_cast</span>&lt;SpecialWindow3*&gt;(iter-&gt;<span class="built_in">get</span>())) &#123; ... &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这样生产出来的代码又大又慢，而且基础不稳，因为每次Window class继承体系一有改变，所有这一类代码都必须再次检阅看看是否需要修改。例如一旦加入新的derived class，或许上述连串判断中需要加入新的条件分支。这样的代码应该总是以某些“基于virtual函数调用”的东西取而代之。</p>
-<p>&emsp;&emsp;优良的C++代码很少使用转型，但若说要完全摆脱它们又太过不切实际。例如之前的例子从int转型为double就是转型的一个通情达理的使用，虽然它并非绝对必要（那段代码可以重新写过，声明一个类型为double的新变量并以x值初始化）。就像面对众多蹊跷可疑的构造函数一样，我们应该尽可能隔离转型动作，通常是把它隐藏在某个函数内，函数的接口会保护调用者不受函数内部任何肮脏龌龊的动作影响。</p>
-<blockquote>
-<p>如果可以，尽量避免转型，特别是在注重效率的代码中避免dynamic_cast。如果有个设计需要转型动作，试着发展无需转型的替代设计。</p>
-<p>如果转型是必要的，试着将它隐藏于某个函数背后。客户随后可以调用该函数，而不需将转型放进它们自己的代码内。</p>
-<p>宁可使用C++-style（新式）转型，不要使用旧式转型。前者很容易辨识出来，而且也比较又着分门别类的职掌。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/08/%E5%B0%BD%E9%87%8F%E5%B0%91%E5%81%9A%E8%BD%AC%E5%9E%8B%E5%8A%A8%E4%BD%9C/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -724,10 +585,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-08-07 08:14:00 / Modified: 11:30:15" itemprop="dateCreated datePublished" datetime="2020-08-07T08:14:00+08:00">2020-08-07</time>
+              <time title="Created: 2020-08-07 08:14:00" itemprop="dateCreated datePublished" datetime="2020-08-07T08:14:00+08:00">2020-08-07</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:28:04" itemprop="dateModified" datetime="2021-03-10T20:28:04+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -759,28 +626,14 @@
           <hr>
 <h1 id="尽量延后变量定义式的出现时间"><a href="#尽量延后变量定义式的出现时间" class="headerlink" title="尽量延后变量定义式的出现时间"></a>尽量延后变量定义式的出现时间</h1><p>&emsp;&emsp;只要你定义了一个变量而其类型带有一个构造函数或析构函数，那么当程序的控制流到达这个变量定义式时，你便得承受构造成本；当这个变量离开其作用域时，你便得承受析构成本。即使这个变量最终并未被使用，仍需耗费这些成本，所以你应该尽可能避免这种情形。</p>
 <p>&emsp;&emsp;或许你会认为，你不可能定义一个不使用的变量，但话不要说得太早！考虑下面这个函数，它计算通行密码的加密版本而后返回，前提是密码够长。如果密码太短，函数会丢出一个异常，类型为logic_error：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这个函数过早定义变量“encrypted”</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line">    <span class="built_in">string</span> encrypted;</span><br><span class="line">    <span class="keyword">if</span>(password.length() &lt; MinimumPasswordLength) &#123;</span><br><span class="line">        <span class="keyword">throw</span> logic_error(<span class="string">"Password is too short"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ...  <span class="comment">//必要动作，将一个加密后的密码置入变量encrypted内</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;对象encrypted在此函数中并非完全未被使用，但如果有个异常被丢出，它就真的没被使用。也就是说如果函数encryptPassword丢出异常，你仍得付出encrypted的析构成本和构造成本。所以最好延后encrypted的定义式，直到确实需要它：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这个函数延后“encrypted”的定义，直到真正需要它</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line">    <span class="keyword">if</span>(password.length() &lt; MinimumPasswordLength) &#123;</span><br><span class="line">        <span class="keyword">throw</span> logic_error(<span class="string">"Password is too shrot"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">string</span> encrypted;</span><br><span class="line">    ...  <span class="comment">//必要动作，将一个加密后的密码置入变量encrypted内</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;但是这段代码仍然不够秾纤合度，因为encrypted虽获定义却无任何实参作为初值。这意味调用的是其default构造函数。许多时候你该对对象做的第一件事就是给它个值，通常是通过一个赋值动作达成。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//终于，这是定义并初始化encrypted的最佳做法</span></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encryptPassword</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; password)</span> </span>&#123;</span><br><span class="line">    ...                               <span class="comment">//检查长度</span></span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">encrypted</span><span class="params">(password)</span></span>;  <span class="comment">//通过copy构造函数定义并初始化</span></span><br><span class="line">    encrypt(encrypted);               <span class="comment">//在encrypt函数内对其加密</span></span><br><span class="line">    <span class="keyword">return</span> encrypted;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这让我们联想起所谓“尽可能延后”的真正意义。你不只应该延后变量的定义，直到非得使用该变量的前一刻为止，甚至应该尝试延后这份定义直到能够给它初值实参为止。如果这样，不仅能够避免构造（和析构）非必要对象，还可以避免无意义的default构造行为。更深一层说，以“具明显意义之初值”将变量初始化，还可以附带说明变量的目的。</p>
-<p>&emsp;&emsp;“但循环怎么办？”你可能会感到疑惑。如果变量只在循环内使用，那么把它定义于循环外并在每次循环迭代时赋值给它比较好，还是该把它定义于循环内？也就是说下面两个一般性结构，哪一个比较好？</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//方法A</span></span><br><span class="line">Widget w;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">    w = i;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//方法B</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">    <span class="function">Widget <span class="title">w</span><span class="params">(i)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;在Widget函数内部，以上两种写法的成本如下：</p>
-<ul>
-<li>做法A：1个构造函数 + 1个析构函数 + n个赋值操作</li>
-<li>做法B：n个构造函数 + n个析构函数</li>
-</ul>
-<p>&emsp;&emsp;如果class的一个赋值成本低于一组构造+析构成本，做法A大体而言比较高效。尤其当n值很大时。否则做法B或许较好。此外做法A造成名称w的作用域（覆盖整个循环）比做法B更大，有时那对程序的可理解性和易维护性造成冲突。因此除非（1）你知道赋值成本比“构造+析构”成本低，（2）你正在处理代码中效率高度敏感的部分，否则你应该使用做法B。</p>
-<blockquote>
-<p>尽可能延后变量定义式的出现。这样做可增加程序的清晰度并改善程序效率。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/07/%E5%B0%BD%E9%87%8F%E5%BB%B6%E5%90%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89%E5%BC%8F%E7%9A%84%E5%87%BA%E7%8E%B0%E6%97%B6%E9%97%B4/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -830,7 +683,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-07 10:00:50" itemprop="dateModified" datetime="2020-08-07T10:00:50+08:00">2020-08-07</time>
+                <time title="Modified: 2021-03-10 20:29:12" itemprop="dateModified" datetime="2021-03-10T20:29:12+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -863,66 +716,14 @@
           <hr>
 <h1 id="考虑写出一个不抛出异常的swap函数"><a href="#考虑写出一个不抛出异常的swap函数" class="headerlink" title="考虑写出一个不抛出异常的swap函数"></a>考虑写出一个不抛出异常的swap函数</h1><p>&emsp;&emsp;swap是个有趣的函数。原本它只是STL的一部分，而后成为异常安全性编程的脊柱，以及用来处理自我赋值可能性的一个常见机制。由于swap如此有用，适当的实现很重要。然而在非凡的重要性之外它也带来了非凡的复杂性。</p>
 <p>&emsp;&emsp;所谓swap两对象值，意思是将两对象的值彼此赋予对方。缺省情况下swap动作可由标准程序库提供的swap算法完成。其典型实现完全如你所预期：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(T&amp; a, T&amp; b)</span> </span>&#123;</span><br><span class="line">    <span class="function">T <span class="title">temp</span><span class="params">(a)</span></span>;</span><br><span class="line">    a = b;</span><br><span class="line">    b = temp;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;只要类型T支持copying（通过copy构造函数和copy assignment操作符完成），缺省的swap实现代码就会帮你置换类型为T的对象，你不需要为此另外再做任何工作。</p>
-<p>&emsp;&emsp;这缺省的swap实现版本十分平淡，无法刺激你的肾上腺。它涉及三个对象的复制：a复制到temp，b复制到a，以及temp复制到b。但是对某些类型而言，这些复制动作无一必要；对它们而言swap缺省行为等于是把高速公路铺设在慢速小巷内。</p>
-<p>&emsp;&emsp;其中最主要的就是“以指针指向一个对象，内含真正数据”那种类型。这种设计的常见表现形式是所谓“pimpl手法”。如果是以这种手法设计Widget class，看起来会像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WidgetImpl</span> &#123;</span>          <span class="comment">//针对Widget数据而设计的class</span></span><br><span class="line"><span class="keyword">public</span>:                     <span class="comment">//细节不重要</span></span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> a, b, c;            <span class="comment">//可能有很多数据，</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; v;  <span class="comment">//意味复制时间很长</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span>       </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget(<span class="keyword">const</span> Widget&amp; rhs);</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//复制Widget时，令它复制其WidgetImpl对象</span></span><br><span class="line">        ...                                 <span class="comment">//关于operator=的一般性实现细节</span></span><br><span class="line">        *pImpl = *(rhs.pImpl);</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    WidgetImpl* pImpl;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;一旦要置换两个Widget对象值，我们唯一需要做的就是置换其pImpl指针，但缺省的swap算法不知道这一点。它不只复制三个Widget，还复制三个WidgetImpl对象，非常缺乏效率！一点也不令人兴奋。</p>
-<p>&emsp;&emsp;我们希望能够告诉std::swap：当Widget被置换时真正该做的是置换其内部的pImpl指针。确切实践这个思路的一个做法是：将std::swap针对Widget特化。下面是基本构想，但目前这个形式无法通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line"><span class="keyword">void</span> swap&lt;Widget&gt;(Widget&amp; a, Widget&amp; b) &#123;  <span class="comment">//目前还不能通过编译。</span></span><br><span class="line">    swap(a.pImpl, b.pImpl);                <span class="comment">//只要置换其pImpl指针就好了。</span></span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个函数一开始的“template&lt;&gt;”表示它是std::swap的一个全特化版本，函数名称之后的“&lt;Widget&gt;”表示这一特化版本是针对“T是Widget”而设计。换句话说当一般性的swap template施行于Widget身上便会启用这个版本。通常我们不能够（不被允许）改变std命名空间内的任何东西，但可以为标准template制造特化版本，使它专属于我们自己的class。以上作为正是如此。</p>
-<p>&emsp;&emsp;但是，这个函数无法通过编译。因为它企图访问a和b内的pImpl指针，而那却是private。我们可以将这个特化版本说明为friend，但和以往的规矩不太一样：我们令Widget声明一个名为swap的public成员函数做真正的置换工作，然后将std::swap特化，令它调用该成员函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; other)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">using</span> <span class="built_in">std</span>::swap;</span><br><span class="line">        swap(pImpl, other.pImpl);  <span class="comment">//若要置换Widget就置换其pImpl指针</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;&gt;</span><br><span class="line"><span class="keyword">void</span> swap&lt;Widget&gt;(Widget&amp; a, Widget&amp; b) &#123;</span><br><span class="line">    a.swap(b);  <span class="comment">//若要置换Widget，调用其swap成员函数</span></span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这种做法不只能够通过编译，还与STL容器有一致性，因为所有STL容器也都提供有public swap成员函数和std::swap特化版本（用以调用前者）。</p>
-<p>&emsp;&emsp;然而假设Widget和WidgetImpl都是class template而非class，也许我们可以试试将WidgetImpl内的数据加以参数化：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WidgetImpl</span> &#123;</span> ... &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span> ... &#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;在Widget内（以及WidgetImpl内，如果需要的话）放个swap成员函数就像以往一样简单，但我们却在特化std::swap时遇上乱流。我们想写成这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">void</span> swap&lt; Widget&lt;T&gt; &gt; (Widget&lt;T&gt;&amp; a, Widget&lt;T&gt; b) &#123;  <span class="comment">//错误！不合法！</span></span><br><span class="line">    a.swap(b);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;看起来合情合理，却不合法。是这样的，我们企图偏特化一个function template（std::swap），但C++只允许对class template偏特化，在function template身上偏特化是行不通的。这段代码不该通过编译（虽然有些编译器错误地接受了它）。</p>
-<p>&emsp;&emsp;当你打算偏特化一个function template时，习惯做法是简单地为它添加一个重载版本，像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b)</span> </span>&#123;  <span class="comment">//这也不合法</span></span><br><span class="line">    a.swap(b);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;一般而言，重载functon template没有问题，但std是个特殊的命名空间，其管理规则也比较特殊。客户可以全特化std内的template，但不可以添加新的template（或class或function或其它任何东西）到std里头。std的内容完全由C++标准委员会决定，标准委员会禁止我们膨胀那些已经声明好的东西。所谓“禁止”可能会使我们沮丧，其实跨越红线的程序几乎仍可以编译和执行，但它们的行为没有明确定义，如果你希望你的软件有可预期的行为，请不要添加任何新东西到std里头。</p>
-<p>&emsp;&emsp;那该如何是好？毕竟我们总是需要一个办法让其它人调用swap时能够取得我们提供的高效的template特定版本。答案很简单，我们还是声明一个non-member swap让它调用member swap，但不再将那个non-member swap声明为std::swap的特化版本或重载版本。为求简化起见，假设Widget的所有相关机能都被置于命名空间WidgetStuff内，整个结果看起来便像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> WidgetStuff &#123;</span><br><span class="line">...                   <span class="comment">//模版化的WidgetImpl等等</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;  <span class="comment">//同前，内含swap成员函数</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span> ... &#125;;</span><br><span class="line">...</span><br><span class="line">  </span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b)</span> </span>&#123;</span><br><span class="line">    a.swap(b);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，任何地点的任何代码如果打算置换两个Widget对象，因而调用swap，C++的名称查找法则会找到WidgetStuff内的Widget专属版本。那正是我们所要的。</p>
-<p>&emsp;&emsp;这个做法对class和class template都行得通，所以似乎我们应该在任何时候都使用它，不幸的是有一个理由使你应该为class特化std::swap，所以如果你想让你的“class专属版”swap在尽可能多的语境下被调用，你需得同时在该class所在命名空间内写一个non-member版本以及一个std::swap特化版本。</p>
-<p>&emsp;&emsp;顺带一提，如果没有像上面那样额外使用某个命名空间，上述每件事仍然适用（也就是说你还是需要一个non-member swap来调用member swap）。但，何必在global命名空间内塞满各式各样的class，template，functioin，enum，enumerant以及typedef名称呢？难道你对所谓“得体与适度”失去判断力了吗？</p>
-<p>&emsp;&emsp;目前为止我所写的每一样东西都和swap编写者有关。换位思考，从客户观点看看事情也有必要。假设你正在写一个function template，其内需要置换两个对象值：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(T&amp; obj1, T&amp; obj2)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    swap(obj1, obj2);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;应该调用哪个swap？是std既有的那个一般化版本？还是某个可能存在的特化版本？抑或是一个可能存在的T专属版本而且可能栖身于某个命名空间（但当然不可能是std）内？你希望的应该是调用T专属版本，并在该版本不存在的情况下调用std内的一般化版本。下面是你希望发生的事：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(T&amp; obj1, T&amp; obj2)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="built_in">std</span>::swap;   <span class="comment">//令std::swap在此函数内可用</span></span><br><span class="line">    ...</span><br><span class="line">    swap(obj1, obj2);  <span class="comment">//为T型对象调用最佳swap版本</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;一旦编译器看到对swap的调用，它们便查找适当的swap并调用之。C++的名称查找法则确保将找到global作用域或T所在之命名空间内的任何T专属的swap。如果T是Widget并位于命名空间WidgetStuff内，编译器会使用“实参取决之查找范围”找出WidgetStuff内的swap。如果没有T专属之swap存在，编译器就使用std内的swap，只得感谢using声明式让std::swap在函数内曝光。然而即便如此编译器还是比较喜欢std::swap的T专属特化版，而非一般化的那个template，所以如果你已针对T将std::swap特化，特化版会被编译器挑中。</p>
-<p>&emsp;&emsp;因此，令适当的swap被调用是很容易的。需要小心的是，别为这一调用添加额外修饰符，因为那会影响C++挑选适当函数。假设你以这种方式调用swap：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::swap(obj1, obj2);  <span class="comment">//这是错误的swap调用方式</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这便迫使编译器只认std内的swap（包括其任何template特化），因而不再可能调用一个定义于它处的较适当T专属版本。某些迷途程序员的确以此方式修饰swap调用式，而那正是“你的class对std::swap进行全特化”的重要原因：它使得类型专属之swap实现版本也可被这些“迷途代码”所用（这样的代码出现在某些标准程序库实现版中，如果你有兴趣不妨帮助这些代码尽可能高效运作）。</p>
-<p>&emsp;&emsp;此刻，我们已经讨论过default swap、member swap、non-member swap、std::swap特化版本、以及对swap的调用，现在让我把整个形势做个总结。</p>
-<p>&emsp;&emsp;首先，如果swap的缺省实现版的效率不足（那几乎总是意味你的class或template使用了某种pimpl手法），试着做以下事情：</p>
-<ol>
-<li>提供一个public swap成员函数，让它高效地置换你的类型的两个对象值。这个函数绝不该抛出异常。</li>
-<li>在你的class或template所在的命名空间内提供一个non-member swap，并令它调用上述swap成员函数。</li>
-<li>如果你正编写一个class（而非class template），为你的class特化std::swap。并令它调用你的swap成员函数。</li>
-</ol>
-<p>&emsp;&emsp;最后，如果你调用swap，请确定包含一个using声明式，以便让std::swap在你的函数内曝光可见，然后不加任何namespace修饰符，赤裸裸地调用swap。</p>
-<p>&emsp;&emsp;唯一还未明确的是我的劝告：成员版swap绝不可抛出异常。那是因为swap的一个最好的应用是帮助class（和class template）提供强烈的异常安全性保障。但此技术基于一个假设：成员版的swap绝不抛出异常。这一约束只施行于成员版！不可施行于非成员版，因为swap缺省版本是以copy构造函数和copy assignment操作符为基础，而一般情况下两者都允许抛出异常。因此当你写下一个自定版本的swap，往往提供的不只是高效置换对象值的办法，而且不抛出异常。一般而言这两个swap特性是连在一起的，因为高效率的swap几乎总是基于对内置类型的操作（例如pimpl手法的底层指针），而内置类型上的操作绝不会抛出异常。</p>
-<blockquote>
-<p>当std::swap对你的类型效率不高时，提供一个swap成员函数，并确定这个函数部抛出异常。</p>
-<p>如果你提供一个member swap，也该提供一个non-member swap用来调用前者。对于class（而非template），也请特化std::swap。</p>
-<p>调用swap时应针对std::swap使用using声明式，然后调用swap并且不带任何“命名空间资格修饰”。</p>
-<p>为“用户定义类型”进行std template全特化是好的，但千万不要尝试在std内加入某些队std而言全新的对象。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/05/%E8%80%83%E8%99%91%E5%86%99%E5%87%BA%E4%B8%80%E4%B8%AA%E4%B8%8D%E6%8A%9B%E5%87%BA%E5%BC%82%E5%B8%B8%E7%9A%84swap%E5%87%BD%E6%95%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -964,10 +765,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-08-04 11:56:00 / Modified: 22:39:05" itemprop="dateCreated datePublished" datetime="2020-08-04T11:56:00+08:00">2020-08-04</time>
+              <time title="Created: 2020-08-04 11:56:00" itemprop="dateCreated datePublished" datetime="2020-08-04T11:56:00+08:00">2020-08-04</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:32:52" itemprop="dateModified" datetime="2021-03-10T20:32:52+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -999,46 +806,14 @@
           <hr>
 <h1 id="若所有参数皆需类型转换，请为此采用non-member函数"><a href="#若所有参数皆需类型转换，请为此采用non-member函数" class="headerlink" title="若所有参数皆需类型转换，请为此采用non-member函数"></a>若所有参数皆需类型转换，请为此采用non-member函数</h1><p>&emsp;&emsp;令class支持隐式类型转换通常是个糟糕的主意。当然这条规则有其例外，最常见的例外是在建立数据类型时。假设我们这样开始我们的Rational class：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Rational(<span class="keyword">int</span> numerator = <span class="number">0</span>, <span class="keyword">int</span> denominator = <span class="number">1</span>);</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">numerator</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">denominator</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;你想支持算术运算诸如加法、乘法等等，但你不确定是否该由member函数、non-member函数，或可能的话由non-member friend函数来实现它们。你的直觉告诉你，当你犹豫就该保持面向对象精神。你知道有理数相乘和Rational class有关，因此很自然地似乎该在Rational class内为有理数实现operator*。先研究一下将operator*写成Rational成员函数的写法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; rhs) <span class="keyword">const</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个设计使你能够将两个有理数以最轻松自在的方式相乘：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Rational <span class="title">oneEight</span><span class="params">(<span class="number">1</span>, <span class="number">8</span>)</span></span>;</span><br><span class="line"><span class="function">Rational <span class="title">oneHalf</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">Rational result = oneHalf * oneEight;  <span class="comment">//很好</span></span><br><span class="line">result = result * oneEight;            <span class="comment">//很好</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;但我们还不满足。我们希望支持混合运算，也就是拿Rational和例如int相乘。毕竟很少有什么东西会比两个数值相乘更自然的来——即使是两个不同类型的数值。</p>
-<p>&emsp;&emsp;然而当我们尝试混合式算术，我们发现只有一半行得通：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">result = oneHalf * <span class="number">2</span>;  <span class="comment">//很好！</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;  <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这不是好兆头，乘法应该满足交换律，不是吗？</p>
-<p>&emsp;&emsp;当我们以对应的函数形式重写上述两个式子，问题所在便一目了然：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">result = oneHalf.<span class="keyword">operator</span>*(<span class="number">2</span>);  <span class="comment">//很好！</span></span><br><span class="line">result = <span class="number">2.</span><span class="keyword">operator</span>*(oneHalf);  <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;没错，oneHalf是一个内含operator*函数的class的对象，所以编译器调用该函数。然而整数2并没有相应的class，也就没有operator*成员函数。编译器也会尝试寻找可被以下这般调用的non-member operator*（也就是在命名空间内或在global作用域内）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result = <span class="keyword">operator</span>*(<span class="number">2</span>, oneHalf);  <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;但本例根本并不存在这样一个接受int和Rational作为参数的non-member operator*，因此查找失败。</p>
-<p>&emsp;&emsp;再看看先前成功的那个调用，注意其第二参数是整数2，但Rational::operator*需要的实参却是个Rational对象。这里发生了什么事？为什么2在这里可被接受，在另一个调用中却不被接受？</p>
-<p>&emsp;&emsp;因为这里发生了所谓隐式转换。编译器知道你正在传递一个int，而函数需要的是Rational；但它也知道只要调用Rational构造函数并赋予你所提供的int，就可以变出一个适当的Rational来。于是它就那样做了。换句话说此调用动作在编译器眼中有点像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> Rational <span class="title">temp</span><span class="params">(<span class="number">2</span>)</span></span>;   <span class="comment">//根据2建立一个暂时性的Rational对象</span></span><br><span class="line">result = oneHalf * temp;  <span class="comment">//等同于oneHalf.operator*(temp)</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当然，只因为涉及non-explicit构造函数，编译器才会这样做。如果Rational构造函数是explicit，以下语句没有一个可通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">result = oneHalf * <span class="number">2</span>;  <span class="comment">//错误！</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;  <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这就很难让Rational class支持混合式算术运算了，不过至少上述两个句子的行为从此一致。</p>
-<p>&emsp;&emsp;然而我们的目标不仅在一致性，也要支持混合式运算。为什么即使Rational构造函数不是explicit，仍然只有一个可通过编译，另一个不可以：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">result = oneHalf * <span class="number">2</span>;  <span class="comment">//没问题（在non-explicit构造函数的情况下）</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;  <span class="comment">//错误（甚至在non-explicit构造函数的情况下）</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;结论是，只有当参数被列于参数列内，这个参数才是隐式类型转换的合格参与者。地位相当于“被调用的成员函数所隶属的那个对象”——即this对象——的那个隐喻参数，绝不是隐式转换的合格参与者。这就是为什么上述第一次调用可通过编译，第二次调用则否，因为第一次调用伴随一个放在参数列内的参数，第二次则否。</p>
-<p>&emsp;&emsp;然而我们一定也会想要支持混合式算术运算。让operator*成为一个non-member函数，允许编译器在每一个实参身上执行隐式类型转换：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line">    ...  <span class="comment">//不包括operator*</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lsh, <span class="keyword">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">return</span> Rational(lhs.numerator() * rhs.numerator(),</span><br><span class="line">                    lhs.denominator() * rhs.denominator());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Rational <span class="title">oneFourth</span><span class="params">(<span class="number">1</span>, <span class="number">4</span>)</span></span>;</span><br><span class="line">Rational result;</span><br><span class="line">result = oneFourth * <span class="number">2</span>;</span><br><span class="line">result = <span class="number">2</span> * oneFourth;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这当然是个快乐的结局，不过还有一点必须操心：operator*是否应该成为Rational class的一个friend函数呢？</p>
-<p>&emsp;&emsp;就本例而言答案是否定的，因为operator*可以完全藉由Rational的public接口完成任务，这导出一个重要的观察：member函数的反面是non-member，不是friend函数。太多C++程序员假设，如果一个“与某class相关”的函数不该成为一个member，就该是个friend。本例表明这样的理由过于牵强。无论何时如果我们可以避免friend函数就该避免，因为就像真实世界一样，朋友带来的麻烦往往多过其价值。当然有时候friend有其正当性，但这个事实依然存在：不能够只因函数不该成为member，就自动让它成为friend。</p>
-<blockquote>
-<p>如果你需要为某个函数的所有参数（包括this指针所指的那个隐喻参数）进行类型转换，那么这个函数必须是个non-member。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/04/%E8%8B%A5%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%86%E9%9C%80%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E8%AF%B7%E4%B8%BA%E6%AD%A4%E9%87%87%E7%94%A8non-member%E5%87%BD%E6%95%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1080,10 +855,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-08-03 09:33:00 / Modified: 23:02:33" itemprop="dateCreated datePublished" datetime="2020-08-03T09:33:00+08:00">2020-08-03</time>
+              <time title="Created: 2020-08-03 09:33:00" itemprop="dateCreated datePublished" datetime="2020-08-03T09:33:00+08:00">2020-08-03</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:31:13" itemprop="dateModified" datetime="2021-03-10T20:31:13+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1117,30 +898,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebBrowser</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clearCache</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clearHistory</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">removeCookies</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;许多用户会想一整个执行所有这些动作，因此WebBrowser也提供这样一个函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebBrowser</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clearEverything</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当然，这一机能也可由一个non-member函数调用适当的member函数而提供出来：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">clearBrowser</span><span class="params">(WebBrowser&amp; wb)</span> </span>&#123;</span><br><span class="line">    wb.clearCache();</span><br><span class="line">    wb.clearHistory();</span><br><span class="line">    wb.removeCookies();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;那么，哪一个比较好呢？是member函数clearEverything还是non-member函数clearBrowser？</p>
-<p>&emsp;&emsp;面向对象守则要求，数据以及操作数据的那些函数应该被捆绑在一块，这意味它建议member函数是好的选择。不幸的是这个建议不正确。这是基于面向对象真实意义的一个误解。面向对象守则要求数据应该尽可能被封装，然而与直观相反地，member函数clearEverything带来的封装性比non-member函数clearBrowser低。此外，提供non-member函数可允许对WebBrowser相关机能有较大的包裹弹性，而那最终导致较低的编译相依度，增加WebBrowser的可延伸性。因此在许多方面non-member做法比member做法好。重要的是，我们必须了解其原因。</p>
-<p>&emsp;&emsp;让我们从封装开始讨论。如果某些东西被封装，它就不再可见。越多东西被封装，越少人可以看到它。而越少人看到它，我们就有越大的弹性去改变它，因为我们的改变仅仅直接影响看到改变的那些人事物。因此，越多东西被封装，我们改变那些东西的能力也就越大。这就是我们首先推崇封装的原因：它使我们能够改变事物而只影响有限客户。</p>
-<p>&emsp;&emsp;成员变量应该是private，因为如果它们不是，就有无限量的函数可以访问它，它们也就毫无封装性。能够访问private成员变量的函数只有class的member函数加上friend函数而已。如果要你在一个member函数和一个non-member，non-friend函数之间做抉择，而且两者提供相同机能，那么，导致较大封装性的是non-member non-friend函数，因为它并不增加“能够访问class内的private成分”的函数变量。这就解释了为什么clearBrowser比clearEverything更受欢迎的原因：它导致WebBrowser class有较大的封装性。</p>
-<p>&emsp;&emsp;在这一点上有两件事情值得注意。第一，这个论述只适用于non-member non-friend函数。friend函数对class private成员的访问权力和member函数相同，因此两者对封装的冲击力道也相同。从封装的角度看，这里的选择关键并不在member和non member函数之间，而是在member和non-member non-friend函数之间。</p>
-<p>&emsp;&emsp;第二件值得注意的事情是，只因在意封装性而让函数“成为class的non-member”，并不意味它“不可以是另一个class的member”。这对那些习惯于“所有函数都必须定义于class内”的语言（如Java，C#）的程序员而言，可能是个温暖的慰藉。例如我们可以令clearBrowser成为某工具类的一个static member函数。只要它不是WebBrowser的一部分（或成为其friend），就不会影响WebBrowser的private成员封装性。</p>
-<p>&emsp;&emsp;在C++内，比较自然的做法是让clearBrowser成为一个non-member函数并且位于WebBrowser所在的同一个namespace内：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebBrowser</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">clearBrowser</span><span class="params">(WebBrowser&amp; wb)</span></span>;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;然而这不只是为了看起来自然而已。要知道namespace和class不同，前者可跨越多个源码文件而后者不能。这很重要。</p>
-<p>&emsp;&emsp;一个像WebBrowser这样的class可能拥有大量便利函数。某些与书签有关，某些与打印有关，还有一些与cookie的管理有关…… 通常大多数客户只对其中某些感兴趣。分离它们的最直接做法就是将书签相关便利函数声明于一个头文件，将cookie相关便利函数声明于另一个头文件，再将打印相关便利函数声明于第三个头文件，以此类推：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//头文件“webbrowser.h”</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WebBrowser</span> &#123;</span> ... &#125;;</span><br><span class="line">...  <span class="comment">//核心机能，例如几乎所有客户都需要的non-member函数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//头文件“webbrowserbookmarks.h”</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">...  <span class="comment">//与书签相关的便利函数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//头文件“webbrowsercookies.h”</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">...  <span class="comment">//与cookie相关的便利函数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这正是C++标准程序库的组织方式。标准程序库并不是拥有单一、整体、庞大的&lt;C++StandardLibrary&gt;头文件并在其中内含std命名空间的每一样东西，而是有数十个头文件，每个头文件声明std的某些机能。如果客户只想使用vector相关机能，他不需要#include &lt;memory&gt;；如果客户不想使用list，也不需要#include&lt;list&gt;。这允许客户只对他们所用的那一小部分系统形成编译相依。以此种方式切割机能并不适用于class成员函数，因为一个class必须整体定义，不能被分割为片片段段。</p>
-<p>&emsp;&emsp;将所有便利函数放在多个头文件内但隶属同一个命名空间，意味着客户可以轻松扩展这一组便利函数。他们需要做的就是添加更多non-member non-friend函数到此命名空间内。举个例子，如果某个WebBrowser客户决定写些与影像下载相关的便利函数，他只需在WebBrowserStuff命名空间内建立一个头文件，内含那些函数的声明即可。新函数就像其它旧有的便利函数那样可用且整合为一体。这是class无法提供的另一个性质，因为class定义式对客户而言是不能扩展的。当然啦，客户可以派生出新的class，但derived class无法访问base class中被封装的成员，于是如此的“扩展机能”拥有的只是次级身份。此外，并非所有class都被设计用来作为base class。</p>
-<blockquote>
-<p>宁可拿non-member non-friend函数替换member函数。这样做可以增加封装性、包裹弹性和机能扩充行。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/03/%E5%AE%81%E4%BB%A5non-member%E3%80%81non-friend%E6%9B%BF%E6%8D%A2member%E5%87%BD%E6%95%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1182,10 +947,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-08-02 10:58:00 / Modified: 21:50:31" itemprop="dateCreated datePublished" datetime="2020-08-02T10:58:00+08:00">2020-08-02</time>
+              <time title="Created: 2020-08-02 10:58:00" itemprop="dateCreated datePublished" datetime="2020-08-02T10:58:00+08:00">2020-08-02</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:23:36" itemprop="dateModified" datetime="2021-03-10T20:23:36+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1216,49 +987,14 @@
       
           <hr>
 <h1 id="必须返回对象时，别妄想返回其reference"><a href="#必须返回对象时，别妄想返回其reference" class="headerlink" title="必须返回对象时，别妄想返回其reference"></a>必须返回对象时，别妄想返回其reference</h1><p>&emsp;&emsp;一旦程序员领悟了pass-by-value的效率牵连层面，往往变成十字军战士，一心一意根除pass-by-value带来的种种邪恶。在坚定追求pass-by-reference的纯度中，他们一定会犯下一个致命错误：开始传递一些reference指向并不存在的对象。这可不是件好事。</p>
-<p>&emsp;&emsp;考虑一个用以表现有理数的class，内含一个函数用来计算两个有理数的乘积：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Rational(<span class="keyword">int</span> numerator = <span class="number">0</span>,</span><br><span class="line">             <span class="keyword">int</span> denominator = <span class="number">1</span>);</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> n, d;  <span class="comment">//分子和分母</span></span><br><span class="line">    <span class="keyword">friend</span> <span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                                    <span class="keyword">const</span> Rational&amp; rhs);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个版本的operator*是以by value方式返回其计算结果（一个对象）。如果我们完全不担心该对象的构造和析构成本，我们其实是明显逃避了我们的专业责任。若非必要，没有人会想要为这样的对象付出太多代价，问题是需要付出任何代价吗？</p>
-<p>&emsp;&emsp;如果可以改而传递reference，就不需付出代价。但是记住，所谓reference只是个名称，代表某个既有对象。任何时候看到一个reference声明式，我们都应该立刻问自己，它的另一个名称是什么？因为它一定是某物的另一个名称。以上述operator*为例，如果它返回一个reference，后者一定指向某个既有的Rational对象，内含两个Rational对象的乘积。</p>
-<p>&emsp;&emsp;我们当然不可能期望这样一个（内含乘积的）Rational对象在调用operator*之前就存在，也即是说，如果有：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Rational <span class="title">a</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line"><span class="function">Rational <span class="title">b</span><span class="params">(<span class="number">3</span>, <span class="number">5</span>)</span></span>;</span><br><span class="line">Rational c = a * b;</span><br></pre></td></tr></table></figure>
-
-<p>期望“原本就存在一个其值为3/10点Rational对象”并不合理。如果operator*要返回一个reference指向此数值，它必须自己创建那个对象。</p>
-<p>&emsp;&emsp;函数创建对象的途径有二：在stack空间或在heap空间创建之。如果定义一个local变量，就是在stack空间创建对象。根据这个策略写operator*如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Rational&amp; <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                           <span class="keyword">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    <span class="function">Rational <span class="title">result</span><span class="params">(lhs.n * rhs.n, lhs.d * rhs.d)</span></span>;  <span class="comment">//警告！糟糕的代码</span></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我们可以拒绝这种做法，因为我们的目标是避免调用构造函数，而result却必须像任何对象一样地由构造函数构造起来。更严重的是：这个函数返回一个reference指向result，但result是个local对象，而local对象在函数退出前被销毁了。因此，这个版本的operator*并未返回reference指向某个Rational，它返回的reference指向一个“从前的”Rational：一个曾经被当作Rational但如今已经成空、发臭、败坏的残骸，因为它已经被销毁了。任何调用者甚至只是对此函数的返回值做任何一点点运用，都将立刻坠入“无定义行为”的恶地。事情的真相是，任何函数如果返回一个reference指向某个local对象，都将一败涂地。（如果函数返回指针指向一个local对象，也是一样）。</p>
-<p>&emsp;&emsp;于是，让我们考虑在heap内构造一个对象，并返回reference指向它。Heap-base对象由new创建，所以我们得写出一个heap-based operator*如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Rational&amp; <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                          <span class="keyword">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    Rational* result = <span class="keyword">new</span> Rational(lhs.n * rhs.n, lhs.d * rhs.d);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我们还是必须付出一个“构造函数调用”代价，因为分配所得的内存将以一个适当的构造函数完成初始化动作。但此外你现在又有了另一个问题：谁该对着被你new出来的对象实施delete？</p>
-<p>&emsp;&emsp;即使调用者诚实谨慎，并且出于良好意识，他们还是不太能够在这样合情合理的用法下阻止内存泄漏：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rational w, x, y, z;</span><br><span class="line">w = x * y * z;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里，同一语句内调用了两次operator*，因而两次使用new，也就需要两次delete。但却没有合理的办法让operator*使用者进行那些delete调用，因为没有合理的办法让他们取得operator*返回的reference背后隐藏的那个指针。这绝对导致资源泄漏。</p>
-<p>&emsp;&emsp;但或许你注意到了，上述不论on-the-stack或on-the-heap做法，都因为对operator*返回的结果调用构造函数而受惩罚。或许你心里出现下面这样的实现代码，此法基于“让operator*返回的reference指向一个被定义于函数内部的static Rational对象”：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Rational&amp; <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                          <span class="keyword">const</span> Rational&amp; rhs) &#123;  <span class="comment">//警告！又一堆烂代码</span></span><br><span class="line">    <span class="keyword">static</span> Rational result;                       <span class="comment">//static对象，此函数返回其reference</span></span><br><span class="line">    result = ...;                                 <span class="comment">//将lhs乘以rhs，并将结果置于result内</span></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;就像所有用上static对象的设计一样，这一个也立刻造成我们对多线程安全性的疑虑。不过那还只是它显而易见的弱点。如果想看看更深层的瑕疵，考虑下面这些完全合理的客户代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> <span class="keyword">operator</span>==(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                <span class="keyword">const</span> Rational&amp; rhs);</span><br><span class="line">Rational a, b, c, d;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span>((a * b) == (c * d)) &#123;</span><br><span class="line">    <span class="comment">//当乘积相等时，做适当的相应动作；</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">//当乘积不等时，做适当的相应动作；</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;猜想怎么着？表达式（（a * b）==（c * d））总是被核算为true，不论a，b，c，d的值是什么！</p>
-<p>&emsp;&emsp;一旦将代码重新写为等价的函数形式，很容易就可以了解了出什么意外：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="keyword">operator</span>==(<span class="keyword">operator</span>*(a, b), <span class="keyword">operator</span>*(c, d)))</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;在operator==被调用前，已有两个operator*调用式起作用，每一个都返回reference指向operator*内部定义的static Rational对象。因此operator==被要求将“operator*内的static Rational对象值”拿来和“operator*内的static Rational对象值”比较，如果比较结果不相等，那才奇怪呢。（两次operator*调用的确各自改变了static Rational对象值，但由于它们返回的都是reference，因此调用端看到的永远是static Rational对象的“现值”）</p>
-<p>&emsp;&emsp;这应该足够说服你，欲令诸如operator*这样的函数返回reference，只是浪费时间而已，但现在或许又有些人这样想：“如果一个static不够，或许一个static array可以得分……”。</p>
-<p>&emsp;&emsp;我不打算再次写出示例来驳斥这个想法以彰显自己多么厉害，但我可以简单描述为什么你该为了提出这个念头而脸红。首先你必须选择array大小n。如果n太小，你可能会耗尽“用以存储函数返回值”的空间，那么情况就回到了我们刚才讨论过的单一static设计。但如果n太小，会因此降低程序效率，因为array内的每一个对象都会在函数第一次被调用时构造完成。那么将消耗n个构造函数和n个析构函数——即使我们所讨论的函数只被调用一次。如果所谓“最优化”是改善软件效率的过程，我们现在所谈的这些应该成为“恶劣化”。最后，想一想如何将你需要的值放进array内，而那么做的成本又是多少。在对象之间搬移数值的最直接办法是通过赋值操作，但赋值的成本几何？对许多type而言它相当于调用一个析构函数（用以销毁旧值）加上一个构造函数（用以复制新值）。但你的目标是避免构造和析构成本耶！面对现实吧，这个做法不会成功的。就算以vector替换array也不会让情况更好些。</p>
-<p>&emsp;&emsp;一个“必须返回新对象”的函数的正确写法是：就让那个函数返回一个新对象呗。对Rational的operator*而言意味以下写法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs, <span class="keyword">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">return</span> Rational(lhs.n * rhs.n, lhs.d * rhs.d);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当然，我们需要承受operator*返回值的构造成本和析构成本，然而长远来看那只是为了获得准确行为而付出的一个小小代价。但万一账单很恐怖，我们承受不起，别忘了C++和所有编程语言一样，允许编译器实现者施行最优化，用以改善产出码的效率却不改变其可观察的行为。因此某些情况下operator*返回值的构造和析构可被安全地消除。如果编译器运用这一事实（它们也往往如此），我们的程序将继续保持它们该有的行为，而执行起来又比预期的更快。</p>
-<p>&emsp;&emsp;当必须在“返回一个reference和返回一个object”之间抉择时，我们的工作就是挑出行为正确的那个。就让编译器厂商为“尽可能降低成本”鞠躬尽瘁吧，我们可以享受我们的生活。</p>
-<blockquote>
-<p>绝不要返回pointer或reference指向一个local stack对象，或返回reference指向一个heap-allocated对象，或返回pointer或reference指向一个local static对象而有可能同时需要多个这样的对象。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/02/%E5%BF%85%E9%A1%BB%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1%E6%97%B6%EF%BC%8C%E5%88%AB%E5%A6%84%E6%83%B3%E8%BF%94%E5%9B%9E%E5%85%B6reference/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1300,10 +1036,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-08-01 15:42:00 / Modified: 21:36:36" itemprop="dateCreated datePublished" datetime="2020-08-01T15:42:00+08:00">2020-08-01</time>
+              <time title="Created: 2020-08-01 15:42:00" itemprop="dateCreated datePublished" datetime="2020-08-01T15:42:00+08:00">2020-08-01</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:31:26" itemprop="dateModified" datetime="2021-03-10T20:31:26+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1334,40 +1076,14 @@
       
           <hr>
 <h1 id="宁以pass-by-reference-to-const替换pass-by-value"><a href="#宁以pass-by-reference-to-const替换pass-by-value" class="headerlink" title="宁以pass-by-reference-to-const替换pass-by-value"></a>宁以pass-by-reference-to-const替换pass-by-value</h1><p>&emsp;&emsp;缺省情况下C++以by value方式（继承自C的方式）传递对象至（或来自）函数，除非我们另外指定，否则函数参数都是以实际实参的副本为初值，而调用端所获得的亦是函数返回值的一个副本。这些副本是由对象 copy构造函数产出，这可能使得pass-by-value成为昂贵的操作。考虑一下继承体系：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Person();</span><br><span class="line">    <span class="keyword">virtual</span> ~Person();</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> address;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span>:</span> <span class="keyword">public</span> Person &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Student();</span><br><span class="line">    ~Student();</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> schoolName;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> schoolAddress;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在考虑一下代码，其中调用函数validateStudent，后者需要一个Student实参（by value）并返回它是否有效：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">validateStudent</span><span class="params">(Student s)</span></span>;  <span class="comment">//以by value方式接受学生</span></span><br><span class="line">Student plato;</span><br><span class="line"><span class="keyword">bool</span> platoIsOk = validateStudent(plato);</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当上述函数被调用时，发生什么事？</p>
-<p>&emsp;&emsp;无疑地Student的copy构造函数会被调用，以plato为蓝本将s初始化。同样明显地，当validateStudent返回s会被销毁。因此，对此函数而言，参数的传递成本是“一次Student copy构造函数被调用，加上一次Student析构函数被调用”。</p>
-<p>&emsp;&emsp;但那还不是整个故事哦。Student对象内有两个string对象，所以每次构造一个Student对象也就构造了两个string对象。此外Student对象继承自Person对象，所以每次构造Student对象也必须构造出一个Person对象。一个Person对象又有两个string对象在其中，因此每一次Person构造动作又需承担两个string构造动作。最终总体成本是“六次构造函数和六次析构函数”！</p>
-<p>&emsp;&emsp;要是有什么方法可以回避所有那些构造和析构就太好了。有的！这就是pass by reference-to-const：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">validateStudent</span><span class="params">(<span class="keyword">const</span> Student&amp; s)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这种传递方式的效率高得多：没有任何构造函数或析构函数被调用，因为没有任何新对象被创建。修订后的这个参数声明中的const是重要的。原先的validateStudent以by value方式接受一个Student参数，因此调用者知道他们受到保护，函数内绝不会对传入的Student做任何改变；validateStudent只能够对其副本做修改。现在Student以by reference方式传递，将它声明为const是必要的，因为不这样做的话调用者会忧虑validateStudent会不会改变他们传入的那个Student。</p>
-<p>&emsp;&emsp;以by reference方式传递参数也可以避免slicing（对象切割）问题。当一个derived class对象以by value方式传递并被视为一个base class对象，base class的copy构造函数会被调用，而“造成此对象的行为像个derived class对象”的那些特化性质全被切割掉了，仅仅留下一个base class对象。这实在不怎么让人惊讶，因为正是base class构造函数建立了它。但这几乎绝不会是我们想要的。假设我们在一组class上工作，用来实现一个图形窗口系统：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">name</span><span class="params">()</span> <span class="keyword">const</span></span>;      <span class="comment">//返回窗口名称</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span> <span class="keyword">const</span></span>;  <span class="comment">//显示窗口和其内容</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WindowWithScrollBars</span>:</span> <span class="keyword">public</span> Window &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;所有Window对象都带有一个名称，你可以通过name函数取得它。所有窗口都可显示，你可以通过display函数完成它。display是个virtual函数，这意味着简单朴素的base class Window对象的显示方式和华丽高贵的WindowWithScrollBars对象的显示方式不同。</p>
-<p>&emsp;&emsp;现在假设你希望写个函数打印窗口名称，然后显示该窗口。下面是错误示范：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printNameAndDisplay</span><span class="params">(Window w)</span> </span>&#123;  <span class="comment">//不正确！参数可能被切割</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; w.name;</span><br><span class="line">    w.<span class="built_in">display</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当你调用上述函数并交给它一个WindowWithScrollBars对象，会发生什么事呢？</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">WindowWithScrollBars wwsb；</span><br><span class="line">printNameAndDisplay(wwsb);</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;参数w会被构造成为一个Window对象；它是passed by value。在printNameAndDisplay函数内不论传递过来的对象原本是什么类型，参数w就像一个Window对象（因为其类型是Window）。因此在printNameAndDisplay内调用display调用的总是Window::display，绝不会是WindowWithScrollBars::display。</p>
-<p>&emsp;&emsp;解决切割问题的办法，就是以by reference-to-const的方式传递w：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printNameAndDisplay</span><span class="params">(<span class="keyword">const</span> Window&amp; w)</span> </span>&#123;  <span class="comment">//很好，参数不会被切割</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; w.name();</span><br><span class="line">    w.<span class="built_in">display</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，传进来的窗口是什么类型，w就表现出那种类型。</p>
-<p>&emsp;&emsp;如果窥视C++编译器的底层，我们会发现，reference往往以指针实现出来，因此pass by reference通常意味真正传递的是指针。因此如果我们有个对象属于内置类型（例如int），pass by value往往比pass by reference的效率高些。对内置类型而言，当我们有机会选择采用pass-by-value或pass-by-reference-to-const时，选择pass-by-value并非没有道理。这个忠告也适用于STL对迭代器和函数对象，因为习惯上它们都被设计为passed by value。迭代器和函数对象的实践者有责任看看它们是否高效且不受切割问题的影响。</p>
-<p>&emsp;&emsp;一般而言，你可以合理假设“pass-by-value并不昂贵”的唯一对象就是内置类型和STL的迭代器和函数对象。至于其它任何东西都请遵守本条款的忠告，尽量以pass-by-reference-to-const替换pass-by-value。</p>
-<blockquote>
-<p>尽量以pass-by-reference-to-const替换pass-by-value。前者通常比较高效，并可避免切割问题。</p>
-<p>以上规则并不适用于内置类型，以及STL的迭代器和函数对象。对它们而言，pass-by-value往往比较适当。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/01/%E5%AE%81%E4%BB%A5pass-by-reference-to-const%E6%9B%BF%E6%8D%A2pass-by-value/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1458,7 +1174,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

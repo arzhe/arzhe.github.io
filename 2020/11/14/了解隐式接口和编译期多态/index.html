@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="了解隐式接口和编译期多态&amp;emsp;&amp;emsp;面向对象编程世界总是以显式接口和运行期多态解决问题。举个例子子，给定这样（无意义）的class： 123456789class Widget &amp;#123;    public:        Widget();        virtual ~Widget();        virtual std::size_t size() const;">
 <meta property="article:published_time" content="2020-11-14T02:20:00.000Z">
-<meta property="article:modified_time" content="2020-11-14T09:28:25.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:29:46.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -228,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-11-14 10:20:00 / Modified: 17:28:25" itemprop="dateCreated datePublished" datetime="2020-11-14T10:20:00+08:00">2020-11-14</time>
+              <time title="Created: 2020-11-14 10:20:00" itemprop="dateCreated datePublished" datetime="2020-11-14T10:20:00+08:00">2020-11-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:29:46" itemprop="dateModified" datetime="2021-03-10T20:29:46+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -263,6 +269,8 @@
         <hr>
 <h1 id="了解隐式接口和编译期多态"><a href="#了解隐式接口和编译期多态" class="headerlink" title="了解隐式接口和编译期多态"></a>了解隐式接口和编译期多态</h1><p>&emsp;&emsp;面向对象编程世界总是以显式接口和运行期多态解决问题。举个例子子，给定这样（无意义）的class：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        Widget();</span><br><span class="line">        <span class="keyword">virtual</span> ~Widget();</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">normalize</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; other)</span></span>; </span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
 
 <p>&emsp;&emsp;和这样（也是无意义）的函数：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doProcessing</span><span class="params">(Widget&amp; w)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(w.<span class="built_in">size</span>() &gt; <span class="number">10</span> &amp;&amp; w != someNastyWidget) &#123;</span><br><span class="line">        <span class="function">Widget <span class="title">temp</span><span class="params">(w)</span></span>;</span><br><span class="line">        temp.normalize();</span><br><span class="line">        temp.swap(w);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -433,7 +441,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

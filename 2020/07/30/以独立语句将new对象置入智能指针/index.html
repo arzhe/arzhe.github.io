@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="以独立语句将new对象置入智能指针&amp;emsp;&amp;emsp;假设我们有个函数涌来揭示处理程序的优先权，另一个函数用来在某动态分配所得的Widget上进行某些带有优先权的处理： 12int priority();void processWidget(std::shared_ptr&lt;Widget&gt; pw, int priority);  &amp;emsp;&amp;emsp;现在考虑调用processW">
 <meta property="article:published_time" content="2020-07-30T04:45:00.000Z">
-<meta property="article:modified_time" content="2020-07-30T05:43:25.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:35:04.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -228,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-30 12:45:00 / Modified: 13:43:25" itemprop="dateCreated datePublished" datetime="2020-07-30T12:45:00+08:00">2020-07-30</time>
+              <time title="Created: 2020-07-30 12:45:00" itemprop="dateCreated datePublished" datetime="2020-07-30T12:45:00+08:00">2020-07-30</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:35:04" itemprop="dateModified" datetime="2021-03-10T20:35:04+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -266,6 +272,8 @@
 
 <p>&emsp;&emsp;现在考虑调用processWidget：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">processWidget(<span class="keyword">new</span> Widget, priority());</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
 
 <p>&emsp;&emsp;上述代码可不能通过编译。shared_ptr构造函数需要一个原始指针，但该构造函数是个explicit构造函数，无法进行隐式转换，将得自“newWidget”的原始指针转换为processWidget所要求的shared_ptr。如果写成这样就可以通过编译：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">processWidget(<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt;(<span class="keyword">new</span> Widget), priority());</span><br></pre></td></tr></table></figure>
@@ -420,7 +428,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

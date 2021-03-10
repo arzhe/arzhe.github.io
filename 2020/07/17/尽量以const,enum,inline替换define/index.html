@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="尽量以const,enum,inline替换#define&amp;emsp;&amp;emsp;宁可以编译器替换预处理器，因为或许#define不被视为语言的一部分。这正是问题的所在，当我们做出这样的事情： 1#define ASPECT_RATIO 1.653  &amp;emsp;&amp;emsp;记号名称ASPECT_RATIO也许从未被编译器看见；也许在编译器开始处理源代码之前它就被预处理器移走了。于是记号名称ASP">
 <meta property="article:published_time" content="2020-07-17T07:17:00.000Z">
-<meta property="article:modified_time" content="2020-08-01T00:03:06.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:28:15.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-01 08:03:06" itemprop="dateModified" datetime="2020-08-01T08:03:06+08:00">2020-08-01</time>
+                <time title="Modified: 2021-03-10 20:28:15" itemprop="dateModified" datetime="2021-03-10T20:28:15+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -270,6 +270,8 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASPECT_RATIO 1.653</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;记号名称ASPECT_RATIO也许从未被编译器看见；也许在编译器开始处理源代码之前它就被预处理器移走了。于是记号名称ASPECT_RATIO有可能没进入记号表内。于是当我们运行此常量但获得一个编译错误信息时，可能会带来困惑，因为这个错误信息也许会提到1.653而不是ASPECT_RATIO。如果ASPECT_RATIO被定义在一个非我们所写的头文件内，我们肯定对1.653以及它来自何处毫无概念，于是我们将因为追踪它而浪费时间。这个问题也可能出现在记号式调试器中，原因相同：我们所使用的名称可能并未进入记号表。</p>
+<a id="more"></a>
+
 <p>&emsp;&emsp;解决之道是以一个常量替换上述的宏：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> AspectRatio = <span class="number">1.653</span>;  <span class="comment">//大写名称通常用于宏</span></span><br><span class="line">                                   <span class="comment">//因此这里改变名称写法</span></span><br></pre></td></tr></table></figure>
 
@@ -437,7 +439,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

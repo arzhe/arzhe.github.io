@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="若不想使用编译器自动生成的函数就该明确拒绝&amp;emsp;&amp;emsp;地产中介商卖的是房子，一个中介软件系统自然而然想必有个class用来描述待售房屋： 1class HomeForSale &amp;#123; ... &amp;#125;;  &amp;emsp;&amp;emsp;每一位真正的地产中介商都会说，任何一笔资产都是独一无二的，没有两笔完全相像。因此我们也认为，为HomeForSale对象做一份副本有点没道理。我们">
 <meta property="article:published_time" content="2020-07-21T00:36:00.000Z">
-<meta property="article:modified_time" content="2020-07-30T01:13:03.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:32:38.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:13:03" itemprop="dateModified" datetime="2020-07-30T09:13:03+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:32:38" itemprop="dateModified" datetime="2021-03-10T20:32:38+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -272,6 +272,8 @@
 
 <p>&emsp;&emsp;每一位真正的地产中介商都会说，任何一笔资产都是独一无二的，没有两笔完全相像。因此我们也认为，为HomeForSale对象做一份副本有点没道理。我们怎么可以复制某些先天独一无二的东西呢？因此，我们应该乐意看到HomeForSale的对象拷贝动作以失败收场：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HomeForSale h1;</span><br><span class="line">HomeForSale h2;</span><br><span class="line"><span class="function">HomeForSale <span class="title">h3</span><span class="params">(h1)</span></span>;  <span class="comment">//企图拷贝h1，不该通过编译</span></span><br><span class="line">h1 = h2;             <span class="comment">//企图拷贝h2，也不该通过编译</span></span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
 
 <p>&emsp;&emsp;通常如果我们不希望class支持某一个特定功能，只要不声明对应函数就是了。但这个策略对copy构造函数和copy assignment操作符却不起作用，因为如果我们不声明它们，而某些人尝试调用它们，编译器会为我们声明它们。</p>
 <p>&emsp;&emsp;这使我们陷入了两难的境况。答案的关键是，所有编译器产出的函数都是public。为阻止这些函数被创建出来。我们得自行声明它们，但这里并没有什么需求使我们必须将它们声明为public。因此我们可以将copy构造函数或copy assignment操作符声明为private。明确声明一个成员函数，我们阻止了编译器暗自创建其专属版本；而令这些函数为private，使我们得以成功阻止人们调用它。</p>
@@ -416,7 +418,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

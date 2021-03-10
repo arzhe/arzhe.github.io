@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="复制对象时勿忘其每一个成分&amp;emsp;&amp;emsp;设计良好的面向对象系统会将对象的内部封装起来，只留两个函数负责对象拷贝，这便是copy构造函数和copy assignment操作符，称它们为copying函数。 &amp;emsp;&amp;emsp;如果我们声明自己的copying函数，意思就是告诉编译器我们并不喜欢缺省实现中的某些行为，编译器仿佛被冒犯似得，会以一种奇怪的方式回敬：当我们的实现代码几乎必然">
 <meta property="article:published_time" content="2020-07-26T00:28:00.000Z">
-<meta property="article:modified_time" content="2020-07-30T01:11:56.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:26:42.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:11:56" itemprop="dateModified" datetime="2020-07-30T09:11:56+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:26:42" itemprop="dateModified" datetime="2021-03-10T20:26:42+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -270,6 +270,8 @@
 <h1 id="复制对象时勿忘其每一个成分"><a href="#复制对象时勿忘其每一个成分" class="headerlink" title="复制对象时勿忘其每一个成分"></a>复制对象时勿忘其每一个成分</h1><p>&emsp;&emsp;设计良好的面向对象系统会将对象的内部封装起来，只留两个函数负责对象拷贝，这便是copy构造函数和copy assignment操作符，称它们为copying函数。</p>
 <p>&emsp;&emsp;如果我们声明自己的copying函数，意思就是告诉编译器我们并不喜欢缺省实现中的某些行为，编译器仿佛被冒犯似得，会以一种奇怪的方式回敬：当我们的实现代码几乎必然出错时却不告诉我们。</p>
 <p>&emsp;&emsp;考虑一个class用来表现顾客，其中手工写出copying函数，使得外界对它们的调用会被志记（logged）下来：</p>
+<a id="more"></a>
+
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">logCall</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; funcName)</span></span>;  <span class="comment">//制造一个log entry</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Customer</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    Customer(<span class="keyword">const</span> Customer&amp; rhs);</span><br><span class="line">    Customer&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Customer&amp; rhs);</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">&#125;;</span><br><span class="line">Customer::Customer(<span class="keyword">const</span> Customer&amp; rhs): name(rhs.name) &#123;</span><br><span class="line">    logCall(<span class="string">"Customer copy constructor"</span>);</span><br><span class="line">&#125;</span><br><span class="line">Customer&amp; Customer::<span class="keyword">operator</span>=(<span class="keyword">const</span> Customer&amp; rhs) &#123;</span><br><span class="line">    logCall(<span class="string">"Customer copy assignment operator"</span>);</span><br><span class="line">    name = rhs.name;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;这里的每一件事情都看起来很好，而实际上每件事情也的确都好，直到另一个成员变量加入战局：</p>
@@ -415,7 +417,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

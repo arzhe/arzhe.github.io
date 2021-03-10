@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="透彻了解inlining的里里外外&amp;emsp;&amp;emsp;inline函数，多棒的点子！它们看起来像函数，动作像函数，比宏好得多（见“尽量以const,enum,inline替换define”），可以调用它们又不需要蒙受函数调用所招致的额外开销。你还能要求更多吗？ &amp;emsp;&amp;emsp;你实际获得的比想到的还多，因为“免除函数调用成本”只是故事的一部分而已。编译器最优化机制通常被设计用来浓缩那">
 <meta property="article:published_time" content="2020-08-12T01:57:00.000Z">
-<meta property="article:modified_time" content="2020-08-12T14:26:52.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:34:14.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -228,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-08-12 09:57:00 / Modified: 22:26:52" itemprop="dateCreated datePublished" datetime="2020-08-12T09:57:00+08:00">2020-08-12</time>
+              <time title="Created: 2020-08-12 09:57:00" itemprop="dateCreated datePublished" datetime="2020-08-12T09:57:00+08:00">2020-08-12</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:34:14" itemprop="dateModified" datetime="2021-03-10T20:34:14+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -263,6 +269,8 @@
         <hr>
 <h1 id="透彻了解inlining的里里外外"><a href="#透彻了解inlining的里里外外" class="headerlink" title="透彻了解inlining的里里外外"></a>透彻了解inlining的里里外外</h1><p>&emsp;&emsp;inline函数，多棒的点子！它们看起来像函数，动作像函数，比宏好得多（见“<a href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/" title="尽量以const,enum,inline替换define">尽量以const,enum,inline替换define</a>”），可以调用它们又不需要蒙受函数调用所招致的额外开销。你还能要求更多吗？</p>
 <p>&emsp;&emsp;你实际获得的比想到的还多，因为“免除函数调用成本”只是故事的一部分而已。编译器最优化机制通常被设计用来浓缩那些“不含函数调用”的代码，所以当你inline某个函数，或许编译器就因此有能力对它（函数本体）执行语境相关最优化。大部分编译器绝不会对着一个“outlined函数调用”动作执行如此之最优化。</p>
+<a id="more"></a>
+
 <p>&emsp;&emsp;然而编写程序就像现实生活一样，没有白吃的午餐。inline函数也不例外。inline函数背后的整体观念是，将“对此函数的每一个调用”都以函数本体替换之。我想不需要统计学博士来告诉你，这样做可能增加你的目标码大小。在一台内存有限的机器上，过度热衷inlining会造成程序体积太大（对可用空间而言）。即使拥有虚内存，inline造成的代码膨胀亦会导致额外的换页行为，降低指令高速缓存装置的击中率，以及伴随这些而来的效率损失。</p>
 <p>&emsp;&emsp;换个角度说，如果inline函数的本体很小，编译器针对“函数本体”所产出的码可能比针对“函数调用”所产出的码更小。果真如此，将函数inlining确实可能导致较小的目标码和较高的指令高速缓存装置击中率！</p>
 <p>&emsp;&emsp;记住，inline只是对编译器的一个申请，不是强制命令。这项申请可以隐喻提出，也可以明确提出。隐喻方式是将函数定义于class定义式内：</p>
@@ -422,7 +430,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

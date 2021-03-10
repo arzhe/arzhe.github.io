@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="宁以pass-by-reference-to-const替换pass-by-value&amp;emsp;&amp;emsp;缺省情况下C++以by value方式（继承自C的方式）传递对象至（或来自）函数，除非我们另外指定，否则函数参数都是以实际实参的副本为初值，而调用端所获得的亦是函数返回值的一个副本。这些副本是由对象 copy构造函数产出，这可能使得pass-by-value成为昂贵的操作。考虑一下继承体">
 <meta property="article:published_time" content="2020-08-01T07:42:00.000Z">
-<meta property="article:modified_time" content="2020-08-01T13:36:36.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:31:26.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -228,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-08-01 15:42:00 / Modified: 21:36:36" itemprop="dateCreated datePublished" datetime="2020-08-01T15:42:00+08:00">2020-08-01</time>
+              <time title="Created: 2020-08-01 15:42:00" itemprop="dateCreated datePublished" datetime="2020-08-01T15:42:00+08:00">2020-08-01</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:31:26" itemprop="dateModified" datetime="2021-03-10T20:31:26+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -262,6 +268,8 @@
       
         <hr>
 <h1 id="宁以pass-by-reference-to-const替换pass-by-value"><a href="#宁以pass-by-reference-to-const替换pass-by-value" class="headerlink" title="宁以pass-by-reference-to-const替换pass-by-value"></a>宁以pass-by-reference-to-const替换pass-by-value</h1><p>&emsp;&emsp;缺省情况下C++以by value方式（继承自C的方式）传递对象至（或来自）函数，除非我们另外指定，否则函数参数都是以实际实参的副本为初值，而调用端所获得的亦是函数返回值的一个副本。这些副本是由对象 copy构造函数产出，这可能使得pass-by-value成为昂贵的操作。考虑一下继承体系：</p>
+<a id="more"></a>
+
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Person();</span><br><span class="line">    <span class="keyword">virtual</span> ~Person();</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> address;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span>:</span> <span class="keyword">public</span> Person &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Student();</span><br><span class="line">    ~Student();</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> schoolName;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> schoolAddress;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;现在考虑一下代码，其中调用函数validateStudent，后者需要一个Student实参（by value）并返回它是否有效：</p>
@@ -420,7 +428,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

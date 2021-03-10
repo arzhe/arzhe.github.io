@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="考虑virtual函数以外的其他选择&amp;emsp;&amp;emsp;假设你正在写一个游戏，你打算为游戏内的人物设计一个继承体系。你的游戏属于砍杀类型，游戏中人物被伤害或因其他因素而降低健康状态的情况并不罕见。你因此决定提供一个成员函数healthValue，它会返回一个整数，表示人物的健康程度。由于不同的人物可能以不同的方式计算他们的健康指数，将healthValue声明为virtual似乎是再明白不过">
 <meta property="article:published_time" content="2020-10-31T10:27:00.000Z">
-<meta property="article:modified_time" content="2020-11-11T08:19:46.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:29:29.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-11 16:19:46" itemprop="dateModified" datetime="2020-11-11T16:19:46+08:00">2020-11-11</time>
+                <time title="Modified: 2021-03-10 20:29:29" itemprop="dateModified" datetime="2021-03-10T20:29:29+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -269,6 +269,8 @@
         <hr>
 <h1 id="考虑virtual函数以外的其他选择"><a href="#考虑virtual函数以外的其他选择" class="headerlink" title="考虑virtual函数以外的其他选择"></a>考虑virtual函数以外的其他选择</h1><p>&emsp;&emsp;假设你正在写一个游戏，你打算为游戏内的人物设计一个继承体系。你的游戏属于砍杀类型，游戏中人物被伤害或因其他因素而降低健康状态的情况并不罕见。你因此决定提供一个成员函数healthValue，它会返回一个整数，表示人物的健康程度。由于不同的人物可能以不同的方式计算他们的健康指数，将healthValue声明为virtual似乎是再明白不过的做法：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GameCharacter</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">healthValue</span><span class="params">()</span> <span class="keyword">const</span></span>;  <span class="comment">//返回人物的健康指数；</span></span><br><span class="line">        ...                               <span class="comment">//derived class可重新定义它</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
 
 <p>&emsp;&emsp;healthValue并未被声明为pure virtual，这暗示我们将会有个计算健康指数的缺省算法。</p>
 <p>&emsp;&emsp;这的确是再明白不过的设计，但是从某个角度说却反而成为了它的弱点。由于这个设计如此明显，你可能因此没有认真考虑其他替代方案。为了帮助你跳脱面向对象设计上的常轨，让我们考虑其他一些解法。</p>
@@ -455,7 +457,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

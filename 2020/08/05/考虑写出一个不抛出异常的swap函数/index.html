@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="考虑写出一个不抛出异常的swap函数&amp;emsp;&amp;emsp;swap是个有趣的函数。原本它只是STL的一部分，而后成为异常安全性编程的脊柱，以及用来处理自我赋值可能性的一个常见机制。由于swap如此有用，适当的实现很重要。然而在非凡的重要性之外它也带来了非凡的复杂性。 &amp;emsp;&amp;emsp;所谓swap两对象值，意思是将两对象的值彼此赋予对方。缺省情况下swap动作可由标准程序库提供的swap">
 <meta property="article:published_time" content="2020-08-05T08:22:00.000Z">
-<meta property="article:modified_time" content="2020-08-07T02:00:50.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:29:12.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-07 10:00:50" itemprop="dateModified" datetime="2020-08-07T10:00:50+08:00">2020-08-07</time>
+                <time title="Modified: 2021-03-10 20:29:12" itemprop="dateModified" datetime="2021-03-10T20:29:12+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -269,6 +269,8 @@
         <hr>
 <h1 id="考虑写出一个不抛出异常的swap函数"><a href="#考虑写出一个不抛出异常的swap函数" class="headerlink" title="考虑写出一个不抛出异常的swap函数"></a>考虑写出一个不抛出异常的swap函数</h1><p>&emsp;&emsp;swap是个有趣的函数。原本它只是STL的一部分，而后成为异常安全性编程的脊柱，以及用来处理自我赋值可能性的一个常见机制。由于swap如此有用，适当的实现很重要。然而在非凡的重要性之外它也带来了非凡的复杂性。</p>
 <p>&emsp;&emsp;所谓swap两对象值，意思是将两对象的值彼此赋予对方。缺省情况下swap动作可由标准程序库提供的swap算法完成。其典型实现完全如你所预期：</p>
+<a id="more"></a>
+
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="built_in">std</span> &#123;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(T&amp; a, T&amp; b)</span> </span>&#123;</span><br><span class="line">    <span class="function">T <span class="title">temp</span><span class="params">(a)</span></span>;</span><br><span class="line">    a = b;</span><br><span class="line">    b = temp;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;只要类型T支持copying（通过copy构造函数和copy assignment操作符完成），缺省的swap实现代码就会帮你置换类型为T的对象，你不需要为此另外再做任何工作。</p>
@@ -453,7 +455,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

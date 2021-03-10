@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="令operator&#x3D;返回一个reference to *this&amp;emsp;&amp;emsp;关于赋值，有趣的是我们可以把它们写成连锁形式： 12int x, y, z;x &#x3D; y &#x3D; z &#x3D; 1;  &amp;emsp;&amp;emsp;同样有趣的是，赋值采用右结合律，所以上述连锁赋值被解析为： 1x &#x3D; (y &#x3D; (z &#x3D; 1));  &amp;emsp;&amp;emsp;这里1先被赋值给z，然后其结果再被赋值给y，然后其结">
 <meta property="article:published_time" content="2020-07-25T00:14:00.000Z">
-<meta property="article:modified_time" content="2020-07-30T01:13:42.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:30:24.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:13:42" itemprop="dateModified" datetime="2020-07-30T09:13:42+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:30:24" itemprop="dateModified" datetime="2021-03-10T20:30:24+08:00">2021-03-10</time>
               </span>
 
           
@@ -265,6 +265,8 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = (y = (z = <span class="number">1</span>));</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;这里1先被赋值给z，然后其结果再被赋值给y，然后其结果再被赋值给x。</p>
+<a id="more"></a>
+
 <p>&emsp;&emsp;为了实现“连锁赋值，赋值操作符必须返回一个reference指向操作符的左侧实参。这是我们为class实现赋值操作符时应该遵循的协议：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//返回类型是个reference，指向当前对象</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;                       <span class="comment">//返回左侧对象</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
@@ -400,7 +402,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

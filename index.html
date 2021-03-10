@@ -225,9 +225,24 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2021-03-08 08:50:43 / Modified: 17:49:15" itemprop="dateCreated datePublished" datetime="2021-03-08T08:50:43+08:00">2021-03-08</time>
+              <time title="Created: 2021-03-08 08:50:00" itemprop="dateCreated datePublished" datetime="2021-03-08T08:50:00+08:00">2021-03-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 21:08:47" itemprop="dateModified" datetime="2021-03-10T21:08:47+08:00">2021-03-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux%E7%BB%86%E6%9E%9D%E6%9C%AB%E8%8A%82/" itemprop="url" rel="index"><span itemprop="name">linux细枝末节</span></a>
+                </span>
             </span>
 
           
@@ -248,7 +263,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>&emsp;&emsp;软件厂商在他们的系统上面编译好了我们用户需要的软件，然后将这个编译好的并可执行的软件直接发布给用户安装。不同的linux发行版使用不同的打包系统，一般而言，大多数发行版分别属于两大包管理技术阵营：Debian的“*.deb”，和Red Hat的“*.rpm”。也有一些例外，但大多数会使用这两个基本系统中的一个。</p>
+          <hr>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>&emsp;&emsp;软件厂商在他们的系统上面编译好了我们用户需要的软件，然后将这个编译好的并可执行的软件直接发布给用户安装。不同的linux发行版使用不同的打包系统，一般而言，大多数发行版分别属于两大包管理技术阵营：Debian的“*.deb”，和Red Hat的“*.rpm”。也有一些例外，但大多数会使用这两个基本系统中的一个。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021/03/08/linux%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86/#more" rel="contents">
@@ -907,10 +923,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-11-21 16:17:00 / Modified: 21:39:08" itemprop="dateCreated datePublished" datetime="2020-11-21T16:17:00+08:00">2020-11-21</time>
+              <time title="Created: 2020-11-21 16:17:00" itemprop="dateCreated datePublished" datetime="2020-11-21T16:17:00+08:00">2020-11-21</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:36:45" itemprop="dateModified" datetime="2021-03-10T20:36:45+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -944,64 +966,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT, <span class="keyword">typename</span> DistT&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">advance</span><span class="params">(IterT&amp; iter, DistT d)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;看起来advance做了iter+=d的动作，但是只有random access（随机访问）迭代器才支持+=操作。面对其他威力不是那么强大的迭代器种类，advance必须反复执行++或–，共d次。</p>
-<p>&emsp;&emsp;简单回顾一下，STL一共有5种迭代器种类，对应于它们支持的操作。Input迭代器只能向前移动，一次一步，客户只可读取（不能写）它们所指的东西，而且只能读取一次。Output迭代器情况类似，只能向前移动，一次一步，客户只可写它们所指的东西，而且只能写一次。Forward迭代器威力就要强大的多了。这种迭代器可以做前述两种分类所能做的每一件事，而且可以读或写其所指物一次以上。Bidrectional迭代器比上一个分类威力更大。它除了可以向前移动还可以向后移动。最有威力的迭代器当属Random access迭代器。这种迭代器可以执行“迭代器算术”，也就是它可以在常量时间内向前或向后跳跃任意距离，因为random access迭代器正是以内置（原始）指针为榜样，而内置指针也可被当作random access迭代器使用。vector，deque和string提供的迭代器都是这一分类。</p>
-<p>&emsp;&emsp;对于这5种分类，C++标准库分别提供专属的卷标（tag struct）加以确认：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">input_iterator_tag</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">output_iterator_tag</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">forward_iterator_tag</span> :</span> <span class="keyword">public</span> input_iterator_tag &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bidrectional_iterator_tag</span> :</span> <span class="keyword">public</span> forward_iterator_tag &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">random_access_iterator_tag</span> :</span> <span class="keyword">public</span> bidrectional_iterator_tag &#123;&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这些struct之间的继承关系是有效的的is-a关系：所有的forward迭代器都是input迭代器，一次类推。很快我们就会看到这个继承关系的威力。</p>
-<p>&emsp;&emsp;现在回到advance函数。我们已经知道STL迭代器有着不同的能力，实现advance的策略之一是采用“最低但最普及”的迭代器能力，以循环反复递增或递减迭代器。然而这种做法耗费线性时间。我们知道random access迭代器支持迭代器算术运算，只耗费常量时间，因此如果我们遇到这种迭代器，我们希望运用其优势。期望以这种方式实现advance：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT, <span class="keyword">typename</span> DistT&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">advance</span><span class="params">(IterT&amp; iter, DistT d)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(iter is a <span class="built_in">random</span> access iterator) &#123;</span><br><span class="line">        iter += d;  <span class="comment">//针对random access迭代器使用迭代器算术运算</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(d &gt;= <span class="number">0</span>) &#123; <span class="keyword">while</span> (d--) ++iter; &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123; <span class="keyword">while</span> (d++) --iter; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这种做法首先必须要判断iter是否为random access迭代器，也就是说需要知道类型IterT是否为random access迭代器分类。换句话说我们需要取得类型的某些信息。这也就是traits提供给你的一个技术：它们允许你在编译期间取得某些类型信息。</p>
-<p>&emsp;&emsp;traits并不是C++关键字，也不是一个预先定义好的组件；它们是一种技术，也是一个C++程序员共同遵守的协议。这个技术的要求之一是，它必须在内置类型和用户自定义类型上表现一致。举个例子，如果上述advance收到的实参是一个指针（例如const char*）和一个int，上述advance仍然能够有效运作，这意味着trait技术必须也能够实施于内置类型如指针身上。</p>
-<p>&emsp;&emsp;“trait必须能够实施于内置类型”意味“类型内的嵌套信息”这样的“小伎俩”无法发挥作用，因为我们无法将信息嵌套于原始指针内。因此类型的traits信息必须位于类型之外。标准技术是把它放进一个template及其一个或多个特化版本中。这样的template在标准程序库中有若干个，其中针对迭代器者被命名为iterator_traits：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT&gt;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">iterator_traits</span>;</span>  <span class="comment">//template，用来处理迭代器分类的相关信息</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;习惯上trait总是被实现为struct，但它们却又往往被称为trait class。</p>
-<p>&emsp;&emsp;iterator_traits的运作方式是，针对每一个类型IterT，在struct iterator_traits&lt;IterT&gt;内一定声明了某个typedef名为iterator_category。这个typedef用来确认IterT的迭代器分类。</p>
-<p>&emsp;&emsp;iterator_traits以两个部分来实现上述运作方式。首先它要求每一个“用户自定义的迭代器类型”必须嵌套一个typedef，名为iterator_category，用来确认适当的卷标结构（tag struct）。例如deque的迭代器可随机访问，所以一个针对deque迭代器而设计的class看起来会是这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt; ... &gt;  <span class="comment">//略写template参数</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">deque</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">iterator</span> &#123;</span></span><br><span class="line">            <span class="keyword">public</span>:</span><br><span class="line">                <span class="keyword">typedef</span> random_access_iterator_tag iterator_category;</span><br><span class="line">                ...</span><br><span class="line">        &#125;;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;list的迭代器可以双向行进，所以它们应该是这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt; ... &gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">list</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="class"><span class="keyword">class</span> <span class="title">iterator</span> &#123;</span></span><br><span class="line">            <span class="keyword">public</span>:</span><br><span class="line">                <span class="keyword">typedef</span> bidirectional_iterator_tag iterator_category;</span><br><span class="line">                ...</span><br><span class="line">        &#125;;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;至于iterator_traits，则只是用来响应iterator class的嵌套式typedef：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT&gt;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">iterator_traits</span> &#123;</span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">typename</span> IterT::iterator_category iterator_category;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这对于用户自定义类型倒是挺合理的，但对指针（也是一种迭代器）行不通，因为指针不可能嵌套typedef。iterator_traits的第二部分如下，专门用来对付指针。</p>
-<p>&emsp;&emsp;为了支持指针迭代器，iterator_traits特别针对指针类型提供了一个偏特化版本。由于指针的行为与random access迭代器类似，所以iterator_traits为指针指定的迭代器类型是：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT&gt;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">iterator_traits</span>&lt;IterT*&gt; &#123;</span></span><br><span class="line">    <span class="keyword">typedef</span> random_access_iterator_tag iterator_category;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，你应该知道如何设计并实现一个traits class了：</p>
-<ul>
-<li>确认若干你希望将来可取得的类型相关信息。例如对迭代器而言，我们希望将来可取得其分类（category）。</li>
-<li>为该信息选择一个名称（例如iterator_category）。</li>
-<li>提供一个template和一组特化版本（例如上述所说的iterator_traits），内含你希望支持的类型相关信息。</li>
-</ul>
-<p>&emsp;&emsp;好，现在有了iterator_traits（实际上是std::iterator_traits，因为它是C++标准程序库的一部分），我们可以对advance实现先前的伪码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT, <span class="keyword">typename</span> DistT&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">advance</span><span class="params">(IterT&amp; iter, DistT d)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">typeid</span>(<span class="keyword">typename</span> <span class="built_in">std</span>::iterator_traits&lt;IterT&gt;::iterator_category)</span><br><span class="line">       == <span class="keyword">typeid</span>(<span class="built_in">std</span>::random_access_iterator_tag))</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;虽然看起来挺合理的，但其实它并达不到我们的期望。首先它会导致编译问题，这个问题将在下一次文章中进行讨论。现在更加重要的问题是，IterT类型在编译期获知，所以iterator_traits&lt;IterT&gt;::iterator_category也可以在编译期间确定。但if语句却是在运行期才进行核对。为什么将可在编译期完成的事拖延到运行期才做呢？这不仅浪费时间，也造成可执行文件膨胀。</p>
-<p>&emsp;&emsp;我们真正想要的是一个“条件式”（也就是可以履行if…else语句的职责）用来进行“编译期核对卷标类型”的动作。正好C++给我们提供了这个“桥梁”，那就是重载。</p>
-<p>&emsp;&emsp;当你重载某个函数f，你必须详细描述出各个重载件的参数类型。当你调用f，编译器便根据传来的实参选择最适当的重载件。编译器认为“如果这个重载件最匹配传递过来的实参，就调用这个f；如果那个重载件最匹配，就调用那个f；如果第三个f最匹配，就调用第三个f”依此类推。这正是一个针对类型而发生的“编译期条件语句”。以下是这个技术的代码实现：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT, <span class="keyword">typename</span> DistT&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doAdvance</span><span class="params">(IterT&amp; iter, DistT d,</span></span></span><br><span class="line"><span class="function"><span class="params">               <span class="built_in">std</span>::random_access_iterator_tag)</span> </span>&#123;</span><br><span class="line">    iter += d;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT, <span class="keyword">typename</span> DistT&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doAdvance</span><span class="params">(IterT&amp; iter, DistT d,</span></span></span><br><span class="line"><span class="function"><span class="params">               <span class="built_in">std</span>::bidirectional_iterator_tag)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(d &gt;= <span class="number">0</span>) &#123; <span class="keyword">while</span> (d--) ++iter; &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123; <span class="keyword">while</span> (d++) --iter; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT, <span class="keyword">typename</span> DistT&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doAdvance</span><span class="params">(IterT&amp; iter, DistT d,</span></span></span><br><span class="line"><span class="function"><span class="params">               <span class="built_in">std</span>::input_iterator_tag)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(d &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="built_in">std</span>::out_of_range(<span class="string">"Negative distance"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(d--) ++iter;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;由于forward_iterator_tag继承自input_iterator_tag，所以上述doAdvance的input_iterator_tag版本也能够处理forward迭代器。这是iterator_tag struct继承关系带来的一个好处。</p>
-<p>&emsp;&emsp;现在有了这些doAdvance重载版本，advance需要做的只是调用它们并额外传递一个对象，后者必须带有适当的迭代器分类。于是编译器运用重载解析机制调用适当的实现代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT, <span class="keyword">typename</span> DistT&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">advance</span><span class="params">(IterT&amp; iter, DistT d)</span> </span>&#123;</span><br><span class="line">    doAdvance(iter, d,</span><br><span class="line">              <span class="keyword">typename</span> <span class="built_in">std</span>::iterator_traits&lt;IterT&gt;::iterator_category());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在我们可以总结如何使用一个traits class了：</p>
-<ul>
-<li>建立一组重载函数（身份像劳工）或函数模版（例如doAdvance），彼此间的差异只在于各自的traits参数。令每个函数的实现码与其接受的traits信息相对应。</li>
-<li>建立一个控制函数（身份像工头）或函数模版（例如advance），它调用上述那些“劳工函数”并传递traits class所提供的信息。</li>
-</ul>
-<blockquote>
-<ul>
-<li>traits class使得“类型相关信息”在编译期可用。它们以template和“template特化”来实现。</li>
-<li>整合重载技术后，traits class有可能在编译期对类型执行“if…else”测试。</li>
-</ul>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/21/traits%20class%E4%B8%8E%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF%E4%B9%8B%E9%97%B4%E7%9A%84%E5%A6%99%E7%94%A8/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1051,7 +1023,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-21 21:39:32" itemprop="dateModified" datetime="2020-11-21T21:39:32+08:00">2020-11-21</time>
+                <time title="Modified: 2021-03-10 20:33:30" itemprop="dateModified" datetime="2021-03-10T20:33:30+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1083,37 +1055,14 @@
       
           <hr>
 <h1 id="使用friend-non-member-function来完成template中的类型转换机能"><a href="#使用friend-non-member-function来完成template中的类型转换机能" class="headerlink" title="使用friend non-member function来完成template中的类型转换机能"></a>使用friend non-member function来完成template中的类型转换机能</h1><p>&emsp;&emsp;“<a href="/2020/08/04/%E8%8B%A5%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%86%E9%9C%80%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E8%AF%B7%E4%B8%BA%E6%AD%A4%E9%87%87%E7%94%A8non-member%E5%87%BD%E6%95%B0/" title="若所有参数皆需类型转换，请为此采用non-member函数">若所有参数皆需类型转换，请为此采用non-member函数</a>”这个条款讨论过为什么只有non-member函数才有能力“在所有实参身上实施隐式类型转换”。由于此文也是以它作为基础的延伸，所以强烈建议你先熟稔那个例子，本文将对那个例子进行一系列的改动，对Rational和operator*模版化：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        Rational(<span class="keyword">const</span> T&amp; numerator = <span class="number">0</span>,</span><br><span class="line">                 <span class="keyword">const</span> T&amp; denominator = <span class="number">1</span>);</span><br><span class="line">        <span class="function"><span class="keyword">const</span> T <span class="title">numerator</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">const</span> T <span class="title">denominator</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">const</span> Rational&lt;T&gt; <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&lt;T&gt;&amp; lhs,</span><br><span class="line">                            <span class="keyword">const</span> Rational&lt;T&gt;&amp; rhs)</span><br><span class="line">&#123; ... &#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;就像“<a href="/2020/08/04/%E8%8B%A5%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%86%E9%9C%80%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E8%AF%B7%E4%B8%BA%E6%AD%A4%E9%87%87%E7%94%A8non-member%E5%87%BD%E6%95%B0/" title="若所有参数皆需类型转换，请为此采用non-member函数">若所有参数皆需类型转换，请为此采用non-member函数</a>”一样，我们希望template版本支持混合式算术运算，所以我们期望以下代码可以顺利通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Rational&lt;<span class="keyword">int</span>&gt; <span class="title">oneHalf</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">Rational&lt;<span class="keyword">int</span>&gt; result = oneHalf * <span class="number">2</span>;  <span class="comment">//错误！无法通过编译。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;奇怪了，为什么non-template版本的可以通过编译，而这里却不行呢？模版化的Rational内的某些东西似乎和non-template版本不同。non-template版本中，编译器知道我们尝试调用什么函数（就是接受两个Rational参数的那个operator*啦），但是这里编译器不知道我们想要调用哪个函数。反而，它们自己倒是试图去想出什么函数被名为operator*的template具现化出来。它们知道（与其说“知道”倒不如说是“自认为”）自己应该可以具现化某个“名为operator*并接受两个Rational&lt;T&gt;参数”的函数，但为了完成这个目标，必须先算出T是什么，问题是它们没有这个能耐。</p>
-<p>&emsp;&emsp;编译器为了推导出T，它们会将operator*调用行为中的实参类型分别纳入考虑范围内。</p>
-<p>&emsp;&emsp;operator*的第一实参被声明为Rational&lt;T&gt;，而传递给operator*的第一实参（oneHalf）的类型是Rational&lt;int&gt;，所以T一定是int。但是其他参数的推导则没有这么顺利。operator*的第二实参被声明为Rational&lt;T&gt;，但是传递给operator*的第二实参类型是int，编译器如何才能根据这个推算出T？或许你以为编译器会这样工作：编译器使用Rational&lt;int&gt;的non-explicit构造函数将2转换为Rational&lt;int&gt;，进而将T推导为int。错！编译器不会如你所愿，因为在template实参推导过程中从不将隐式类型转换函数纳入考虑。这样的转换虽然在函数调用中确实被使用，但是在能够调用一个函数前，首先必须知道那个函数存在。而为了知道它，必须先为相关的function template推导出参数类型（然后才可以将适当的函数具现化出来）。然而template实参推导过程中并不考虑采纳“通过构造函数而发生的”隐式类型转换。这也正是C++与其他语言不同的地方，就像“<a href="/2020/07/17/%E8%A7%86C++%E4%B8%BA%E4%B8%80%E4%B8%AA%E8%AF%AD%E8%A8%80%E8%81%94%E9%82%A6/" title="视C++为一个语言联邦">视C++为一个语言联邦</a>”所说的那样，我们现在处于template part of C++领域内，有着不同的规则。</p>
-<p>&emsp;&emsp;令人兴奋的是，class template并不倚赖template实参推导（后者只施行于function template身上），所以编译器总是能够在class Rational&lt;T&gt;具现化时得知T。那么你应该会自然而然的想到一个点子：声明operator*为class Rational&lt;T&gt;的一个friend函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">friend</span></span><br><span class="line">        <span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                                 <span class="keyword">const</span> Rational&amp; rhs);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">const</span> Rational&lt;T&gt; <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&lt;T&gt;&amp; lhs,</span><br><span class="line">                            <span class="keyword">const</span> Rational&lt;T&gt;&amp; rhs)</span><br><span class="line">&#123; ... &#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在对operator*的混合式调用可以通过编译了，因为当对象oneHalf被声明为一个Rational&lt;int&gt;，class Rational&lt;int&gt;于是被具现化出来，而作为过程的一部分，friend函数operator*（接受Rational&lt;int&gt;参数）也就被自动声明出来。后者身为一个函数而非函数模版，因此编译器可在调用它时使用隐式转换函数（例如Rational的non-explicit构造函数），而这便是混合式调用之所以“成功”的原因。</p>
-<p>&emsp;&emsp;但是这里的“成功”并不完全成功，因为虽然这段代码通过编译，却无法连接。混合式代码通过了编译，因为编译器知道我们要调用哪个函数（就是接受一个Rational&lt;int&gt;以及又一个Rational&lt;int&gt;的那个operator*），但是那个函数只被声明于Rational内，并没有被定义出来。我们试图令次class外部的operator* template提供定义式，但是行不通——如果我们自己声明了一个函数（这也是Rational template内的行为），就有责任定义那个函数。既然我们没有提供定义式，连接器当然找不到它！</p>
-<p>&emsp;&emsp;或许最简单的可行办法就是将operator*函数本体合并至其声明式内：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">    <span class="keyword">friend</span> </span><br><span class="line">        <span class="keyword">const</span> Rational <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&amp; lhs,</span><br><span class="line">                                 <span class="keyword">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">            <span class="keyword">return</span> Rational(lhs.numberator() * rhs.numberator(),</span><br><span class="line">                            lhs.denominator() * rhs.denominator());</span><br><span class="line">        &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在对operator*对混合式调用可以编译连接并执行了。</p>
-<p>&emsp;&emsp;这项技术的一个趣味点是，我们虽然使用了friend，却与friend的传统用途“访问class点non-public成分”毫不相干。为了让类型转换可能发生于所有实参身上，我们需要一个non-member函数（“<a href="/2020/08/04/%E8%8B%A5%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%86%E9%9C%80%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E8%AF%B7%E4%B8%BA%E6%AD%A4%E9%87%87%E7%94%A8non-member%E5%87%BD%E6%95%B0/" title="若所有参数皆需类型转换，请为此采用non-member函数">若所有参数皆需类型转换，请为此采用non-member函数</a>”）；为了令这个函数被自动具现化，我们需要将它声明在class内部；而在class内部声明non-member函数的唯一办法就是：令它成为一个friend。</p>
-<p>&emsp;&emsp;定义于class内的函数都会暗自成为inline，包括像operator*这样的friend函数。你也可以将这样的inline声明所带来的冲击最小化，做法就是令operator*不做任何事情，只调用一个定义于class外部的辅助函数。在本例之中，这样做并没有太大意义，因为operator*已经是个单行函数了，但是对于更复杂的函数而言，这样做也许更有价值。“令friend函数调用辅助函数”的做法值得我们接下来好好探究一番。</p>
-<p>&emsp;&emsp;“Rational是个template”也就意味着上述的辅助函数通常也是个template，所以定义了Rational的头文件代码应该长这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="class"><span class="keyword">class</span> <span class="title">Rational</span>;</span>  <span class="comment">//声明Rational template</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">const</span> Rational&lt;T&gt; <span class="title">doMultiply</span><span class="params">(<span class="keyword">const</span> Rational&lt;T&gt;&amp; lhs,</span></span></span><br><span class="line"><span class="function"><span class="params">                             <span class="keyword">const</span> Rational&lt;T&gt;&amp; rhs)</span></span>;  <span class="comment">//声明helper template</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        ...</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">friend</span></span><br><span class="line">        <span class="keyword">const</span> Rational&lt;T&gt; <span class="keyword">operator</span>*(<span class="keyword">const</span> Rational&lt;T&gt;&amp; lhs,</span><br><span class="line">                                    <span class="keyword">const</span> Rational&lt;T&gt;&amp; rhs) &#123;</span><br><span class="line">            <span class="keyword">return</span> doMultiply(lhs, rhs);  <span class="comment">//令friend调用helper</span></span><br><span class="line">        &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;许多编译器实际上会强迫你把所有template定义式放进头文件内，所以你或许需要在头文件内定义doMultiply。</p>
-<blockquote>
-<ul>
-<li>当我们编写一个class template，而它所提供的“与此template相关的”函数支持“所有参数的隐式类型转换”时，请将那些函数定义为“class template内部的friend函数”。</li>
-</ul>
-</blockquote>
-<p>&emsp;&emsp;</p>
-<p>&emsp;&emsp;</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/19/%E4%BD%BF%E7%94%A8friend%20non-member%20function%E6%9D%A5%E5%AE%8C%E6%88%90template%E4%B8%AD%E7%9A%84%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%9C%BA%E8%83%BD/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1204,7 +1153,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

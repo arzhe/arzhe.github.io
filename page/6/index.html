@@ -233,7 +233,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:14:40" itemprop="dateModified" datetime="2020-07-30T09:14:40+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:28:35" itemprop="dateModified" datetime="2021-03-10T20:28:35+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -266,30 +266,14 @@
           <hr>
 <h1 id="绝不在构造和析构过程中调用virtual函数"><a href="#绝不在构造和析构过程中调用virtual函数" class="headerlink" title="绝不在构造和析构过程中调用virtual函数"></a>绝不在构造和析构过程中调用virtual函数</h1><p>&emsp;&emsp;我们不该在构造函数和析构函数期间调用virtual函数，因为这样的调用不会带来我们预想的结果，就算有我们也不会高兴。如果你同时也是一位Java或C#程序员，那么就更加要注意了，因为这是C++与它们不同的一个地方。</p>
 <p>&emsp;&emsp;假设我们有个class继承体系，用来塑模股市交易如买进、卖出的订单等等。这样的交易一定要经过审计，所以每当创建一个交易对象，在审计日志中也需要创建一笔适当记录。下面是一个看起来颇为合理的做法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span>                           <span class="comment">//所有交易的base class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Transaction();</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;  <span class="comment">//做出一份因类型不同而不同</span></span><br><span class="line">                                              <span class="comment">//的日志记录（log entry）</span></span><br><span class="line">    ...</span><br><span class="line">&#125;；</span><br><span class="line">Transaction::Transactionn() &#123;                 <span class="comment">//base class构造函数的实现</span></span><br><span class="line">    ...</span><br><span class="line">    logTransaction();                         <span class="comment">//最后动作是记录这笔交易</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BuyTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;    <span class="comment">//derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span></span>;      <span class="comment">//记录此类交易</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SellTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;   <span class="comment">//derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span></span>;      <span class="comment">//记录此类交易</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，当执行一下这行时，会发生什么事：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BuyTransaction b;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;无疑会有一个BuyTransaction构造函数被调用，但首先Transaction构造函数一定会更早被调用；没错，derived class对象内的base class成分会在derived class自身成分被构造之前先构造妥当。Transaction构造函数的最后一行调用virtual函数logTransaction，这正是奇怪的地方。这时候被调用的logTransaction是Transaction内的版本，不是buyTransaction内的版本——即使目前即将建立的对象类型是buyTransaction。没错，base class构造期间virtual函数绝不会下降到derived classs阶层。取而代之的是，对象的作为就像隶属base类型一样。非正式的说法或许比较传神：在base class构造期间，virtual函数不是virtual函数。</p>
-<p>&emsp;&emsp;这一似乎反直觉的行为有个好的解释。由于base class构造函数的执行更早于derived class构造函数，当base class构造函数执行时derived class的成员变量尚未初始化。如果此期间调用的virtual函数下降至derived class阶层，要知道derived class的函数几乎必然取用local成员变量，而那些成员变量尚未初始化。这将是一张通往不明确行为和彻夜调试大会的直达车票。“使用对象内部尚未初始化的成分”是及其危险的，所以C++允许我们这样做。</p>
-<p>&emsp;&emsp;其实还有比上述理由更根本的原因：在derived class对象的base class构造期间，对象的类型是base class而不是derived class。不只virtual函数会被编译器解析至base class，若使用运行期类型信息（例如dynamic_cast和typeid），也会把对象视为base class类型。本例之中，当Transaction构造函数正执行起来打算初始化“BuyTransaction对象内的base class成分”时，该对象的类型时Transaction。这个对象内的“BuyTransaction专属成分”尚未被初始化，所以面对它们，最安全的做法就是视它们不存在。对象在derived class构造函数开始执行前不会成为一个derive的对象。</p>
-<p>&emsp;&emsp;相同的道理也适用于析构函数。一旦derived class析构函数开始执行，对象内的derived class成员变量便呈现未定义值，所以C++视它们仿佛不再存在。进入base class析构函数后对象就成为一个base class对象，而C++的任何部分包括virtual函数、dynamic_cast等等也就会那么看待它。</p>
-<p>&emsp;&emsp;在上述示例中，Transaction构造函数直接调用一个virtual函数，这很明显而且容易看出来，某些编译器会为此发出一个警告信息。即使没有这些警告信息，这个问题在执行前也几乎肯定会变得显而易见，因为logTransaction函数在Transaction内是个pure virtual。除非它被定义（不太有可能）否则程序无法连接，因为连接器找不到必要的Transaction::logTransaction实现代码。</p>
-<p>&emsp;&emsp;但是侦测“构造函数或析构函数运行期是否调用virtual函数”并不总是这样轻松。如果Transaction有多个构造函数，每个都需要执行某些相同的工作，那么避免代码重复的一个优秀做法是把共同的初始化代码（其中包括对logTransaction的调用）放进一个初始化函数如init内：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Transaction() &#123; init(); &#125;  <span class="comment">//调用non-virtual</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">()</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        logTransaction();  <span class="comment">//这里调用virtual！</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这段代码概念上和之前版本相同，但它比较隐蔽，因为它通常不会引发任何编译器和连接器的抱怨。此时由于logTransaction是Transaction内的一个pure virtual函数，当pure virtual函数被调用，大多数执行系统会中止程序（通常会对此结果发出一个信息）。然而如果logTransaction是个正常的virtual函数并在Transaction内带有一份实现代码，该版本就会被调用，而程序也就会兴高采烈地继续向前执行，之后我们便会百思不得其解：为什么建立一个derived class对象时会调用错误版本的logTransaction。唯一能够避免此问题的做法就是：确定我们的构造函数和析构函数都没有（在对象被创建和被销毁期间）调用virtual函数，而它们调用的所有函数也都服从同一个约束。</p>
-<p>&emsp;&emsp;但我们如何确保每次一有Transaction继承体系上的对象被创建，就会有适当版本的logTransaction被调用呢？很显然，在Transaction构造函数内对对象调用virtual函数是一种错误做法。</p>
-<p>&emsp;&emsp;有其他方案可以解决这个问题，一种做法是在class Transaction内将logTransaction函数改为non-virtual，然后要求derived class构造函数传递必要信息给Transaction构造函数，而后那个构造函数便可安全地调用non-virtual logTransaction。像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Transaction</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Transaction</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">logTransaction</span><span class="params">(cosnt <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo)</span> cosnt</span>;  <span class="comment">//如今是个non-virtual函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">Transaction::Transaction(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; logInfo) &#123;</span><br><span class="line">    ...</span><br><span class="line">    logTransaction(logInfo);  <span class="comment">//如今是个non-virtual调用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BuyTransaction</span>:</span> <span class="keyword">public</span> Transaction &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    BuyTransaction(parameters)</span><br><span class="line">        : Transaction(createLogString(parameters)) &#123;  <span class="comment">//将log信息传给base class构造函数</span></span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">createLogString</span><span class="params">(parameters)</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;换句话说由于我们无法使用virtual函数从base class向下调用，在构造期间，我们可以藉由“令derived class将必要的构造信息向上传递至base class构造函数”替换之而加以弥补。</p>
-<p>&emsp;&emsp;在本例中BuyTransaction内的private static函数createLogString的作用：比起在成员初值列内给予base class所需数据，利用辅助函数创建一个值传给base class构造函数往往比较方便（也比较可读）。令此函数为static，也就不可能意外指向“初期未成熟的BuyTransaction对象内尚未初始化的成员变量”。这很重要，正是因为“那些成员变量处于未定义状态”，所以“在base class构造和析构期间调用的virtual函数不可下降至derived class”。</p>
-<blockquote>
-<p>在构造和析构期间不要调用virtual函数，因为这类调用从不下降至derived class。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/24/%E7%BB%9D%E4%B8%8D%E5%9C%A8%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%B0%83%E7%94%A8virtual%E5%87%BD%E6%95%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -339,7 +323,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:15:07" itemprop="dateModified" datetime="2020-07-30T09:15:07+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:25:38" itemprop="dateModified" datetime="2021-03-10T20:25:38+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -372,41 +356,14 @@
           <hr>
 <h1 id="别让异常逃离析构函数"><a href="#别让异常逃离析构函数" class="headerlink" title="别让异常逃离析构函数"></a>别让异常逃离析构函数</h1><p>&emsp;&emsp;C++并不禁止析构函数吐出异常，但它不鼓励我们这样做。这是有理由的。考虑以下代码：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    ~Widget() &#123; ... &#125;  <span class="comment">//假设这个可能吐出一个异常</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Widget&gt; v;</span><br><span class="line">    ...</span><br><span class="line">&#125;                      <span class="comment">//v在这里被自动销毁</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当vector v被销毁，它有责任销毁其内含的所有Widgets。假设v内含十个Widgets，而在析构第一个元素期间，有个异常被抛出。其他九个Widgets还是应该被销毁（否则它们保存的任何资源都会发生泄漏），因此v应该调用它们各个析构函数。但假设在那些调用期间，第二个Widget析构函数又抛出异常。现在有两个同时作用的异常，这对C++而言太多了。在两个异常同时存在的情况下，程序若不是结束执行就是导致不明确的行为。本例中它会导致不明确的行为。使用标准程序库的任何其他容器或TR1的任何容器或甚至array，也会出现相同情况。只要析构函数吐出异常，即使并非使用容器或array，程序也可能过早结束或出现不明确行为。没错，C++不喜欢析构函数吐出异常！</p>
-<p>&emsp;&emsp;这很容易理解，但如果我们的析构函数必须执行一个动作，而该动作可能会在失败时抛出异常，该怎么办？举个例子，假设我们使用一个class负责数据库连接：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DBConnection</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">static</span> DBConnection <span class="title">create</span><span class="params">()</span></span>;  <span class="comment">//这个函数返回DBConnection对象；</span></span><br><span class="line">                                   <span class="comment">//为求简化暂略参数。</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">close</span><span class="params">()</span></span>;                  <span class="comment">//关闭联机；失败则抛出异常。</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为确保客户不忘记在DBConnection对象身上调用close()，一个合理的想法是创建一个用来管理DBConnection资源的class，并在其析构函数中调用close：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DBConn</span> &#123;</span>    <span class="comment">//这个class用来管理DBConnection对象</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    ~DBConn() &#123;   <span class="comment">//确保数据库连接总是会被关闭</span></span><br><span class="line">      db.<span class="built_in">close</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    DBConnetion db;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这便允许客户写出这样的代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;                                    <span class="comment">//开启一个区块</span></span><br><span class="line"><span class="function">DBConn <span class="title">dbc</span><span class="params">(DBConnection::create())</span></span>;  <span class="comment">//建立DBConnection对象</span></span><br><span class="line">                                     <span class="comment">//  并交给DBConn对象以便管理。</span></span><br><span class="line">...                                  <span class="comment">//通过DBConn的接口</span></span><br><span class="line">                                     <span class="comment">//  使用DBConnection对象。</span></span><br><span class="line">&#125;                                    <span class="comment">//在区块结束点，DBConn对象被销毁，</span></span><br><span class="line">                                     <span class="comment">//因而自动为DBConnection对象调用close。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;只要调用close成功，一切都美好。但是如果该调用导致异常，DBConn析构函数会传播该异常，也就是允许它离开这个析构函数。这会造成问题，因为这就是抛出了难以驾驭的麻烦。</p>
-<p>&emsp;&emsp;两个办法可以避免这一问题。DBConn的析构函数可以：</p>
-<ul>
-<li>如果close抛出异常就结束程序。通常通过调用abort完成：</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DBConn::~DBConn() &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123; db.<span class="built_in">close</span>(); &#125;</span><br><span class="line">    <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">        <span class="comment">//制作运转记录，记下对close的调用失败；</span></span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">abort</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果程序遭遇一个“于析构期间发生的错误”后无法继续执行，“强迫结束程序”是个合理选项。毕竟它可以阻止异常从析构函数传播出去。也就是说调用abort可以抢先置“不明确行为”于死地。</p>
-<ul>
-<li>吞下因调用close而发生的异常：</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DBConn::~DBConn() &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123; db.<span class="built_in">close</span>(); &#125; </span><br><span class="line">    <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">        <span class="comment">//制作运转记录，记下对close的调用失败；</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;一般而言，将异常吞掉是个坏主意，因为它压制了“某些动作失败”的重要信息！然而有时候吞下异常也比负担“草率结束程序”或“不明确行为带来的风险”好。为了让这成为一个可行方案，程序必须能够继续可靠地执行，即使在遭遇并忽略一个错误之后。</p>
-<p>&emsp;&emsp;这些办法都没什么吸引力。问题在于两者都无法对“导致close抛出异常”的情况做出反应。</p>
-<p>&emsp;&emsp;一个较佳策略是重新设计DBConn接口，使其客户有机会对可能出现的问题做出反应。例如DBConn自己可以提供一个close函数，因而赋予客户一个机会得以处理“因该操作而发生的异常”。DBConn也可以追踪其所管理的DBConnection是否已被关闭，并在答案为否的情况下由其析构函数关闭之。这可防止遗失数据库连接。然而如果DBConnection析构函数调用close失败，我们将又退回“强迫结束程序”或“吞下异常”的老路：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DBConn</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;  <span class="comment">//供客户使用的新函数</span></span><br><span class="line">       db.<span class="built_in">close</span>();</span><br><span class="line">       closed = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ~DBConn() &#123;</span><br><span class="line">        <span class="keyword">if</span>(!closed) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;  <span class="comment">//关闭连接（如果客户不那么做的话）</span></span><br><span class="line">                db.<span class="built_in">close</span>();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">                <span class="comment">//制作运转记录，记下对close的调用失败；</span></span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    DBConnection db;</span><br><span class="line">    <span class="keyword">bool</span> closed;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;把调用close的责任从DBConn析构函数手上移到DBConn客户手上（但DBConn析构函数内仍内含一个“双保险”调用）可能会给我们“肆无忌惮转移负担”的印象。实际上在这里并无大碍。如果某个操作可能在失败时抛出异常，而又存在某种需要必须处理该异常，那么这个异常必须来自析构函数以外的某个函数。因为析构函数吐出异常就是危险，总会带来“过早结束程序”或“发生不明确行为”的风险。本例要说的是，由客户自己调用close并不会对他们带来负担，而是给他们一个处理错误的机会，否则他们没机会响应。如果他们不认为这个机会有用（或许他们坚信不会有错误发生），可以忽略它，依赖DBConn析构函数去调用close。</p>
-<blockquote>
-<p>析构函数绝对不要抛出异常。如果一个被析构函数调用的函数可能抛出异常，析构函数应该捕捉任何异常，然后吞下它们（不传播）或结束程序。</p>
-<p>如果客户需要对某个操作函数运行期间抛出的异常做出反应，那么class应该提供一个普通函数（而非在析构函数中）执行该操作。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/23/%E5%88%AB%E8%AE%A9%E5%BC%82%E5%B8%B8%E9%80%83%E7%A6%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -456,7 +413,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:12:40" itemprop="dateModified" datetime="2020-07-30T09:12:40+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:34:38" itemprop="dateModified" datetime="2021-03-10T20:34:38+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -489,47 +446,14 @@
           <hr>
 <h1 id="为多态基类声明virtual析构函数"><a href="#为多态基类声明virtual析构函数" class="headerlink" title="为多态基类声明virtual析构函数"></a>为多态基类声明virtual析构函数</h1><p>&emsp;&emsp;有许多种做法可以记录时间，因此，设计一个TimeKeeper base class和一些derived classes作为不同的计时方法，相当合情合理：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TimeKeeper</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    TimeKeeper();</span><br><span class="line">    ~TimeKeeper();</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AtomicClock</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//原子钟</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WaterClock</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//水钟</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WristWatch</span>:</span> <span class="keyword">public</span> TimeKeeper &#123; ... &#125;;  <span class="comment">//腕表</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;许多客户只想在程序中使用时间，不想操心时间如何计算等细节，这时候我们可以设计factory函数，返回指针指向一个计时对象。Factory函数会“返回一个base class指针，指向新生成的derived class对象”：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">TimeKeeper* <span class="title">getTimeKeeper</span><span class="params">()</span></span>;  <span class="comment">//返回一个指针，指向一个</span></span><br><span class="line">                              <span class="comment">//TimeKeeper派生类的动态分配对象</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为遵守factory函数的规矩，被getTimeKeeper()返回的对象必须位于heap，因此为了避免泄漏内存和其它资源，将factory函数返回的每一个对象适当地delete掉很重要：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TimeKeeper* ptk = getTimeKeeper();  <span class="comment">//从TimeKeeper继承体系</span></span><br><span class="line">                                    <span class="comment">//获得一个动态分配对象。</span></span><br><span class="line">...                                 <span class="comment">//运用它...</span></span><br><span class="line"><span class="keyword">delete</span> ptk;                         <span class="comment">//释放它，避免资源泄漏。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;上述代码有一个根本性弱点：纵使客户把每一件事都做对了，仍然没办法知道程序是如何行动的。</p>
-<p>&emsp;&emsp;问题出在getTimeKeeper返回的指针指向一个derived class对象，而那个对象却经由一个base class指针被删除，而目前的base class有个non-virtual析构函数。这将引来灾难，因为C++明确指出，当derived class对象经由一个base class指针被删除，而该base class带着一个non-virtual析构函数，其结果将是未定义的——实际执行时通常发生的是对象的derived成分没被销毁。如果getTimeKeeper返回指针指向一个AtomicClock对象，其内的AtomicClock成分（也就是声明于AtomicClock class内的成员变量）很可能没被销毁，而AtomicClock的析构函数也未能执行起来。然而其base class成分（也就是TimeKeeper这一部分）通常会被销毁，于是形成了一个诡异的“局部销毁”对象。这可是形成资源泄漏、败坏的数据结构、在调试器上浪费许多时间的绝佳途径喔。</p>
-<p>&emsp;&emsp;消除这个问题的做法很简单：给base class一个virtual析构函数。此后删除derived class对象就会如我们所愿。没错，它会销毁整个对象，包括所有的derived class成分：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TimeKeeper</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    TimeKeeper();</span><br><span class="line">    <span class="keyword">virtual</span> ~TimeKeeper();</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">TimeKeeper* ptk = getTimeKeeper();</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> ptk;  <span class="comment">//现在，行为正确</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;像TimeKeeper这样的base class除了析构函数之外通常还有其它virtual函数，因为virtual函数的目的是允许derived class的实现得以自定义。例如TimeKeeper就可能拥有一个virtual getCurrentTime，它在不同的derived classes中有不同的实现代码。任何class只要带有virtual函数都几乎确定应该也有一个virtual析构函数。</p>
-<p>&emsp;&emsp;如果class不含virtual函数，通常表示它并不意图被用做一个base class。当class不企图被当作base class，令其析构函数为virtual往往是个馊主意。考虑一个用来表示二维空间坐标的class：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Point(<span class="keyword">int</span> xCoord, <span class="keyword">int</span> yCoord);</span><br><span class="line">    ~Point();</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> x, y;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果int占用32bits，那么Point对象可能塞入一个64-bit缓存器中。更有甚者，这样一个Point对象可被当作一个“64-bit量”传给其他语言如C或FORTRAN编写的函数。然而当Point的析构函数是virtual，形势发生了变化。</p>
-<p>&emsp;&emsp;欲实现出virtual函数，对象必须携带某些信息，主要用来在运行期决定哪一个virtual函数该被调用。这份信息通常是由一个所谓vptr（virtual table pointer）指针指出。vptr指向一个由函数指针构成的数组，称为vtbl（virtual table）；每一个带有virtual函数的class都有一个相应的vtbl。当对象调用某一virtual函数。实际被调用的函数取决于该对象的vptr所指的那个vtbl——编译器在其中寻找适当的函数指针。</p>
-<p>&emsp;&emsp;virtual函数的实现细节不重要。重要的是如果Point class内含virtual函数，其对象的体积会增加：在32-bit计算机体系结构中将占用64bits（为了存放两个ints）至96bits（两个ints加上vptr）；在64-bits计算机体系结构中可能占用64-128bits，因为指针在这样的计算机结构中占64bits。因此，为Point添加一个vptr会增加其对象大小达50%～100%！Point对象不再能够塞入一个64-bit缓存器，而C++的Point对象也不再和其他语言（如C）内的相同声明有着一样的结构（因为其他语言的对应物应该没有vptr），因此也就不再可能把它传递至（或接受自）其他语言所写的函数，除非我们明确补偿vptr——这属于实现细节，也因此不再具有移植性。</p>
-<p>&emsp;&emsp;因此，无端地将所有classes的析构函数声明为virtual，就像从未声明它们为virtual一样，都是错误的。许多人的心得是：只有当class内含至少一个virtual函数，才为它声明virtual析构函数。</p>
-<p>&emsp;&emsp;即使class完全不带virtual函数，被“non-virtual析构函数问题”给咬伤还是有可能的。举个例子，标准string不含任何virtual函数，但有时候程序员会错误地把它当作base class：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialString</span>:</span> <span class="keyword">public</span> <span class="built_in">std</span>::<span class="built_in">string</span> &#123;  <span class="comment">//馊主意！std::string有个</span></span><br><span class="line">    ...                                    <span class="comment">//non-virtual析构函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;乍看之下似乎无害，但如果我们在程序任意某处无意间将一个pointer-to-SpecialString转换为一个pointer-to-string，然后将转换的那个string指针delete掉，我们将立刻被流放到“行为不正确”的荒地上：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SpecialString* pss = <span class="keyword">new</span> SpecialString(<span class="string">"Impending Doom"</span>);</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* ps;</span><br><span class="line">...</span><br><span class="line">ps = pss;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> ps;  <span class="comment">//未定义！实际中的*ps的SpecialString资源会泄漏，</span></span><br><span class="line">            <span class="comment">//因为SpecialString析构函数没被调用。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;包括所有STL容器如vector，list，set，tr1::unordered_map等等，如果我们企图继承一个标准容器或任何其他“带有non-virtual析构函数”的class，拒绝这个诱惑吧！很不幸C++没有提供类似Java的final classes或C#的sealed classes那样的“禁止派生”机制。</p>
-<p>&emsp;&emsp;有时候令class带一个pure virtual析构函数，可能颇为便利。pure virtual函数导致abstract class——也就是不能被实体化的class。也就是说，我们不能为这种类型创建对象。然而有时候我们希望拥有抽象class，但手上没有任何pure virtual函数，怎么办？由于抽象class总是企图被当作一个base class来用，而又由于base class应该有个virtual析构函数，并且由于pure virtual函数会导致抽象class，因此解法很简单：为我们希望它成为抽象的那个class声明一个pure virtual析构函数。下面是个例子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AWOV</span> &#123;</span>  <span class="comment">//AWOV = "Abstract w/o to Virtuals"</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~AWOV() = <span class="number">0</span>;  <span class="comment">//声明pure virtual析构函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个class有一个pure virtual函数，所以它是个抽象class，又由于它有个virtual析构函数，所以我们不需要担心析构函数的问题，然而这里有个窍门：我们必须为这个pure virtual析构函数提供一份定义：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AWOV::~AWOV() &#123;&#125;  <span class="comment">//pure virtual析构函数的定义</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;析构函数的运作方式是，最深层派生的那个class其析构函数最先被调用，然后是其每一个base class的析构函数被调用。编译器会在AWOV的derived class的析构函数中创建一个对～AWOV的调用动作，所以我们必须为这个函数提供一份定义。如果不这样做，编译器会发出抱怨。</p>
-<p>&emsp;&emsp;“给base class一个virtual析构函数”，这个规则只适用于polymorphic（带有多态性质的）base class身上。这种base class的设计目的是为了用来“通过base class接口处理derived class对象”。TimeKeeper就是一个polymorphic base class，因为我们希望处理AtomicClock和WaterClock对象，纵使我们只有TimeKeeper指针指向它们。</p>
-<p>&emsp;&emsp;并非所有base class的设计目的都是为了多态用途。例如标准string和STL容器都不被设计作为base class使用，更别提多态了。某些class的设计目的是作为base class使用，但不是为了多态用途。这样的class如input_iterator_tag等，它们并非被设计用来“经由base class接口处理derived class对象”，因此它们不需要virtual析构函数。</p>
-<blockquote>
-<p>Polymorphic（带多态性质的）base class应该声明一个virtual析构函数。如果class带有任何virtual函数，它就应该拥有一个virtual析构函数。</p>
-<p>Class的设计目的如果不是作为base class使用，或不是为了具备多态性，就不该声明virtual析构函数。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/22/%E4%B8%BA%E5%A4%9A%E6%80%81%E5%9F%BA%E7%B1%BB%E5%A3%B0%E6%98%8Evirtual%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -579,7 +503,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:13:03" itemprop="dateModified" datetime="2020-07-30T09:13:03+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:32:38" itemprop="dateModified" datetime="2021-03-10T20:32:38+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -615,26 +539,14 @@
 
 <p>&emsp;&emsp;每一位真正的地产中介商都会说，任何一笔资产都是独一无二的，没有两笔完全相像。因此我们也认为，为HomeForSale对象做一份副本有点没道理。我们怎么可以复制某些先天独一无二的东西呢？因此，我们应该乐意看到HomeForSale的对象拷贝动作以失败收场：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HomeForSale h1;</span><br><span class="line">HomeForSale h2;</span><br><span class="line"><span class="function">HomeForSale <span class="title">h3</span><span class="params">(h1)</span></span>;  <span class="comment">//企图拷贝h1，不该通过编译</span></span><br><span class="line">h1 = h2;             <span class="comment">//企图拷贝h2，也不该通过编译</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;通常如果我们不希望class支持某一个特定功能，只要不声明对应函数就是了。但这个策略对copy构造函数和copy assignment操作符却不起作用，因为如果我们不声明它们，而某些人尝试调用它们，编译器会为我们声明它们。</p>
-<p>&emsp;&emsp;这使我们陷入了两难的境况。答案的关键是，所有编译器产出的函数都是public。为阻止这些函数被创建出来。我们得自行声明它们，但这里并没有什么需求使我们必须将它们声明为public。因此我们可以将copy构造函数或copy assignment操作符声明为private。明确声明一个成员函数，我们阻止了编译器暗自创建其专属版本；而令这些函数为private，使我们得以成功阻止人们调用它。</p>
-<p>&emsp;&emsp;一般而言这个做法并不绝对安全，因为member函数和friend函数还是可以调用我们的private函数。除非我们足够聪明，不去定义它们，那么如果某些人不慎调用任何一个，会获得一个连接错误（Linkage error）。“将成员函数声明为private而且故意不实现它们”这一技术是广受欢迎的，因而被用在C++ iostream程序库中阻止copy行为。没错，当我们看看手上的标准程序库实现代码中的ios_base，basic_ios和sentry。我们会发现无论哪一个，其copy构造函数和copy assignment操作符都被声明为private而且没有定义。</p>
-<p>&emsp;&emsp;将这个技巧用于HomeForSale也很简单：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    ...</span><br><span class="line">    HomeForSale(<span class="keyword">const</span> HomeForSale);  <span class="comment">//只有声明</span></span><br><span class="line">    HomeForSale&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> HomeForSale)&amp;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;或许你注意到了，我没有写函数参数的名称。其实，参数名称并非必要，只不过大家总是习惯写出来。这个函数毕竟不会被实现出来，也很少被使用，指定参数名称又有何用？</p>
-<p>&emsp;&emsp;有了上述class定义，当客户企图拷贝HomeForSale对象，编译器会阻挠他，如果我们不慎在member函数或friend函数之内那么做，就轮到连接器发出抱怨了。</p>
-<p>&emsp;&emsp;将连接期错误移至编译期是可能的（而且这是好事，毕竟越早侦测出错误越好），只要将copy构造函数和copy assignment操作符声明为private就可以办到，但不是在HomeForSale自身，而是在一个专门为了阻止copy动作而设计的base class内。这个base class非常简单：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Uncopyable</span> &#123;</span></span><br><span class="line"><span class="keyword">protected</span>:          <span class="comment">//允许derived对象构造和析构             </span></span><br><span class="line">    Uncopyable() &#123;&#125;</span><br><span class="line">    ~Uncopyable() &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Uncopyable(<span class="keyword">const</span> Uncopyable&amp;);  <span class="comment">//但阻止copy</span></span><br><span class="line">    Uncopyable&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Uncopyable&amp;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为求阻止HomeForSale对象被拷贝，我们唯一需要做的就是继承Uncopyable：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span>:</span> <span class="keyword">private</span> Uncopyable &#123;  <span class="comment">//不再声明</span></span><br><span class="line">    ...                                  <span class="comment">//copy构造函数或</span></span><br><span class="line">&#125;;                                       <span class="comment">//copy assignment操作符</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这是可行的，因为只要任何人——甚至是member函数或friend函数——尝试拷贝HomeForSale对象，编译器便试着生成一个copy构造函数和一个copy assignment操作符，这些函数的“编译器生成版”会尝试调用其base class的对应兄弟，那些调用会被编译器拒绝，因为其base class的拷贝函数是private。</p>
-<blockquote>
-<p>为驳回编译器自动提供的功能，可将相应的成员函数声明为private并且不予实现。使用像Uncopyable这样的base class也是一种做法。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/21/%E8%8B%A5%E4%B8%8D%E6%83%B3%E4%BD%BF%E7%94%A8%E7%BC%96%E8%AF%91%E5%99%A8%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E7%9A%84%E5%87%BD%E6%95%B0%E5%B0%B1%E8%AF%A5%E6%98%8E%E7%A1%AE%E6%8B%92%E7%BB%9D/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -684,7 +596,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:14:25" itemprop="dateModified" datetime="2020-07-30T09:14:25+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:29:56" itemprop="dateModified" datetime="2021-03-10T20:29:56+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -719,33 +631,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Empty</span> &#123;</span>&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>这就好像写下这样的代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Empty</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Empty() &#123; ... &#125;</span><br><span class="line">    Empty(<span class="keyword">const</span> Empty&amp; rhs) &#123; ... &#125;</span><br><span class="line">    ~Empty() &#123; ... &#125;</span><br><span class="line">    </span><br><span class="line">    Empty <span class="keyword">operator</span>=(<span class="keyword">const</span> Empty&amp; rhs) &#123; ... &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;只要当这些函数被需要（被调用）时，它们才会被编译器创建出来。程序中需要它们是很平常的事。下面代码造成上述每一个函数被编译器产出：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Empty e1;  <span class="comment">//default构造函数</span></span><br><span class="line">           <span class="comment">//析构函数</span></span><br><span class="line"><span class="function">Empty <span class="title">e2</span><span class="params">(e1)</span></span>;  <span class="comment">//copy构造函数</span></span><br><span class="line">e2 = e1;       <span class="comment">//copy assignment操作符</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;default构造函数和析构函数主要是给编译器一个地方用来放置“藏身幕后”的代码，像是调用base class和non-static成员变量的构造函数和析构函数。注意，编译器产出的析构函数是个non-virtual，除非这个class的base class自身声明有virtual析构函数（这种情况下这个函数的虚属性主要来自base class）。</p>
-<p>&emsp;&emsp;至于copy构造函数和copy assignment操作符，编译器创建的版本只是单纯地将来源对象的每一个non-static成员变量拷贝到目标对象。考虑一下代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NamedObject</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    NamedObject(<span class="keyword">const</span> <span class="keyword">char</span>* name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    NamedObject(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span>&amp; nameValue;</span><br><span class="line">    T objectValue;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;由于其中声明了一个构造函数，编译器于是不再为它创建default构造函数。</p>
-<p>&emsp;&emsp;NamedObject既没有声明copy构造函数，也没有声明copy assignment操作符，所以编译器会为它创建那些函数（如果它们被调用的话）。现在，看看copy构造函数的用法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">no1</span><span class="params">(<span class="string">"Smallest Prime Number"</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">no2</span><span class="params">(no1)</span></span>;  <span class="comment">//调用copy构造函数</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;编译器生成的copy构造函数必须以no1.nameValue和no1.objectValue为初值设定no2.nameValue和no2.objectValue。两者之中，nameValue的类型是string，而标准string有个copy构造函数，所以no2.nameValue的初始化方式是调用string的copy构造函数并以no1.nameValue为实参。另一个成员NamedObject&lt;int&gt;objectValue的类型是int，这是个内置类型，所以no2.objectValue会以“拷贝no1.objectValue内的每一个bits”来完成初始化。</p>
-<p>&emsp;&emsp;编译器为NamedObject&lt;int&gt;所生成的copy assignment操作符，其行为基本上与copy构造函数如出一辙，但一般而言只有当生成的代码合法且有适当机会证明它有意义，其表现才会如我先前所说。万一两个条件有一个不符合，编译器会拒绝为class生成operator=。</p>
-<p>&emsp;&emsp;举个例子，假设NameObject定义如下，其中nameValue是个reference to string，objectValue是个const T：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">NamedObject</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    NamedObject(<span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    ...</span><br><span class="line">   </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span>&amp; nameValue;</span><br><span class="line">    <span class="keyword">const</span> T objectValue;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在考虑下面会发生什么事：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">newDog</span><span class="params">(<span class="string">"Alice"</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">oldDog</span><span class="params">(<span class="string">"Bob"</span>)</span></span>;</span><br><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">p</span><span class="params">(newDog, <span class="number">2</span>)</span></span>;</span><br><span class="line"><span class="function">NamedObject&lt;<span class="keyword">int</span>&gt; <span class="title">s</span><span class="params">(oldDog, <span class="number">36</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">p = s;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;赋值之后p.nameValue应该指向s.nameValue所指的那个string吗？也就是说reference自身可被改动吗？如果可以，那可就不得了了，因为C+并不允许“让reference改指向不同对象”。换一个想法，p.nameValue所指的那个string对象该被修改，进而影响“持有pointers或references而且指向该string”的其它对象吗？也就是对象不被直接牵扯到赋值操作内？编译器生成的copy assignment操作符究竟该如何做呢？</p>
-<p>&emsp;&emsp;面对这个难题，C++的响应是拒绝编译那一行赋值动作。如果我们打算在一个“内含reference成员”的class内支持赋值操作，我们必须自己定义copy assignment操作符。面对“内含const成员”的classes，编译器的反应也一样。更改const成员是不合法的，所以编译器不知道如何在它自己生成的赋值函数内面对它们。最后还有一种情况：如果某个base class将copy assignment操作符声明为private，编译器将拒绝为其derived classes生成一个copy assignment操作符。毕竟编译器为derived classes所生成的copy assignment操作符想象中可以处理base class成分，但它们当然无法调用derived classes无权调用的成员函数。编译器两手一摊，无能为力。</p>
-<blockquote>
-<p>编译器可以暗自为class创建default构造函数、copy构造函数、copy assignment操作符，以及析构函数。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/20/%E4%BA%86%E8%A7%A3C++%E9%BB%98%E9%BB%98%E7%BC%96%E5%86%99%E5%B9%B6%E8%B0%83%E7%94%A8%E5%93%AA%E4%BA%9B%E5%87%BD%E6%95%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -795,7 +688,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:14:33" itemprop="dateModified" datetime="2020-07-30T09:14:33+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:31:46" itemprop="dateModified" datetime="2021-03-10T20:31:46+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -833,38 +726,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> x, y;</span><br><span class="line">&#125;;</span><br><span class="line">...</span><br><span class="line">Point p;</span><br></pre></td></tr></table></figure>
 
 <p>p的成员变量有时候被初始化（为0），有时候不会。</p>
-<p>&emsp;&emsp;通常如果我们使用C part of C++而且初始化可能导致运行期成本，那么就不保证发生初始化。一旦进入了non-C parts of C++，规则就会有些改变。这就很好的解释了为什么array（来自C part of C++）不保证其内容被初始化，而vector（来自STL parts of C++）却有此保证。</p>
-<p>&emsp;&emsp;表面上这似乎是个无法决定的状态，而最佳处理办法就是：永远在使用对象之前先讲它初始化。对于物任何成员的内置类型，我们必须手工完成此事。例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="built_in">text</span> = <span class="string">"A C-style string"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">double</span> d;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cin</span> &gt;&gt; d;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;至于内置类型以外的任何其他东西，初始化责任落在了构造函数身上。规则很简单：确保每一个构造函数都将对象的每一个成员初始化。</p>
-<p>&emsp;&emsp;这个规则很容易遵循，重要的事别混淆了赋值和初始化。考虑一个用来表现通讯簿的class，其构造函数如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneNumber</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ABEntry</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">            <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones);</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> theName;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> theAddress;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt; thePhones;</span><br><span class="line">    <span class="keyword">int</span> numTimesConsulted;</span><br><span class="line">&#125;;</span><br><span class="line">ABEntry::ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">                 <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones) &#123;</span><br><span class="line">    theName = name;  <span class="comment">//这些都是赋值而非初始化</span></span><br><span class="line">    theAddress = address;</span><br><span class="line">    thePhones = phones;</span><br><span class="line">    numTimesConsulted = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这会导致ABEntry对象带有我们期望的值，但不是最佳做法。C++规定，对象的成员变量的初始化动作发生在进入构造函数本体之前。在ABEntry构造函数内，theName，theAddress和thePhones都不是被初始化，而是被赋值。初始化的发生时间更早，发生于这些成员的default构造函数被自动调用之时。但这对numTimesConsulted却并非如此，因为它属于内置类型，不保证一定在我们所看到的那个赋值动作的时间点之前获得初值。</p>
-<p>&emsp;&emsp;ABEntry构造函数的一个较佳写法是，使用所谓的member initialization list（成员初值列）替换赋值动作：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ABEntry::ABEntry(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; address,</span><br><span class="line">                 <span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">list</span>&lt;PhoneNumber&gt;&amp; phones) </span><br><span class="line">    : theName(name),</span><br><span class="line">      theAddress(address),</span><br><span class="line">      thePhones(phones),</span><br><span class="line">      numTimesConsulted(<span class="number">0</span>)</span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个构造函数和上一个的最终结果相同，但通常效率较高。对于大多数类型而言，比起先调用default构造函数然后再调用copy assignment操作符，单只调用一次copy构造函数是比较高效的，有时甚至高效的多。对于内置对象如numTimesConsulted，其初始化和赋值的成本相同，但为了一致性最好也通过成员初值列来初始化。同样的道理，甚至当我们想要default构造一个成员变量，我们都可以用成员初值列，只要指定nothing作为初始化实参即可，假设ABEntry有一个无参数构造函数，我们可以将其实现为：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ABEntry::ABEntry() </span><br><span class="line">    : theName(),  <span class="comment">//调用theName的default构造函数</span></span><br><span class="line">      theAddress(),</span><br><span class="line">      thePhones(),</span><br><span class="line">      numTimesConsulted(<span class="number">0</span>)  <span class="comment">//记得将numTimesConsulted显式初始化为0</span></span><br><span class="line">&#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>由于编译器会为用户自定义类型的成员变量自动调用default构造函数——如果那些成员变量在“成员初值列”中没有被指定初值的话，因而引发某些程序员过度夸张地采用以上写法，这是可以理解的，但请立下一个规定，总是在初值列中列出所有成员变量，以免还得记住哪些成员变量可以无需初值。举个例子，由于numTimesConsulted属于内置类型，如果成员初值列遗漏了它，它就没有初值，因而可能造成严重的后果。</p>
-<p>&emsp;&emsp;有些情况下即使面对的成员变量属于内置类型（那么其初始化与赋值成本相同），也一定得使用初值列。没错，如果成员变量是const或reference，它们就一定需要初值，不能被赋值。为了避免需要记住成员变量何时必须在成员初值列中初始化，何时不需要，最简单的做法就是：总是使用成员初值列。这样做有时候绝对有必要，且往往比赋值更高效。</p>
-<p>&emsp;&emsp;许多classes拥有多个构造函数，每个构造函数有自己的成员初值列；如果这种clasees存在许多成员变量和／或base classes，多份成员初值列的存在就会导致不受欢迎的重复（在初值列内）和无聊的工作。这种情况下可以合理地在初值列中遗漏哪些“赋值表现像初始化一样好”的成员变量，改用它们的赋值操作，并将哪些赋值动作移往某个函数（通常是private），供所有构造函数调用。这种做法在“成员变量的初值是由文件或数据库读入”时特别有用。然而，比起经由赋值操作完成的“伪初始化”，通过成员初值列完成的“真正初始化”通常更加可取。</p>
-<p>&emsp;&emsp;C++有着十分固定的“成员初始化次序”。次序总是相同的：base classes更早于其derived classes被初始化，而class的成员变量总是以其声明次序被初始化。回头看看ABEntry，其theName成员永远最先被初始化，然后是theAddress，再来是thePhones，最后是numTimesConsulted。即使它们在成员初值列中以不同的次序出现（很不幸，这是合法的），也不会有任何影响。为避免我们或观看我们代码的人迷惑，当我们在编写成员初值列各个成员时，最好总是以其声明次序为次序。</p>
-<p>&emsp;&emsp;一旦我们已经很小心地将“内置型成员变量”明确地加以初始化，而且也确保我们的构造函数运用“成员初值列”初始化base classes和成员变量，那就只剩唯一一件事需要操心，那就是……呃……深呼吸……“不同编译单元内定义的non-local static对象”的初始化次序。</p>
-<p>&emsp;&emsp;让我们一点一点地深钻这一长串词组。</p>
-<p>&emsp;&emsp;所谓static对象，其寿命从被构造出来直到程序结束为止，因此stack和heap-base对象都被排除。这种对象包括global对象、定义于namespace作用域内的对象、在class内、在函数内、以及在file作用域内被声明为static的对象。函数内的static对象称为local static对象，其它static对象称为non-local static对象。程序结束时static对象会被自动销毁，也就是它们的析构函数会在main()结束时被自动调用。</p>
-<p>&emsp;&emsp;所谓编译单元是指产出单一目标文件的那些源码。基本上它是单一源码文件加上其所含入的头文件。</p>
-<p>&emsp;&emsp;现在，我们关心的问题涉及至少两个源码文件，每一个内含至少一个non-local static对象。真正的问题是：如果某编译单元内的某个non-local static对象的初始化动作使用了另一编译单元的某个non-local static对象，它所用到的这个对象可能尚未被初始化，因为C++对“定义于不同编译单元内的non-local static对象”的初始化次序并无明确定义。</p>
-<p>&emsp;&emsp;幸运的是一个小小的设计便可以完全消除这个问题。唯一需要做的是：将每个non-local static对象搬到自己的专属函数内（该对象在此函数内被声明为static）。这些函数返回一个reference指向它所含的对象。然后用户调用这些函数，而不直接指涉这些对象。换句话说，non-local static对象被local static对象替换了。Design Patterns迷哥迷妹们想必认出来了，这是Singleton模式的一个常见实现手法。</p>
-<p>&emsp;&emsp;这个手法的基础在于：C++保证，函数内的local static对象会在“该函数被调用期间”“首次遇上该对象的定义式”时被初始化。所以如果我们以“函数调用”（返回一个reference指向local static对象）替换“直接访问non-local static对象”，我们就获得了保证，保证我们所获的的那个reference将指向一个经历过初始化的对象。更棒的是，如果我们从未调用non-local static对象的“仿真函数”，就绝不会引发构造和析构成本：真正的non-local static对象可没这等便宜。</p>
-<blockquote>
-<p>为内置型对象进行手工初始化，因为C++不保证初始化它们。</p>
-<p>构造函数最好使用成员初值列，而不要在构造函数本体内使用赋值操作。初值列列出的成员变量，其排列次序应该和它们在class中的声明次序相同。</p>
-<p>为免除“跨编译单元的初始化次序”问题，以local static对象替换non-local static对象。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/19/%E7%A1%AE%E5%AE%9A%E5%AF%B9%E8%B1%A1%E8%A2%AB%E4%BD%BF%E7%94%A8%E5%89%8D%E5%B7%B2%E5%85%88%E8%A2%AB%E5%88%9D%E5%A7%8B%E5%8C%96/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -914,7 +783,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:15:35" itemprop="dateModified" datetime="2020-07-30T09:15:35+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:27:39" itemprop="dateModified" datetime="2021-03-10T20:27:39+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -947,68 +816,14 @@
           <hr>
 <h1 id="尽可能使用const"><a href="#尽可能使用const" class="headerlink" title="尽可能使用const"></a>尽可能使用const</h1><p>&emsp;&emsp;关键字const多才多艺。我们可以用它在classes外部修饰global或namespace作用域中的常量，或修饰文件、函数、或区块作用域中被声明为static的对象。我们也可以用它修饰classes内部的static和non-static成员变量。面对指针，我们也可以指出指针自身、指针所指物，或者两者都（或都不）是const：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> greeting[] = <span class="string">"Hello"</span>;</span><br><span class="line"><span class="keyword">char</span>* p = greeting;              <span class="comment">//non-const pointer,non-const data</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* p = greeting;        <span class="comment">//non-const pointer,const data</span></span><br><span class="line"><span class="keyword">char</span>* <span class="keyword">const</span> p = greeting;        <span class="comment">//const pointer,non-const data</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span> p = greeting;  <span class="comment">//const pointer,const data</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;STL迭代器是以指针为根据塑模出来的，所以迭代器的作用就像个T*指针。声明迭代器为const就像声明指针为const一样（即声明一个T&#42;const指针），表示这个迭代器不得指向不同的东西，但它所指的东西的值是可以改动的。如果我们希望迭代器所指的东西不可被改动，我们需要的是const_iterator：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::iterator iter = vec.<span class="built_in">begin</span>();</span><br><span class="line">*iter = <span class="number">10</span>;  <span class="comment">//没问题，改变iter所指物</span></span><br><span class="line">++iter;  <span class="comment">//错误！iter是const</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::const_iterator cIter = vec.<span class="built_in">begin</span>();</span><br><span class="line">*cIter = <span class="number">10</span>;  <span class="comment">//错误！*cIter是const</span></span><br><span class="line">++cIter;  <span class="comment">//没问题，改变cIter</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;const最具威力的用法是面对函数声明时的应用。在一个函数声明式内，const可以和函数返回值、各参数、函数自身（如果是成员函数）产生关联。</p>
-<p>&emsp;&emsp;令函数返回一个常量值，往往可以降低因客户错误而造成的意外，而又不至于放弃安全性和高效性。举个例子，考虑有理数的operator&#42;声明式：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rational</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="keyword">const</span> Rational <span class="keyword">operator</span>* (<span class="keyword">const</span> Rational&amp; lhs, <span class="keyword">const</span> Rational&amp; rhs);</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;许多程序员第一次看到这个声明时不免斜着眼睛说，为什么返回一个const对象？原因是如果不这样客户就能实现这样的暴行：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rational a, b, c;</span><br><span class="line">...</span><br><span class="line">(a * b) = c;  <span class="comment">//在a * b的结果上调用operator=</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我不知道为什么会有人想对两个数值的乘积再做一次赋值，也许只是因为单纯的打字错误：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(a * b = c) ...  <span class="comment">//其实是想做一个比较动作</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果a和b都是内置类型，这样的代码直截了当就是不合法。而一个良好的用户自定义类型的特征是它们避免无端地与内置类型不兼容，因此允许对两值乘积做赋值动作也就没什么意思了。将operator&#42;的回传值声明为const可以预防这个“没意思的赋值动作”，这就是该那么做的原因。</p>
-<p>​    &emsp;&emsp;至于const参数，没有什么特别的解释，它们不过就像是local const对象一样，我们应该在必要的时候使用它们。除非我们有改动参数或local对象，否则应该声明为const。只不过多打6个字符，却可以省下烦人的错误，像是“想要键入‘==’却意外键入‘=’”的错误。</p>
-<h2 id="const成员函数"><a href="#const成员函数" class="headerlink" title="const成员函数"></a>const成员函数</h2><p>&emsp;&emsp;将const用于成员函数的目的，是为了确认该成员函数可作用于const对象身上，这一类成员函数之所以重要，基于两个理由。第一，它们使class接口比较容易被理解。这是因为，得知哪个函数可以改动对象内容而哪个函数不行，非常重要。第二，它们使“操作const对象”成为可能。这是编写高效代码的关键所在，改善C++程序效率的一个根本办法是以pass by reference-to-const方式传递对象，而此技术可行的前提是，我们有const成员函数可用来处理取得（并经修饰而成）的const对象。</p>
-<p>&emsp;&emsp;许多人漠视一个事实：两个成员函数如果只是常量性不同，可以被重载。这是一个重要的C++特性。考虑以下class，用来表现大一块文字：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>:<span class="keyword">size_t</span> <span class="built_in">position</span>) <span class="keyword">const</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">text</span>[<span class="built_in">position</span>]; </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">text</span>[<span class="built_in">position</span>];</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> <span class="built_in">text</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>TextBlock的operator[]s可被这么使用：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">TextBlock <span class="title">tb</span><span class="params">(<span class="string">"Hello"</span>)</span></span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; tb[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">const</span> TextBlock <span class="title">ctb</span><span class="params">(<span class="string">"World"</span>)</span></span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ctb[<span class="number">0</span>];</span><br></pre></td></tr></table></figure>
-
-<p>顺带一提，真实程序中const对象大多用于passed by pointer-to-const或passed by reference-to-const的传递效果。上述的ctb例子太过造作，下面这个比较真实：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">const</span> TextBlock&amp; ctb)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; ctb[<span class="number">0</span>];</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;需要注意的是，non-const operator[]的返回类型是个reference to char，不是char。如果operator[]只是返回一个char，下面这样的句子就无法通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tb[<span class="number">0</span>] = <span class="string">'x'</span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这是因为，如果函数的返回类型是个内置类型，那么改动函数返回值从来就不合法。纵使合法，C++以by value返回对象这一事实意味着被改动的其实是tb.text[0]的一个副本，不是tb.text[0]自身，我们也不会想要这样愚蠢的行为。</p>
-<p>&emsp;&emsp;成员函数如果是const意味着什么？这里有两个流行的概念：bitwise constness（又称physical constness）和logical constness。</p>
-<p>&emsp;&emsp;bitwise const阵营的人相信，成员函数只有在不更改对象的任何成员变量（static除外）时才可以说是const。也就是说它不更改对象内的任何一个bit。这种论点的好处是很容易侦测违反点：编译器只需寻找成员变量的赋值动作即可。bitwise constess正是C++对常量性的定义，因此const成员函数不可以更改对象内任何non-static成员变量。</p>
-<p>&emsp;&emsp;不幸的是许多成员函数虽然不完全具备const性质却能通过bitwise测试。更具体地说，一个更改了“指针所指物”的成员函数虽然不能算是const，但如果只有指针（而非其所指物）隶属于对象，那么可以说此函数为bitwise const不会引起编译器的抗议。这导致反直观结果。假设我们有一个TextBlock-like class，它将数据存储为char&#42;而不是string，因为它需要和一个不认识string对象的C API沟通：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CTextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) <span class="keyword">const</span> &#123;  <span class="comment">//bitwise const声明</span></span><br><span class="line">        <span class="keyword">return</span> pText[<span class="built_in">position</span>];                     <span class="comment">//但其实不恰当。</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">char</span>* pText;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个class不适当地将其operator[]声明为const成员函数，而该函数却返回一个reference指向对象内部值。假设暂时不管这个事实，注意，operator[]实现代码并不更改pText。于是编译器很开心地为operator[]产出目标码。它是bitwise const，所有编译器都这么认定。但是我们来看下它会允许发生些什么事：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">const</span> CTextBlock <span class="title">cctb</span><span class="params">(<span class="string">"Hello"</span>)</span></span>;</span><br><span class="line"><span class="keyword">char</span>* pc = &amp;cctb[<span class="number">0</span>];</span><br><span class="line">*pc = <span class="string">'J'</span>;  <span class="comment">//现在cctb有了“Jello”这样的内容</span></span><br></pre></td></tr></table></figure>
-
-<p>这其中当然不该有任何错误：我们创建一个常量对象并设置某值，而且只对它调用const成员函数。但我们终究还是改变了它的值。</p>
-<p>&emsp;&emsp;这种情况引出了所谓的logical constness。这一派拥护者主张，一个const成员函数可以修改它所处理的对象内的某些bits，但只有在客户端侦测不出的情况下才得如此。例如我们的CTextBlock class有可能高速缓存文本区块的长度以便应付询问：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CTextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">length</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">char</span>* pText;</span><br><span class="line">    <span class="built_in">std</span>::<span class="keyword">size_t</span> textLength;</span><br><span class="line">    <span class="keyword">bool</span> lengthIsValid;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">CTextBlock::length</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!lengthIsValid) &#123;</span><br><span class="line">        textLength = <span class="built_in">std</span>::<span class="built_in">strlen</span>(pText);  <span class="comment">//错误！在const成员函数内不能赋值给</span></span><br><span class="line">        lengthIsValid = <span class="literal">true</span>;             <span class="comment">//textLength和lengthIsValid。</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> textLength;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;length的实现当然不是bitwise const，因为textLength和lengthIsValid都可能被修改。这两个数据被修改对const CTextBlock对象而言虽然可接受，但编译器不同意。它们坚持bitwise constness。怎么办？</p>
-<p>&emsp;&emsp;解决办法很简单：利用C++的一个与const相关的关键字：mutable。mutable释放掉non-static成员变量的bitwise constness约束：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CTextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">length</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">char</span>* pText;</span><br><span class="line">    <span class="keyword">mutable</span> <span class="built_in">std</span>::<span class="keyword">size_t</span> textLength;</span><br><span class="line">    <span class="keyword">mutable</span> <span class="keyword">bool</span> lengthIsValid;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">CTextBlock::length</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!lengthIsValid) &#123;</span><br><span class="line">        textLength = <span class="built_in">std</span>::<span class="built_in">strlen</span>(pText);  <span class="comment">//现在，可以这样</span></span><br><span class="line">        lengthIsValid = <span class="literal">true</span>;             <span class="comment">//这样也可以</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> textLength;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="在const和non-const成员函数中避免重复"><a href="#在const和non-const成员函数中避免重复" class="headerlink" title="在const和non-const成员函数中避免重复"></a>在const和non-const成员函数中避免重复</h2><p>&emsp;&emsp;对于“bitwise-constness非所我欲”的问题，mutable是个解决办法，但它不能解决所有的const相关难题。举个例子，假设TextBlock（和CTextBlock）内的operator[]不单只是返回一个reference指向字符，也执行边界检验、日志访问信息、甚至可能进行数据完善性检验。把所有这些同时放进const和non-const operator[]中，导致这样的怪物：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) <span class="keyword">const</span> &#123;</span><br><span class="line">        ...  <span class="comment">//边界检验</span></span><br><span class="line">        ...  <span class="comment">//日志数据访问</span></span><br><span class="line">        ...  <span class="comment">//检验数据完整性</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">text</span>[<span class="built_in">position</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) &#123;</span><br><span class="line">        ...  <span class="comment">//边界检验</span></span><br><span class="line">        ...  <span class="comment">//日志数据访问</span></span><br><span class="line">        ...  <span class="comment">//检验数据完整性</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">text</span>[<span class="built_in">position</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> <span class="built_in">text</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我们真正该做的是实现operator[]的功能一次并使用它两次。也就是说，我们必须令其中一个调用另一个。这促使我们将常量性消除。</p>
-<p>&emsp;&emsp;就一般守则而言，转型是一个糟糕的想法。然而代码重复也一样使我们恼火。这面是避免代码重复的安全做法的例子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextBlock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) <span class="keyword">const</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">        ...</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">text</span>[<span class="built_in">position</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">char</span>&amp; <span class="keyword">operator</span>[](<span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="built_in">position</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">const_cast</span>&lt;<span class="keyword">char</span>&amp;&gt;(</span><br><span class="line">            <span class="keyword">static_cast</span>&lt;<span class="keyword">const</span> TextBlock&amp;&gt;(*<span class="keyword">this</span>)[<span class="built_in">position</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;上述代码有两个转型动作。我们打算让non-const operator[]调用其const兄弟，但non-const operator[]内部若只是单纯调用operator[]，会递归调用自己。那大概会……唔……进行一百万次。为了避免无穷递归，我们必须明确指出调用的是const operator[]，但C++缺乏直接的语法可以那么做。因此这里将&#42;this从其原始类型TextBlock&amp;转型为const TextBlock&amp;。这里的两次转型，第一次使用来为&#42;this添加const（这使接下来调用operator[]时得以调用const版本），第二次则是从const operator[]的返回值中移除const。</p>
-<p>&emsp;&emsp;至于其他动作，由于本例调用的是操作符，所以语法有一点奇特，恐怕无法赢得选美大赛，但却有我们渴望的“避免代码重复”的效果，因为它运用const operator[]实现出non-const版本。为了达到这个目标而写出如此难看的语法是否值得，只能由自己来决定了。但“运用const成员函数实现出non-const孪生兄弟”的技术是值得了解到。</p>
-<p>&emsp;&emsp;更值得了解的是，反向做法——令const版本调用non-const版本以避免重复——这并不是我们该做的事。记住，const成员函数决不允许改变其对象的逻辑状态，non-const成员函数却没有这样的强制要求。如果在const函数内调用non-const函数，就会冒这样的风险：我们不想改变的那个对象被改动了。这就是为什么“const成员函数调用non-const成员函数”是一个错误行为：因为对象有可能因此被改动。实际上若要这样的代码通过编译，我们必须使用一个const_cast将&#42;this身上的const性质解放掉，这是乌云罩顶掉前兆。之前的调用才是安全的：non-const成员函数本来就可以对其对象做任何操作，所以在其中调用一个const成员函数并不会带来风险。</p>
-<blockquote>
-<p>将某些东西声明为const可帮助编译器侦测出错误用法。const可被施加于任何作用域内的对象、函数参数、函数返回类型、成员函数本体。</p>
-<p>编译器强制实施bitwise constness，但我们编写程序时应该使用“概念上的常量性”。</p>
-<p>当const和non-const成员函数有着实质等价的实现时，令non-const版本调用const版本可避免代码重复。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/18/%E5%B0%BD%E5%8F%AF%E8%83%BD%E4%BD%BF%E7%94%A8const/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1058,7 +873,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-01 08:03:06" itemprop="dateModified" datetime="2020-08-01T08:03:06+08:00">2020-08-01</time>
+                <time title="Modified: 2021-03-10 20:28:15" itemprop="dateModified" datetime="2021-03-10T20:28:15+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1092,49 +907,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASPECT_RATIO 1.653</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;记号名称ASPECT_RATIO也许从未被编译器看见；也许在编译器开始处理源代码之前它就被预处理器移走了。于是记号名称ASPECT_RATIO有可能没进入记号表内。于是当我们运行此常量但获得一个编译错误信息时，可能会带来困惑，因为这个错误信息也许会提到1.653而不是ASPECT_RATIO。如果ASPECT_RATIO被定义在一个非我们所写的头文件内，我们肯定对1.653以及它来自何处毫无概念，于是我们将因为追踪它而浪费时间。这个问题也可能出现在记号式调试器中，原因相同：我们所使用的名称可能并未进入记号表。</p>
-<p>&emsp;&emsp;解决之道是以一个常量替换上述的宏：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> AspectRatio = <span class="number">1.653</span>;  <span class="comment">//大写名称通常用于宏</span></span><br><span class="line">                                   <span class="comment">//因此这里改变名称写法</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;作为一个语言常量，AspectRatio肯定会被编译器看到，当然就会进入记号表内。此外对浮点常量而言，使用常量可能比使用#define导致较小量的码，因为预处理器“盲目地将宏名称ASPECT_RATIO替换为1.653”可能导致目标码出现多份1.653，若改用常量AspectRatio绝不会出现相同情况。</p>
-<p>&emsp;&emsp;当我们以常量替换#define，有两种特殊情况值得说说。第一是定义常量指针。由于常量定义式通常被放在头文件内（以便被不同的源码含入），因此有必要将指针声明为const。例如若要在头文件内定义一个常量char*-based字符串，我们必须写const两次：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span> authorName = <span class="string">"Guan Zhe"</span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;关于const的意义和使用（特别是当它与指针结合时），之后有完整的讨论。这里这里值得提醒的是，string对象通常比其前辈char*-based合宜，所以上述的authorName往往定义成这样更好些：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="built_in">std</span>:<span class="function"><span class="built_in">string</span> <span class="title">authorName</span><span class="params">(<span class="string">"Guan Zhe"</span>)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;第二个值得注意的是class专属常量。为了将常量的作用域限制于class内，你必须让它成为class的一个成员；而为确保此常量至多只有一份实体，我们必须让它成为一个static成员：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GamePlayer</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> NumTurns = <span class="number">5</span>;  <span class="comment">//常量声明式  </span></span><br><span class="line">    <span class="keyword">int</span> scores[NumTurns];           <span class="comment">//使用该常量</span></span><br><span class="line">...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;然而我们所看到的是NumTurns的声明式而非定义式。通常C++要求我们对我们所使用的任何东西提供一个定义式，但如果它是个class专属常量又是static且为整数类型，则需特殊处理。只要不取它们的地址，我们可以声明并使用它们而无须提供定义式。但如果我们取某个class专属常量的地址，或纵使我们不取其地址而我们的编译器却（不正确地）坚持要看到一个定义式，我们就必须另外提供定义式如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> GamePlayer::NumTurns;  <span class="comment">//NumTurns的定义</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;请把这个式子放进一个实现文件而非头文件。由于class常量已在声明时获得初值，因此定义时不可以再设初值。</p>
-<p>&emsp;&emsp;顺带一提，请注意，我们无法利用#define创建一个class专属常量，因为#define并不重视作用域。一旦宏被定义，它就在其后的编译过程中有效（除非在某处被#undef）。这意味着#defines不仅不能够用来定义class专属常量，也不能够提供任何封装性，也就是说没有所谓private #define这样的东西。而当然const成员变量是可以被封装的，NumTurns就是。</p>
-<p>&emsp;&emsp;旧式编译器也许不支持上述语法，它们不允许static成员在其声明式上获得初值。此外所谓的“in-class初值设定“也只允许对整数常量进行。如果我们的编译器不支持上述语法，则可以将初值放在定义时：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CostEstimate</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">double</span> FudgeFactor;  <span class="comment">//static class常量声明，位于头文件</span></span><br><span class="line">&#125;；</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> CostEstimate::FudgeFactor = <span class="number">1.35</span>;  <span class="comment">//static class常量定义，位于实现文件内</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这几乎是我们在任何时候唯一需要做的事。唯一例外是当我们在class编译期间需要一个class常量值，例如在上述的GamePlayer::scores的数组声明式中（编译器坚持必须在编译期间之道数组的大小）。这时候万一我们的编译器（错误地）不允许“static整数型class常量”完成“in class初值设定”，可改用所谓的“the enum hack”补偿做法。其理论基础是：“一个属于枚举类型的数值可当ints被使用，于是GamePlayer可定义如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GamePlayer</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">enum</span> &#123; NumTurns = <span class="number">5</span> &#125;;  <span class="comment">//"the enum hack"令NumTurns成为5的一个记号名称</span></span><br><span class="line">    <span class="keyword">int</span> scores[NumTurns];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;基于数个理由enum hack值得我们认识。第一，enum hack的行为某方面说比较像#define而不像const，有时候这正是我们想要的。例如取一个const的地址是合法的，但取一个enum的地址就不合法，而取一个#define的地址通常也不合法。如果我们不想让别人获得一个pointer或reference指向我们的某个整数常量，enum可以帮助我们实现这个约束。此外虽然优秀的编译器不会为“整数型const对象”设定另外的存储空间（除非我们创建一个pointer或reference指向该对象），不够优秀的编译器却可能如此，而这可能不是我们想要的。Enum和#define一样绝不会导致非必要的内存分配。</p>
-<p>&emsp;&emsp;认识enum hack的第二个理由纯粹是为了实用主义。许多代码用了它。事实上“enum hack”是template metaprogramming的基础技术。</p>
-<p>&emsp;&emsp;把焦点拉回预处理器。另一个常见的#define误用情况是以它实现宏（macros）。宏看起来像函数，但不会导致函数调用带来的额外开销。下面这个宏家呆着宏实参，调用函数f：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以a和b的较大值调用f</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CALL_WITH_MAX(a,b) f((a) &gt; (b) ? (a) : (b))</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这般长相的宏有着太多缺点，光是想到它们就让人痛苦不堪。</p>
-<p>&emsp;&emsp;无论何时当我们写出这种宏，我们必须记住为宏中的所有实参加上小括号，否则某些人在表达式中调用这个宏时可能会遭遇麻烦。但纵使我们为所有实参加上小括号，看看下面不可思议的事情：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">1</span>, b = <span class="number">0</span>;</span><br><span class="line">CALL_WITH_MAX(++a,b);     <span class="comment">//a被累加两次</span></span><br><span class="line">CALL_WITH_MAX(++a,b+<span class="number">10</span>);  <span class="comment">//a被累加一次</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;幸运的是我们可以避免这种无聊的事情发生。我们可以获得宏带来的效率以及一般函数的所有可预料行为和类型安全——只要我们写出template inline函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">callWithMax</span><span class="params">(<span class="keyword">const</span> T&amp; a, <span class="keyword">const</span> T&amp; b)</span> </span>&#123;</span><br><span class="line">    f(a &gt; b ? a : b);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个template产出一个组函数，每个函数都接受两个同型对象，并以其中较大者调用f。此外这里的callWithMax是个真正的函数，它遵循作用域和访问规则。例如我们绝对可以写出一个“class内的private inline函数”。一般而言宏无法完成此事。</p>
-<p>&emsp;&emsp;有了consts、enums和inlines，我们对于预处理器的需求降低了，但并非完全消除。#include仍然是必需品，而#ifdef／#ifndef也继续扮演着控制编译的重要角色。</p>
-<blockquote>
-<p>对于单纯变量，最好以const对象或enum替换#define。</p>
-<p>对于形似函数的宏，最好改用inline函数替换#define。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1184,7 +964,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-01 08:03:01" itemprop="dateModified" datetime="2020-08-01T08:03:01+08:00">2020-08-01</time>
+                <time title="Modified: 2021-03-10 20:33:41" itemprop="dateModified" datetime="2021-03-10T20:33:41+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1217,15 +997,14 @@
           <h1 id="视C-为一个语言联邦"><a href="#视C-为一个语言联邦" class="headerlink" title="视C++为一个语言联邦"></a>视C++为一个语言联邦</h1><p>&emsp;&emsp;一开始，C++只是C加上一些面向对象特性。C++最初的名称C with Classes也反映了这个血缘关系。</p>
 <p>&emsp;&emsp;但是当这个语言逐渐成熟，它变得更活跃更无拘束，更大胆更冒险，开始接受不同于C with Classes的各种观念、特性和编程战略。Exception（异常）对函数的结构化带来不同的做法，templates（模板）将带来新的设计思考方式，STL则定义了一个全新的伸展性做法。</p>
 <p>&emsp;&emsp;今天的C++已经是一个多重范型编程语言，一个同时支持过程形式、面向对象形式、函数形式、泛型形式、元编程形式的语言。那么该如何理解这样的一个语言呢?</p>
-<p>&emsp;&emsp;最简单的方法是将C++视为一个由相关语言组成的联邦而非单一语言。在其某个次语言中，各种守则与通例都倾向简单、直观易懂、并且容易记住。然而从一个次语言移往另一个次语言，守则可能改变。所幸的是C++的次语言总共只有四个：</p>
-<ul>
-<li>C。说到底C++仍是以C为基础。区块、语句、预处理器、内置数据类型、数组、指针等统统来自C。许多时候C++对问题的解法其实不过就是较高级的C解法。</li>
-<li>Object-Oriented C++。这部分也就是C with Classes所诉求的：classes（包括构造函数和析构函数），封装、继承、多态、virtual函数（动态绑定）……等等。这一部分是面向对象设计之古典守则在C++上的最直接实施。</li>
-<li>Template C++。这是C++的泛型编程部分，也是大多数程序员经验最少的部分（C++程序员）。实际上由于templates威力强大，它带来了崭新的编程范式，也就是所谓的templates metaprogramming（TMP，模板元编程）。</li>
-<li>STL。STL是个tamplate程序库。它对容器、迭代器、算法以及函数对象的规约有极佳的紧密配合与协调。</li>
-</ul>
-<p>&emsp;&emsp;当我们从一个次语言切换到另一个，需要改变策略。例如对内置（也就是C-like）类型而言pass-by-value通常比pass-by-reference高效，但当我们从C part of C++移往Object-Oriented C++，由于用户自定义构造函数和析构函数的存在，pass-by-reference-to-const往往更好。然而一旦跨入STL就会了解，迭代器和函数对象都是在C指针之上塑造出来的，所以对STL的迭代器和函数对象而言，旧式的C pass-by-value守则在此之前适用。</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/17/%E8%A7%86C++%E4%B8%BA%E4%B8%80%E4%B8%AA%E8%AF%AD%E8%A8%80%E8%81%94%E9%82%A6/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1316,7 +1095,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

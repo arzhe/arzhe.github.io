@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="明智而审慎地使用多重继承&amp;emsp;&amp;emsp;一旦涉及多重继承（MI），C++社群便分为两个基本阵营。其中之一认为如果单一继承（SI）是好的，多重继承一定更好。另一派阵营则主张，单一继承是好的，但多重继承不值得拥有（或使用）。本条款的主要目的是带领大家了解多重继承的两个观点。 &amp;emsp;&amp;emsp;最先需要认清的一件事是，当MI进入设计景框，程序有可能从一个以上的base class继承相同">
 <meta property="article:published_time" content="2020-11-13T04:07:00.000Z">
-<meta property="article:modified_time" content="2020-11-13T14:53:02.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:30:40.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -228,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-11-13 12:07:00 / Modified: 22:53:02" itemprop="dateCreated datePublished" datetime="2020-11-13T12:07:00+08:00">2020-11-13</time>
+              <time title="Created: 2020-11-13 12:07:00" itemprop="dateCreated datePublished" datetime="2020-11-13T12:07:00+08:00">2020-11-13</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:30:40" itemprop="dateModified" datetime="2021-03-10T20:30:40+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -263,6 +269,8 @@
         <hr>
 <h1 id="明智而审慎地使用多重继承"><a href="#明智而审慎地使用多重继承" class="headerlink" title="明智而审慎地使用多重继承"></a>明智而审慎地使用多重继承</h1><p>&emsp;&emsp;一旦涉及多重继承（MI），C++社群便分为两个基本阵营。其中之一认为如果单一继承（SI）是好的，多重继承一定更好。另一派阵营则主张，单一继承是好的，但多重继承不值得拥有（或使用）。本条款的主要目的是带领大家了解多重继承的两个观点。</p>
 <p>&emsp;&emsp;最先需要认清的一件事是，当MI进入设计景框，程序有可能从一个以上的base class继承相同名称（如函数、typedef等等）。那会导致较多的歧义机会。例如：</p>
+<a id="more"></a>
+
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BorrowableItem</span> &#123;</span>    <span class="comment">//图书馆允许你借某些东西</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">checkOut</span><span class="params">()</span></span>;  <span class="comment">//离开时进行检查</span></span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ElectronicGadget</span> &#123;</span></span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="function"><span class="keyword">bool</span> <span class="title">checkOut</span><span class="params">()</span> <span class="keyword">const</span></span>;  <span class="comment">//执行自我检测，返回是否测试成功</span></span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MP3Player</span> :</span> </span><br><span class="line">    <span class="keyword">public</span> BorrowableItem,</span><br><span class="line">    <span class="keyword">public</span> ElectronicGadget &#123; ... &#125;;</span><br><span class="line"></span><br><span class="line">MP3Player mp;</span><br><span class="line">mp.checkOut();  <span class="comment">//歧义！调用的是哪个checkOut？</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;注意此例之中对checkOut的调用是歧义（模棱两可）的，即使两个函数之中只有一个可取用（BorrowableItem内的checkOut是public，ElectronicGadget内的却是private）。这与C++用来解析重载函数调用的规则相符：在看到是否有个函数可取用之前，C++首先确认这个函数对此调用之言是最佳匹配。找出最佳匹配函数后才检验其可取用性。本例的两个checkOut有相同的匹配程度，没有所谓最佳匹配。因此ElectronicGadget::checkOut的可取用性也就从未被编译器审查。</p>
@@ -438,7 +446,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

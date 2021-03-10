@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="成对使用new和delete时要采取相同形式&amp;emsp;&amp;emsp;以下动作有什么错？ 123std::string* stringArray &#x3D; new std::string[100];...delete stringArray;  &amp;emsp;&amp;emsp;每件事看起来都井然有序。使用了new，也搭配了对应的delete。但还是有某样东西完全错误：我们的程序未定义。stringArray所含">
 <meta property="article:published_time" content="2020-07-30T01:01:00.000Z">
-<meta property="article:modified_time" content="2020-07-30T04:09:58.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:26:13.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -228,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-30 09:01:00 / Modified: 12:09:58" itemprop="dateCreated datePublished" datetime="2020-07-30T09:01:00+08:00">2020-07-30</time>
+              <time title="Created: 2020-07-30 09:01:00" itemprop="dateCreated datePublished" datetime="2020-07-30T09:01:00+08:00">2020-07-30</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:26:13" itemprop="dateModified" datetime="2021-03-10T20:26:13+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -265,6 +271,8 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* stringArray = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>[<span class="number">100</span>];</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> stringArray;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;每件事看起来都井然有序。使用了new，也搭配了对应的delete。但还是有某样东西完全错误：我们的程序未定义。stringArray所含的100个string对象中的99个不太可能被适当删除，因为它们的析构函数很可能没被调用。</p>
+<a id="more"></a>
+
 <p>&emsp;&emsp;当我们使用new（也就是通过new动态生成一个对象），有两件事发生。第一，内存被分配出来（通过名为operator new的函数）。第二，针对此内存会有一个（或更多）构造函数被调用。当我们使用delete，也会有两件事发生：针对此内存会有一个（或更多）析构函数被调用，然后内存才被释放（通过名为operator delete的函数）。delete的最大问题在于：即将被删除的内存之内究竟存有多少对象？这个问题的答案决定了有多少个析构函数必须被调用起来。</p>
 <p>&emsp;&emsp;实际上这个问题可以更简单些：即将被删除的那个指针，所指的是单一对象或对象数组？这是个必不可缺的问题，因为单一对象的内存布局一般而言不同于数组的内存布局。更明确地说，数组所用的内存通常还包括“数组大小”的纪录，以便delete知道需要调用多少次析构函数。单一对象的内存则没有这笔纪录。</p>
 <p>&emsp;&emsp;当我们对着一个指针使用delete，唯一能够让delete知道内存中是否存在一个“数组大小纪录”的办法就是：由我们来告诉它。如果我们使用delete时加上方括号，delete便认定指针指向一个数组，否则它便认定指针指向单一对象：</p>
@@ -408,7 +416,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

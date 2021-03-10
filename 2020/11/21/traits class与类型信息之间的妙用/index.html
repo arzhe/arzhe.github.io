@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="traits class与类型信息之间的妙用&amp;emsp;&amp;emsp;STL主要由“用以表现容器、迭代器和算法”的template构成，但也覆盖若干工具性template，其中一个名为advance，用来将某个迭代器移动某个给定距离： 12template &lt;typename IterT, typename DistT&gt;void advance(IterT&amp; iter, Dis">
 <meta property="article:published_time" content="2020-11-21T08:17:00.000Z">
-<meta property="article:modified_time" content="2020-11-21T13:39:08.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:36:45.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -228,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-11-21 16:17:00 / Modified: 21:39:08" itemprop="dateCreated datePublished" datetime="2020-11-21T16:17:00+08:00">2020-11-21</time>
+              <time title="Created: 2020-11-21 16:17:00" itemprop="dateCreated datePublished" datetime="2020-11-21T16:17:00+08:00">2020-11-21</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:36:45" itemprop="dateModified" datetime="2021-03-10T20:36:45+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -265,6 +271,8 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT, <span class="keyword">typename</span> DistT&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">advance</span><span class="params">(IterT&amp; iter, DistT d)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;看起来advance做了iter+=d的动作，但是只有random access（随机访问）迭代器才支持+=操作。面对其他威力不是那么强大的迭代器种类，advance必须反复执行++或–，共d次。</p>
+<a id="more"></a>
+
 <p>&emsp;&emsp;简单回顾一下，STL一共有5种迭代器种类，对应于它们支持的操作。Input迭代器只能向前移动，一次一步，客户只可读取（不能写）它们所指的东西，而且只能读取一次。Output迭代器情况类似，只能向前移动，一次一步，客户只可写它们所指的东西，而且只能写一次。Forward迭代器威力就要强大的多了。这种迭代器可以做前述两种分类所能做的每一件事，而且可以读或写其所指物一次以上。Bidrectional迭代器比上一个分类威力更大。它除了可以向前移动还可以向后移动。最有威力的迭代器当属Random access迭代器。这种迭代器可以执行“迭代器算术”，也就是它可以在常量时间内向前或向后跳跃任意距离，因为random access迭代器正是以内置（原始）指针为榜样，而内置指针也可被当作random access迭代器使用。vector，deque和string提供的迭代器都是这一分类。</p>
 <p>&emsp;&emsp;对于这5种分类，C++标准库分别提供专属的卷标（tag struct）加以确认：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">input_iterator_tag</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">output_iterator_tag</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">forward_iterator_tag</span> :</span> <span class="keyword">public</span> input_iterator_tag &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bidrectional_iterator_tag</span> :</span> <span class="keyword">public</span> forward_iterator_tag &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">random_access_iterator_tag</span> :</span> <span class="keyword">public</span> bidrectional_iterator_tag &#123;&#125;;</span><br></pre></td></tr></table></figure>
@@ -447,7 +455,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

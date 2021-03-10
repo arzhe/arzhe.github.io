@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="剔除template内与参数无关的代码&amp;emsp;&amp;emsp;使用template可以有效地避免代码重复。有时候你会需求10个类，每一个都含有100个成员函数（当然啦，这里稍微有点夸张）。那么在此情况下，你只需要编写一个class template，然后剩下的事情就交给编译器去吧，由编译器来具现化这10个类跟1000个成员函数。由于class template的成员函数只有在被使用时才会被具现化">
 <meta property="article:published_time" content="2020-11-16T14:24:00.000Z">
-<meta property="article:modified_time" content="2020-11-17T15:08:31.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:33:53.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-17 23:08:31" itemprop="dateModified" datetime="2020-11-17T23:08:31+08:00">2020-11-17</time>
+                <time title="Modified: 2021-03-10 20:33:53" itemprop="dateModified" datetime="2021-03-10T20:33:53+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -268,6 +268,8 @@
       
         <hr>
 <h1 id="剔除template内与参数无关的代码"><a href="#剔除template内与参数无关的代码" class="headerlink" title="剔除template内与参数无关的代码"></a>剔除template内与参数无关的代码</h1><p>&emsp;&emsp;使用template可以有效地避免代码重复。有时候你会需求10个类，每一个都含有100个成员函数（当然啦，这里稍微有点夸张）。那么在此情况下，你只需要编写一个class template，然后剩下的事情就交给编译器去吧，由编译器来具现化这10个类跟1000个成员函数。由于class template的成员函数只有在被使用时才会被具现化，因此只有当某些函数被真正使用时，你才会获得这些函数。同样的，function template也有此类功能。为了避免写出大量重复函数代码，你只需要写一个function template，然后让编译器去完成剩下的事情就够了。看来“懒惰”才是推进人类技术进步的关键。</p>
+<a id="more"></a>
+
 <p>&emsp;&emsp;但是，如果你的经验不够老道，使用template也可能会导致代码膨胀：其二进制码会带着重复的代码、数据，或两者都有。其结果就是：有可能看起来源码倒是挺干净整齐的，但目标码却不是这样的。所以你需要知道如何避免这样的二进制码臃肿。</p>
 <p>&emsp;&emsp;这里要提到一个名称：commonality and variability analysis。翻译过来就是共性与变性分析，即使你从来没有写过template，你也应该熟悉这个分析方式。</p>
 <p>&emsp;&emsp;比如，当你编写某个函数时，你会发现其中一个函数的某些实现码与另一个函数的实现码实质上是一样的。当然，一般来说我们不会去单纯地去重复这些代码，除非你是一个懒惰且不求甚解的程序员。为了避免这种情况，你一般会抽出这两个函数共同的部分，把它们放到第三个函数中，然后令原先两个函数调用这个函数。所谓“共性与变性分析”也就是：你分析这两个函数，找出它们共同的部分和变化的部分，把共同的部分搬到一个新函数去，保留变化的部分在原函数中不动。同样的道理，对于class来说，假设你正在编写2个class，而你需要将其中一个class与另外一个class共同的部分搬到一个新的class去，然后使用继承或复合，令原先的class取得这个共同特性。而原class的互异部分依然保留在原来的位置。</p>
@@ -433,7 +435,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

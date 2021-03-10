@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="尽量少做转型动作&amp;emsp;&amp;emsp;C++规则的设计目标之一是，保证“类型错误”绝不可能发生。理论上如果你的程序很“干净地”通过编译，就表示它并不企图在任何对象身上执行任何不安全、无意义、愚蠢荒谬的操作。这是个极具价值的保证，可别草率地放弃它。 &amp;emsp;&amp;emsp;不幸的是，转型破坏了类型系统。那可能导致任何种类的麻烦，有些容易辨识，有些非常隐晦。如果你来自C，Java或C#阵营，请特别">
 <meta property="article:published_time" content="2020-08-08T02:24:00.000Z">
-<meta property="article:modified_time" content="2020-08-09T11:56:43.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:27:51.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-08-09 19:56:43" itemprop="dateModified" datetime="2020-08-09T19:56:43+08:00">2020-08-09</time>
+                <time title="Modified: 2021-03-10 20:27:51" itemprop="dateModified" datetime="2021-03-10T20:27:51+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -269,6 +269,8 @@
         <hr>
 <h1 id="尽量少做转型动作"><a href="#尽量少做转型动作" class="headerlink" title="尽量少做转型动作"></a>尽量少做转型动作</h1><p>&emsp;&emsp;C++规则的设计目标之一是，保证“类型错误”绝不可能发生。理论上如果你的程序很“干净地”通过编译，就表示它并不企图在任何对象身上执行任何不安全、无意义、愚蠢荒谬的操作。这是个极具价值的保证，可别草率地放弃它。</p>
 <p>&emsp;&emsp;不幸的是，转型破坏了类型系统。那可能导致任何种类的麻烦，有些容易辨识，有些非常隐晦。如果你来自C，Java或C#阵营，请特别注意，因为那些语言中的转型比较必要而无法避免，也比较不危险（与C++相较）。但C++不是C，也不是Java或C#。在C++中转型是一个你会想带着极大尊重去亲近的一个特性。</p>
+<a id="more"></a>
+
 <p>&emsp;&emsp;让我们首先回顾转型语法，因为通常有三种不同的形式，可写出相同的转型动作。C风格的转型动作看起来像这样：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(T)expression  <span class="comment">//将expression转型为T</span></span><br></pre></td></tr></table></figure>
 
@@ -456,7 +458,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

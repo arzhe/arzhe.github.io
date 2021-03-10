@@ -225,10 +225,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-08-01 08:01:00 / Modified: 15:36:45" itemprop="dateCreated datePublished" datetime="2020-08-01T08:01:00+08:00">2020-08-01</time>
+              <time title="Created: 2020-08-01 08:01:00" itemprop="dateCreated datePublished" datetime="2020-08-01T08:01:00+08:00">2020-08-01</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:33:19" itemprop="dateModified" datetime="2021-03-10T20:33:19+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -260,26 +266,15 @@
           <hr>
 <h1 id="设计class犹如设计type"><a href="#设计class犹如设计type" class="headerlink" title="设计class犹如设计type"></a>设计class犹如设计type</h1><p>&emsp;&emsp;C++就像在其它OOP语言一样，当我们定义一个新class，也就定义了一个新type。身为C++程序员，我们的许多时间主要用来扩张我们的类型系统。这意味着我们并不只是class设计者，还是type设计者。</p>
 <p>&emsp;&emsp;设计优秀的class是一项艰巨的工作，因为设计好的type是一项艰巨的工作。好的type有自然的语法，直观的语义，以及一或多个高效实现品。在C++中，一个不良规划下的class定义恐怕无法达到上述任何一个目标。</p>
-<p>&emsp;&esmp;那么，如何设计高效的class呢？几乎每个class都要求我们面对以下提问，而我们的回答往往导致我们的设计规范：</p>
-<ul>
-<li><strong>新type的对象应该如何被创建和销毁？</strong>这会影响到我们的class的构造函数和析构函数以及内存分配函数和释放函数的设计，当然前提是如果我们打算编写它们。</li>
-<li><strong>对象的初始化和对象的赋值该有什么样的差别？</strong>这个答案决定我们的构造函数和赋值操作符的行为，以及其间的差异。重要的是别混淆了“初始化”和赋值“，因为它们对应不同的函数调用。</li>
-<li><strong>新type的对象如果被passed by value，意味着什么？</strong>记住，copy构造函数用来定义一个type的pass-by-value该如何实现。</li>
-<li><strong>什么是新type的“合法值”？</strong>对class的成员变量而言，通常只有某些数值集是有效的，那些数值集决定了我们的class必须维护的约束条件，也就决定了我们的成员函数（特别是构造函数、赋值操作符和所谓“setter”函数）必须进行的错误检查工作，它也影响函数抛出的异常。</li>
-<li><strong>你的新type需要配合某个继承图系吗？</strong>如果我们继承自某些既有的class，我们就受那些class的设计的束缚，特别是受到”它们的函数是virtual或non-virtual“的影响。如果我们允许其它class继承我们的class，这会影响我们所声明的函数——尤其是析构函数——是否为virtual。</li>
-<li><strong>你的新type需要什么样的转化？</strong>如果希望允许类型T1之物被隐式转换为类型T2之物，就必须在class T1内写一个类型转换函数（operator T2）或在class T2内写一个non-explicit-one-argument（可被单一实参调用）的构造函数。如果我们只允许explicit构造函数存在，就得写出专门负责执行转换的函数，且不得为类型转换操作符或non-explicit-one-argument构造函数。</li>
-<li><strong>什么样的操作符和函数对此新type而言是合理的？</strong>这个问题的答案决定你将为你的class声明哪些函数。其中某些该是member函数，某些则否。</li>
-<li><strong>什么样的标准函数应该驳回？</strong>那些正是你必须声明为private者。</li>
-<li><strong>谁该取用新type的成员？</strong>这个提问可以帮助你决定哪个成员为public，哪个为protected，哪个为private。它也帮助你决定哪一个class或function应该是friend，以及将它们嵌套于另一个之内是否合理。</li>
-<li><strong>什么是新type的“未声明接口”？</strong>它对效率、异常安全性以及资源运用提供何种保证？你在这些方面提供的保证将为你的class实现代码加上相应的约束条件。</li>
-<li><strong>你的新type有多么一般化？</strong>或许你其实并非定义一个新type，而是定义一整个type家族。果真如此你就不该定义一个新class，而是定义一个新的class template。</li>
-<li><strong>你真的需要一个新type吗？</strong>如果只是定义新的derived class以便为既有的class添加机能，那么说不定单纯定义一个或多个non-member函数或template，更能够达到目标。</li>
-</ul>
-<p>&emsp;&emsp;这些问题不容易回答，所以定义出高效的class是一种挑战。然而如果能够设计出至少像C++内置类型一样好的用户自定义class，一切汗水便都值得。</p>
-<blockquote>
-<p>class的设计就是type的设计。在定义一个新type之前，请确定你已经考虑过本条款所覆盖的所有讨论主题。</p>
-</blockquote>
-
+<p>&emsp;&emsp;那么，如何设计高效的class呢？几乎每个class都要求我们面对以下提问，而我们的回答往往导致我们的设计规范：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/01/%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -321,10 +316,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-31 20:27:00 / Modified: 22:45:45" itemprop="dateCreated datePublished" datetime="2020-07-31T20:27:00+08:00">2020-07-31</time>
+              <time title="Created: 2020-07-31 20:27:00" itemprop="dateCreated datePublished" datetime="2020-07-31T20:27:00+08:00">2020-07-31</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:32:15" itemprop="dateModified" datetime="2021-03-10T20:32:15+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -357,56 +358,14 @@
 <h1 id="让接口容易被正确使用，不易被误用"><a href="#让接口容易被正确使用，不易被误用" class="headerlink" title="让接口容易被正确使用，不易被误用"></a>让接口容易被正确使用，不易被误用</h1><p>&emsp;&emsp;C++在接口之海漂浮。function接口、class接口、template接口……每一种接口都是客户与我们的代码互动的手段。理想上，如果客户企图使用某个接口而却没有获得他所预期的行为，这个代码不该通过编译；如果代码通过了编译，它的作为就是客户所想要的。</p>
 <p>&emsp;&emsp;欲开发一个“容易被正确使用，不容易被误用”的接口，首先必须考虑客户可能做出什么样的错误。假设我们为一个用来表现日期的class设计构造函数：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Date</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Date(<span class="keyword">int</span> month, <span class="keyword">int</span> day, <span class="keyword">int</span> year);</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;乍看之下这个接口通情达理（至少在美国如此），但它的客户很容易犯下两个错误，第一，他们也许会以错误的次序传递参数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(<span class="number">20</span>, <span class="number">2</span>, <span class="number">2020</span>)</span></span>;  <span class="comment">//应该是“2，20”而不是“20，2”</span></span><br></pre></td></tr></table></figure>
-
-<p>第二，他们可能传递一个无效的月份或天数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(<span class="number">3</span>, <span class="number">20</span>, <span class="number">2020</span>)</span>  <span class="comment">//应该是“2，20”而不是“3，20”</span></span></span><br></pre></td></tr></table></figure>
-
-<p>（上面一个例子也许看起来很蠢，但别忘了，键盘上的2就在3旁边。打岔一个键的情况并不是太罕见。）</p>
-<p>&emsp;&emsp;许多客户端错误可以因为导入新类型而获得预防。在防范“不值得拥有的代码”上，类型系统是我们的主要同盟国。既然这样，就让我们导入简单的外覆类型来区别天数、月份和年份，然后于Date构造函数中使用这些类型：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Day</span> &#123;</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Day</span><span class="params">(<span class="keyword">int</span> d)</span>: <span class="title">val</span><span class="params">(d)</span> </span>&#123;&#125;</span><br><span class="line"><span class="keyword">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Month</span> &#123;</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Month</span><span class="params">(<span class="keyword">int</span> m)</span>: <span class="title">val</span><span class="params">(m)</span> </span>&#123;&#125;</span><br><span class="line"><span class="keyword">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">year</span> &#123;</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Year</span><span class="params">(<span class="keyword">int</span> y)</span>: <span class="title">val</span><span class="params">(y)</span> </span>&#123;&#125;</span><br><span class="line"><span class="keyword">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Date</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Date(<span class="keyword">const</span> Month&amp; m, <span class="keyword">const</span> Day&amp; d, <span class="keyword">const</span> Year&amp; y);</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(<span class="number">20</span>, <span class="number">2</span>, <span class="number">2020</span>)</span></span>;                    <span class="comment">//错误！不正确的类型</span></span><br><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(Day(<span class="number">20</span>), Month(<span class="number">2</span>), Year(<span class="number">2020</span>))</span></span>;  <span class="comment">//错误！不正确的类型</span></span><br><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(Month(<span class="number">2</span>), Day(<span class="number">20</span>), Year(<span class="number">2020</span>))</span></span>;  <span class="comment">//正确！</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;令Day，Month和Year成为成熟且经过充分锻炼的class并封装其内部数据，比简单使用上述的struct好。但即使struct也已经足够示范：明智而谨慎地导入新类型对预防“接口被误用”有神奇疗效。</p>
-<p>&emsp;&emsp;一旦正确的类型就位，限制其值有时候是通情达理的。例如一年只有12个月份，所以Month应该反映这一事实。办法之一是利用enum表现月份，但enums不具备我们希望拥有的类型安全性，例如enums可被拿来当一个int使用，比较安全的解法是预先定义所有有效的Month：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Month</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> Month <span class="title">Jan</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> Month(<span class="number">1</span>); &#125;  <span class="comment">//函数，返回有效月份</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> Month <span class="title">Feb</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> Month(<span class="number">2</span>); &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">static</span> Month <span class="title">Dec</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> Month(<span class="number">12</span>); &#125;</span><br><span class="line">    ...</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Month</span><span class="params">(<span class="keyword">int</span> m)</span></span>;  <span class="comment">//阻止生成新的月份</span></span><br><span class="line">    ...                     <span class="comment">//这是月份专属数据</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">Date <span class="title">d</span><span class="params">(Month::Feb(), Day(<span class="number">20</span>), Year(<span class="number">2020</span>))</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;“以函数替代对象，表现某个特定月份”这并不像你所想象的那样诡异，这是因为non-local static对象的初始化次序有可能出现问题。</p>
-<p>&emsp;&emsp;预防客户错误的另一个办法是，限制类型内什么事可做，什么事不能做。常见的限制是加上const。</p>
-<p>&emsp;&emsp;避免无端与内置类型不兼容，真正的理由是为了提供行为一致的接口。很少有其它性质比得上“一致性”更能导致“接口容易被正确使用”，也很少有其它性质比得上“不一致性”更加剧接口的恶化。STL容器的接口十分一致（虽然不是完美地一致），这使它们非常容易被使用。例如每个STL容器都有一个名为size的成员函数，它会告诉调用者目前容器内有多少对象。与此对比的是Java，它允许我们针对数组使用length property，对String使用length method，而对List使用size method；.Net也一样混乱。有些开发人员会以为整合开发环境（IDE）能使这样的不一致性变得不重要，但他们错了。不一致性对开发人员造成的心理和精神上的摩擦与争执，没有任何一个IDE可以完全抹除。</p>
-<p>&emsp;&emsp;任何接口如果要求客户必须记得做某些事情，就是有着“不正确使用”的倾向，因为客户有可能会忘记做那件事。例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Investment* <span class="title">createInvestment</span><span class="params">()</span></span>;  ／／factory函数</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为避免资源泄漏，createInvestment返回的指针最终必须被删除，但这至少给了客户两个犯错的机会：没有删除指针，或删除同一个指针超过一次。</p>
-<p>&emsp;&emsp;许多时候较佳接口的设计原则是先发制人，就令factory函数返回一个智能指针：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">createInvestment</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这便实质上强迫客户将返回值存储于一个shared_ptr内，几乎消除了忘记删除底部Investment对象的可能性。</p>
-<p>&emsp;&emsp;shared_ptr允许当智能指针被建立起来时指定一个资源释放函数（所谓删除器，“deleter”）绑定于智能指针身上。</p>
-<p>&emsp;&emsp;假设class设计者期许那些“从createInvestment取得Investment*指针”的客户将该指针传递给一个名为getRidOfInvestment的函数，而不是直接在它身上动刀子（使用delete）。这样一个接口又开启通往另一个客户错误的大门，该错误是“企图使用错误的资源析构机制”（也就是拿delete替换getRidOfInvestment）。createInvestment的设计者可以针对此问题先发制人：返回一个“将getRidOfInvestment绑定为删除器（deleter）”的shared_ptr。</p>
-<p>&emsp;&emsp;shared_ptr提供的某个构造函数接受两个实参：一个是被管理的指针，另一个是引用次数变成0时将被调用的“删除器”。这启发我们创建一个null shared_ptr并以getRidOfInvestment作为其删除器，像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pInv</span><span class="params">(<span class="number">0</span>, getRidOfInvestment)</span></span>; </span><br><span class="line"><span class="comment">//此式无法通过编译</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这并不是有效的C++。shared_ptr构造函数坚持其第一参数必须是个指针，而0不是指针，是个int。没错，它可被转换为指针，但在此情况下并不够好，因为shared_ptr坚持要一个不折不扣的指针。转型可以解决这个问题：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt;</span><br><span class="line">    pInv(<span class="keyword">static_cast</span>&lt;Investment*&gt;(<span class="number">0</span>),</span><br><span class="line">        getRidOfInvestment);</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;因此，如果我们要实现createInvestment使它返回一个shared_ptr并夹带getRidOfInvestment函数作为删除器，代码看起来像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">createInvestment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">retVal</span><span class="params">(<span class="keyword">static_cast</span>&lt;Investment*&gt;(<span class="number">0</span>),</span></span></span><br><span class="line"><span class="function"><span class="params">                                       getRidOfInvestment)</span></span>;</span><br><span class="line">    retVal = ...;  <span class="comment">//令retVal指向正确对象</span></span><br><span class="line">    <span class="keyword">return</span> retVal;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当然啦，如果被pInv管理的原始指针可以在建立pInv之前先确定下来，那么“将原始指针传给pInv构造函数”会比“先将pInv初始化为null再对它做一次赋值操作”为佳。</p>
-<p>&emsp;&emsp;shared_ptr有一个特别好的性质是：它会自动使用它的“每个指针专属的删除器”，因而消除另一个潜在的客户错误：所谓的“cross-DLL problem”。这个问题发生于“对象在动态链接程序库（DLL）中被new创建，却在另一个DLL内被delete销毁”。在许多平台上，这一类“跨DLL之new／delete成对运用”会导致运行期错误。shared_ptr没有这个问题，因为它缺省的删除器是来自“shared_ptr诞生所在的那个DLL”的delete。例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">createInvestment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt;(<span class="keyword">new</span> Stock);  <span class="comment">//Stock派生自Investment</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;返回的那个shared_ptr可被传递给任何其它DLL，无需在意“cross-DLL problem”。这个指向Stock的shared_ptr会追踪记录“当Stock的运用次数变成0时该调用的那个DLL’s delete”。</p>
-<p>&emsp;&emsp;shared_ptr是原始指针的两倍大，以动态分配内存作为记录用途和“删除器的专属数据”，并以virtual形式调用删除器，并在多线程程序修改运用次数时承受线程同步化的额外开销。（只要定义一个预处理器符号就可以关闭多线程支持）。总之，它比原始指针大且慢，而且使用辅助动态内存。在许多运用程序中这些额外的执行成本并不显著。然而其“降低客户错误”的成效却是每个人都看得到的。</p>
-<blockquote>
-<p>好的接口很容易被正确使用，不容易被误用。我们应该在所有的接口中努力达成这些性质</p>
-<p>“促进正确使用”的办法包括接口的一致性，以及与内置类型的行为兼容。</p>
-<p>“阻止误用”的办法包括建立新类型、限制类型上的操作、束缚对象值，以及消除客户的资源管理责任。</p>
-<p>shared_ptr支持定制删除器。这可防范DLL问题，可被用来自动解除互斥锁等等。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/31/%E8%AE%A9%E6%8E%A5%E5%8F%A3%E5%AE%B9%E6%98%93%E8%A2%AB%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%93%E8%A2%AB%E8%AF%AF%E7%94%A8/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -448,10 +407,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-30 12:45:00 / Modified: 13:43:25" itemprop="dateCreated datePublished" datetime="2020-07-30T12:45:00+08:00">2020-07-30</time>
+              <time title="Created: 2020-07-30 12:45:00" itemprop="dateCreated datePublished" datetime="2020-07-30T12:45:00+08:00">2020-07-30</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:35:04" itemprop="dateModified" datetime="2021-03-10T20:35:04+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -486,36 +451,14 @@
 
 <p>&emsp;&emsp;现在考虑调用processWidget：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">processWidget(<span class="keyword">new</span> Widget, priority());</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;上述代码可不能通过编译。shared_ptr构造函数需要一个原始指针，但该构造函数是个explicit构造函数，无法进行隐式转换，将得自“newWidget”的原始指针转换为processWidget所要求的shared_ptr。如果写成这样就可以通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">processWidget(<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt;(<span class="keyword">new</span> Widget), priority());</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;然而上述调用却可能泄露资源。</p>
-<p>&emsp;&emsp;编译器产出一个processWidget调用码之前，必须首先核算即将被传递的各个实参。上述第二个实参只是一个单纯的对priority函数的调用，但第一个实参std::shared_ptr&lt;Widget&gt;(new Widget)由两部分组成：</p>
-<ul>
-<li>执行“new Widget”表达式</li>
-<li>调用shared_ptr构造函数</li>
-</ul>
-<p>也是在调用processWidget之前，编译器必须创建代码，做一下三件事：</p>
-<ul>
-<li>调用priority</li>
-<li>执行“new Widget”</li>
-<li>调用shared_ptr构造函数</li>
-</ul>
-<p>&emsp;&emsp;C++编译器以什么样的次序完成这些事情呢？弹性很大。这和其他语言如Java和C#不同，那两种语言总是以特定次序完成函数参数的核算。可以确定的是“new Widget”一定执行于shared_ptr构造函数被调用之前，因为这个表达式的结果还要被传递作为shared_ptr构造函数的一个实参，但对priority的调用则可以排在第一或第二或第三执行。如果编译器选择以第二顺位执行它（说不定可以因此产生更高效的代码，谁知道呢），最终获得这样的操作序列：</p>
-<ol>
-<li>执行“new Widget”</li>
-<li>调用priority</li>
-<li>调用shared_ptr构造函数</li>
-</ol>
-<p>&emsp;&emsp;现在我们想想，万一对priority的调用导致异常，会发生什么事？在此情况下“new Widget”返回的指针将遗失，因为它尚未被置入shared_ptr内，后者是我们期盼用来防卫资源泄漏的武器。没错，在对processWidget的调用过程可能引发资源泄漏。</p>
-<p>&emsp;&emsp;避免这类问题的办法很简单：使用分离语句，分别写出（1）创建Widget，（2）将它置入一个智能指针内，然后再把哪个智能指针传给processWidget：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Widget&gt; <span class="title">pw</span><span class="params">(<span class="keyword">new</span> Widget)</span></span>;</span><br><span class="line">processWidget(pw, priority());</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>以独立语句将new对象存储于智能指针内。如果不这样做，一旦异常被抛出，有可能导致难以察觉的资源泄漏。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/30/%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86new%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -557,10 +500,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-07-30 09:01:00 / Modified: 12:09:58" itemprop="dateCreated datePublished" datetime="2020-07-30T09:01:00+08:00">2020-07-30</time>
+              <time title="Created: 2020-07-30 09:01:00" itemprop="dateCreated datePublished" datetime="2020-07-30T09:01:00+08:00">2020-07-30</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:26:13" itemprop="dateModified" datetime="2021-03-10T20:26:13+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -594,25 +543,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* stringArray = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>[<span class="number">100</span>];</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> stringArray;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;每件事看起来都井然有序。使用了new，也搭配了对应的delete。但还是有某样东西完全错误：我们的程序未定义。stringArray所含的100个string对象中的99个不太可能被适当删除，因为它们的析构函数很可能没被调用。</p>
-<p>&emsp;&emsp;当我们使用new（也就是通过new动态生成一个对象），有两件事发生。第一，内存被分配出来（通过名为operator new的函数）。第二，针对此内存会有一个（或更多）构造函数被调用。当我们使用delete，也会有两件事发生：针对此内存会有一个（或更多）析构函数被调用，然后内存才被释放（通过名为operator delete的函数）。delete的最大问题在于：即将被删除的内存之内究竟存有多少对象？这个问题的答案决定了有多少个析构函数必须被调用起来。</p>
-<p>&emsp;&emsp;实际上这个问题可以更简单些：即将被删除的那个指针，所指的是单一对象或对象数组？这是个必不可缺的问题，因为单一对象的内存布局一般而言不同于数组的内存布局。更明确地说，数组所用的内存通常还包括“数组大小”的纪录，以便delete知道需要调用多少次析构函数。单一对象的内存则没有这笔纪录。</p>
-<p>&emsp;&emsp;当我们对着一个指针使用delete，唯一能够让delete知道内存中是否存在一个“数组大小纪录”的办法就是：由我们来告诉它。如果我们使用delete时加上方括号，delete便认定指针指向一个数组，否则它便认定指针指向单一对象：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* stringPtr1 = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* stringPtr2 = <span class="keyword">new</span> <span class="built_in">std</span>::<span class="built_in">string</span>[<span class="number">100</span>];</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> stringPtr1;</span><br><span class="line"><span class="keyword">delete</span>[] stringPtr2;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个规则对于喜欢使用typedef的人也很重要，因为它意味着typedef的作者必须说清楚，当程序员以new创建该种typedef类型对象时，该以哪一种delete形式删除之，考虑下面这个typedef：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="built_in">std</span>::<span class="built_in">string</span> AddressLines[<span class="number">4</span>];  <span class="comment">//每个人的地址有4行</span></span><br><span class="line">                                      <span class="comment">//每一行是一个string</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;由于AddressLines是个数组，如果这样使用new：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span>* pal = <span class="keyword">new</span> AddressLines;  <span class="comment">//注意，"new AddressLines"返回一个string*</span></span><br><span class="line">                                      <span class="comment">//就像"new string[4]"一样</span></span><br></pre></td></tr></table></figure>
-
-<p>这就必须匹配“数组形式”的delete：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> pal;    <span class="comment">//未定义</span></span><br><span class="line"><span class="keyword">delete</span>[] pal;  <span class="comment">//很好</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为避免诸如此类的错误，最好尽量不要对数组形式做typedef动作。例如我们可以将本例的AddressLines定义为“由string组成的一个vector”，也就是其类型为vector&lt;string&gt;。</p>
-<blockquote>
-<p>如果我们在new表达式中使用[]，必须在相应的delete表达式中也使用[]。如果我们在new表达式中不使用[]，一定不要在相应的delete表达式中使用[]。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/30/%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E5%8F%96%E7%9B%B8%E5%90%8C%E5%BD%A2%E5%BC%8F/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -662,7 +600,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:15:15" itemprop="dateModified" datetime="2020-07-30T09:15:15+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:35:29" itemprop="dateModified" datetime="2021-03-10T20:35:29+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -697,39 +635,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pInv</span><span class="params">(createInvestment())</span></span>;  <span class="comment">//使用智能指针保存factory函数</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">daysHeld</span><span class="params">(<span class="keyword">const</span> Investment* pi)</span></span>;                    <span class="comment">//返回投资天数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> days = daysHeld(pInv);                             <span class="comment">//错误！</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;dayHelds需要的是Investment*指针，我们传给它的却是个类型为std::shared_ptr&lt;Investment&gt;的对象。</p>
-<p>&emsp;&emsp;这时候我们需要一个函数可将RAII class对象转换为其所内含的原始资源。有两个做法可以达成目标：显式转换和隐式转换。</p>
-<p>&emsp;&emsp;shared_ptr提供一个get成员函数，用来执行显式转换，也就是它会返回智能指针内部的原始指针（的复件）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> days = daysHeld(pInv.<span class="built_in">get</span>());  <span class="comment">//将pInv内的原始指针传给daysHeld</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;shared_ptr重载了指针取值操作符（operator-&gt;和operator*），它们允许隐式转换至底部原始指针：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Investment</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isTaxFree</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">Investment* <span class="title">createInvestment</span><span class="params">()</span></span>;                       <span class="comment">//factory函数</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pi</span><span class="params">(createInvestment())</span></span>;  <span class="comment">//令指针指针管理一笔资源</span></span><br><span class="line"><span class="keyword">bool</span> taxable1 = !(pi-&gt;isTaxFree());                  <span class="comment">//经由operator-&gt;访问资源</span></span><br><span class="line"><span class="keyword">bool</span> taxable2 = !((*pi).isTaxFree());                <span class="comment">//经由operator*访问资源</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;再考虑下面这个用语字体的RAII class（对C API而言字体是一种原生数据结构）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">FontHandle <span class="title">getFont</span><span class="params">()</span></span>;  <span class="comment">//这是个C API，为求简化省略参数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">releaseFont</span><span class="params">(FontHandle fh)</span></span>;  <span class="comment">//来自同一组C API</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Font</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Font</span><span class="params">(FontHandle fh)</span>: <span class="title">f</span><span class="params">(fh)</span> </span>&#123;&#125;</span><br><span class="line">    ~Font() &#123; releaseFont(f); &#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    FontHandle f;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;假设有大量与字体相关的C API，它们处理的是FontHandle，那么“将Font对象转换为FontHandle”会是一种很频繁的需求。Font class可为此提供一个显式转换函数，像get那样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Font</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function">FontHandle <span class="title">get</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> f; &#125;  <span class="comment">//显式转换函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;不幸的是这使得客户每当想要使用API时就必须调用get：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">changeFontSize</span><span class="params">(FontHandle f, <span class="keyword">int</span> newSize)</span></span>;  <span class="comment">//C API</span></span><br><span class="line"><span class="function">Font <span class="title">f</span><span class="params">(getFont())</span></span>;</span><br><span class="line"><span class="keyword">int</span> newFontSize;</span><br><span class="line">...</span><br><span class="line">changeFontSize(f.<span class="built_in">get</span>(), newFontSize);  <span class="comment">//显式地将Font转换为FontHandle</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;某些程序员可能会认为，如此这般地到处要求显式转换，足以使人们倒尽胃口，不再愿意使用这个class，从而增加了泄漏字体的可能性，而Font class的主要设计目的就是为了防止资源（字体）泄漏。</p>
-<p>&emsp;&emsp;另一个办法是令Font提供隐式转换函数，转型为FontHandle：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Font</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">operator</span> <span class="title">FontHandle</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;  <span class="comment">//隐式转换函数</span></span><br><span class="line">        <span class="keyword">return</span> f;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//另外一种构造转换函数，与隐式转换函数相反，</span></span><br><span class="line">    <span class="comment">//是将其他类型转换为本类型，其也是构造函数的一种。</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这使得客户调用C API时比较轻松且自然：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Font <span class="title">f</span><span class="params">(getFont())</span></span>;</span><br><span class="line"><span class="keyword">int</span> newFontSize;</span><br><span class="line">...</span><br><span class="line">changeFontSize(f, newFontSize);  <span class="comment">//将Font隐式转换为FontHandle</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;但是这个隐式转换会增加错误发生机会。例如客户可能会在需要Font时意外创建一个FontHandle：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Font <span class="title">f1</span><span class="params">(getFont())</span></span>;</span><br><span class="line">...</span><br><span class="line">FontHandle f2 = f1;</span><br><span class="line"><span class="comment">//原意是要拷贝一个Font对象，</span></span><br><span class="line"><span class="comment">//却反而将f1隐式转换为其底部的FontHandle</span></span><br><span class="line"><span class="comment">//然后才复制它。</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;是否该提供一个显式转换函数（例如get成员函数）将RAII class转换为其底部资源，或是应该提供隐式转换，答案主要取决于RAII class被设计执行的特性工作，以及它被使用的情况。</p>
-<p>&emsp;&emsp;RAII class并不是为了封装某物而存在的；它们的存在是为了确保一个特殊行为——资源释放——会发生。此外也有某些RAII class结合十分松散的底层资源封装，借以获得真正的封装实现。例如shared_ptr将它的所有引用计数机构封装了起来，但还是让外界很容易访问其所内含的原始指针。就像多数设计良好的class一样，它隐藏了客户不需要看的部分，但备妥客户需要的所有东西。</p>
-<blockquote>
-<p>API往往要求访问原始资源，所以每一个RAII class应该提供一个“取得其所管理的资源”的办法。</p>
-<p>对原始资源的访问可能经由显式转换或隐式转换。一般而言显式转换比较安全，但隐式转换对客户比较方便。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/29/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -779,7 +692,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:15:25" itemprop="dateModified" datetime="2020-07-30T09:15:25+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:35:47" itemprop="dateModified" datetime="2021-03-10T20:35:47+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -815,37 +728,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lock</span><span class="params">(Mutex* pm)</span></span>;  <span class="comment">//锁定pm所指的互斥器</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">unlock</span><span class="params">(Mutex* pm)</span></span>;  <span class="comment">//将互斥器解除锁定</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;为确保绝不会忘记将一个被锁住的Mutex解锁，我们可能会希望建立一个class用来管理机锁。这样的class的基本结构由RAII（Resource Acquisition Is Initialization）“资源取得时机便是初始化时机”守则支配，也就是“资源在构造期间获得，在析构期间释放”：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Lock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Lock</span><span class="params">(Mutex* pm)</span>: <span class="title">mutexPtr</span><span class="params">(pm)</span> </span>&#123;  <span class="comment">//获得资源</span></span><br><span class="line">       lock(mutexPtr);</span><br><span class="line">    &#125;</span><br><span class="line">    ~Lock() &#123; unlock(mutexPtr); &#125;  <span class="comment">//释放资源</span></span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Mutex* mutexPtr;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;客户对Lock的用法符合RAII方式：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Mutex m;      <span class="comment">//定义我们需要的互斥器</span></span><br><span class="line">...</span><br><span class="line">&#123;             <span class="comment">//建立一个区块用来定义critiacl section</span></span><br><span class="line"><span class="function">Lock <span class="title">m1</span><span class="params">(&amp;m)</span></span>;  <span class="comment">//锁定互斥器</span></span><br><span class="line">...           <span class="comment">//执行critical section内的操作</span></span><br><span class="line">&#125;             <span class="comment">//在区块最末尾，自动解除互斥器锁定</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;这很好，但如果Lock对象被复制，会发生什么事？</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Lock <span class="title">ml1</span><span class="params">(&amp;m)</span></span>;   <span class="comment">//锁定m</span></span><br><span class="line"><span class="function">Lock <span class="title">ml2</span><span class="params">(ml1)</span></span>;  <span class="comment">//将ml1复制到ml2身上，这会发生什么事？</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这是某个一般化问题的特定例子。那个一般化问题是每一个RAII class作者一定需要面对的：“当一个RAII对象被复制，会发生什么事？”大多数时候我们会选择以下两种可能：</p>
-<ul>
-<li><p><strong>禁止复制</strong>。许多时候允许RAII对象被复制并不合理。对一个像Lock这样的class这是有可能的，因为很少能够合理拥有“同步化基础器物”的副本。如果复制动作对RAII class并不合理，我们便应该禁止它。将copyin操作声明为private。对Lock而言看起来是这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Lock</span>:</span> <span class="keyword">private</span> Uncopyable &#123;  <span class="comment">//禁止复制</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>对底层资源祭出“引用计数法”</strong>。有时候我们希望保有资源，直到它对最后一个使用者（某对象）被销毁。这种情况下复制RAII对象时，应该将资源的“被引用数”递增。shared_ptr便是如此。</p>
-<p>&emsp;&emsp;通常只要内含一个shared_ptr成员变量，RAII class便可实现出上述行为。它可以改变mutexPtr的类型，将它从Mutex*改为shared_ptr&lt;Mutex&gt;。然而很不幸shared_ptr的缺省行为是“当引用次数为0时删除其所指物”，这不是我们想要的行为。当我们用上一个Mutex，我们想要做的释放动作是解除锁定而非删除。</p>
-<p>&emsp;&emsp;幸运的是shared_ptr允许指定所谓的“删除器”，这是一个函数或函数对象，当引用次数为0时便可被调用。删除器对shared_ptr构造函数而言是可有可无的第二参数，所以代码看起来像这样：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">lock</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">lock</span><span class="params">(Mutex* pm)</span>: <span class="title">mutexPtr</span><span class="params">(pm, unlock)</span> </span>&#123;</span><br><span class="line">        lock(mutexPtr.<span class="built_in">get</span>());</span><br><span class="line">    &#125;  <span class="comment">//以某个Mutex初始化shared_ptr并以unlock函数为删除器</span></span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Mutex&gt; mutexPtr;  <span class="comment">//使用shared_ptr替换raw pointer</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;本例的Lock class不再声明析构函数。因为没有必要。class析构函数（无论是编译器生成的，或用户自定的）会自动调用其non-static成员变量（本例为mutexPtr）的析构函数。而mutexPtr的析构函数会在互斥器的引用次数为0时自动调用shared_ptr的删除器（本例为unlock）。</p>
-</li>
-<li><p><strong>复制底部数据</strong>。有时候，只要我们喜欢，可以针对一份资源拥有其任意数量的副本。而我们需要“资源管理类”的唯一理由是，当我们不再需要某个复件时确保它被释放。在此情况下复制资源管理对象，应该同时也复制其所包含的资源。也就是说，复制资源管理对象时，进行的是“深度拷贝”。</p>
-<p>&emsp;&emsp;某些标准字符串类型是由“指向heap内存”的指针构成。这种字符串对象内含一个指针指向一块heap内存。当这样一个字符串对象被复制，不论指针或其所指内存都会被制作出一个复件，这样的字符串展现出深度复制行为。</p>
-</li>
-<li><p><strong>转移底部资源的拥有权</strong>。某些罕见场合下我们可能希望确保永远只有一个RAII对象指向一个未加工资源，即使RAII对象被复制依然如此。此时资源的拥有权会从被复制物转移到目标物。</p>
-</li>
-</ul>
-<blockquote>
-<p>复制RAII对象必须一并复制它所管理的资源，所以资源的copying行为决定RAII对象的copying行为。</p>
-<p>普遍而常见的RAII class copying行为是：抑制copying、施行引用计数法。不过其他行为也都可能被实现。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/28/%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copying%E8%A1%8C%E4%B8%BA/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -895,7 +785,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:15:41" itemprop="dateModified" datetime="2020-07-30T09:15:41+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:35:14" itemprop="dateModified" datetime="2021-03-10T20:35:14+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -933,22 +823,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Investment* <span class="title">createInvestment</span><span class="params">()</span></span>;  <span class="comment">//返回指针，指向Investment继承体系内的动态分配对象。</span></span><br><span class="line">                                 <span class="comment">//调用者有责任删除它，这里为了简化，刻意不写参数。</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;如上注释所述，createInvestment的调用端使用了函数返回的对象后，有责任删除之。现在考虑有个f函数履行了这个责任：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Investment* pInv = createInvestment();  <span class="comment">//调用factory函数</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">delete</span> pInv;                            <span class="comment">//释放pInv所指对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这看起来妥当，但若干情况下f可能无法删除它得自createInvestment的投资对象——或许因为“…”区域内的一个过早的return语句。如果这样一个return被执行起来，控制流就绝不会触及delete语句。类似情况还可能发生在很多其他地方。</p>
-<p>&emsp;&emsp;为确保createInvestment返回的资源总是被释放，我们需要将资源放进对象内，当控制流厉害f，该对象的析构函数会自动释放那些资源。把资源放进对象内，我们便可依赖C++的“析构函数自动调用机制”确保资源被释放。</p>
-<p>&emsp;&emsp;我们可以使用“引用计数型智能指针”（RCSP）。所谓RCSP也是个智能指针，持续追踪共有多少对象指向某笔资源，并在无人指向它时自动删除该资源。RCSP提供的行为类似垃圾回收，不同的是RCSP无法打破环状引用（例如两个其实已经没被使用的对象彼此互指，因而好像还处于“被使用”状态）。</p>
-<p>&emsp;&emsp;C++标准库中的shared_ptr就是个RCSP，所以我们可以这样写f：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Investment&gt; <span class="title">pInv</span><span class="params">(createInvestment())</span></span>;  <span class="comment">//调用factory函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;  <span class="comment">//经由share_ptr析构函数自动删除pInv</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;share_ptr在其析构函数内做delete而不是delete[]动作。这意味着在动态分配而得的array身上使用shared_ptr是个馊主意。尽管如此，可叹的是，那么做仍能通过编译：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;<span class="keyword">int</span>&gt; <span class="title">spi</span><span class="params">(<span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">1024</span>])</span></span>;  <span class="comment">//馊主意！</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我们或许会惊讶地发现，并没有针对“C++动态分配数组”而设计的类似shared_ptr这样的东西。这是因为vector和sting几乎总是可以取代动态分配而得的数组。如果你们还是认为拥有针对数组而设计、类似shared_ptr这样的class较好，看看Boost吧。在那儿我们会很高兴地发现boost::scoped_array和boost::shared_array class，它们都提供我们想要的行为。</p>
-<blockquote>
-<p>为防止资源泄漏，务必使用shared_ptr这类智能指针，它们在构造函数中获得资源并在析构函数中释放资源。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/27/%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -998,7 +880,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:11:56" itemprop="dateModified" datetime="2020-07-30T09:11:56+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:26:42" itemprop="dateModified" datetime="2021-03-10T20:26:42+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1032,27 +914,14 @@
 <h1 id="复制对象时勿忘其每一个成分"><a href="#复制对象时勿忘其每一个成分" class="headerlink" title="复制对象时勿忘其每一个成分"></a>复制对象时勿忘其每一个成分</h1><p>&emsp;&emsp;设计良好的面向对象系统会将对象的内部封装起来，只留两个函数负责对象拷贝，这便是copy构造函数和copy assignment操作符，称它们为copying函数。</p>
 <p>&emsp;&emsp;如果我们声明自己的copying函数，意思就是告诉编译器我们并不喜欢缺省实现中的某些行为，编译器仿佛被冒犯似得，会以一种奇怪的方式回敬：当我们的实现代码几乎必然出错时却不告诉我们。</p>
 <p>&emsp;&emsp;考虑一个class用来表现顾客，其中手工写出copying函数，使得外界对它们的调用会被志记（logged）下来：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">logCall</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; funcName)</span></span>;  <span class="comment">//制造一个log entry</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Customer</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    Customer(<span class="keyword">const</span> Customer&amp; rhs);</span><br><span class="line">    Customer&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Customer&amp; rhs);</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">&#125;;</span><br><span class="line">Customer::Customer(<span class="keyword">const</span> Customer&amp; rhs): name(rhs.name) &#123;</span><br><span class="line">    logCall(<span class="string">"Customer copy constructor"</span>);</span><br><span class="line">&#125;</span><br><span class="line">Customer&amp; Customer::<span class="keyword">operator</span>=(<span class="keyword">const</span> Customer&amp; rhs) &#123;</span><br><span class="line">    logCall(<span class="string">"Customer copy assignment operator"</span>);</span><br><span class="line">    name = rhs.name;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里的每一件事情都看起来很好，而实际上每件事情也的确都好，直到另一个成员变量加入战局：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Date</span> &#123;</span> ... &#125;;  <span class="comment">//日期</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Customer</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...              <span class="comment">//同前</span></span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">    Date lastTrasaction;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这时候现有的copying函数执行的是局部拷贝，并没有复制新添加的lastTransaction。大多数编译器对此不会发出任何怨言——即使在最高警告级别中。这是编译器对“我们自己写出copying函数”的报复行为。结论很明显：如果我们为class添加一个成员变量，我们必须同时修改copying函数。如果我们忘记，编译器不太可能提醒我们。</p>
-<p>&emsp;&emsp;一旦发生继承，可能会出现一个隐患：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PriorityCustomer</span>:</span> <span class="keyword">public</span> Customer &#123;  <span class="comment">//一个derived class</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    PriorityCustomer（<span class="keyword">const</span> PriorityCustomer&amp; rhs）;</span><br><span class="line">    PriorityCustomer&amp; <span class="keyword">operator</span>=（<span class="keyword">const</span> PriorityCustomer&amp; rhs）;</span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line"><span class="keyword">private</span>：</span><br><span class="line">    <span class="keyword">int</span> priority;</span><br><span class="line">&#125;;</span><br><span class="line">PriorityCustomer::PriorityCustomer（<span class="keyword">const</span> PriorityCustomer&amp; rhs）</span><br><span class="line">: priority(rhs.priority) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy constructor"</span>);</span><br><span class="line">&#125;</span><br><span class="line">PriorityCustomer&amp;</span><br><span class="line">PriorityCustomer::<span class="keyword">operator</span>=(<span class="keyword">const</span> PriorityCustomer&amp; rhs) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy assignment operator"</span>);</span><br><span class="line">    priority = rhs.priority;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;看起来PriorityCustomer的copying函数好像复制了其内的每一样东西，但是它所继承的Customer成员变量却并未被复制。PriorityCustomer的copy构造函数并没有指定实参传给其base class构造函数（也就是说它在它的成员初值列中没有提到Customer），因此PriorityCustomer对象的Customer成分会被不带实参的Customer构造函数（即default构造函数）初始化。default构造函数将针对name和lastTransaction执行缺省的初始化动作。</p>
-<p>&emsp;&emsp;以上情况在PriorityCustomer的copy assignment操作符身上只有轻微不同。它不曾试图修改其base class的成员变量，所以那些成员变量保持不变。</p>
-<p>&emsp;&emsp;任何时候只要我们承担起“为derived class撰写copying函数”的重任，必须很小心地也复制其base class成分。那些成分往往是private，所以无法直接访问它们，我们应该让derived class的copying函数调用相应的base class函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">PriorityCustomer::PriorityCustomer(<span class="keyword">const</span> PriorityCustomer&amp; rhs)</span><br><span class="line">: Customer(rhs), priority(rhs.priority) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy constructor"</span>);</span><br><span class="line">&#125;</span><br><span class="line">PriorityCustomer&amp;</span><br><span class="line">PriorityCustomer::<span class="keyword">operator</span>=(<span class="keyword">const</span> PriorityCustomer&amp; rhs) &#123;</span><br><span class="line">    logCall(<span class="string">"PriorityCustomer copy assignment operator"</span>);</span><br><span class="line">    Customer::<span class="keyword">operator</span>=(rhs);</span><br><span class="line">    priority = rhs.priority;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当我们编写一个copying函数，请确保（1）复制所有local成员变量，（2）调用所有base class内的适当copying函数。</p>
-<p>&emsp;&emsp;如果你发现你的copy构造函数和copy assignment操作符有着相近的代码，消除重复代码的做法是，建立一个新成员函数给两者调用。这样的函数往往是private而且常被命名为init。这个策略可以安全地消除copy构造函数和copy assignment操作符之间的代码重复。</p>
-<blockquote>
-<p>Copying函数应该确保复制“对象内的所有成员变量”及“所有base class成分”。</p>
-<p>不要尝试以某个copying函数实现另一个copying函数。应该将共同机能放进第三个函数中，并由两个copying函数共同调用。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/26/%E5%A4%8D%E5%88%B6%E5%AF%B9%E8%B1%A1%E6%97%B6%E5%8B%BF%E5%BF%98%E5%85%B6%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%88%90%E5%88%86/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1102,7 +971,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:13:15" itemprop="dateModified" datetime="2020-07-30T09:13:15+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:35:55" itemprop="dateModified" datetime="2021-03-10T20:35:55+08:00">2021-03-10</time>
               </span>
 
           
@@ -1128,42 +997,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span> ... &#125;;</span><br><span class="line">Widget w;</span><br><span class="line">...</span><br><span class="line">w = w;  <span class="comment">//赋值给自己</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;这看起来有点愚蠢，但它合法，所以不要认定客户绝不会那么做。此外赋值动作并不总是那么可被一眼识别出来，例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a[i] = a[j];  <span class="comment">//潜在的自我赋值</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果i和j有相同的值，这便是个自我赋值。再看：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*px = *py;  <span class="comment">//潜在的自我赋值</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果px和py恰巧指向同一个东西，这也是自我赋值。这些并不明显的自我赋值，是“别名”带来的结果：所谓“别名”就是“有一个以上的方法指涉某对象”。一般而言如果某段代码操作pointer或reference而它们被用来“指向多个相同类型的对象”，就需要考虑这些对象是否为同一个。实际上两个对象只要来自同一个继承体系，它们甚至不需声明为相同类型就可能造成“别名”，因为一个base class的reference或pointer可以指向一个derived class对象：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(<span class="keyword">const</span> Base&amp; rb, Derived* pd)</span></span>;  <span class="comment">//rb和*pd有可能其实是同一对象</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;如果我们尝试自行管理资源（如果我们打算写一个勇于资源管理的class就得这样做），可能会在停止使用资源之前就意外释放了它。假设我们建立一个class用来保存一个指针指向动态分配的位图（bitmap）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bitmap</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Bitmap* pb;  <span class="comment">//指针，指向一个从heap分配而得的对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;下面是operator=实现代码，表面上看起来合理，但自我赋值出现时并不安全（它也不具备异常安全性）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp;</span><br><span class="line">Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//一份不安全的operator=实现版本</span></span><br><span class="line">    <span class="keyword">delete</span> pb;                          <span class="comment">//停止使用当前的Bitmap</span></span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);           <span class="comment">//使用rhs的bitmap的副本</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;                       </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里的自我赋值问题是，operator=函数内的*this（赋值的目的端）和rhs有可能是同一个对象。果真如此delete就不只是销毁当前对象的bitmap，它也销毁rhs的bitmap。在函数末尾，Widget——它原本不该被自我赋值动作改变的——发现自己持有一个指针指向一个已被删除的对象！</p>
-<p>&emsp;&emsp;欲阻止这种错误，传统做法是藉由operator=最前面的一个“证同测试”达到“自我赋值”的检测目的：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span> == &amp;rhs) <span class="keyword">return</span> *<span class="keyword">this</span>;  <span class="comment">//证同测试：如果是自我赋值，就不做任何事</span></span><br><span class="line">    <span class="keyword">delete</span> pb;</span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这样做行得通。前一版本的operator=不仅不具备“自我赋值安全性”，也不具备“异常安全性”，这个新版本仍然存在异常方面的麻烦。更明确地说，如果“new Bitmap”导致异常，Widget最终会持有一个指针指向一块被删除的Bitmap。这样的指针有害。我们无法安全地删除它们，甚至无法安全地读取它们。</p>
-<p>&emsp;&emsp;令人高兴的是，让operator=具备“异常安全性”往往自动获得“自我赋值安全”的回报。因此越来越多的人对“自我赋值”的处理态度是倾向于不去管它，把焦点放在实现“异常安全性”上。例如以下代码，我们只需注意在复制pb所指东西之前别删除pb：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    Bitmap* pOrig = pb;        <span class="comment">//记住原先的pb</span></span><br><span class="line">    pb = <span class="keyword">new</span> Bitmap(*rhs.pb);  <span class="comment">//令pb指向*pb的一个副本</span></span><br><span class="line">    <span class="keyword">delete</span> pOrig;              <span class="comment">//删除原先的pb</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在，如果“new Bitmap”抛出异常，pb（及其栖身的那个Widget）保持原状。即使没有证同测试，这段代码还是能够处理自我赋值，因为我们对原bitmap做了一份复件、删除原bitmap、然后指向新制造的那个复件。它或许不是处理“自我赋值”的最高效办法，但它行得通。</p>
-<p>&emsp;&emsp;如果你很关心效率，可以把“证同测试”再次放回函数起始处。然而这样做，我们得先问问自己，“自我赋值”的发生概率有多高？因为这项测试也需要成本。它会使代码变大一些并导入一个新的控制流分支，而两者都会降低执行速度。Prefetching、caching和pipelining等指令的效率都会因此降低。</p>
-<p>&emsp;&emsp;在operator=函数内手工排列语句（确保代码不但“异常安全”而且“自我赋值安全“）的一个替代方案是，使用所谓的copy and swap技术。这个技术和“异常安全性”有密切关系。然而由于它是一个常见而够好的operator=撰写办法，所以值得看看其实现手法像什么样子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; rhs)</span></span>;  <span class="comment">//交换*this和rhs的数据</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;</span><br><span class="line">    Widget temp(rhs);        <span class="comment">//为rhs数据制作一份复件</span></span><br><span class="line">    swap(temp);              <span class="comment">//将*this数据和上述复件的数据交换</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;以下代码是上述代码的变奏曲：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Widget&amp; Widget::<span class="keyword">operator</span>=(Widget rhs) &#123;  <span class="comment">//rhs是被传对象的一份复件</span></span><br><span class="line">    swap(rhs);                           <span class="comment">//将*this的数据和复件的数据互换</span></span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;我个人比较担忧这个做法，它为了“巧妙性”而牺牲了“清晰性”。然而将“copying动作”从函数本体内移至“函数参数构造阶段”却可令编译器有时生成更高效的代码。</p>
-<blockquote>
-<p>确保当对象自我赋值时operator=有良好行为。其中技术包括比较“来源对象”和“目标对象”的地址、精心周到的语句顺序、以及copy-and-swap。</p>
-<p>确定任何函数如果操作一个以上的对象，而其中多个对象是同一个对象时，其行为仍然正确。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/25/%E5%9C%A8operator=%E4%B8%AD%E5%A4%84%E7%90%86%E2%80%9C%E8%87%AA%E6%88%91%E8%B5%8B%E5%80%BC%E2%80%9D/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1213,7 +1054,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:13:42" itemprop="dateModified" datetime="2020-07-30T09:13:42+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:30:24" itemprop="dateModified" datetime="2021-03-10T20:30:24+08:00">2021-03-10</time>
               </span>
 
           
@@ -1242,17 +1083,14 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = (y = (z = <span class="number">1</span>));</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;这里1先被赋值给z，然后其结果再被赋值给y，然后其结果再被赋值给x。</p>
-<p>&emsp;&emsp;为了实现“连锁赋值，赋值操作符必须返回一个reference指向操作符的左侧实参。这是我们为class实现赋值操作符时应该遵循的协议：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//返回类型是个reference，指向当前对象</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;                       <span class="comment">//返回左侧对象</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这个协议不仅适用于以上的标准赋值形式，也适用于所有赋值相关运算，例如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>+=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//这个协议适用于+=，-=，*=等等</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">int</span> rhs) &#123;             <span class="comment">//此函数也适用，</span></span><br><span class="line">        ...                                  <span class="comment">//即使此操作符的参数类型不符合协定</span></span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;注意，这只是个协议，并无强制性。如果不遵循它，代码一样可以通过编译。然而这份协议被所有内置类型和标准程序库提供的类型如string，vector，complex，tr1::shared_ptr或即将提供的类型共同遵守。因此除非我们有一个标新立异的好理由，不然还是从众吧。</p>
-<blockquote>
-<p>令赋值操作符返回一个reference to *this。</p>
-</blockquote>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1343,7 +1181,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

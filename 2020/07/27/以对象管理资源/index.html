@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="以对象管理资源&amp;emsp;&amp;emsp;假设我们使用一个用来塑模投资行为的程序库，其中各式各样的投资类型继承自一个root class Investment： 1class Investment &amp;#123; ... &amp;#125;;  &#x2F;&#x2F;投资类型体系中的root class  进一步假设，这个程序库系通过一个工厂函数供应我们某特定的Investment对象： 12Investment* crea">
 <meta property="article:published_time" content="2020-07-27T08:16:00.000Z">
-<meta property="article:modified_time" content="2020-07-30T01:15:41.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:35:14.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-07-30 09:15:41" itemprop="dateModified" datetime="2020-07-30T09:15:41+08:00">2020-07-30</time>
+                <time title="Modified: 2021-03-10 20:35:14" itemprop="dateModified" datetime="2021-03-10T20:35:14+08:00">2021-03-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -274,6 +274,8 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Investment* <span class="title">createInvestment</span><span class="params">()</span></span>;  <span class="comment">//返回指针，指向Investment继承体系内的动态分配对象。</span></span><br><span class="line">                                 <span class="comment">//调用者有责任删除它，这里为了简化，刻意不写参数。</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;如上注释所述，createInvestment的调用端使用了函数返回的对象后，有责任删除之。现在考虑有个f函数履行了这个责任：</p>
+<a id="more"></a>
+
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Investment* pInv = createInvestment();  <span class="comment">//调用factory函数</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">delete</span> pInv;                            <span class="comment">//释放pInv所指对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;这看起来妥当，但若干情况下f可能无法删除它得自createInvestment的投资对象——或许因为“…”区域内的一个过早的return语句。如果这样一个return被执行起来，控制流就绝不会触及delete语句。类似情况还可能发生在很多其他地方。</p>
@@ -414,7 +416,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

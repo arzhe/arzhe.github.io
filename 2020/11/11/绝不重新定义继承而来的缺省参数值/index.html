@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="绝不重新定义继承而来的缺省参数值&amp;emsp;&amp;emsp;让我们一开始就将讨论简化。你只能继承两种函数：virtual和non-virtual函数。然而重新定义一个继承而来的non-virtual函数永远是错误的，所以我们可以安全地将本条款的讨论局限于“继承一个带有缺省参数值的virtual函数”。 &amp;emsp;&amp;emsp;这种情况下，本条款成立的理由就非常直接而明确了：virtual函数系动态绑">
 <meta property="article:published_time" content="2020-11-11T11:05:00.000Z">
-<meta property="article:modified_time" content="2020-11-11T15:00:47.000Z">
+<meta property="article:modified_time" content="2021-03-10T12:28:47.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -228,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-11-11 19:05:00 / Modified: 23:00:47" itemprop="dateCreated datePublished" datetime="2020-11-11T19:05:00+08:00">2020-11-11</time>
+              <time title="Created: 2020-11-11 19:05:00" itemprop="dateCreated datePublished" datetime="2020-11-11T19:05:00+08:00">2020-11-11</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:28:47" itemprop="dateModified" datetime="2021-03-10T20:28:47+08:00">2021-03-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -264,6 +270,8 @@
 <h1 id="绝不重新定义继承而来的缺省参数值"><a href="#绝不重新定义继承而来的缺省参数值" class="headerlink" title="绝不重新定义继承而来的缺省参数值"></a>绝不重新定义继承而来的缺省参数值</h1><p>&emsp;&emsp;让我们一开始就将讨论简化。你只能继承两种函数：virtual和non-virtual函数。然而重新定义一个继承而来的non-virtual函数永远是错误的，所以我们可以安全地将本条款的讨论局限于“继承一个带有缺省参数值的virtual函数”。</p>
 <p>&emsp;&emsp;这种情况下，本条款成立的理由就非常直接而明确了：virtual函数系动态绑定，而缺省参数值却是静态绑定。</p>
 <p>&emsp;&emsp;对象的所谓静态绑定类型，就是它在程序中被声明时所采用的类型。考虑以下的class继承体系：</p>
+<a id="more"></a>
+
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//用以描述几何形状的class</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">enum</span> ShapeColor &#123; Red, Green, Blue &#125;;</span><br><span class="line">        <span class="comment">//所有形状都必须提供一个函数，用来绘出自己</span></span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(ShapeColor color = Red)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> :</span> <span class="keyword">public</span> Shape &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="comment">//注意，赋予不同的缺省参数值。这真糟糕！</span></span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(ShapeColor color = Green)</span> <span class="keyword">const</span></span>;</span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Circle</span> :</span> <span class="keyword">public</span> Shape &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(ShapeColor color)</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="comment">//译注：请注意，以上这么写则当客户以对象调用此函数，一定要指定参数值。</span></span><br><span class="line">        <span class="comment">//     因为静态绑定下这个函数并不从其base继承缺省参数值。</span></span><br><span class="line">        <span class="comment">//     但若以指针（或reference）调用此函数，可以不指定参数值。</span></span><br><span class="line">        <span class="comment">//     因为动态绑定下这个函数会从其base继承缺省参数值。</span></span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;现在考虑这些指针：</p>
@@ -421,7 +429,7 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
