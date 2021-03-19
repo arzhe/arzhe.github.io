@@ -202,6 +202,95 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/01/%E5%AE%81%E4%BB%A5pass-by-reference-to-const%E6%9B%BF%E6%8D%A2pass-by-value/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/01/%E5%AE%81%E4%BB%A5pass-by-reference-to-const%E6%9B%BF%E6%8D%A2pass-by-value/" class="post-title-link" itemprop="url">宁以pass-by-reference-to-const替换pass-by-value</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-08-01 15:42:00" itemprop="dateCreated datePublished" datetime="2020-08-01T15:42:00+08:00">2020-08-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 20:31:26" itemprop="dateModified" datetime="2021-03-10T20:31:26+08:00">2021-03-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2020/08/01/%E5%AE%81%E4%BB%A5pass-by-reference-to-const%E6%9B%BF%E6%8D%A2pass-by-value/" class="post-meta-item leancloud_visitors" data-flag-title="宁以pass-by-reference-to-const替换pass-by-value" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="宁以pass-by-reference-to-const替换pass-by-value"><a href="#宁以pass-by-reference-to-const替换pass-by-value" class="headerlink" title="宁以pass-by-reference-to-const替换pass-by-value"></a>宁以pass-by-reference-to-const替换pass-by-value</h1><p>&emsp;&emsp;缺省情况下C++以by value方式（继承自C的方式）传递对象至（或来自）函数，除非我们另外指定，否则函数参数都是以实际实参的副本为初值，而调用端所获得的亦是函数返回值的一个副本。这些副本是由对象 copy构造函数产出，这可能使得pass-by-value成为昂贵的操作。考虑一下继承体系：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/01/%E5%AE%81%E4%BB%A5pass-by-reference-to-const%E6%9B%BF%E6%8D%A2pass-by-value/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/01/%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1019,92 +1108,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/" class="post-title-link" itemprop="url">令operator=返回一个reference to *this</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-07-25 08:14:00" itemprop="dateCreated datePublished" datetime="2020-07-25T08:14:00+08:00">2020-07-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:30:24" itemprop="dateModified" datetime="2021-03-10T20:30:24+08:00">2021-03-10</time>
-              </span>
-
-          
-            <span id="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/" class="post-meta-item leancloud_visitors" data-flag-title="令operator=返回一个reference to *this" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="令operator-返回一个reference-to-this"><a href="#令operator-返回一个reference-to-this" class="headerlink" title="令operator=返回一个reference to *this"></a>令operator=返回一个reference to *this</h1><p>&emsp;&emsp;关于赋值，有趣的是我们可以把它们写成连锁形式：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x, y, z;</span><br><span class="line">x = y = z = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;同样有趣的是，赋值采用右结合律，所以上述连锁赋值被解析为：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = (y = (z = <span class="number">1</span>));</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;这里1先被赋值给z，然后其结果再被赋值给y，然后其结果再被赋值给x。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/25/%E4%BB%A4operator=%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AAreference%20to%20*this/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1175,7 +1178,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -22,16 +22,18 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="you never can tell">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/archives/2020/11/index.html">
+  <meta name="description" content="生活中存在的数学原理&amp;emsp;&amp;emsp;如果只给你一个计算机，但只能运算加法，而不能运算减法，那你该咋办？ &amp;emsp;&amp;emsp;其实原理很简单，日常生活中我们其实一直都有用到，这就是时钟。 &amp;emsp;&amp;emsp;假设现在是上午7点，那么6小时前是多少呢？没错！我们理所当然的认为是1点。那么8小时前又是多少呢？7 - 8 + 12，还是1点！你坚定的说，没错！ &amp;emsp;&amp;emsp;那">
+<meta property="og:type" content="article">
+<meta property="og:title" content="原码、补码、反码详解">
+<meta property="og:url" content="http://yoursite.com/2021/03/12/%E5%8E%9F%E7%A0%81%E3%80%81%E8%A1%A5%E7%A0%81%E3%80%81%E5%8F%8D%E7%A0%81%E8%AF%A6%E8%A7%A3/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="you never can tell">
+<meta property="og:description" content="生活中存在的数学原理&amp;emsp;&amp;emsp;如果只给你一个计算机，但只能运算加法，而不能运算减法，那你该咋办？ &amp;emsp;&amp;emsp;其实原理很简单，日常生活中我们其实一直都有用到，这就是时钟。 &amp;emsp;&amp;emsp;假设现在是上午7点，那么6小时前是多少呢？没错！我们理所当然的认为是1点。那么8小时前又是多少呢？7 - 8 + 12，还是1点！你坚定的说，没错！ &amp;emsp;&amp;emsp;那">
+<meta property="article:published_time" content="2021-03-12T08:34:00.000Z">
+<meta property="article:modified_time" content="2021-03-19T02:13:26.000Z">
 <meta property="article:author" content="arzhe">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/archives/2020/11/">
+<link rel="canonical" href="http://yoursite.com/2021/03/12/%E5%8E%9F%E7%A0%81%E3%80%81%E8%A1%A5%E7%A0%81%E3%80%81%E5%8F%8D%E7%A0%81%E8%AF%A6%E8%A7%A3/">
 
 
 <script id="page-configurations">
@@ -39,12 +41,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-Hans'
   };
 </script>
 
-  <title>Archive | Hexo</title>
+  <title>原码、补码、反码详解 | Hexo</title>
   
 
 
@@ -196,235 +198,273 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        
-        <span class="collection-header">Nice! 60 posts in total. Keep on posting.</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/03/12/%E5%8E%9F%E7%A0%81%E3%80%81%E8%A1%A5%E7%A0%81%E3%80%81%E5%8F%8D%E7%A0%81%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          原码、补码、反码详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-03-12 16:34:00" itemprop="dateCreated datePublished" datetime="2021-03-12T16:34:00+08:00">2021-03-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-19 10:13:26" itemprop="dateModified" datetime="2021-03-19T10:13:26+08:00">2021-03-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">杂记</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/03/12/%E5%8E%9F%E7%A0%81%E3%80%81%E8%A1%A5%E7%A0%81%E3%80%81%E5%8F%8D%E7%A0%81%E8%AF%A6%E8%A7%A3/" class="post-meta-item leancloud_visitors" data-flag-title="原码、补码、反码详解" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2020</span>
-    </div>
+        <hr>
+<h1 id="生活中存在的数学原理"><a href="#生活中存在的数学原理" class="headerlink" title="生活中存在的数学原理"></a>生活中存在的数学原理</h1><p>&emsp;&emsp;如果只给你一个计算机，但只能运算加法，而不能运算减法，那你该咋办？</p>
+<p>&emsp;&emsp;其实原理很简单，日常生活中我们其实一直都有用到，这就是时钟。</p>
+<p>&emsp;&emsp;假设现在是上午7点，那么6小时前是多少呢？没错！我们理所当然的认为是1点。那么8小时前又是多少呢？7 - 8 + 12，还是1点！你坚定的说，没错！</p>
+<p>&emsp;&emsp;那么，为什么第二次你减去了12呢？</p>
+<p>&emsp;&emsp;因为时钟总共也就只有12个数啊，那这就是数学中的取模运算了！</p>
+<a id="more"></a>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-30T10:31:00+08:00"
-              content="2020-11-30">
-          11-30
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/30/%E8%87%AA%E5%AE%9A%E4%B9%89new%E5%92%8Cdelete%E7%9A%84%E8%A7%84%E5%88%99/" itemprop="url">
-            <span itemprop="name">自定义new和delete的规则</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-27T22:05:00+08:00"
-              content="2020-11-27">
-          11-27
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/27/%E5%85%B3%E4%BA%8E%E6%9B%BF%E6%8D%A2new%E5%92%8Cdelete%E7%9A%84%E6%8A%80%E6%9C%AF/" itemprop="url">
-            <span itemprop="name">关于替换new和delete的技术</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-23T20:41:00+08:00"
-              content="2020-11-23">
-          11-23
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/23/%E5%AF%B9new-handler%E8%BF%99%E4%B8%80%E6%8A%80%E6%9C%AF%E7%9A%84%E6%8E%A2%E8%AE%A8/" itemprop="url">
-            <span itemprop="name">对new-handler这一技术的探讨</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-22T19:01:10+08:00"
-              content="2020-11-22">
-          11-22
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/22/template%E5%85%83%E7%BC%96%E7%A8%8B/" itemprop="url">
-            <span itemprop="name">template元编程</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-21T16:17:00+08:00"
-              content="2020-11-21">
-          11-21
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/21/traits%20class%E4%B8%8E%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF%E4%B9%8B%E9%97%B4%E7%9A%84%E5%A6%99%E7%94%A8/" itemprop="url">
-            <span itemprop="name">traits class与类型信息之间的妙用</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-19T19:57:00+08:00"
-              content="2020-11-19">
-          11-19
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/19/%E4%BD%BF%E7%94%A8friend%20non-member%20function%E6%9D%A5%E5%AE%8C%E6%88%90template%E4%B8%AD%E7%9A%84%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%9C%BA%E8%83%BD/" itemprop="url">
-            <span itemprop="name">使用friend non-member function来完成template中的类型转换机能</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-18T08:57:00+08:00"
-              content="2020-11-18">
-          11-18
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/" itemprop="url">
-            <span itemprop="name">编写有兼容性的成员函数模版</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-16T22:24:00+08:00"
-              content="2020-11-16">
-          11-16
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/16/%E5%89%94%E9%99%A4template%E5%86%85%E4%B8%8E%E5%8F%82%E6%95%B0%E6%97%A0%E5%85%B3%E7%9A%84%E4%BB%A3%E7%A0%81/" itemprop="url">
-            <span itemprop="name">剔除template内与参数无关的代码</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-15T16:25:00+08:00"
-              content="2020-11-15">
-          11-15
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/15/%E5%AD%A6%E4%B9%A0%E5%A4%84%E7%90%86%E6%A8%A1%E7%89%88%E5%8C%96%E5%9F%BA%E7%B1%BB%E5%86%85%E7%9A%84%E5%90%8D%E7%A7%B0/" itemprop="url">
-            <span itemprop="name">学习处理模版化基类内的名称</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-14T17:37:00+08:00"
-              content="2020-11-14">
-          11-14
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/14/%E4%BA%86%E8%A7%A3typename%E7%9A%84%E5%8F%8C%E9%87%8D%E6%84%8F%E4%B9%89/" itemprop="url">
-            <span itemprop="name">了解typename的双重意义</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
+<h1 id="由浅入深"><a href="#由浅入深" class="headerlink" title="由浅入深"></a>由浅入深</h1><p>&emsp;&emsp;回到上述问题，现在是上午7点，那么5小时后呢？12点吗？为了统一操作，这里我们将所有的操作都取模，那么7 + 5 - 12 = 0。这样我们的数的范围是0到11了！</p>
+<p>&emsp;&emsp;假如以7点为起点，5小时前与多少小时后是一样的呢？（7 - 5）mode12 = 2，（7 + ？）mode12 = 2，可以算出是7。也就是说无论是-5还是+7结果都是一样的，那么可以说-5与7在这种情景下是等价的。下面来做一个表格：</p>
+<table>
+<thead>
+<tr>
+<th>0</th>
+<th>-1</th>
+<th>-2</th>
+<th>-3</th>
+<th>-4</th>
+<th>-5</th>
+<th>-6</th>
+<th>-7</th>
+<th>-8</th>
+<th>-9</th>
+<th>-10</th>
+<th>-11</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>11</td>
+<td>10</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>6</td>
+<td>5</td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;这样我们就把它们的对应关系给列出来了，负数全部可以用正数来等价表示。比如-1可以用11来表示，-11可以用1来表示。</p>
+<p>&emsp;&emsp;很好，但是现在我们会有一个问题。根据上述表格的规律，7 - 5 = 7 + 7 = 14 mod 12 = 2，没错，结果等于2。再来看7 - 9 = 7 + 3 = 10，这里我们潜意识会将其等价转换为-2，结果就是-2了。但是为什么上一个例子的结果2却没有进行转换呢，这是因为我们知道最后的结果是正数还是负数。这就是问题所在了，计算机在计算时可不会知道它是正数还是负数，所以这样肯定不行，那么到底该如何处理呢？</p>
+<p>&emsp;&emsp;其实很简单，只要给定我们某个标记，我们就可以立刻知道它是正数还是负数。由于计算机的数字由二进制来表示，因此只要令其某一部分数字来表示负数就行了，这就是我们所说的“标记”。假如给定4位数字二进制（最多存储16个数字）表示，看下表：</p>
+<table>
+<thead>
+<tr>
+<th>00 00</th>
+<th>00 01</th>
+<th>00 10</th>
+<th>00 11</th>
+<th>01 00</th>
+<th>01 01</th>
+<th>01 10</th>
+<th>01 11</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;那么该如何表示出它们的负数形式呢，答案就是将它们的最高位置于1，也就是说，把最高位为1的数表示为负数，最高位为0的数来表示正数。</p>
+<table>
+<thead>
+<tr>
+<th>10 00</th>
+<th>10 01</th>
+<th>10 10</th>
+<th>10 11</th>
+<th>11 00</th>
+<th>11 01</th>
+<th>11 10</th>
+<th>11 11</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-8</td>
+<td>-7</td>
+<td>-6</td>
+<td>-5</td>
+<td>-4</td>
+<td>-3</td>
+<td>-2</td>
+<td>-1</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;这样一来，给我一个数，我就可以知道它是正数还是负数了，比如10，二进制是1010，开头是1，那它一定代表的是一个负数。但是它是负多少呢？因为现在是模16（4位），所以结果就是16 - 10 = 6，也就是-6了。</p>
+<p>&emsp;&emsp;现在让我们以二进制的方式来看下，16 - 10 = 1 00 00 - 10 10 = （ 1 + 1111） - 1010 = （1111 - 1010） + 1 = 0101 + 1 = 0110 = 6，你可能要说这里出现了减法！！！不不不，这一步不是减法，而是进行的按位取反操作。</p>
+<blockquote>
+<p>总结：给定一个二进制数（前提是该数据类型为signed），如果二进制最高位是0，那么这个数就是正数；相反，如果二进制最高位是1，则该数代表负数，其绝对值可以由该二进制数按位取反再加一得来。并且如果给定的数是一个负数时，亦可以用按位取反再加一来对其绝对值进行运算来得到它的二进制数。</p>
+</blockquote>
+<p>&emsp;&emsp;这样，我们就把加减法完美的统一起来了。没错，这其实就是所谓的补码，计算机中所有的整数都是用补码存储的，这样计算机就只需要进行加法运算就足够。举个例子，1的补码是1不变，也就是0001；-1的补码，将1的二进制按位取反再加1，也就是0001按位取反变为1110，再加上1，最后就变为1111，1111代表多少呢？首先肯定代表负数，然后将其按位取反再加1，就是0001，所以结果就是-1了。</p>
+<p>&emsp;&emsp;这样我们就明白了，只要学会将一个数转换为补码进行运算，然后补码再还原就够了，而且更棒的是，两个转换的方式还是一样的！按位取反，再加1，十分的清晰明了。</p>
+<h1 id="计算机中的正负数？"><a href="#计算机中的正负数？" class="headerlink" title="计算机中的正负数？"></a>计算机中的正负数？</h1><p>&emsp;&emsp;现在让我们回归到计算机里，我们知道一般情况下int是4字节，也就是32位。一样的道理，对于signed int，我们将最高位为0的数表示为正数，最高位为1的数表示为负数。所以最大的正数是0111 1111 … 1111 1111，这个数代表多少呢？为了方便计算，先将其加1，变为1000 0000 … 0000 0000，也就是$2^{31}$，然后再减去1就行了。</p>
+<p>&emsp;&emsp;那么绝对值最大的负数呢？因为1开头代表的是负数，其它部分当然是越小越好，所以就是1000 0000 … 0000 0000，直接套用公式，按位取反，再加1，结果就是1000 0000 … 0000 0000，咦？怎么又变回来了？之前算出来的最大正数是$2^{31}$ - 1，怎么负数比正数还多一个，不应该是对称的吗？</p>
+<p>&emsp;&emsp;请仔细再想想，0开头的数和1开头的数，个数是不是一样的，但是0开头的数包括了0，所以正数就少了一个呀。顺便请再想想，最小的负数是$-2147483648$（$-2^{31}$），那$-2147483648 - 1$是多少呢？</p>
+<p>&emsp;&emsp;如果你的答案是$-2147483649$，在上述情景下，显然，你不适合从事程序员这个职业。现在让我们来算一遍，$-2147483648$的补码是1000 0000 … 0000 0000，-1的补码是1按位取反再加1，就是1111 1111 … 1111 1111，然后把这两个数加起来就是0111 1111 … 1111 1111，这不正是那个最大的正数吗！！所以$-2147483648 - 1$的结果就是$2147483647$。</p>
+<p>&emsp;&emsp;下面的表格也许会对你有所帮助：</p>
+<table>
+<thead>
+<tr>
+<th>00 00</th>
+<th>00 01</th>
+<th>00 10</th>
+<th>00 11</th>
+<th>01 00</th>
+<th>01 01</th>
+<th>01 10</th>
+<th>01 11</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>10 00</td>
+<td>10 01</td>
+<td>10 10</td>
+<td>10 11</td>
+<td>11 00</td>
+<td>11 01</td>
+<td>11 10</td>
+<td>11 11</td>
+</tr>
+<tr>
+<td>-8</td>
+<td>-7</td>
+<td>-6</td>
+<td>-5</td>
+<td>-4</td>
+<td>-3</td>
+<td>-2</td>
+<td>-1</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;看上述表格，只有4位，所以最大的数是7，最小的数是-8。表格中7之后的数是-8，所以当-8减1，也就是-8前面的那个数，7。其实这个表格很好理解，将其转化为圆盘，就像时钟一样。</p>
+<blockquote>
+<p>总结：其实我们利用了寄存器的位数是有限制的特性——它到达最大的数以后会自动置零，相当于完成了取模操作，就像时钟一样，到了11点，之后就又会从零开始。然后我们再定义用哪些数代表正数，哪些数代表负数，从而完成了加减法的统一。并且给定一个数如果知道它的补码表示，也可以知道它代表几。</p>
+</blockquote>
 
     </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
   </div>
-  
-  
-  
+</div>
 
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/08/linux%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86/" rel="prev" title="linux软件包安装管理">
+      <i class="fa fa-chevron-left"></i> linux软件包安装管理
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
   
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/archives/2020/11/page/2/">2</a><a class="extend next" rel="next" href="/archives/2020/11/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
+  
+  
 
 
 
@@ -476,6 +516,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#生活中存在的数学原理"><span class="nav-number">1.</span> <span class="nav-text">生活中存在的数学原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#由浅入深"><span class="nav-number">2.</span> <span class="nav-text">由浅入深</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#计算机中的正负数？"><span class="nav-number">3.</span> <span class="nav-text">计算机中的正负数？</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
