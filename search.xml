@@ -3594,12 +3594,12 @@
 <a id="more"></a>
 
 <p>&emsp;&emsp;在这个网站中，列举了各种编程语言中计算$0.1+0.2$的结果，以下是摘取的部分示例：</p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/0.3.png" alt="示例1"></p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/0.31.png" alt="实例2"></p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/0.32.png" alt="实例3"></p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/0.1%2B0.2%EF%BC%9F/0.3.png" alt="示例1"></p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/0.1%2B0.2%EF%BC%9F/0.31.png" alt="实例2"></p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/0.1%2B0.2%EF%BC%9F/0.32.png" alt="实例3"></p>
 <p>可以看到，无论是何种语言，最后的计算结果都是出奇的一致，都是0.30000000000000004。</p>
 <p>&emsp;&emsp;现在让我们实践一下，打开我们的浏览器的控制台（按F12），进行上述计算，我们会看到：</p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/0.33.png" alt="实例4"></p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/0.1%2B0.2%EF%BC%9F/0.33.png" alt="实例4"></p>
 <p>正如之前的实例一样，这里我们的结果也是0.30000000000000004。其实浏览器的控制台进行计算时，用到的语言就是JavaScript。所以，这个现象与具体的编程语言并无关系，主要的问题还是计算机中到底是如何表示小数的以及如何进行小数运算的。</p>
 <h1 id="追根溯源"><a href="#追根溯源" class="headerlink" title="追根溯源"></a>追根溯源</h1><h2 id="计算机中数据的存储形式"><a href="#计算机中数据的存储形式" class="headerlink" title="计算机中数据的存储形式"></a>计算机中数据的存储形式</h2><p>&emsp;&emsp;我们知道计算机中只存在0和1，也只认识0和1，并且只接受二进制，无论外界传入什么样的信息，都需要转换为二进制，之后再进行相应的处理。在之前的一篇博客中，我介绍了计算机如何进行加减法以及对于正负数的处理方式，见“<a href="/2021/03/12/%E5%8E%9F%E7%A0%81%E3%80%81%E8%A1%A5%E7%A0%81%E3%80%81%E5%8F%8D%E7%A0%81%E8%AF%A6%E8%A7%A3/" title="原码、补码、反码详解">原码、补码、反码详解</a>”。</p>
 <p>&emsp;&emsp;整数包括正整数、负整数以及零。在计算机中存储的整数则分为有符号整数和无符号整数，而计算机存储整数的方式是补码。对于无符号整数而言， 采用的编码方式就是其原码；对于有符号整数来说，补码就是其存储形式。</p>
@@ -3666,7 +3666,7 @@
 <p>&emsp;&emsp;IEEE 754规定来四种表示浮点数值的方式：单精确度（32位）、双精确度（64位）、延伸单精确度（43位以上，很少使用）与延伸双精确度（79位以上，通常以80位实现）。其中最常用的就是32位单精度浮点数和64位双精度浮点数，这也是最为我们程序员所熟知的两种数据类型。</p>
 <p>&emsp;&emsp;IEEE 754并没有解决小数无法精确表示的问题，只是提出了一种使用近似值表示小数的方式，并且引入了精度的概念。</p>
 <h2 id="浮点数如何存储？"><a href="#浮点数如何存储？" class="headerlink" title="浮点数如何存储？"></a>浮点数如何存储？</h2><p>&emsp;&emsp;浮点数是一串0和1构成的位序列(bit sequence)，从逻辑上用三元组{S,E,M}表示一个数N,如下图所示：</p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/float-storing.png" alt="浮点数存储形式"></p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/0.1%2B0.2%EF%BC%9F/float-storing.png" alt="浮点数存储形式"></p>
 <ul>
 <li>S(sign)表示N的符号位。对应值s满足：n&gt;0时，s=0; n≤0时，s=1。</li>
 <li>E(exponent)表示N的指数位，位于S和M之间的若干位。对应值e值也可正可负。</li>
