@@ -952,7 +952,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:27:39" itemprop="dateModified" datetime="2021-03-10T20:27:39+08:00">2021-03-10</time>
+                <time title="Modified: 2021-03-21 17:46:17" itemprop="dateModified" datetime="2021-03-21T17:46:17+08:00">2021-03-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -983,7 +983,7 @@
 
       
           <hr>
-<h1 id="尽可能使用const"><a href="#尽可能使用const" class="headerlink" title="尽可能使用const"></a>尽可能使用const</h1><p>&emsp;&emsp;关键字const多才多艺。我们可以用它在classes外部修饰global或namespace作用域中的常量，或修饰文件、函数、或区块作用域中被声明为static的对象。我们也可以用它修饰classes内部的static和non-static成员变量。面对指针，我们也可以指出指针自身、指针所指物，或者两者都（或都不）是const：</p>
+<h1 id="const变量"><a href="#const变量" class="headerlink" title="const变量"></a>const变量</h1><p>&emsp;&emsp;关键字const多才多艺。我们可以用它在classes外部修饰global或namespace作用域中的常量，或修饰文件、函数、或区块作用域中被声明为static的对象。我们也可以用它修饰classes内部的static和non-static成员变量。面对指针，我们也可以指出指针自身、指针所指物，或者两者都（或都不）是const：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> greeting[] = <span class="string">"Hello"</span>;</span><br><span class="line"><span class="keyword">char</span>* p = greeting;              <span class="comment">//non-const pointer,non-const data</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* p = greeting;        <span class="comment">//non-const pointer,const data</span></span><br><span class="line"><span class="keyword">char</span>* <span class="keyword">const</span> p = greeting;        <span class="comment">//const pointer,non-const data</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span> p = greeting;  <span class="comment">//const pointer,const data</span></span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
@@ -1042,7 +1042,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:28:15" itemprop="dateModified" datetime="2021-03-10T20:28:15+08:00">2021-03-10</time>
+                <time title="Modified: 2021-03-21 16:24:22" itemprop="dateModified" datetime="2021-03-21T16:24:22+08:00">2021-03-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1072,10 +1072,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="尽量以const-enum-inline替换-define"><a href="#尽量以const-enum-inline替换-define" class="headerlink" title="尽量以const,enum,inline替换#define"></a>尽量以const,enum,inline替换#define</h1><p>&emsp;&emsp;宁可以编译器替换预处理器，因为或许#define不被视为语言的一部分。这正是问题的所在，当我们做出这样的事情：</p>
+          <h1 id="尽量以const-enum-inline替换-define"><a href="#尽量以const-enum-inline替换-define" class="headerlink" title="尽量以const,enum,inline替换#define"></a>尽量以const,enum,inline替换#define</h1><p>&emsp;&emsp;宁可以编译器替换预处理器，因为或许#define不被视为语言的一部分。这正是问题的所在，当我们写出一下代码时：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ASPECT_RATIO 1.653</span></span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;记号名称ASPECT_RATIO也许从未被编译器看见；也许在编译器开始处理源代码之前它就被预处理器移走了。于是记号名称ASPECT_RATIO有可能没进入记号表内。于是当我们运行此常量但获得一个编译错误信息时，可能会带来困惑，因为这个错误信息也许会提到1.653而不是ASPECT_RATIO。如果ASPECT_RATIO被定义在一个非我们所写的头文件内，我们肯定对1.653以及它来自何处毫无概念，于是我们将因为追踪它而浪费时间。这个问题也可能出现在记号式调试器中，原因相同：我们所使用的名称可能并未进入记号表。</p>
+<p>&emsp;&emsp;记号名称ASPECT_RATIO也许从未被编译器看见；也许在编译器开始处理源代码之前它就被预处理器移走了。于是记号名称ASPECT_RATIO有可能没进入记号表内。于是当我们运行此常量但获得一个编译错误信息时，可能会有所困惑，因为这个错误信息也许会提到1.653而不是ASPECT_RATIO。如果ASPECT_RATIO被定义在一个非我们所写的头文件内，我们肯定对1.653以及它来自何处毫无头绪，于是我们将因为追踪它而浪费时间。这个问题也可能出现在记号式调试器中，原因相同：我们所使用的名称可能并未进入记号表。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/07/17/%E5%B0%BD%E9%87%8F%E4%BB%A5const,enum,inline%E6%9B%BF%E6%8D%A2define/#more" rel="contents">
