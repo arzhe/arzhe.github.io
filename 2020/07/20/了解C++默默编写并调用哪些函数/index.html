@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="了解C++默默编写并调用哪些函数&amp;emsp;&amp;emsp;对于一个class来说，如果我们自己没有声明，编译器就会为它声明（编译器版本的）一个copy构造函数，一个copy assignment操作符和一个析构函数。此外如果我们没有声明任何构造函数，编译器也会为我们声明一个default构造函数。所有这些函数都是public和inline。因此，如果我们写下： 1class Empty &amp;#123">
 <meta property="article:published_time" content="2020-07-20T08:31:00.000Z">
-<meta property="article:modified_time" content="2021-03-10T12:29:56.000Z">
+<meta property="article:modified_time" content="2021-03-22T11:50:19.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:29:56" itemprop="dateModified" datetime="2021-03-10T20:29:56+08:00">2021-03-10</time>
+                <time title="Modified: 2021-03-22 19:50:19" itemprop="dateModified" datetime="2021-03-22T19:50:19+08:00">2021-03-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -279,7 +279,7 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Empty e1;  <span class="comment">//default构造函数</span></span><br><span class="line">           <span class="comment">//析构函数</span></span><br><span class="line"><span class="function">Empty <span class="title">e2</span><span class="params">(e1)</span></span>;  <span class="comment">//copy构造函数</span></span><br><span class="line">e2 = e1;       <span class="comment">//copy assignment操作符</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;default构造函数和析构函数主要是给编译器一个地方用来放置“藏身幕后”的代码，像是调用base class和non-static成员变量的构造函数和析构函数。注意，编译器产出的析构函数是个non-virtual，除非这个class的base class自身声明有virtual析构函数（这种情况下这个函数的虚属性主要来自base class）。</p>
-<p>&emsp;&emsp;至于copy构造函数和copy assignment操作符，编译器创建的版本只是单纯地将来源对象的每一个non-static成员变量拷贝到目标对象。考虑一下代码：</p>
+<p>&emsp;&emsp;至于copy构造函数和copy assignment操作符，编译器创建的版本只是单纯地将来源对象的每一个non-static成员变量拷贝到目标对象。考虑以下代码：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NamedObject</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    NamedObject(<span class="keyword">const</span> <span class="keyword">char</span>* name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    NamedObject(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span>&amp; name, <span class="keyword">const</span> T&amp; value);</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span>&amp; nameValue;</span><br><span class="line">    T objectValue;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;由于其中声明了一个构造函数，编译器于是不再为它创建default构造函数。</p>
@@ -296,8 +296,10 @@
 
 <p>&emsp;&emsp;赋值之后p.nameValue应该指向s.nameValue所指的那个string吗？也就是说reference自身可被改动吗？如果可以，那可就不得了了，因为C+并不允许“让reference改指向不同对象”。换一个想法，p.nameValue所指的那个string对象该被修改，进而影响“持有pointers或references而且指向该string”的其它对象吗？也就是对象不被直接牵扯到赋值操作内？编译器生成的copy assignment操作符究竟该如何做呢？</p>
 <p>&emsp;&emsp;面对这个难题，C++的响应是拒绝编译那一行赋值动作。如果我们打算在一个“内含reference成员”的class内支持赋值操作，我们必须自己定义copy assignment操作符。面对“内含const成员”的classes，编译器的反应也一样。更改const成员是不合法的，所以编译器不知道如何在它自己生成的赋值函数内面对它们。最后还有一种情况：如果某个base class将copy assignment操作符声明为private，编译器将拒绝为其derived classes生成一个copy assignment操作符。毕竟编译器为derived classes所生成的copy assignment操作符想象中可以处理base class成分，但它们当然无法调用derived classes无权调用的成员函数。编译器两手一摊，无能为力。</p>
-<blockquote>
-<p>编译器可以暗自为class创建default构造函数、copy构造函数、copy assignment操作符，以及析构函数。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><blockquote>
+<ul>
+<li>编译器可以暗自为class创建default构造函数、copy构造函数、copy assignment操作符，以及析构函数。</li>
+</ul>
 </blockquote>
 
     </div>
@@ -403,7 +405,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#了解C-默默编写并调用哪些函数"><span class="nav-number">1.</span> <span class="nav-text">了解C++默默编写并调用哪些函数</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#了解C-默默编写并调用哪些函数"><span class="nav-number">1.</span> <span class="nav-text">了解C++默默编写并调用哪些函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
