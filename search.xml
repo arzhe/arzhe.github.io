@@ -181,14 +181,14 @@
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TimeKeeper</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    TimeKeeper();</span><br><span class="line">    <span class="keyword">virtual</span> ~TimeKeeper();</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">TimeKeeper* ptk = getTimeKeeper();</span><br><span class="line">...</span><br><span class="line"><span class="keyword">delete</span> ptk;  <span class="comment">//现在，行为正确</span></span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;像TimeKeeper这样的base class除了析构函数之外通常还有其它virtual函数，因为virtual函数的目的是允许derived class的实现得以自定义。例如TimeKeeper就可能拥有一个virtual getCurrentTime，它在不同的derived classes中有不同的实现代码。任何class只要带有virtual函数都几乎确定应该也有一个virtual析构函数。</p>
-<p>&emsp;&emsp;如果class不含virtual函数，通常表示它并不意图被用做一个base class。当class不企图被当作base class，令其析构函数为virtual往往是个馊主意。考虑一个用来表示二维空间坐标的class：</p>
+<p>&emsp;&emsp;如果class不含virtual函数，通常意味着它并不是被用作base class。当class不被用作base class，令其析构函数为virtual往往是个馊主意。考虑一个用来表示二维空间坐标的class：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Point(<span class="keyword">int</span> xCoord, <span class="keyword">int</span> yCoord);</span><br><span class="line">    ~Point();</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> x, y;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;如果int占用32bits，那么Point对象可能塞入一个64-bit缓存器中。更有甚者，这样一个Point对象可被当作一个“64-bit量”传给其他语言如C或FORTRAN编写的函数。然而当Point的析构函数是virtual，形势发生了变化。</p>
 <p>&emsp;&emsp;欲实现出virtual函数，对象必须携带某些信息，主要用来在运行期决定哪一个virtual函数该被调用。这份信息通常是由一个所谓vptr（virtual table pointer）指针指出。vptr指向一个由函数指针构成的数组，称为vtbl（virtual table）；每一个带有virtual函数的class都有一个相应的vtbl。当对象调用某一virtual函数。实际被调用的函数取决于该对象的vptr所指的那个vtbl——编译器在其中寻找适当的函数指针。</p>
 <p>&emsp;&emsp;virtual函数的实现细节不重要。重要的是如果Point class内含virtual函数，其对象的体积会增加：在32-bit计算机体系结构中将占用64bits（为了存放两个ints）至96bits（两个ints加上vptr）；在64-bits计算机体系结构中可能占用64-128bits，因为指针在这样的计算机结构中占64bits。因此，为Point添加一个vptr会增加其对象大小达50%～100%！Point对象不再能够塞入一个64-bit缓存器，而C++的Point对象也不再和其他语言（如C）内的相同声明有着一样的结构（因为其他语言的对应物应该没有vptr），因此也就不再可能把它传递至（或接受自）其他语言所写的函数，除非我们明确补偿vptr——这属于实现细节，也因此不再具有移植性。</p>
 <p>&emsp;&emsp;因此，无端地将所有classes的析构函数声明为virtual，就像从未声明它们为virtual一样，都是错误的。许多人的心得是：只有当class内含至少一个virtual函数，才为它声明virtual析构函数。</p>
-<p>&emsp;&emsp;即使class完全不带virtual函数，被“non-virtual析构函数问题”给咬伤还是有可能的。举个例子，标准string不含任何virtual函数，但有时候程序员会错误地把它当作base class：</p>
+<h1 id="切勿将STL容器、标准string等class当作base-class"><a href="#切勿将STL容器、标准string等class当作base-class" class="headerlink" title="切勿将STL容器、标准string等class当作base class"></a>切勿将STL容器、标准string等class当作base class</h1><p>&emsp;&emsp;即使class完全不带virtual函数，被“non-virtual析构函数问题”给咬伤还是有可能的。举个例子，标准string不含任何virtual函数，但有时候程序员会错误地把它当作base class：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SpecialString</span>:</span> <span class="keyword">public</span> <span class="built_in">std</span>::<span class="built_in">string</span> &#123;  <span class="comment">//馊主意！std::string有个</span></span><br><span class="line">    ...                                    <span class="comment">//non-virtual析构函数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;乍看之下似乎无害，但如果我们在程序任意某处无意间将一个pointer-to-SpecialString转换为一个pointer-to-string，然后将转换的那个string指针delete掉，我们将立刻被流放到“行为不正确”的荒地上：</p>
@@ -204,9 +204,13 @@
 <p>&emsp;&emsp;析构函数的运作方式是，最深层派生的那个class其析构函数最先被调用，然后是其每一个base class的析构函数被调用。编译器会在AWOV的derived class的析构函数中创建一个对～AWOV的调用动作，所以我们必须为这个函数提供一份定义。如果不这样做，编译器会发出抱怨。</p>
 <p>&emsp;&emsp;“给base class一个virtual析构函数”，这个规则只适用于polymorphic（带有多态性质的）base class身上。这种base class的设计目的是为了用来“通过base class接口处理derived class对象”。TimeKeeper就是一个polymorphic base class，因为我们希望处理AtomicClock和WaterClock对象，纵使我们只有TimeKeeper指针指向它们。</p>
 <p>&emsp;&emsp;并非所有base class的设计目的都是为了多态用途。例如标准string和STL容器都不被设计作为base class使用，更别提多态了。某些class的设计目的是作为base class使用，但不是为了多态用途。这样的class如input_iterator_tag等，它们并非被设计用来“经由base class接口处理derived class对象”，因此它们不需要virtual析构函数。</p>
-<blockquote>
-<p>Polymorphic（带多态性质的）base class应该声明一个virtual析构函数。如果class带有任何virtual函数，它就应该拥有一个virtual析构函数。</p>
-<p>Class的设计目的如果不是作为base class使用，或不是为了具备多态性，就不该声明virtual析构函数。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><blockquote>
+<ul>
+<li><p>Polymorphic（带多态性质的）base class应该声明一个virtual析构函数。如果class带有任何virtual函数，它就应该拥有一个virtual析构函数。</p>
+</li>
+<li><p>Class的设计目的如果不是作为base class使用，或不是为了具备多态性，就不该声明virtual析构函数。</p>
+</li>
+</ul>
 </blockquote>
 ]]></content>
       <categories>
@@ -282,8 +286,10 @@
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>+=(<span class="keyword">const</span> Widget&amp; rhs) &#123;  <span class="comment">//这个协议适用于+=，-=，*=等等</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="keyword">int</span> rhs) &#123;             <span class="comment">//此函数也适用，</span></span><br><span class="line">        ...                                  <span class="comment">//即使此操作符的参数类型不符合协定</span></span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;注意，这只是个协议，并无强制性。如果不遵循它，代码一样可以通过编译。然而这份协议被所有内置类型和标准程序库提供的类型如string，vector，complex，tr1::shared_ptr或即将提供的类型共同遵守。因此除非我们有一个标新立异的好理由，不然还是从众吧。</p>
-<blockquote>
-<p>令赋值操作符返回一个reference to *this。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><blockquote>
+<ul>
+<li>令赋值操作符返回一个reference to *this。</li>
+</ul>
 </blockquote>
 ]]></content>
       <tags>
@@ -626,9 +632,13 @@
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DBConn</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;  <span class="comment">//供客户使用的新函数</span></span><br><span class="line">       db.<span class="built_in">close</span>();</span><br><span class="line">       closed = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ~DBConn() &#123;</span><br><span class="line">        <span class="keyword">if</span>(!closed) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;  <span class="comment">//关闭连接（如果客户不那么做的话）</span></span><br><span class="line">                db.<span class="built_in">close</span>();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span>(...) &#123;</span><br><span class="line">                <span class="comment">//制作运转记录，记下对close的调用失败；</span></span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    DBConnection db;</span><br><span class="line">    <span class="keyword">bool</span> closed;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;把调用close的责任从DBConn析构函数手上移到DBConn客户手上（但DBConn析构函数内仍内含一个“双保险”调用）可能会给我们“肆无忌惮转移负担”的印象。实际上在这里并无大碍。如果某个操作可能在失败时抛出异常，而又存在某种需要必须处理该异常，那么这个异常必须来自析构函数以外的某个函数。因为析构函数吐出异常就是危险，总会带来“过早结束程序”或“发生不明确行为”的风险。本例要说的是，由客户自己调用close并不会对他们带来负担，而是给他们一个处理错误的机会，否则他们没机会响应。如果他们不认为这个机会有用（或许他们坚信不会有错误发生），可以忽略它，依赖DBConn析构函数去调用close。</p>
-<blockquote>
-<p>析构函数绝对不要抛出异常。如果一个被析构函数调用的函数可能抛出异常，析构函数应该捕捉任何异常，然后吞下它们（不传播）或结束程序。</p>
-<p>如果客户需要对某个操作函数运行期间抛出的异常做出反应，那么class应该提供一个普通函数（而非在析构函数中）执行该操作。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><blockquote>
+<ul>
+<li><p>析构函数绝对不要抛出异常。如果一个被析构函数调用的函数可能抛出异常，析构函数应该捕捉任何异常，然后吞下它们（不传播）或结束程序。</p>
+</li>
+<li><p>如果客户需要对某个操作函数运行期间抛出的异常做出反应，那么class应该提供一个普通函数（而非在析构函数中）执行该操作。</p>
+</li>
+</ul>
 </blockquote>
 ]]></content>
       <categories>
@@ -656,7 +666,7 @@
 <p>&emsp;&emsp;如果px和py恰巧指向同一个东西，这也是自我赋值。这些并不明显的自我赋值，是“别名”带来的结果：所谓“别名”就是“有一个以上的方法指涉某对象”。一般而言如果某段代码操作pointer或reference而它们被用来“指向多个相同类型的对象”，就需要考虑这些对象是否为同一个。实际上两个对象只要来自同一个继承体系，它们甚至不需声明为相同类型就可能造成“别名”，因为一个base class的reference或pointer可以指向一个derived class对象：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doSomething</span><span class="params">(<span class="keyword">const</span> Base&amp; rb, Derived* pd)</span></span>;  <span class="comment">//rb和*pd有可能其实是同一对象</span></span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;如果我们尝试自行管理资源（如果我们打算写一个勇于资源管理的class就得这样做），可能会在停止使用资源之前就意外释放了它。假设我们建立一个class用来保存一个指针指向动态分配的位图（bitmap）：</p>
+<p>&emsp;&emsp;如果我们尝试自行管理资源（如果我们打算写一个用于资源管理的class就得这样做），可能会在停止使用资源之前就意外释放了它。假设我们建立一个class用来保存一个指针指向动态分配的位图（bitmap）：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bitmap</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Bitmap* pb;  <span class="comment">//指针，指向一个从heap分配而得的对象</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;下面是operator=实现代码，表面上看起来合理，但自我赋值出现时并不安全（它也不具备异常安全性）：</p>
@@ -1570,8 +1580,10 @@
 
 <p>&emsp;&emsp;换句话说由于我们无法使用virtual函数从base class向下调用，在构造期间，我们可以藉由“令derived class将必要的构造信息向上传递至base class构造函数”替换之而加以弥补。</p>
 <p>&emsp;&emsp;在本例中BuyTransaction内的private static函数createLogString的作用：比起在成员初值列内给予base class所需数据，利用辅助函数创建一个值传给base class构造函数往往比较方便（也比较可读）。令此函数为static，也就不可能意外指向“初期未成熟的BuyTransaction对象内尚未初始化的成员变量”。这很重要，正是因为“那些成员变量处于未定义状态”，所以“在base class构造和析构期间调用的virtual函数不可下降至derived class”。</p>
-<blockquote>
-<p>在构造和析构期间不要调用virtual函数，因为这类调用从不下降至derived class。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><blockquote>
+<ul>
+<li>在构造和析构期间不要调用virtual函数，因为这类调用从不下降至derived class。</li>
+</ul>
 </blockquote>
 ]]></content>
       <categories>
@@ -1585,16 +1597,16 @@
     <title>若不想使用编译器自动生成的函数就该明确拒绝</title>
     <url>/2020/07/21/%E8%8B%A5%E4%B8%8D%E6%83%B3%E4%BD%BF%E7%94%A8%E7%BC%96%E8%AF%91%E5%99%A8%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E7%9A%84%E5%87%BD%E6%95%B0%E5%B0%B1%E8%AF%A5%E6%98%8E%E7%A1%AE%E6%8B%92%E7%BB%9D/</url>
     <content><![CDATA[<hr>
-<h1 id="若不想使用编译器自动生成的函数就该明确拒绝"><a href="#若不想使用编译器自动生成的函数就该明确拒绝" class="headerlink" title="若不想使用编译器自动生成的函数就该明确拒绝"></a>若不想使用编译器自动生成的函数就该明确拒绝</h1><p>&emsp;&emsp;地产中介商卖的是房子，一个中介软件系统自然而然想必有个class用来描述待售房屋：</p>
+<h1 id="编译器“令人头疼”的“暗箱操作”"><a href="#编译器“令人头疼”的“暗箱操作”" class="headerlink" title="编译器“令人头疼”的“暗箱操作”"></a>编译器“令人头疼”的“暗箱操作”</h1><p>&emsp;&emsp;地产中介商卖的是房子，一个中介软件系统自然而然想必有个class用来描述待售房屋：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span> &#123;</span> ... &#125;;</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;每一位真正的地产中介商都会说，任何一笔资产都是独一无二的，没有两笔完全相像。因此我们也认为，为HomeForSale对象做一份副本有点没道理。我们怎么可以复制某些先天独一无二的东西呢？因此，我们应该乐意看到HomeForSale的对象拷贝动作以失败收场：</p>
+<p>&emsp;&emsp;每一位地产中介商都会说，任何一笔交易都是独一无二的，没有两笔完全相像。因此我们也认为，为HomeForSale对象做一份副本有点没道理。我们怎么可以复制某些先天独一无二的东西呢？因此，我们应该乐意看到HomeForSale的对象拷贝动作以失败收场：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">HomeForSale h1;</span><br><span class="line">HomeForSale h2;</span><br><span class="line"><span class="function">HomeForSale <span class="title">h3</span><span class="params">(h1)</span></span>;  <span class="comment">//企图拷贝h1，不该通过编译</span></span><br><span class="line">h1 = h2;             <span class="comment">//企图拷贝h2，也不该通过编译</span></span><br></pre></td></tr></table></figure>
 
 <a id="more"></a>
 
 <p>&emsp;&emsp;通常如果我们不希望class支持某一个特定功能，只要不声明对应函数就是了。但这个策略对copy构造函数和copy assignment操作符却不起作用，因为如果我们不声明它们，而某些人尝试调用它们，编译器会为我们声明它们。</p>
-<p>&emsp;&emsp;这使我们陷入了两难的境况。问题的关键是，所有编译器产出的函数都是public。为阻止这些函数被创建出来。我们得自行声明它们，但这里并没有什么需求使我们必须将它们声明为public。因此我们可以将copy构造函数或copy assignment操作符声明为private。明确声明一个成员函数，我们阻止了编译器暗自创建其专属版本；而令这些函数为private，使我们得以成功阻止人们调用它。</p>
+<h1 id="明确拒绝编译器的“暗箱操作”"><a href="#明确拒绝编译器的“暗箱操作”" class="headerlink" title="明确拒绝编译器的“暗箱操作”"></a>明确拒绝编译器的“暗箱操作”</h1><p>&emsp;&emsp;这使我们陷入了两难的境况。问题的关键是，所有编译器产出的函数都是public。为阻止这些函数被创建出来。我们得自行声明它们，但这里并没有什么需求使我们必须将它们声明为public。因此我们可以将copy构造函数或copy assignment操作符声明为private。明确声明一个成员函数，我们阻止了编译器暗自创建其专属版本；而令这些函数为private，使我们得以成功阻止人们调用它。</p>
 <p>&emsp;&emsp;一般而言这个做法并不绝对安全，因为member函数和friend函数还是可以调用我们的private函数。除非我们足够聪明，不去定义它们，那么如果某些人不慎调用任何一个，会获得一个连接错误（Linkage error）。“将成员函数声明为private而且故意不实现它们”这一技术是广受欢迎的，因而被用在C++ iostream程序库中阻止copy行为。没错，当我们看看手上的标准程序库实现代码中的ios_base，basic_ios和sentry。我们会发现无论哪一个，其copy构造函数和copy assignment操作符都被声明为private而且没有定义。</p>
 <p>&emsp;&emsp;将这个技巧用于HomeForSale也很简单：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HomeForSale</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    ...</span><br><span class="line">    HomeForSale(<span class="keyword">const</span> HomeForSale);  <span class="comment">//只有声明</span></span><br><span class="line">    HomeForSale&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> HomeForSale&amp;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
@@ -3700,6 +3712,78 @@
       </categories>
       <tags>
         <tag>计算机原理</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ac-air开发日志（1）</title>
+    <url>/2021/03/30/ac-air%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97%EF%BC%881%EF%BC%89/</url>
+    <content><![CDATA[<hr>
+<h1 id="什么是ac-air"><a href="#什么是ac-air" class="headerlink" title="什么是ac-air"></a>什么是ac-air</h1><p>&emsp;&emsp;ac-air是基于RBAC模型与ACL模型的一个访问控制框架，该框架使用C++进行编写，使用了C++11标准，并对访问控制模型进行抽象化。</p>
+<h1 id="为什么是ac-air"><a href="#为什么是ac-air" class="headerlink" title="为什么是ac-air"></a>为什么是ac-air</h1><p>&emsp;&emsp;现有访问控制框架中，在大型项目中有C++实现的高并发高性能的程序，在小型程序或是WEB端有PHP，Java等语言实现的高效率的程序。中型程序缺少一种轻量级的访问控制框架，考虑到Java等语言体系对于底层数据的不可控性，很难实现高性能的程序；虽然C++对于字符串的处理十分繁琐且复杂，但是由于其对于程序代码有很强的可控性，且在中型程序中字符串的处理量并没有像大型项目那么多，故而采取C++作为开发语言。</p>
+<a id="more"></a>
+
+<h1 id="如何使用ac-air"><a href="#如何使用ac-air" class="headerlink" title="如何使用ac-air"></a>如何使用ac-air</h1><p>&emsp;&emsp;你只需要从github上下载到你的项目主目录中，然后进入ac-air的build目录下执行一条简单的<code>cmake ..</code>命令即可，然后你所需要做的就是将该库包含到你的项目代码中，你也可以执行<code>cmake install ..</code>命令，然后配置你的PATH路径，将该库包含到你的PATH中。</p>
+<p>&emsp;&emsp;在你的代码中，要如何使用该框架来实现访问控制呢？示例如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 将访问控制模型从model.conf与policy.csv文件中抽取出来</span></span><br><span class="line">AcAir ac = NewAcAir(<span class="string">"path/to/model.conf"</span>, <span class="string">"path/to/policy.csv"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//你所定义的用户的信息</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> sub = <span class="string">"Alice"</span>; <span class="comment">//欲进行操作的用户</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> obj = <span class="string">"data"</span>;  <span class="comment">//用户欲操作的资源</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> act = <span class="string">"read"</span>;  <span class="comment">//用户欲对资源执行的操作</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//判断该用户的权限信息</span></span><br><span class="line"><span class="keyword">if</span>(ac.AcAir(sub, obj, act)) &#123;</span><br><span class="line">    <span class="comment">//允许用户执行操作</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">//拒绝用户执行操作</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;以上所示为该框架的基本使用范例，简单明了！</p>
+<h1 id="ac-air使用的技术"><a href="#ac-air使用的技术" class="headerlink" title="ac-air使用的技术"></a>ac-air使用的技术</h1><p>&emsp;&emsp;在ac-air中，访问控制模型被抽象为几个要素：</p>
+<ul>
+<li>主体请求（request)</li>
+<li>策略模型（model）</li>
+<li>策略规则（rule）</li>
+<li>匹配策略（match）</li>
+</ul>
+<p>其中主体请求，策略模型和匹配策略由conf文件来定义；策略规则由csv文件来定义。</p>
+<p>&emsp;&emsp;若采取了RBAC模型，则需要添加额外的要素：</p>
+<ul>
+<li>角色继承策略（role）</li>
+</ul>
+<h2 id="conf文件与csv文件"><a href="#conf文件与csv文件" class="headerlink" title="conf文件与csv文件"></a>conf文件与csv文件</h2><p>&emsp;&emsp;欲实现出上述如此便捷的功能，你所需要做的就只有编写2个文件：模型策略文件（model_policy.conf），策略规则文件（policy_rule.csv）。它们将访问控制模型抽象为计算机中的数据，并存储在数据结构中以便后续代码调用。</p>
+<h3 id="conf文件"><a href="#conf文件" class="headerlink" title="conf文件"></a>conf文件</h3><p>&emsp;&emsp;该文件使用conf格式，其本质与txt无任何差别，亦可采取ini，cfg后缀进行编写，其编写格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[section]</span><br><span class="line">option &#x3D; value</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;conf文件使用了3个元素，[section]，option和value，每一行单独编译，每一区块（即[section]之间的区域）为一个编译单元。不支持换行定义。</p>
+<p>示例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#主体请求单元</span><br><span class="line">[request]</span><br><span class="line">rst &#x3D; sub, obj, act</span><br><span class="line"></span><br><span class="line">#策略模型单元，permit只有true与false两个值</span><br><span class="line">[model]</span><br><span class="line">mdl &#x3D; sub, obj, act, permit</span><br><span class="line"></span><br><span class="line">#角色继承策略，前项继承后项的权限</span><br><span class="line">[role]</span><br><span class="line">r &#x3D; _, _</span><br><span class="line"></span><br><span class="line">#策略匹配规则</span><br><span class="line">[match]</span><br><span class="line">m &#x3D; rst.sub &#x3D;&#x3D; mdl.sub &amp;&amp; rst.obj &#x3D;&#x3D; mdl.obj &amp;&amp; rst.act &#x3D;&#x3D; mdl.act &amp;&amp; permit</span><br></pre></td></tr></table></figure>
+
+<h4 id="主体请求单元"><a href="#主体请求单元" class="headerlink" title="主体请求单元"></a>主体请求单元</h4><p>&emsp;&emsp;将用户的信息存储其中，例如Alice要对data执行read操作时，sub就是Alice，obj就是data，act就是read。该单元中等号右边的参数即为<code>ac.AcAir(...)</code>中应传入的参数。</p>
+<h4 id="策略模型单元"><a href="#策略模型单元" class="headerlink" title="策略模型单元"></a>策略模型单元</h4><p>&emsp;&emsp;将csv文件的信息存储其中，其中permit只有两个值true和false，默认值为true。由csv文件定义。该单元与csv文件一起也就组成了我们对策略规则的描述，例如：</p>
+<p>model定义了规则：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[model]</span><br><span class="line">mdl &#x3D; sub, obj, act</span><br></pre></td></tr></table></figure>
+
+<p>csv实现了规则：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mdl, Alice, data1, read</span><br></pre></td></tr></table></figure>
+
+<p>上述描述表示Alice对于data1具有读的权限。</p>
+<h4 id="角色继承策略单元"><a href="#角色继承策略单元" class="headerlink" title="角色继承策略单元"></a>角色继承策略单元</h4><p>&emsp;&emsp;将存储角色的继承关系。由csv文件定义。</p>
+<h4 id="策略匹配规则"><a href="#策略匹配规则" class="headerlink" title="策略匹配规则"></a>策略匹配规则</h4><p>&emsp;&emsp;定义了主体请求如何与策略模型进行匹配，其本质上就是布尔表达式，可以理解为[request]和[model]定义了关于请求与策略的变量，然后将这些变量传入[match]中进行求值，从而依据结果来进行权限决策。上述示例代码是一个简单的例子，但是其规则为硬性要求，也就是你必须将[request]中的三元组与[model]中的三元组一一对应，支持+、-、*、/等算数运算符，==、!=、&gt;、&lt;等关系运算符以及&amp;&amp;、||、!等逻辑运算符。</p>
+<p>&emsp;&emsp;关于策略匹配规则更为核心的一点是，它支持自定义的匹配函数！也就是你甚至可以自己去定义匹配规则，这也是ac-air强大，灵活的地方。那么如何添加你自己的匹配函数呢？</p>
+<p>&emsp;&emsp;首先你需要定义好自己的匹配函数：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">KeyMatch</span><span class="params">(<span class="built_in">string</span> key1, <span class="built_in">string</span> key2)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//匹配实现细节</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后用以下函数来包装它：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">ReturnType <span class="title">KeyMatch</span><span class="params">(Scope scope)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">string</span> key1 = GetString(scope, <span class="number">0</span>);</span><br><span class="line">    <span class="built_in">string</span> key2 = GetString(scope, <span class="number">1</span>);</span><br><span class="line">  </span><br><span class="line">    PushBooleanValue(scope, KeyMatch(key1, key2));</span><br><span class="line">    <span class="keyword">return</span> RETURN_RESULT;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正如你所见，有众多你所陌生的宏，但是如果你接触过duktape，也许会会心一笑，没错，该框架使用了duktape组件来完成对javascript的支持，由C++完成底层功能，然后经由duktape的“加工”，使得上层——业务层得以轻松调用它们。</p>
+<p>那么最后一步：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">ac.AddFunction(<span class="string">"my_func"</span>, KeyMatch);</span><br></pre></td></tr></table></figure>
+
+<p>将该函数注册到框架中。</p>
+<p>&emsp;&emsp;现在你可以像下面这样来使用自定义的函数：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[match]</span><br><span class="line">m &#x3D; my_func(rst.sub, rst.obj) ...</span><br></pre></td></tr></table></figure>
+
+<h3 id="csv文件"><a href="#csv文件" class="headerlink" title="csv文件"></a>csv文件</h3><p>&emsp;&emsp;该文件使用csv文件格式，其本质与txt无任何差别，只不过是遵循csv标准格式的一种txt变体。其格式如下示例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mdl, role1, data1, read</span><br><span class="line">mdl, Alice, data2, write</span><br><span class="line"></span><br><span class="line">r, Alice, role1</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;上述代码表示，role1对data1具有读权限，Alice对data2具有写权限，Alice是角色role1的一个成员（也可以说是继承了role1的权限），这里的Alice不要误认为只能是用户，Alice包括role1在内的所有sub都可以成为角色，因为在ac-air框架中没有对字符串是否是用户还是角色进行区分，更何况也极难甚至是无法去区分，在ac-air中，所有的角色，用户都是用字符串来进行存储、处理的。</p>
+<p>&emsp;&emsp;要想区分它们，最好的办法是用户自己去明确定义它们，比如用户是Alice，角色是role_1，像这样使用划分明显的字符串来进行处理。但是请记住在ac-air框架中不存在角色与用户之分，它们都是一样的（以字符串形式表达）。亦或是在使用多层继承的RBAC模型时，给角色加上像<code>role::_one</code>这样的前缀再传给ac-air中，借此可以通过查看前缀来区分用户和角色。</p>
+]]></content>
+      <categories>
+        <category>项目开发日志</category>
+      </categories>
+      <tags>
+        <tag>ac-air</tag>
       </tags>
   </entry>
 </search>

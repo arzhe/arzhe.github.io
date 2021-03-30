@@ -22,19 +22,19 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="了解隐式接口和编译期多态&amp;emsp;&amp;emsp;面向对象编程世界总是以显式接口和运行期多态解决问题。举个例子子，给定这样（无意义）的class： 123456789class Widget &amp;#123;    public:        Widget();        virtual ~Widget();        virtual std::size_t size() const;">
+  <meta name="description" content="什么是ac-air&amp;emsp;&amp;emsp;ac-air是基于RBAC模型与ACL模型的一个访问控制框架，该框架使用C++进行编写，使用了C++11标准，并对访问控制模型进行抽象化。 为什么是ac-air&amp;emsp;&amp;emsp;现有访问控制框架中，在大型项目中有C++实现的高并发高性能的程序，在小型程序或是WEB端有PHP，Java等语言实现的高效率的程序。中型程序缺少一种轻量级的访问控制框架，考">
 <meta property="og:type" content="article">
-<meta property="og:title" content="了解隐式接口和编译期多态">
-<meta property="og:url" content="http://yoursite.com/2020/11/14/%E4%BA%86%E8%A7%A3%E9%9A%90%E5%BC%8F%E6%8E%A5%E5%8F%A3%E5%92%8C%E7%BC%96%E8%AF%91%E6%9C%9F%E5%A4%9A%E6%80%81/index.html">
+<meta property="og:title" content="ac-air开发日志（1）">
+<meta property="og:url" content="http://yoursite.com/2021/03/30/ac-air%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97%EF%BC%881%EF%BC%89/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="了解隐式接口和编译期多态&amp;emsp;&amp;emsp;面向对象编程世界总是以显式接口和运行期多态解决问题。举个例子子，给定这样（无意义）的class： 123456789class Widget &amp;#123;    public:        Widget();        virtual ~Widget();        virtual std::size_t size() const;">
-<meta property="article:published_time" content="2020-11-14T02:20:00.000Z">
-<meta property="article:modified_time" content="2021-03-10T12:29:46.000Z">
+<meta property="og:description" content="什么是ac-air&amp;emsp;&amp;emsp;ac-air是基于RBAC模型与ACL模型的一个访问控制框架，该框架使用C++进行编写，使用了C++11标准，并对访问控制模型进行抽象化。 为什么是ac-air&amp;emsp;&amp;emsp;现有访问控制框架中，在大型项目中有C++实现的高并发高性能的程序，在小型程序或是WEB端有PHP，Java等语言实现的高效率的程序。中型程序缺少一种轻量级的访问控制框架，考">
+<meta property="article:published_time" content="2021-03-30T02:34:00.000Z">
+<meta property="article:modified_time" content="2021-03-30T09:34:29.000Z">
 <meta property="article:author" content="arzhe">
-<meta property="article:tag" content="C++">
+<meta property="article:tag" content="ac-air">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/2020/11/14/%E4%BA%86%E8%A7%A3%E9%9A%90%E5%BC%8F%E6%8E%A5%E5%8F%A3%E5%92%8C%E7%BC%96%E8%AF%91%E6%9C%9F%E5%A4%9A%E6%80%81/">
+<link rel="canonical" href="http://yoursite.com/2021/03/30/ac-air%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97%EF%BC%881%EF%BC%89/">
 
 
 <script id="page-configurations">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>了解隐式接口和编译期多态 | Hexo</title>
+  <title>ac-air开发日志（1） | Hexo</title>
   
 
 
@@ -206,7 +206,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/14/%E4%BA%86%E8%A7%A3%E9%9A%90%E5%BC%8F%E6%8E%A5%E5%8F%A3%E5%92%8C%E7%BC%96%E8%AF%91%E6%9C%9F%E5%A4%9A%E6%80%81/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/03/30/ac-air%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97%EF%BC%881%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
@@ -219,7 +219,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          了解隐式接口和编译期多态
+          ac-air开发日志（1）
         </h1>
 
         <div class="post-meta">
@@ -228,28 +228,22 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2020-11-14 10:20:00" itemprop="dateCreated datePublished" datetime="2020-11-14T10:20:00+08:00">2020-11-14</time>
+              <time title="Created: 2021-03-30 10:34:00 / Modified: 17:34:29" itemprop="dateCreated datePublished" datetime="2021-03-30T10:34:00+08:00">2021-03-30</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:29:46" itemprop="dateModified" datetime="2021-03-10T20:29:46+08:00">2021-03-10</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" itemprop="url" rel="index"><span itemprop="name">项目开发日志</span></a>
                 </span>
             </span>
 
           
-            <span id="/2020/11/14/%E4%BA%86%E8%A7%A3%E9%9A%90%E5%BC%8F%E6%8E%A5%E5%8F%A3%E5%92%8C%E7%BC%96%E8%AF%91%E6%9C%9F%E5%A4%9A%E6%80%81/" class="post-meta-item leancloud_visitors" data-flag-title="了解隐式接口和编译期多态" title="Views">
+            <span id="/2021/03/30/ac-air%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97%EF%BC%881%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="ac-air开发日志（1）" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -267,55 +261,66 @@
 
       
         <hr>
-<h1 id="了解隐式接口和编译期多态"><a href="#了解隐式接口和编译期多态" class="headerlink" title="了解隐式接口和编译期多态"></a>了解隐式接口和编译期多态</h1><p>&emsp;&emsp;面向对象编程世界总是以显式接口和运行期多态解决问题。举个例子子，给定这样（无意义）的class：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        Widget();</span><br><span class="line">        <span class="keyword">virtual</span> ~Widget();</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">normalize</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; other)</span></span>; </span><br><span class="line">        ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
+<h1 id="什么是ac-air"><a href="#什么是ac-air" class="headerlink" title="什么是ac-air"></a>什么是ac-air</h1><p>&emsp;&emsp;ac-air是基于RBAC模型与ACL模型的一个访问控制框架，该框架使用C++进行编写，使用了C++11标准，并对访问控制模型进行抽象化。</p>
+<h1 id="为什么是ac-air"><a href="#为什么是ac-air" class="headerlink" title="为什么是ac-air"></a>为什么是ac-air</h1><p>&emsp;&emsp;现有访问控制框架中，在大型项目中有C++实现的高并发高性能的程序，在小型程序或是WEB端有PHP，Java等语言实现的高效率的程序。中型程序缺少一种轻量级的访问控制框架，考虑到Java等语言体系对于底层数据的不可控性，很难实现高性能的程序；虽然C++对于字符串的处理十分繁琐且复杂，但是由于其对于程序代码有很强的可控性，且在中型程序中字符串的处理量并没有像大型项目那么多，故而采取C++作为开发语言。</p>
 <a id="more"></a>
 
-<p>&emsp;&emsp;和这样（也是无意义）的函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doProcessing</span><span class="params">(Widget&amp; w)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(w.<span class="built_in">size</span>() &gt; <span class="number">10</span> &amp;&amp; w != someNastyWidget) &#123;</span><br><span class="line">        <span class="function">Widget <span class="title">temp</span><span class="params">(w)</span></span>;</span><br><span class="line">        temp.normalize();</span><br><span class="line">        temp.swap(w);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="如何使用ac-air"><a href="#如何使用ac-air" class="headerlink" title="如何使用ac-air"></a>如何使用ac-air</h1><p>&emsp;&emsp;你只需要从github上下载到你的项目主目录中，然后进入ac-air的build目录下执行一条简单的<code>cmake ..</code>命令即可，然后你所需要做的就是将该库包含到你的项目代码中，你也可以执行<code>cmake install ..</code>命令，然后配置你的PATH路径，将该库包含到你的PATH中。</p>
+<p>&emsp;&emsp;在你的代码中，要如何使用该框架来实现访问控制呢？示例如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将访问控制模型从model.conf与policy.csv文件中抽取出来</span></span><br><span class="line">AcAir ac = NewAcAir(<span class="string">"path/to/model.conf"</span>, <span class="string">"path/to/policy.csv"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//你所定义的用户的信息</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> sub = <span class="string">"Alice"</span>; <span class="comment">//欲进行操作的用户</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> obj = <span class="string">"data"</span>;  <span class="comment">//用户欲操作的资源</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> act = <span class="string">"read"</span>;  <span class="comment">//用户欲对资源执行的操作</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//判断该用户的权限信息</span></span><br><span class="line"><span class="keyword">if</span>(ac.AcAir(sub, obj, act)) &#123;</span><br><span class="line">    <span class="comment">//允许用户执行操作</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">//拒绝用户执行操作</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;我们可以这样说doProcessing内的w：</p>
+<p>&emsp;&emsp;以上所示为该框架的基本使用范例，简单明了！</p>
+<h1 id="ac-air使用的技术"><a href="#ac-air使用的技术" class="headerlink" title="ac-air使用的技术"></a>ac-air使用的技术</h1><p>&emsp;&emsp;在ac-air中，访问控制模型被抽象为几个要素：</p>
 <ul>
-<li>由于w的类型被声明为Widget，所以w必须支持Widget接口。我们可以在源码中找出这个接口（例如在Widget的.h文件中），看看它是什么样子，所以我称此为一个显式接口，也就是它在源码中明确可见。</li>
-<li>由于Widget的某些成员函数是virtual，w对那些函数的调用将表现出运行期多态，也就是说将于运行期根据w的动态类型决定究竟调用哪一个函数。</li>
+<li>主体请求（request)</li>
+<li>策略模型（model）</li>
+<li>策略规则（rule）</li>
+<li>匹配策略（match）</li>
 </ul>
-<p>&emsp;&emsp;Template及泛型编程的世界，与面向对象有根本上的不同。在此世界中显式接口和运行期多态仍然存在，但重要性降低。反倒是隐式接口和编译期多态移到前头了。若想知道那是什么，看看当我们将doProcessing从函数转变成函数模版时发生什么事：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doProcessing</span><span class="params">(T&amp; w)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(w.<span class="built_in">size</span>() &gt; <span class="number">10</span> &amp;&amp; w != someNastyWidget) &#123;</span><br><span class="line">        <span class="function">T <span class="title">temp</span><span class="params">(w)</span></span>;</span><br><span class="line">        temp.normalize();</span><br><span class="line">        temp.swap(w);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在我们怎么说doProcessing内的w呢？</p>
+<p>其中主体请求，策略模型和匹配策略由conf文件来定义；策略规则由csv文件来定义。</p>
+<p>&emsp;&emsp;若采取了RBAC模型，则需要添加额外的要素：</p>
 <ul>
-<li>w必须支持哪一种接口，系由template中执行于w身上的操作来决定。本例看来w的类型T好像必须支持size,normalize和swap成员函数、copy构造函数（用以建立temp）、不等比较（用来比较smeNasty-Widget）。我们很快会看到这并非完全正确，但对目前而言足够真实。重要的是，这一组表达式（对此template而言必须有效编译）便是T必须支持的一组隐式接口。</li>
-<li>凡涉及w的任何函数调用，例如operator&gt;和operator!=，有可能造成template具现化，使这些调用得以成功。这样的具现行为发生在编译期。“以不同的template参数具现化function template”会导致调用不同的函数，这便是所谓的编译期多态。</li>
+<li>角色继承策略（role）</li>
 </ul>
-<p>&emsp;&emsp;纵使你从未用过template，应该不陌生“运行期多态”和“编译期多态”之间的差异，因为它类似于“哪一个重载函数该被调用”（发生在编译期）和“哪一个virtual函数该被绑定”（发生在运行期）之间的差异。显式接口和隐式接口的差异就比较新颖，需要更多更贴近的说明和解释。</p>
-<p>&emsp;&emsp;通常显示接口由函数的签名式（也就是函数名称、参数类型、返回类型）构成。例如Widget class：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Widget</span> &#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        Widget();</span><br><span class="line">        <span class="keyword">virtual</span> ~Widget();</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="keyword">size_t</span> <span class="title">size</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">normalize</span><span class="params">()</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(Widget&amp; other)</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="conf文件与csv文件"><a href="#conf文件与csv文件" class="headerlink" title="conf文件与csv文件"></a>conf文件与csv文件</h2><p>&emsp;&emsp;欲实现出上述如此便捷的功能，你所需要做的就只有编写2个文件：模型策略文件（model_policy.conf），策略规则文件（policy_rule.csv）。它们将访问控制模型抽象为计算机中的数据，并存储在数据结构中以便后续代码调用。</p>
+<h3 id="conf文件"><a href="#conf文件" class="headerlink" title="conf文件"></a>conf文件</h3><p>&emsp;&emsp;该文件使用conf格式，其本质与txt无任何差别，亦可采取ini，cfg后缀进行编写，其编写格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[section]</span><br><span class="line">option &#x3D; value</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;其public接口由一个构造函数、一个析构函数、函数size，normalize，swap及其参数类型、返回类型、常量性构成。当然也包括编译器产生的copy构造函数和copy assignment操作符。另外也可以包括typedef。</p>
-<p>&emsp;&emsp;隐式接口就完全不同了。它并不基于函数签名式，而是由有效表达式组成。再次看看doProcessing template一开始的条件：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">doProcessing</span><span class="params">(T&amp; w)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(w.<span class="built_in">size</span>() &gt; <span class="number">10</span> &amp;&amp; w != someNastyWidget) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;conf文件使用了3个元素，[section]，option和value，每一行单独编译，每一区块（即[section]之间的区域）为一个编译单元。不支持换行定义。</p>
+<p>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#主体请求单元</span><br><span class="line">[request]</span><br><span class="line">rst &#x3D; sub, obj, act</span><br><span class="line"></span><br><span class="line">#策略模型单元，permit只有true与false两个值</span><br><span class="line">[model]</span><br><span class="line">mdl &#x3D; sub, obj, act, permit</span><br><span class="line"></span><br><span class="line">#角色继承策略，前项继承后项的权限</span><br><span class="line">[role]</span><br><span class="line">r &#x3D; _, _</span><br><span class="line"></span><br><span class="line">#策略匹配规则</span><br><span class="line">[match]</span><br><span class="line">m &#x3D; rst.sub &#x3D;&#x3D; mdl.sub &amp;&amp; rst.obj &#x3D;&#x3D; mdl.obj &amp;&amp; rst.act &#x3D;&#x3D; mdl.act &amp;&amp; permit</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;T（w的类型）的隐式接口看起来好像有这些约束：</p>
-<ul>
-<li>它必须提供一个名为size的成员函数，该函数返回一个整数值。</li>
-<li>它必须支持一个operator!=函数，用来比较两个T对象。这里我们假设someNastyWidget的类型是T。</li>
-</ul>
-<p>&emsp;&emsp;真要感谢操作符重载带来的可能性，这两个约束都不需要满足。是的，T必须支持size成员函数，然而这个函数也可能从base class继承而得。这个成员函数不需返回一个整数值，甚至不需返回一个数值类型。就此而言，它甚至不需要返回一个定义由operator&gt;的类型！它唯一需要做的是返回一个类型为X的对象，而X对象加上一个int（10的类型）必须能够调用一个operator&gt;。这个operator&gt;不需要非得取得一个类型为X的参数不可，因为它也可以取得类型Y的参数，只要存在一个隐式转换能够将类型X的对象转换为类型Y的对象！</p>
-<p>&emsp;&emsp;同样道理，T并不需要支持operator!=，因为以下这样也是可以的：operator!=接受一个类型为X的对象和一个类型为Y的对象，T可被转换为X而someNastyWidget的类型可被转换为Y，这样就可以有效调用operator!=。</p>
-<p>&emsp;&emsp;（偷偷告诉你，以上分析并未考虑这样的可能性：operator&amp;&amp;被重载，从一个连接词改变为或许完全不同的某种东西，从而改变上述表达式的意义。）</p>
-<p>&emsp;&emsp;当人们第一次以此种方式思考隐式接口，大多数的他们会感到头疼。但真的不需要阿司匹林来镇痛。隐式接口仅仅是由一组有效表达式构成，表达式自身可能看起来很复杂，但它们要求的约束条件一般而言相当直接又明确。例如一下条件式：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(w.<span class="built_in">size</span>() &gt; <span class="number">10</span> &amp;&amp; w != someNastyWidget) ...</span><br></pre></td></tr></table></figure>
+<h4 id="主体请求单元"><a href="#主体请求单元" class="headerlink" title="主体请求单元"></a>主体请求单元</h4><p>&emsp;&emsp;将用户的信息存储其中，例如Alice要对data执行read操作时，sub就是Alice，obj就是data，act就是read。该单元中等号右边的参数即为<code>ac.AcAir(...)</code>中应传入的参数。</p>
+<h4 id="策略模型单元"><a href="#策略模型单元" class="headerlink" title="策略模型单元"></a>策略模型单元</h4><p>&emsp;&emsp;将csv文件的信息存储其中，其中permit只有两个值true和false，默认值为true。由csv文件定义。该单元与csv文件一起也就组成了我们对策略规则的描述，例如：</p>
+<p>model定义了规则：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[model]</span><br><span class="line">mdl &#x3D; sub, obj, act</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;关于函数size，operator&gt;，operator&amp;&amp;或operator!=身上的约束条件，我们很难就此说得太多，但整体确认表达式约束条件却很容易。if语句的条件式必须是个布尔表达式，所以无论涉及什么实际类型，无论“w.size() &gt; 10 &amp;&amp; w != someNastyWidget”导致什么，它都必须与bool兼容。这是template doProcessing加诸于其类型参数T的隐式接口的一部分。doProcessing要求其他隐式接口：copy构造函数、normalize和swap也都必须对T型对象有效。</p>
-<p>&emsp;&emsp;加诸于template参数身上的隐式接口，就像加诸于class对象身上的显式接口一样真实，而且两者都在编译期完成检查。就像你无法以一种“与class提供之显式接口矛盾”的方式来使用对象（代码将通不过编译），你也无法在template中使用“不支持template所要求之隐式接口”的对象（代码一样通不过编译）。</p>
-<blockquote>
-<ul>
-<li>class和template都支持接口和多态。</li>
-<li>对class而言接口是显式的，以函数签名为中心。多态则是通过virtual函数发生于运行期。</li>
-<li>对template参数而言，接口是隐式的，奠基于有效表达式。多态则是通过template具现化和函数重载解析发生于编译期。</li>
-</ul>
-</blockquote>
+<p>csv实现了规则：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mdl, Alice, data1, read</span><br></pre></td></tr></table></figure>
+
+<p>上述描述表示Alice对于data1具有读的权限。</p>
+<h4 id="角色继承策略单元"><a href="#角色继承策略单元" class="headerlink" title="角色继承策略单元"></a>角色继承策略单元</h4><p>&emsp;&emsp;将存储角色的继承关系。由csv文件定义。</p>
+<h4 id="策略匹配规则"><a href="#策略匹配规则" class="headerlink" title="策略匹配规则"></a>策略匹配规则</h4><p>&emsp;&emsp;定义了主体请求如何与策略模型进行匹配，其本质上就是布尔表达式，可以理解为[request]和[model]定义了关于请求与策略的变量，然后将这些变量传入[match]中进行求值，从而依据结果来进行权限决策。上述示例代码是一个简单的例子，但是其规则为硬性要求，也就是你必须将[request]中的三元组与[model]中的三元组一一对应，支持+、-、*、/等算数运算符，==、!=、&gt;、&lt;等关系运算符以及&amp;&amp;、||、!等逻辑运算符。</p>
+<p>&emsp;&emsp;关于策略匹配规则更为核心的一点是，它支持自定义的匹配函数！也就是你甚至可以自己去定义匹配规则，这也是ac-air强大，灵活的地方。那么如何添加你自己的匹配函数呢？</p>
+<p>&emsp;&emsp;首先你需要定义好自己的匹配函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">KeyMatch</span><span class="params">(<span class="built_in">string</span> key1, <span class="built_in">string</span> key2)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//匹配实现细节</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后用以下函数来包装它：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ReturnType <span class="title">KeyMatch</span><span class="params">(Scope scope)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">string</span> key1 = GetString(scope, <span class="number">0</span>);</span><br><span class="line">    <span class="built_in">string</span> key2 = GetString(scope, <span class="number">1</span>);</span><br><span class="line">  </span><br><span class="line">    PushBooleanValue(scope, KeyMatch(key1, key2));</span><br><span class="line">    <span class="keyword">return</span> RETURN_RESULT;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正如你所见，有众多你所陌生的宏，但是如果你接触过duktape，也许会会心一笑，没错，该框架使用了duktape组件来完成对javascript的支持，由C++完成底层功能，然后经由duktape的“加工”，使得上层——业务层得以轻松调用它们。</p>
+<p>那么最后一步：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ac.AddFunction(<span class="string">"my_func"</span>, KeyMatch);</span><br></pre></td></tr></table></figure>
+
+<p>将该函数注册到框架中。</p>
+<p>&emsp;&emsp;现在你可以像下面这样来使用自定义的函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[match]</span><br><span class="line">m &#x3D; my_func(rst.sub, rst.obj) ...</span><br></pre></td></tr></table></figure>
+
+<h3 id="csv文件"><a href="#csv文件" class="headerlink" title="csv文件"></a>csv文件</h3><p>&emsp;&emsp;该文件使用csv文件格式，其本质与txt无任何差别，只不过是遵循csv标准格式的一种txt变体。其格式如下示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mdl, role1, data1, read</span><br><span class="line">mdl, Alice, data2, write</span><br><span class="line"></span><br><span class="line">r, Alice, role1</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;上述代码表示，role1对data1具有读权限，Alice对data2具有写权限，Alice是角色role1的一个成员（也可以说是继承了role1的权限），这里的Alice不要误认为只能是用户，Alice包括role1在内的所有sub都可以成为角色，因为在ac-air框架中没有对字符串是否是用户还是角色进行区分，更何况也极难甚至是无法去区分，在ac-air中，所有的角色，用户都是用字符串来进行存储、处理的。</p>
+<p>&emsp;&emsp;要想区分它们，最好的办法是用户自己去明确定义它们，比如用户是Alice，角色是role_1，像这样使用划分明显的字符串来进行处理。但是请记住在ac-air框架中不存在角色与用户之分，它们都是一样的（以字符串形式表达）。亦或是在使用多层继承的RBAC模型时，给角色加上像<code>role::_one</code>这样的前缀再传给ac-air中，借此可以通过查看前缀来区分用户和角色。</p>
 
     </div>
 
@@ -346,7 +351,7 @@
       <footer class="post-footer">
           
           <div class="post-tags">
-              <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
+              <a href="/tags/ac-air/" rel="tag"><i class="fa fa-tag"></i> ac-air</a>
           </div>
 
         
@@ -355,13 +360,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/11/13/%E6%98%8E%E6%99%BA%E8%80%8C%E5%AE%A1%E6%85%8E%E5%9C%B0%E4%BD%BF%E7%94%A8%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF/" rel="prev" title="明智而审慎地使用多重继承">
-      <i class="fa fa-chevron-left"></i> 明智而审慎地使用多重继承
+    <a href="/2021/03/20/0.1+0.2?/" rel="prev" title="0.1+0.2?">
+      <i class="fa fa-chevron-left"></i> 0.1+0.2?
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/11/14/%E4%BA%86%E8%A7%A3typename%E7%9A%84%E5%8F%8C%E9%87%8D%E6%84%8F%E4%B9%89/" rel="next" title="了解typename的双重意义">
-      了解typename的双重意义 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -420,7 +422,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#了解隐式接口和编译期多态"><span class="nav-number">1.</span> <span class="nav-text">了解隐式接口和编译期多态</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是ac-air"><span class="nav-number">1.</span> <span class="nav-text">什么是ac-air</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么是ac-air"><span class="nav-number">2.</span> <span class="nav-text">为什么是ac-air</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如何使用ac-air"><span class="nav-number">3.</span> <span class="nav-text">如何使用ac-air</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ac-air使用的技术"><span class="nav-number">4.</span> <span class="nav-text">ac-air使用的技术</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#conf文件与csv文件"><span class="nav-number">4.1.</span> <span class="nav-text">conf文件与csv文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#conf文件"><span class="nav-number">4.1.1.</span> <span class="nav-text">conf文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主体请求单元"><span class="nav-number">4.1.1.1.</span> <span class="nav-text">主体请求单元</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#策略模型单元"><span class="nav-number">4.1.1.2.</span> <span class="nav-text">策略模型单元</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#角色继承策略单元"><span class="nav-number">4.1.1.3.</span> <span class="nav-text">角色继承策略单元</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#策略匹配规则"><span class="nav-number">4.1.1.4.</span> <span class="nav-text">策略匹配规则</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#csv文件"><span class="nav-number">4.1.2.</span> <span class="nav-text">csv文件</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
