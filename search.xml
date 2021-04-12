@@ -3786,4 +3786,44 @@
         <tag>ac-air</tag>
       </tags>
   </entry>
+  <entry>
+    <title>务必重视vector容器中元素的删除操作</title>
+    <url>/2021/04/09/%E5%8A%A1%E5%BF%85%E9%87%8D%E8%A7%86vector%E5%AE%B9%E5%99%A8%E4%B8%AD%E5%85%83%E7%B4%A0%E7%9A%84%E5%88%A0%E9%99%A4%E6%93%8D%E4%BD%9C/</url>
+    <content><![CDATA[<h1 id="vector的小“删除”，大“智慧”"><a href="#vector的小“删除”，大“智慧”" class="headerlink" title="vector的小“删除”，大“智慧”"></a>vector的小“删除”，大“智慧”</h1><p>&emsp;&emsp;在STL中，某些算法（移除型算法），它们本质上只是进行逻辑性的思考。这些算法并不会改变元素的数量，反而是将原本置于后面的“不移除元素”向前移动，以此来覆盖那些应被移除的元素而已。它们都返回新区间的逻辑终点（也就是最后一个“不移除元素”的下一个位置。</p>
+<p>&emsp;&emsp;那么如果要真正地删除我们不需要的元素，到底要如何处理呢？一般的手段虽然会简单粗暴，但正是这些粗暴的手法会将我们的程序带到崩溃的边缘。考虑以下代码：</p>
+<a id="more"></a>
+
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">... </span><br><span class="line"></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; str = &#123; <span class="string">"Chuck Berry"</span>, <span class="string">"Little Richard"</span>, <span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Jerry Lee Lewis"</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除str中不是摇滚歌手的人</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">auto</span> it = str.<span class="built_in">begin</span>(); it != str.<span class="built_in">end</span>(); ++it) &#123;</span><br><span class="line">    <span class="keyword">if</span>(FIND_IF_NOT_ROCKSTAR(*it));</span><br><span class="line">        str.erase(it);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印出结果</span></span><br><span class="line">PRINT_ELEMENTS(str, <span class="string">"ALL of these are rockstar: "</span>);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;最后打印出来的结果可能不会合乎你的预期——打印出除了Alice与Bob以外的所有人，结果而是把Bob也一同打印出来了，Alice被正确的剔除了。</p>
+<h1 id="erase所执行的操作"><a href="#erase所执行的操作" class="headerlink" title="erase所执行的操作"></a>erase所执行的操作</h1><p>&emsp;&emsp;现在让我们来看看erase到底瞒着我们干了些什么？erase用于从一个集合中删除一个元素，但是对于基于数组的容器，例如这里的vector（溯源到它的本家c数组），存储在删除元素后的所有元素都需要向前也就是往它们前一个元素的位置移动一位，以避免集合中留下“空位”，最后再将集合的容量缩减一个sizeof（type）并delete多余分配的空间。但这也导致了大量的开销，当然本篇blog不对此进行讨论。然而指向被删除元素的迭代器却不会那么聪明地也向前移动，它依然指向被删除元素的位置，也就是指向了被删除元素后的元素。</p>
+<p>&emsp;&emsp;让我们看下erase操作后，str中的情况：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="string">"Chuck Berry"</span>, <span class="string">"Little Richard"</span>, <span class="string">"Bob"</span>, <span class="string">"Jerry Lee Lewis"</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="如何正确的删除vector中的元素"><a href="#如何正确的删除vector中的元素" class="headerlink" title="如何正确的删除vector中的元素"></a>如何正确的删除vector中的元素</h1><p>&emsp;&emsp;既然，循规蹈矩的手段不行，那么在遇到这样的问题时，我们需要停下来，好好想想，考虑如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">auto</span> it = str.<span class="built_in">begin</span>(); it != str.<span class="built_in">end</span>();) &#123;</span><br><span class="line">    <span class="keyword">if</span>(FIND_IF_NOT_ROCKSTAR(*it)) &#123;</span><br><span class="line">        str.erase(it);</span><br><span class="line">        --it;</span><br><span class="line">    &#125;</span><br><span class="line">    ++it;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;结果很好，得到了我们想要的。但是这样的代码始终看起来不那么好看，对于代码洁癖的某些人可能会十分的不适。另一种方法可能会满足你的口味：remove。</p>
+<h1 id="将remove与erase组合起来"><a href="#将remove与erase组合起来" class="headerlink" title="将remove与erase组合起来"></a>将remove与erase组合起来</h1><p>&emsp;&emsp;关于remove以及remove_if的语义在STL中：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">ForwardIterator</span><br><span class="line"><span class="built_in">remove</span>(ForwardIterator beg, ForwardIterator <span class="built_in">end</span>,</span><br><span class="line">       <span class="keyword">const</span> T&amp; value)</span><br><span class="line">  </span><br><span class="line">ForwardIterator</span><br><span class="line">remove_if(ForwardIterator beg, ForwardIterator <span class="built_in">end</span>,</span><br><span class="line">          UnaryPredicate op)</span><br></pre></td></tr></table></figure>
+
+<h2 id="remove与remove-if的规则与原理"><a href="#remove与remove-if的规则与原理" class="headerlink" title="remove与remove_if的规则与原理"></a>remove与remove_if的规则与原理</h2><ul>
+<li>remove会移除[beg,end)区间中每一个“与value相等”的元素。</li>
+<li>remove_if会移除[beg,end)区间中每一个“令unary predicate op(elem)结果为true”的元素。</li>
+<li>两个算法都返回被改动的序列的新逻辑终点（也就是最后一个未被移除元素的下一位置）。</li>
+<li>这些算法会把原本置于后面的未移除元素向前移动，覆盖被移除元素。</li>
+<li>未被移除的元素在相对次序上保持不变。</li>
+<li>注意，remove_if通常会在内部复制它所获得的那个unary predicate，然后两次运用它。如果该unary predicate在函数调用过程中改改变状态，就可能导致问题。</li>
+<li>由于元素会被改动，所以这些算法不可用于associative或unorderd容器。然而这些容器提供了功能类似的成员函数erase。</li>
+<li>List提供了一个效果相同的成员函数remove，效能较高，原因是它不重新赋值，而是重新链接pointer。</li>
+<li>复杂度：线性。</li>
+</ul>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vec_int = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span> &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 打印remove操作之前的vector元素</span></span><br><span class="line">    PRINT_ELEMTNS(vec_int, <span class="string">"vec_int: "</span>);</span><br><span class="line">    <span class="keyword">auto</span> it = <span class="built_in">remove</span>(vec_int.<span class="built_in">begin</span>(), vec_int.<span class="built_in">end</span>(), <span class="number">5</span>);</span><br><span class="line">  </span><br><span class="line">    <span class="comment">// 打印remove操作之后的vector元素</span></span><br><span class="line">    PRINT_ELEMENTS(vec_int, <span class="string">"size is not changed: "</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 将remove操作后残存的“影子”移除掉</span></span><br><span class="line">    vec_int.erase(it, vec_int.<span class="built_in">end</span>());</span><br><span class="line">    PRINT_ELEMENTS(vec_int, <span class="string">"size is changed: "</span>);</span><br><span class="line">  </span><br><span class="line">    <span class="comment">// 移除所有小于4的元素</span></span><br><span class="line">    vec_int.erase(remove_if(vec_int.<span class="built_in">begin</span>(), vec_int.<span class="built_in">end</span>(),</span><br><span class="line">                  [](<span class="keyword">int</span> elem)&#123;</span><br><span class="line">                      <span class="keyword">return</span> elem &lt; <span class="number">4</span>;</span><br><span class="line">                  &#125;),</span><br><span class="line">                  vec_int.<span class="built_in">end</span>());</span><br><span class="line">  </span><br><span class="line">    PRINT_ELEMENTS(vec_int, <span class="string">" &lt; 4 remove: "</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;很好，这样一来我们的代码就十分契合STL的范式了。需要记住的是，我们不必担心这里的效率问题，对于for_each，for auto以及传统的for循环，它们都已经经由编译器的优化呈现给你了，它们的效率并无太大的差别。可以根据个人的习惯来决定到底是使用哪个。</p>
+<h1 id="clear所执行的动作"><a href="#clear所执行的动作" class="headerlink" title="clear所执行的动作"></a>clear所执行的动作</h1><p>&emsp;&emsp;clear将vector容器中的所有元素抹除，并且将vector的容器容量变为0。但是reallocation动作并不会一定保证发生，同样的容器的容量也不会保证一定被更改。一个典型的替代方法是使用swap来强制reallocation动作发生：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">vector</span>&lt;T&gt;().swap(x);  <span class="comment">// clear x reallocating</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+  </entry>
 </search>
