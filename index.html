@@ -202,6 +202,119 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/17/C%EF%BC%8FC++%E4%B8%AD%E7%9A%84%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/04/17/C%EF%BC%8FC++%E4%B8%AD%E7%9A%84%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90/" class="post-title-link" itemprop="url">C／C++中的字节对齐</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-04-17 10:42:41" itemprop="dateCreated datePublished" datetime="2021-04-17T10:42:41+08:00">2021-04-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-04-18 23:11:02" itemprop="dateModified" datetime="2021-04-18T23:11:02+08:00">2021-04-18</time>
+              </span>
+
+          
+            <span id="/2021/04/17/C%EF%BC%8FC++%E4%B8%AD%E7%9A%84%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90/" class="post-meta-item leancloud_visitors" data-flag-title="C／C++中的字节对齐" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="理一理字节对齐"><a href="#理一理字节对齐" class="headerlink" title="理一理字节对齐"></a>理一理字节对齐</h1><h2 id="什么是字节对齐"><a href="#什么是字节对齐" class="headerlink" title="什么是字节对齐"></a>什么是字节对齐</h2><p>&emsp;&emsp;计算机中内存大小的基本单元是字节（byte），理论上来说，我们可以从任意地址访问某种基本数据类型，但是实际上，计算机并非逐字节大小连续地读写内存，而是以2，4或8的倍数的字节块来读写内存，这也就限制了基本数据类型在计算机中存储的方式，至少是对于我们需要一种高效的程序时，这会对我们的数据类型有所限制。那么按照一定规则来将基本数据类型在存储空间上进行排列，这个操作就叫做字节对齐。</p>
+<h2 id="字节对齐的规则"><a href="#字节对齐的规则" class="headerlink" title="字节对齐的规则"></a>字节对齐的规则</h2><p>&emsp;&emsp;在了解字节对齐规则前，需要先对以下几个概念有所了解：</p>
+<ul>
+<li>基本数据类型的对齐值：基本数据类型的对齐值即为它们自身大小的值，比如在64位操作系统中，char型数据对齐值为1字节，int型数据对齐值为4字节，unsigned long型对齐值为8字节。</li>
+<li>结构体或类的对齐值：它们的对齐值是其自身成员对齐值最大的那个值。</li>
+<li>指定对齐值：使用宏命令<code>#pragma pack(value)</code>可以指定对齐值value。</li>
+<li>数据成员、结构体和类的有效对齐值：自身对齐值和指定对齐值中较小者，即<code>有效对齐值 = min{自身对齐值，当前指定的pack值}</code>。</li>
+</ul>
+<p>&emsp;&emsp;其中有效对齐值N是最终用来决定数据存放地址方式的值。有效对齐N表示“对齐在N上”，也就是该数据存储地址要满足<code>存放起始地址%N = 0</code>。需要记住的是数据在计算机地址中的存储顺序是按照它们定义的先后顺序决定的，先定义的优先进行存储。第一个数据存放的起始地址就是数据结构的起始地址。不仅结构体的成员变量要对齐存放，结构体本身也要根据自身的有效对齐值圆整（即结构体成员变量占用总字节 = 结构体有效对齐值的整数倍）。</p>
+<p>&emsp;&emsp;考虑如下代码示例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">test_1</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> int_4byte;</span><br><span class="line">    <span class="keyword">char</span> char_1byte;</span><br><span class="line">    short short_2byte;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">test_2</span> &#123;</span></span><br><span class="line">    <span class="keyword">char</span> char_1byte;</span><br><span class="line">    <span class="keyword">int</span> int_4byte;</span><br><span class="line">    short short_2byte;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv)</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"the size of struct test1 is %zu\n"</span>, <span class="keyword">sizeof</span>(struct test1));</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"the size of struct test2 is %zu\n"</span>, <span class="keyword">sizeof</span>(struct test2));</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;可能你的计算机是64位的，那么默认是8字节对齐，我们将上述代码以32位来进行编译（默认是4字节对齐）：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-04-17%20%E4%B8%8B%E5%8D%888.19.51.png" alt="编译结果示例"></p>
+<p>&emsp;&emsp;可以看到结构体Test_1的大小为8字节，而并不是所谓的7字节（4+1+2），结构体Test_2的大小为12字节，而不是所谓的7字节（4+1+2），你又可能会十分苦恼，这里明明是一样的结构体，但是为什么最后的结果不一样呢？</p>
+<p>&emsp;&emsp;实际上，就拿Test_1结构体来说，其在内存地址中的存储位置简图如下：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-04-18%20%E4%B8%8A%E5%8D%8810.49.png" alt="Test_1结构体存储地址"></p>
+<p>&emsp;&emsp;可以看到我们的<code>int_4byte</code>起始存储地址满足条件“<code>起始存储地址%4 = 0</code>”，也就是0地址位（当然这里并不是指实际中的存储地址，只是以一种抽象易懂的方式呈现出来）；接下来该存储<code>char_1byte</code>变量了，由于下一个地址位4满足其起始存储地址，自然也就存储在该地址位了；现在只剩下<code>short_2byte</code>变量了，它找到下一个地址位5，但是其对齐值为2，并不满足“对齐条件”，怎么办呢？很简单，继续向后搜索直到找到满足该“对齐条件”的地址位，很好，地址位6满足它的起始存储地址。这样一来，正好从从0地址位到8地址位，一共8个字节，虚线部分是由计算机填充的字节，由图中所示一共填充了1个字节。特别需要注意的是，这里的<code>Test_1结构体</code>在最后也需要填充字节以满足自身对齐值（其最大成员的对齐值）的要求，但是在此例中已然满足了，就无需再填充字节了。关于<code>Test_2结构体的解析</code>就留给你们了。</p>
+<h2 id="为什么要字节对齐"><a href="#为什么要字节对齐" class="headerlink" title="为什么要字节对齐"></a>为什么要字节对齐</h2><p>&emsp;&emsp;在了解了字节对齐的工作机制之后，我们需要思考，为什么计算机要如此大费周章地来进行字节对齐这个操作呢？按顺序一个个地存放不行吗？可以，当然可以，无论数据是否对齐，大多数计算机还是能够正确工作的，而且从前面的例子可以看到，结构体本来只需要7个字节的空间，最后却占用了8个字节，很明显浪费了空间，那么为什么还要进行字节对齐呢？最重要的考虑就是为了提高内存系统性能。</p>
+<p>&emsp;&emsp;前面也提到过，计算机每次读写一个字节块，例如，假设计算机总是从内存中取8个字节，如果一个double数据的地址对齐成8的倍数，那么一个内存操作就可以读或者写，但是如果这个double数据的地址没有对齐，数据就可能被放在两个8字节块中，那么我们可能需要执行两次内存访问，才能读写完成。显然在这样的情况下，是低效的。所以需要字节对齐来提高内存系统性能。甚至在有些处理器中，如果存在未对齐的数据，可能不能正确工作。</p>
+<p>&emsp;&emsp;一般来说在32位系统下，系统默认对齐值是4字节，而在64位系统下，系统默认对齐值是8字节，也就是说在缺省状态下，编译器会默认为你的数据按自然对齐条件分配空间。此外在不同的平台上，默认对齐值都不尽相同。这样一来，假设你的程序是跨平台，那么某些架构的CPU在处理另一个平台的数据时，可能会发生奇奇怪怪的错误。</p>
+<p>&emsp;&emsp;字节对齐的作用不仅仅是便于CPU快速访问，同时合理的字节对齐可以有效地节省存储空间。</p>
+<h2 id="如何实现字节对齐"><a href="#如何实现字节对齐" class="headerlink" title="如何实现字节对齐"></a>如何实现字节对齐</h2><p>&emsp;&emsp;在实际的coding中，字节对齐的细节都由编译器完成，我们不需要特意地进行字节的对齐，但这并不意味着我们不需要关注字节对齐的问题。在处理跨平台的问题上，我们有两种处理方法：</p>
+<ul>
+<li>1字节对齐</li>
+<li>手动对结构体进行字节对齐</li>
+</ul>
+<p>&emsp;&emsp;我们可以使用<code>#pragma pack(n)</code>（n为字节对齐值）来指定对齐值，并且可以使用<code>#pragma pack()</code>来还原默认对齐值：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> pack(1) <span class="comment">// 1字节对齐</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">test</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> int_4byte;</span><br><span class="line">    <span class="keyword">char</span> char_1byte;</span><br><span class="line">    short short_2byte;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> pack() <span class="comment">// 还原默认对齐</span></span></span><br></pre></td></tr></table></figure>
+
+<p>如此一来，任何平台结构体test的大小就都是7字节了，这样做可以保证跨平台的结构大小一致，同时还节省了空间，但不幸的是，降低了效率，因为CPU依然会按照自身的对齐值来读取数据。</p>
+<p>&emsp;&emsp;对于单个结构体，gcc还有如下方法来解决跨平台问题：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">test</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> int_4byte;</span><br><span class="line">    <span class="keyword">char</span> char_1byte;</span><br><span class="line">    short short_2byte;</span><br><span class="line">&#125;__attribute__((packed));</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>__attribute__((aligned (n)))</code>，让所作用的结构成员对齐在n字节自然边界上。如果结构中有成员的长度大于n，则按照最大成员的长度来对齐。</li>
+<li><code>__attribute__ ((packed))</code>，取消结构在编译过程中的优化对齐，也可以认为是1字节对齐。</li>
+</ul>
+<p>&emsp;&emsp;除了前述的1字节对齐，还可以进行人为的填充：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">test</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> int_4byte;</span><br><span class="line">    <span class="keyword">char</span> char_1byte;</span><br><span class="line">    <span class="keyword">char</span> padding[<span class="number">1</span>];</span><br><span class="line">    short short_2byte;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>该结构体虽然访问效率高，但是并没有节省空间，同时扩展性也并不是很好，例如，当字节对齐变化时，需要填充的字节数可能就会发生变化。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/09/%E5%8A%A1%E5%BF%85%E9%87%8D%E8%A7%86vector%E5%AE%B9%E5%99%A8%E4%B8%AD%E5%85%83%E7%B4%A0%E7%9A%84%E5%88%A0%E9%99%A4%E6%93%8D%E4%BD%9C/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -491,7 +604,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-19 11:14:56" itemprop="dateModified" datetime="2021-03-19T11:14:56+08:00">2021-03-19</time>
+                <time title="Modified: 2021-04-18 13:50:52" itemprop="dateModified" datetime="2021-04-18T13:50:52+08:00">2021-04-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -524,7 +637,7 @@
           <hr>
 <h1 id="生活中存在的数学原理"><a href="#生活中存在的数学原理" class="headerlink" title="生活中存在的数学原理"></a>生活中存在的数学原理</h1><p>&emsp;&emsp;如果只给你一个计算机，但只能运算加法，而不能运算减法，那你该咋办？</p>
 <p>&emsp;&emsp;其实原理很简单，日常生活中我们其实一直都有用到，这就是时钟。</p>
-<p>&emsp;&emsp;假设现在是上午7点，那么6小时前是多少呢？没错！我们理所当然的认为是1点。那么8小时前又是多少呢？7 - 8 + 12，还是1点！你坚定的说，没错！</p>
+<p>&emsp;&emsp;假设现在是上午7点，那么6小时前是多少呢？没错！我们理所当然的认为是1点。那么6小时又是多少呢？7 + 6 - 12，还是1点！你坚定的说，没错！</p>
 <p>&emsp;&emsp;那么，为什么第二次你减去了12呢？</p>
 <p>&emsp;&emsp;因为时钟总共也就只有12个数啊，那这就是数学中的取模运算了！</p>
           <!--noindex-->
@@ -1001,95 +1114,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/27/%E5%85%B3%E4%BA%8E%E6%9B%BF%E6%8D%A2new%E5%92%8Cdelete%E7%9A%84%E6%8A%80%E6%9C%AF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/27/%E5%85%B3%E4%BA%8E%E6%9B%BF%E6%8D%A2new%E5%92%8Cdelete%E7%9A%84%E6%8A%80%E6%9C%AF/" class="post-title-link" itemprop="url">关于替换new和delete的技术</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-27 22:05:00" itemprop="dateCreated datePublished" datetime="2020-11-27T22:05:00+08:00">2020-11-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-29 21:07:35" itemprop="dateModified" datetime="2020-11-29T21:07:35+08:00">2020-11-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/11/27/%E5%85%B3%E4%BA%8E%E6%9B%BF%E6%8D%A2new%E5%92%8Cdelete%E7%9A%84%E6%8A%80%E6%9C%AF/" class="post-meta-item leancloud_visitors" data-flag-title="关于替换new和delete的技术" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="想要替换operator-new或operator-delete的原因"><a href="#想要替换operator-new或operator-delete的原因" class="headerlink" title="想要替换operator new或operator delete的原因"></a>想要替换operator new或operator delete的原因</h1><p>&emsp;&emsp;为什么会有人想要替换编译器提供的operator new或operator delete呢？下面是三个最常见的理由：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/27/%E5%85%B3%E4%BA%8E%E6%9B%BF%E6%8D%A2new%E5%92%8Cdelete%E7%9A%84%E6%8A%80%E6%9C%AF/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1160,7 +1184,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">63</span>
+          <span class="site-state-item-count">64</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

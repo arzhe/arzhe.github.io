@@ -202,6 +202,157 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/" class="post-title-link" itemprop="url">关于GNU make工具的汇总（3）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-14 16:32:00" itemprop="dateCreated datePublished" datetime="2020-09-14T16:32:00+08:00">2020-09-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 13:13:16" itemprop="dateModified" datetime="2020-09-27T13:13:16+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2020/09/14/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%883%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="关于GNU make工具的汇总（3）" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="Makefile规则"><a href="#Makefile规则" class="headerlink" title="Makefile规则"></a>Makefile规则</h1><h2 id="规则语法"><a href="#规则语法" class="headerlink" title="规则语法"></a>规则语法</h2><p>&emsp;&emsp;通常规则的语法格式如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">TARGETS: PREQUISITES</span></span><br><span class="line">    COMMAND</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>或者：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">TARGETS: PREQUISITES; COMMAND</span></span><br><span class="line">    COMMAND</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>书写规则时，需要注意以下几点：</p>
+<ol>
+<li><p>规则的命令部分有两种书写方式：a.命令可以和目标：依赖描述放在同一行。命令在依赖文件列表后并使用分号（；）和依赖文件列表分开。b.命令在目标：依赖描述的下一行。作为独立的命令行。</p>
+<p>当作为独立的命令行时此行必须以“TAB”字符开始。在Makefile中，在第一个规则之后出现的所有以“TAB”字符开始的行都会被当作命令来处理。</p>
+</li>
+<li><p>Makefile中符号“$”有特殊的含义（表示变量或者函数的引用），在规则中需要用到符号“$”的地方，需要书写两个连续的（“$$”）。</p>
+</li>
+<li><p>前边已提到过，对于Makefile中一个较长的行，我们可以使用反斜线“\”将其书写到几个独立的行上。虽然make对Makefile文本行的最大长度是没有限制的，但还是建议这样做。</p>
+</li>
+</ol>
+<p>规则的中心思想是：目标文件的内容是由依赖文件决定的，依赖文件的任何一处改动，将导致目前已经存在的目标文件的内容过期。规则的命令为重建目标提供了方法，这些命令运行在系统shell之上。</p>
+<h2 id="依赖的类型"><a href="#依赖的类型" class="headerlink" title="依赖的类型"></a>依赖的类型</h2><p>&emsp;&emsp;有时候，需要定义一个这样的规则，在更新目标（目标文件已经存在）时只需要根据依赖文件中的部分来决定目标是否需要被重建，而不是在依赖文件里的任何一个被修改后都重建目标。为了实现这一目的，相应的就需要对规则的依赖就行分类，一类是在这些依赖文件被更新后，需要更新规则的目标；另一类是更新这些依赖后，可以不需要更新规则的目标。我们把第二类称为：“ordered-only”依赖。书写规则时，“ordered-only”依赖使用管道符号“|”开始，作为目标的一个依赖文件。规则依赖列表中管道符号“|”左边是常规依赖，管道右边的就是“ordered-only”依赖。这样的规则书写格式如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">TARGETS: NORMAL-PREREQUISITES | ORDER-ONLY-PREREQUISITES</span></span><br></pre></td></tr></table></figure>
+
+<p>这样的规则中常规依赖文件可以是空；同样也可以对一个目标就行多次追加依赖。注意：规则依赖文件列表中如果一个文件同时出现在常规列表和“ordered-only”列表中，那么此文件被作为常规依赖处理（因为常规依赖所实现的动作是“ordered-only”依赖所实现的动作的一个超集）。</p>
+<h2 id="通配符存在的缺陷"><a href="#通配符存在的缺陷" class="headerlink" title="通配符存在的缺陷"></a>通配符存在的缺陷</h2><p>&emsp;&emsp;在我们的Makefile中，期望能够根据所有的.o文件生成可执行文件“demo”：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">objects = *.o</span><br><span class="line"></span><br><span class="line"><span class="section">demo: <span class="variable">$(objects)</span></span></span><br><span class="line">    cc -o demo <span class="variable">$(CFLAGS)</span> <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
+
+<p>这里变量“objects”的值是一个字符串“*.o”。在重建“demo”的规则中对变量“objects”进行展开，目标“demo”的依赖就是“*.o”，即所有的.o文件列表。如果在工作目录下已经存在必需的.o文件，那么这些.o文件将成为目标的依赖文件，目标“demo”将根据规则重建。</p>
+<p>&emsp;&emsp;但是如果将工作目录下的所有.o文件删除，重新执行make将会得到一个类似于“没有创建*.0文件的规则”的错误提示。这当然不是我们想要的结果。为了达到我们想要的结果，在对变量进行定义时需要使用一些高级的技巧，包括使用“wildcard”函数（定义为“objects =$(wildcard *.o)”）和字符串的置换。</p>
+<h2 id="函数wildcard"><a href="#函数wildcard" class="headerlink" title="函数wildcard"></a>函数wildcard</h2><p>&emsp;&emsp;在规则中，通配符会被自动展开。但在变量的定义和函数引用时，通配符将失效。这种情况下如果需要通配符有效，就需要使用“wildcard”，它的用法是：$(wildcard PATTERN…)。在Makefile中，它被展开为已经存在的、使用空格分开的、匹配此模式的所有文件列表。但如果不存在任何符合此模式的文件，函数会忽略模式字符并返回空。</p>
+<p>&emsp;&emsp;一般来说，我们可以使用“$(wildcard *.c)”来获取工作目录下的所有的.c文件列表。复杂一些的用法，可以使用“$(patsubst %.c,%.o,$(wildcard *.c))”，首先使用“wildcard”函数获取工作目录下的.c文件列表；之后将列表中所有文件名的后缀.c替换为.o。这样我们就可以得到在当前目录下可生成的.o文件列表。因此在一个目录下可以使用如下内容的Makefile来将工作目录下的所有.c文件进行编译并最后连接成为一个可执行文件：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#sample Makefile</span></span><br><span class="line">objects := <span class="variable">$(<span class="built_in">patsubst</span> %.c,%.o,$(<span class="built_in">wildcard</span> *.c)</span>)</span><br><span class="line"></span><br><span class="line"><span class="section">foo: <span class="variable">$(objects)</span></span></span><br><span class="line">    cc -o foo <span class="variable">$(objects)</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这里使用了make的隐含规则来编译.c的源文件。</p>
+<h2 id="Makefile伪命令"><a href="#Makefile伪命令" class="headerlink" title="Makefile伪命令"></a>Makefile伪命令</h2><p>&emsp;&emsp;伪目标：它不代表一个真正的文件名，在执行make时可以指定这个目标来执行其所在规则定义的命令，有时也可以将一个伪目标称为一个标签。使用伪目标有两个原因：</p>
+<ol>
+<li>避免在我们的Makefile中定义的只执行命令的目标和工作目录下的实际文件名出线名字冲突。</li>
+<li>提高执行make时的效率，特别是对一个大型的工程来说，编译的效率我们同时关心。</li>
+</ol>
+<p>以下就这两个问题我们进行分析讨论：</p>
+<ol>
+<li><p>如果我们需要编写这样的一个规则：规则所定义的命令不是去创建目标文件，而是通过make命令行指定它来执行一些特定的命令。像很常见的clean目标:</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm *.o temp</span><br></pre></td></tr></table></figure>
+
+<p>规则中“rm”不是创建文件“clean”的命令，而是删除当前目录下的所有.o文件和temp文件。当工作目录下不存在“clean”这个文件时，我们输入“make clean”，“rm *.o temp”总会被执行，这是我们的初衷。</p>
+<p>&emsp;&emsp;但是如果当前工作目录下存在文件“clean”，情况就不一样了，同样我们输入“make clean”，由于这个规则没有任何依赖文件，所以目标被认为是最新的而不去执行规则所定义的命令，因此“rm”命令不会被执行。这并不是我们的初衷。为了解决这个问题，我们需要将目标“clean”声明为伪目标。如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br></pre></td></tr></table></figure>
+
+<p>这样目标“clean”就被声明为一个伪目标，无论在当前目录下是否存在“clean”这个文件，我们输入“make clean”之后，“rm”命令都会被执行。而且，当一个目标被声明为伪目标后，make在执行此规则时不会去试图查找隐含规则来创建它。其完整格式如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: clean</span></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm *.o temp</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>伪目标的另一种使用场合是在make的并行和递归执行过程中。此情况下一般会存在一个变量，定义为所有需要make的子目录。对多个目录进行make对实现方式可以是：在一个规则的命令行中使用shell循环来完成。如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SUBDIR = one two three</span><br><span class="line"></span><br><span class="line"><span class="section">subdirs:</span></span><br><span class="line">    for dir in <span class="variable">$(SUBDIR)</span>; do\</span><br><span class="line">        <span class="variable">$(MAKE)</span> -C $$dir;\</span><br><span class="line">    done</span><br></pre></td></tr></table></figure>
+
+<p>但这种实现方法存在以下几个问题。1.当子目录执行make出现错误时，make不会退出。也就是说，在对某一个目录执行make失败后，会继续对其他的目录进行make。在最终执行失败的情况下，我们很难根据错误提示定位出具体是在哪个目录下执行make时发生错误。2.另一个问题就是使用这种shell的循环方式时，没有用到make对目录的并行处理功能，由于规则的命令是一条完整的shell命令，不能被并行处理。</p>
+<p>有了为目标后，我们可以用它来克服上述2个问题：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SUBDIRS = one two three</span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: subdirs $(SUBDIRS)</span></span><br><span class="line"><span class="section">subdirs: <span class="variable">$(SUBDIRS)</span></span></span><br><span class="line"><span class="variable">$(SUBDIRS)</span>:</span><br><span class="line">    <span class="variable">$(MAKE)</span> -C <span class="variable">$@</span></span><br><span class="line"><span class="section">one: two</span></span><br></pre></td></tr></table></figure>
+
+<p>上述的实现中有一个没有命令行的规则“one: two”，此规则用来限制子目录的make顺序。</p>
+<p>&emsp;&emsp;一般情况下，一个伪目标不作为另外一个目标的依赖。这是因为当一个目标文件的依赖包含伪目标时，每一次在执行这个规则时伪目标所定义的命令都会被执行。当一个伪目标没有作为任何目标的依赖时，我们只能通过make的命令行来指定它为make的终极目标，来执行它所在规则所定义的命令。例如“make clean”。</p>
+<p>&emsp;&emsp;在Makefile中，一个伪目标可以有自己的依赖（可以是一个或者多个文件、一个或者多个伪目标）。在一个目录下如果需要创建多个可执行程序，我们可以将所有程序的重建规则在一个Makefile中描述。因为Makefile中第一个目标是“终极目标”，约定的做法是使用一个“all”的伪目标来作为终极目标，它的依赖文件就是那些需要创建的程序，以下就是一个例子：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">all: one two three</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: all</span></span><br><span class="line"></span><br><span class="line"><span class="section">one: one.o func.o</span></span><br><span class="line">    cc -o one one.o func.o</span><br><span class="line"><span class="section">two: two.o func.o</span></span><br><span class="line">    cc -o two two.o func.o</span><br><span class="line"><span class="section">three: three.o func.o</span></span><br><span class="line">    cc -o three three.o func.o</span><br></pre></td></tr></table></figure>
+
+<p>执行make时，目标“all”被作为终极目标。为了完成对它的更新，make会创建或者重建目标“all”的所有依赖文件。当需要单独更新某一个程序时，我们可以通过make的命令行选项来目前指定需要重建的程序（例如：“make one”）。</p>
+<p>&emsp;&emsp;当一个伪目标作为另一个伪目标的依赖时，make将其作为另外一个伪目标的子例程来处理（就跟C语言中的函数调用一样）。下面就是这个做法的例子：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: cleanall cleanobj cleandiff</span></span><br><span class="line"><span class="section">cleanall: cleanobj cleandiff</span></span><br><span class="line">    rm program</span><br><span class="line"><span class="section">cleanobj:</span></span><br><span class="line">    rm *.o</span><br><span class="line"><span class="section">cleandiff:</span></span><br><span class="line">    rm *.diff</span><br></pre></td></tr></table></figure>
+
+<p>我们可以输入“make cleanall”和“make cleanobj”和“make cleandiff”命令来达到清除不同种类文件的目的。</p>
+<p>&emsp;&emsp;说明：</p>
+<p>&emsp;&emsp;通常在清除文件的伪目标所定义的命令中“rm”使用选项“-f（–force）”来防止在缺少删除文件时出错并退出。也可以在“rm”之前加上“-”来防止“rm”错误退出，使用这个方法时make会提示错误信息但不会退出。为了不看到这些讨厌的信息，需要使用上述第一种方式。</p>
+<p>&emsp;&emsp;另外make存在一个内嵌的隐含变量“RM”。它被定义为：“RM=rm -f”。因此在书写“clean”规则的命令时可以使用变量“$(RM)”来替代“rm”。</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/12/%E5%85%B3%E4%BA%8EGNU%20make%E5%B7%A5%E5%85%B7%E7%9A%84%E6%B1%87%E6%80%BB%EF%BC%882%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1097,96 +1248,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/05/%E8%80%83%E8%99%91%E5%86%99%E5%87%BA%E4%B8%80%E4%B8%AA%E4%B8%8D%E6%8A%9B%E5%87%BA%E5%BC%82%E5%B8%B8%E7%9A%84swap%E5%87%BD%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/05/%E8%80%83%E8%99%91%E5%86%99%E5%87%BA%E4%B8%80%E4%B8%AA%E4%B8%8D%E6%8A%9B%E5%87%BA%E5%BC%82%E5%B8%B8%E7%9A%84swap%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">考虑写出一个不抛出异常的swap函数</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-05 16:22:00" itemprop="dateCreated datePublished" datetime="2020-08-05T16:22:00+08:00">2020-08-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:29:12" itemprop="dateModified" datetime="2021-03-10T20:29:12+08:00">2021-03-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/08/05/%E8%80%83%E8%99%91%E5%86%99%E5%87%BA%E4%B8%80%E4%B8%AA%E4%B8%8D%E6%8A%9B%E5%87%BA%E5%BC%82%E5%B8%B8%E7%9A%84swap%E5%87%BD%E6%95%B0/" class="post-meta-item leancloud_visitors" data-flag-title="考虑写出一个不抛出异常的swap函数" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="考虑写出一个不抛出异常的swap函数"><a href="#考虑写出一个不抛出异常的swap函数" class="headerlink" title="考虑写出一个不抛出异常的swap函数"></a>考虑写出一个不抛出异常的swap函数</h1><p>&emsp;&emsp;swap是个有趣的函数。原本它只是STL的一部分，而后成为异常安全性编程的脊柱，以及用来处理自我赋值可能性的一个常见机制。由于swap如此有用，适当的实现很重要。然而在非凡的重要性之外它也带来了非凡的复杂性。</p>
-<p>&emsp;&emsp;所谓swap两对象值，意思是将两对象的值彼此赋予对方。缺省情况下swap动作可由标准程序库提供的swap算法完成。其典型实现完全如你所预期：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/05/%E8%80%83%E8%99%91%E5%86%99%E5%87%BA%E4%B8%80%E4%B8%AA%E4%B8%8D%E6%8A%9B%E5%87%BA%E5%BC%82%E5%B8%B8%E7%9A%84swap%E5%87%BD%E6%95%B0/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1257,7 +1318,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">63</span>
+          <span class="site-state-item-count">64</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
