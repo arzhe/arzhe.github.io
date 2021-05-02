@@ -3882,4 +3882,70 @@
 <p>该结构体虽然访问效率高，但是并没有节省空间，同时扩展性也并不是很好，例如，当字节对齐变化时，需要填充的字节数可能就会发生变化。</p>
 ]]></content>
   </entry>
+  <entry>
+    <title>AcAir开发日志-DAY-1</title>
+    <url>/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97-DAY-1/</url>
+    <content><![CDATA[<h1 id="一些嘀咕"><a href="#一些嘀咕" class="headerlink" title="一些嘀咕"></a>一些嘀咕</h1><p>&emsp;&emsp;在这篇blog之前，就已经有了不少的开发进度了，但是也没写些文档来记录技术路线跟开发过程中所遇到的坑，个人习惯总是在代码上写超多注释并希望以此来替代开发日志，也算是有些强迫症使然吧，为此也整理出了一套个性化的注释规范，这个就留在之后再另写一篇blog吧（可能自己也会忘记）。</p>
+<p>&emsp;&emsp;其实早在疫情阶段就一直想写开发日志，但是由于各种原因，这个计划也就搁浅了。想来开发已接近尾声于是有了更多的空闲时间，就借此机会来重新整理一下以前的开发思路以及遇到的各种问题。好了，言归正传，从DAY-1开始！</p>
+<a id="more"></a>
+
+<h1 id="AcAir诞生的起因"><a href="#AcAir诞生的起因" class="headerlink" title="AcAir诞生的起因"></a>AcAir诞生的起因</h1><p>&emsp;&emsp;在读研之前原计划本就是专心钻研ue4引擎，捣鼓捣鼓一些类库与服务器相关的开发，同时参与到导师的项目当中完成自己的论文。要是在这两者之间能够有些许契合就再好不过了，但是事情总是不会那么顺心如意的，导师的项目则是水下网络方向的。不过也算是对自己的一个考验吧，人生总得有些挑战才来得有意义。起初导师让我找找自己的方向，说实话，我也一头雾水，不知道该如何下手，所幸的是我遇到了一个好的导师（老杨——权当是是我私下的一个昵称吧），一直在帮我找适合我的项目跟方向。坎坎坷坷，最终，我选择了访问控制加密这类方向。</p>
+<p>&emsp;&emsp;老杨的课题组方向是水下网络，我所选择的课题自然也躲不开这个领域。也就是说访问控制跟加密要与这个有所关联，历经周折，我的课题内容终于定下来了：水下网络网关的访问控制与加密系统的设计。加密得使用国密算法（不得让我想起亮剑里面的那个场景——李云龙逮到了国民党军的交响乐团），并加以改动用来适配网关本地数据的加密。由于是用C++来进行开发，而目前很少有合适的C++访问控制框架可以拿来用以网关的访问控制系统的开发。虽说是网关，但是由于是“智能”网关，也相对于一个小的系统，无法用嵌入式的访问控制开发方式来进行coding。实际上绝大部分中小型、web端的访问控制模块与框架都是由java等一些非C／C++系语言实现的，C／C++系语言实现的一些访问控制框架也都是用来服务于大型软件与服务器的。</p>
+<p>&emsp;&emsp;这样一来，我的研究内容自然而然地集中到一点了——开发一个轻量级的C++访问控制框架。AcAir的想法萌芽而生，接下来就该考虑如何从“轻量级”这个方面下手。</p>
+<h1 id="从用户体验出发"><a href="#从用户体验出发" class="headerlink" title="从用户体验出发"></a>从用户体验出发</h1><p>&emsp;&emsp;任何良好的设计都离不开一个原则——方便用户使用。要想开发一个“优秀”的轻量级C++访问控制框架，必须要能够使用户第一时间就体验到该框架的便利性，因此一个好的交互方式是重要的，至少是不那么晦涩难懂，大量的接口，晦涩难懂的数据结构等等都是需要避免的。</p>
+<h2 id="AcAir支持的访问控制模型"><a href="#AcAir支持的访问控制模型" class="headerlink" title="AcAir支持的访问控制模型"></a>AcAir支持的访问控制模型</h2><p>&emsp;&emsp;在探究如何改善用户体验感之前，首先要确定AcAir支持的访问控制模型，一般来说，目前为止存在的访问控制模型有DAC、MAC、RBAC和ABAC等等。其中RBAC是目前最为通用模型，也是AcAir最为需要纳入考量的模型。因此，将RBAC作为AcAir框架的默认首选模型。</p>
+<h2 id="AcAir将访问控制模型直接呈现给用户"><a href="#AcAir将访问控制模型直接呈现给用户" class="headerlink" title="AcAir将访问控制模型直接呈现给用户"></a>AcAir将访问控制模型直接呈现给用户</h2><p>&emsp;&emsp;要想将框架简易化，就需要用户能够方便地直接操作访问控制模型，因此将访问控制模型抽象化为易于与用户交流的形式是十分关键的。考虑使用文本文件来与用户进行交流，用户可以采取AcAir的固有语法来自定义化自己所需要的访问控制模型，然后文本文件作为中间人架起AcAir框架与用户沟通的桥梁，AcAir通过读取文本文件，将其中用户定义的访问控制模型抽象化为数据结构进行相应的处理，之后用编写AC系统时可以使用AcAir提供的简易接口来间接地操作这些数据结构。到此，我们AcAir的大致结构已然显现，分为以下3个部分：</p>
+<ul>
+<li>用户使用AcAir提供的语法来编写所需的访问控制模型定义。</li>
+<li>AcAir框架将用户编写的访问控制模型定义抽象化为数据结构，并提供若干可以对其操作的接口。</li>
+<li>用户使用AcAir框架提供的接口，对自己定义的访问控制模型进行若干操作以实现自己的AC系统。</li>
+</ul>
+<h1 id="编写访问控制模型的语法"><a href="#编写访问控制模型的语法" class="headerlink" title="编写访问控制模型的语法"></a>编写访问控制模型的语法</h1><p>&emsp;&emsp;AcAir使用conf文件来配置用户所定义的访问控制模型，由于RBAC模型存在继承体系，故而采取一种契合其继承特点的语法来将其抽象化——面向对象。</p>
+<p>&emsp;&emsp;首先用户需要定义出所需要的角色：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">definition &#123;</span><br><span class="line">    root,</span><br><span class="line">    role_g,</span><br><span class="line">    role1,</span><br><span class="line">    role2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如上述代码示例，AcAir支持换行定义，用户可以在definition中定义所需的角色。就像变量名声明那样，用户将所需要的角色先“声明”，再“定义”。之后用户可以像C++对类的处理那样，对角色进行类似的处理：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">role root &#123;</span><br><span class="line">    read(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    write(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    </span><br><span class="line">    member_size &#x3D; 1</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        Alice</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;角色root拥有2个权限策略：</p>
+<ul>
+<li>对于file1与file2有着读权限</li>
+<li>对于file1与file2有着写权限</li>
+</ul>
+<p>&emsp;&emsp;同时，能够分配给该角色的最大用户数为1，其用户指定为Alice。</p>
+<p>&emsp;&emsp;可以看到，我们的“角色类”拥有3个部分：</p>
+<ol>
+<li>权限策略：用以指定该角色所拥有的权限策略。</li>
+<li>限制用户数：用以限制该角色所能拥有的最大用户数量。</li>
+<li>用户表：用以列出该角色下的所有用户。</li>
+</ol>
+<p>&emsp;&emsp;那么我们按照这个原则来定义下一个角色：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">role role_g &#123;</span><br><span class="line">    read(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    write(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        some_people</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;role role_g中对于member_size的定义缺失了，但是这在AcAir中是允许的，当member_size部分缺少时，默认其为0，也就是说，member{}中的some_people并不会被纳入role_g角色列表中，即使写入再多的用户信息，也不会被录用。那么该角色被定义出来又是为了什么呢？一个没有用户分配的角色有存在的意义吗？</p>
+<p>&emsp;&emsp;对于上述疑问，不妨让我们在C++的继承体系中一探究竟，AcAir中的role_g与C++的virtual类十分类似，我们都找不到它的存在实体，但是它所能够提供给我们的却远超实体意义。假设一下如果我们的角色有很多很多，但是它们的权限策略却十分的相像，如此一来，我们就得进行大量的重复操作。有了role_g角色（在这之后，我将称其为虚角色），我们就可以把各个角色中相同的权限策略放入其中，然后进行如下操作：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">role role1 : role_g &#123;</span><br><span class="line">    read(&quot;path_to_file_r1&quot;)</span><br><span class="line">    </span><br><span class="line">    member_size &#x3D; 1</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        Bob</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;若如此编写，则意图是要让role1“继承”role_g的所有权限策略，此外，将role1角色的用户限制在1个，该用户为Bob。“继承”会将父角色的一切都继承下来，如果member_size和member部分有所更改，那么便会覆写</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>David Bowie</title>
+    <url>/2021/05/02/David%20Bowie/</url>
+    <content><![CDATA[<h1 id="DAVID-BOWIE（大卫-鲍伊）"><a href="#DAVID-BOWIE（大卫-鲍伊）" class="headerlink" title="DAVID BOWIE（大卫 鲍伊）"></a>DAVID BOWIE（大卫 鲍伊）</h1><p>&emsp;&emsp;在大卫鲍伊之后的流行歌手里面恐怕找不出一个与其类似风格的人了。大卫的音乐和延伸范围，以及其对待自己事业方式使他的作品无处不在。他不断的将所见所闻融入自我个性做出不同的东西，我想正是这点使他成为那种总让我们对他要做的事充满期待的艺术家，他永远都可以给你惊喜。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-1.png" alt="大卫鲍伊-1"></p>
+<a id="more"></a>
+
+<p>&emsp;&emsp;大卫琼斯出生于布里克斯顿的南伦敦地区，那时整个城市还处于二战大轰炸后的复苏期。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-2.png" alt="大卫鲍伊-2-年幼"></p>
+<p>他的第一个家在斯坦菲尔德路，</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-3.png" alt="大卫鲍伊-3-家"></p>
+<p>在他的晚年，他回到了布利克斯顿办一场特殊的音乐会，为那里做些贡献。</p>
+<p>&emsp;&emsp;鲍伊的少年时期就读于布罗姆利技术高中，</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-4.png" alt="大卫鲍伊-4-少年"></p>
+<p>在这里上学时，他为了女孩打架挨了拳头，那只受伤的眼睛再也无法完全康复，留下眼部永久性的括约肌损伤。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-5.png" alt="大卫鲍伊-5-受伤的眼睛"></p>
+<p>我不知道眼睛的伤对他的影响有多大，但我知道那意味着他有着两只颜色不一样的眼睛。这无形中平添了一种冷峻异于常人的感觉，使得我们的大卫鲍伊更佳令人痴迷。女孩曾经说，嗯，就是，他有两只颜色迥异的眼睛。这是他有别于世俗的部分，这是那种绝对独特的人才有的感觉。只有现实中的独特，才能制造出独一无二的感觉。</p>
+]]></content>
+  </entry>
 </search>

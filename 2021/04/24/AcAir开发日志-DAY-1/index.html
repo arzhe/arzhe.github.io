@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一些嘀咕&amp;emsp;&amp;emsp;在这篇blog之前，就已经有了不少的开发进度了，但是也没写些文档来记录技术路线跟开发过程中所遇到的坑，个人习惯总是在代码上写超多注释并希望以此来替代开发日志，也算是有些强迫症使然吧，为此也整理出了一套个性化的注释规范，这个就留在之后再另写一篇blog吧（可能自己也会忘记）。 &amp;emsp;&amp;emsp;其实早在疫情阶段就一直想写开发日志，但是由于各种原因，这个计划也就搁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AcAir开发日志-DAY-1">
+<meta property="og:url" content="http://yoursite.com/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97-DAY-1/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="一些嘀咕&amp;emsp;&amp;emsp;在这篇blog之前，就已经有了不少的开发进度了，但是也没写些文档来记录技术路线跟开发过程中所遇到的坑，个人习惯总是在代码上写超多注释并希望以此来替代开发日志，也算是有些强迫症使然吧，为此也整理出了一套个性化的注释规范，这个就留在之后再另写一篇blog吧（可能自己也会忘记）。 &amp;emsp;&amp;emsp;其实早在疫情阶段就一直想写开发日志，但是由于各种原因，这个计划也就搁">
+<meta property="article:published_time" content="2021-04-24T12:22:07.000Z">
+<meta property="article:modified_time" content="2021-04-28T14:54:39.000Z">
+<meta property="article:author" content="arzhe">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97-DAY-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>AcAir开发日志-DAY-1 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97-DAY-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AcAir开发日志-DAY-1
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-04-24 20:22:07" itemprop="dateCreated datePublished" datetime="2021-04-24T20:22:07+08:00">2021-04-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-04-28 22:54:39" itemprop="dateModified" datetime="2021-04-28T22:54:39+08:00">2021-04-28</time>
+              </span>
+
+          
+            <span id="/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97-DAY-1/" class="post-meta-item leancloud_visitors" data-flag-title="AcAir开发日志-DAY-1" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="一些嘀咕"><a href="#一些嘀咕" class="headerlink" title="一些嘀咕"></a>一些嘀咕</h1><p>&emsp;&emsp;在这篇blog之前，就已经有了不少的开发进度了，但是也没写些文档来记录技术路线跟开发过程中所遇到的坑，个人习惯总是在代码上写超多注释并希望以此来替代开发日志，也算是有些强迫症使然吧，为此也整理出了一套个性化的注释规范，这个就留在之后再另写一篇blog吧（可能自己也会忘记）。</p>
+<p>&emsp;&emsp;其实早在疫情阶段就一直想写开发日志，但是由于各种原因，这个计划也就搁浅了。想来开发已接近尾声于是有了更多的空闲时间，就借此机会来重新整理一下以前的开发思路以及遇到的各种问题。好了，言归正传，从DAY-1开始！</p>
+<a id="more"></a>
+
+<h1 id="AcAir诞生的起因"><a href="#AcAir诞生的起因" class="headerlink" title="AcAir诞生的起因"></a>AcAir诞生的起因</h1><p>&emsp;&emsp;在读研之前原计划本就是专心钻研ue4引擎，捣鼓捣鼓一些类库与服务器相关的开发，同时参与到导师的项目当中完成自己的论文。要是在这两者之间能够有些许契合就再好不过了，但是事情总是不会那么顺心如意的，导师的项目则是水下网络方向的。不过也算是对自己的一个考验吧，人生总得有些挑战才来得有意义。起初导师让我找找自己的方向，说实话，我也一头雾水，不知道该如何下手，所幸的是我遇到了一个好的导师（老杨——权当是是我私下的一个昵称吧），一直在帮我找适合我的项目跟方向。坎坎坷坷，最终，我选择了访问控制加密这类方向。</p>
+<p>&emsp;&emsp;老杨的课题组方向是水下网络，我所选择的课题自然也躲不开这个领域。也就是说访问控制跟加密要与这个有所关联，历经周折，我的课题内容终于定下来了：水下网络网关的访问控制与加密系统的设计。加密得使用国密算法（不得让我想起亮剑里面的那个场景——李云龙逮到了国民党军的交响乐团），并加以改动用来适配网关本地数据的加密。由于是用C++来进行开发，而目前很少有合适的C++访问控制框架可以拿来用以网关的访问控制系统的开发。虽说是网关，但是由于是“智能”网关，也相对于一个小的系统，无法用嵌入式的访问控制开发方式来进行coding。实际上绝大部分中小型、web端的访问控制模块与框架都是由java等一些非C／C++系语言实现的，C／C++系语言实现的一些访问控制框架也都是用来服务于大型软件与服务器的。</p>
+<p>&emsp;&emsp;这样一来，我的研究内容自然而然地集中到一点了——开发一个轻量级的C++访问控制框架。AcAir的想法萌芽而生，接下来就该考虑如何从“轻量级”这个方面下手。</p>
+<h1 id="从用户体验出发"><a href="#从用户体验出发" class="headerlink" title="从用户体验出发"></a>从用户体验出发</h1><p>&emsp;&emsp;任何良好的设计都离不开一个原则——方便用户使用。要想开发一个“优秀”的轻量级C++访问控制框架，必须要能够使用户第一时间就体验到该框架的便利性，因此一个好的交互方式是重要的，至少是不那么晦涩难懂，大量的接口，晦涩难懂的数据结构等等都是需要避免的。</p>
+<h2 id="AcAir支持的访问控制模型"><a href="#AcAir支持的访问控制模型" class="headerlink" title="AcAir支持的访问控制模型"></a>AcAir支持的访问控制模型</h2><p>&emsp;&emsp;在探究如何改善用户体验感之前，首先要确定AcAir支持的访问控制模型，一般来说，目前为止存在的访问控制模型有DAC、MAC、RBAC和ABAC等等。其中RBAC是目前最为通用模型，也是AcAir最为需要纳入考量的模型。因此，将RBAC作为AcAir框架的默认首选模型。</p>
+<h2 id="AcAir将访问控制模型直接呈现给用户"><a href="#AcAir将访问控制模型直接呈现给用户" class="headerlink" title="AcAir将访问控制模型直接呈现给用户"></a>AcAir将访问控制模型直接呈现给用户</h2><p>&emsp;&emsp;要想将框架简易化，就需要用户能够方便地直接操作访问控制模型，因此将访问控制模型抽象化为易于与用户交流的形式是十分关键的。考虑使用文本文件来与用户进行交流，用户可以采取AcAir的固有语法来自定义化自己所需要的访问控制模型，然后文本文件作为中间人架起AcAir框架与用户沟通的桥梁，AcAir通过读取文本文件，将其中用户定义的访问控制模型抽象化为数据结构进行相应的处理，之后用编写AC系统时可以使用AcAir提供的简易接口来间接地操作这些数据结构。到此，我们AcAir的大致结构已然显现，分为以下3个部分：</p>
+<ul>
+<li>用户使用AcAir提供的语法来编写所需的访问控制模型定义。</li>
+<li>AcAir框架将用户编写的访问控制模型定义抽象化为数据结构，并提供若干可以对其操作的接口。</li>
+<li>用户使用AcAir框架提供的接口，对自己定义的访问控制模型进行若干操作以实现自己的AC系统。</li>
+</ul>
+<h1 id="编写访问控制模型的语法"><a href="#编写访问控制模型的语法" class="headerlink" title="编写访问控制模型的语法"></a>编写访问控制模型的语法</h1><p>&emsp;&emsp;AcAir使用conf文件来配置用户所定义的访问控制模型，由于RBAC模型存在继承体系，故而采取一种契合其继承特点的语法来将其抽象化——面向对象。</p>
+<p>&emsp;&emsp;首先用户需要定义出所需要的角色：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">definition &#123;</span><br><span class="line">    root,</span><br><span class="line">    role_g,</span><br><span class="line">    role1,</span><br><span class="line">    role2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如上述代码示例，AcAir支持换行定义，用户可以在definition中定义所需的角色。就像变量名声明那样，用户将所需要的角色先“声明”，再“定义”。之后用户可以像C++对类的处理那样，对角色进行类似的处理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">role root &#123;</span><br><span class="line">    read(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    write(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    </span><br><span class="line">    member_size &#x3D; 1</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        Alice</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;角色root拥有2个权限策略：</p>
+<ul>
+<li>对于file1与file2有着读权限</li>
+<li>对于file1与file2有着写权限</li>
+</ul>
+<p>&emsp;&emsp;同时，能够分配给该角色的最大用户数为1，其用户指定为Alice。</p>
+<p>&emsp;&emsp;可以看到，我们的“角色类”拥有3个部分：</p>
+<ol>
+<li>权限策略：用以指定该角色所拥有的权限策略。</li>
+<li>限制用户数：用以限制该角色所能拥有的最大用户数量。</li>
+<li>用户表：用以列出该角色下的所有用户。</li>
+</ol>
+<p>&emsp;&emsp;那么我们按照这个原则来定义下一个角色：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">role role_g &#123;</span><br><span class="line">    read(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    write(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        some_people</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;role role_g中对于member_size的定义缺失了，但是这在AcAir中是允许的，当member_size部分缺少时，默认其为0，也就是说，member{}中的some_people并不会被纳入role_g角色列表中，即使写入再多的用户信息，也不会被录用。那么该角色被定义出来又是为了什么呢？一个没有用户分配的角色有存在的意义吗？</p>
+<p>&emsp;&emsp;对于上述疑问，不妨让我们在C++的继承体系中一探究竟，AcAir中的role_g与C++的virtual类十分类似，我们都找不到它的存在实体，但是它所能够提供给我们的却远超实体意义。假设一下如果我们的角色有很多很多，但是它们的权限策略却十分的相像，如此一来，我们就得进行大量的重复操作。有了role_g角色（在这之后，我将称其为虚角色），我们就可以把各个角色中相同的权限策略放入其中，然后进行如下操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">role role1 : role_g &#123;</span><br><span class="line">    read(&quot;path_to_file_r1&quot;)</span><br><span class="line">    </span><br><span class="line">    member_size &#x3D; 1</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        Bob</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;若如此编写，则意图是要让role1“继承”role_g的所有权限策略，此外，将role1角色的用户限制在1个，该用户为Bob。“继承”会将父角色的一切都继承下来，如果member_size和member部分有所更改，那么便会覆写</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/17/C%EF%BC%8FC++%E4%B8%AD%E7%9A%84%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90/" rel="prev" title="C／C++中的字节对齐">
+      <i class="fa fa-chevron-left"></i> C／C++中的字节对齐
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/05/02/David%20Bowie/" rel="next" title="David Bowie">
+      David Bowie <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一些嘀咕"><span class="nav-number">1.</span> <span class="nav-text">一些嘀咕</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AcAir诞生的起因"><span class="nav-number">2.</span> <span class="nav-text">AcAir诞生的起因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#从用户体验出发"><span class="nav-number">3.</span> <span class="nav-text">从用户体验出发</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AcAir支持的访问控制模型"><span class="nav-number">3.1.</span> <span class="nav-text">AcAir支持的访问控制模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AcAir将访问控制模型直接呈现给用户"><span class="nav-number">3.2.</span> <span class="nav-text">AcAir将访问控制模型直接呈现给用户</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编写访问控制模型的语法"><span class="nav-number">4.</span> <span class="nav-text">编写访问控制模型的语法</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>
