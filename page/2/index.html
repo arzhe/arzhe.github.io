@@ -202,6 +202,187 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Bconfigure_file/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Bconfigure_file/" class="post-title-link" itemprop="url">CMake命令之configure_file</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-01-05 16:09:00" itemprop="dateCreated datePublished" datetime="2021-01-05T16:09:00+08:00">2021-01-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-01-10 10:52:04" itemprop="dateModified" datetime="2021-01-10T10:52:04+08:00">2021-01-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/cmake%E5%91%BD%E4%BB%A4/" itemprop="url" rel="index"><span itemprop="name">cmake命令</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/01/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Bconfigure_file/" class="post-meta-item leancloud_visitors" data-flag-title="CMake命令之configure_file" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">configure_file</span>(&lt;input&gt; &lt;output&gt;</span><br><span class="line">               [COPYONLY] [ESCAPE_QUOTES] [@ONLY]</span><br><span class="line">               [NO_SOURCE_PERMISSIONS]</span><br><span class="line">               [NEWLINE_STYLE [UNIX|DOS|WIN32|LF|CRLF] ])</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;将&lt;input&gt;文件复制到&lt;output&gt;文件，并替换在input文件中的<code>@var@</code>或<code>${var}</code>为cmake中指定的值。根据cmake中是否定义了var来决定<code>#cmakedefine VAR ...</code>会被替换为<code>#define VAR ...</code>还是<code>#undef VAR</code>。同样的，<code>#cmakedefine01 VAR</code>会被替换为<code>#define VAR 1</code>或是<code>#define VAR 0</code>。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/01/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Bconfigure_file/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/01/CMake%E5%B7%A5%E5%85%B7%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/01/CMake%E5%B7%A5%E5%85%B7%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">CMake工具教程（一）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-01-01 15:29:00" itemprop="dateCreated datePublished" datetime="2021-01-01T15:29:00+08:00">2021-01-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-01-15 18:04:56" itemprop="dateModified" datetime="2021-01-15T18:04:56+08:00">2021-01-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/cmake%E5%B7%A5%E5%85%B7%E6%95%99%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">cmake工具教程</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/01/01/CMake%E5%B7%A5%E5%85%B7%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="CMake工具教程（一）" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>&emsp;&emsp;该教程将逐步讲解CMake工具在构建一个工程项目中的每一个细节与步骤。CMake最终目的是创建出makefile文件，而不是直接构建出一个工程项目。</p>
+<h1 id="初步构建（步骤1）"><a href="#初步构建（步骤1）" class="headerlink" title="初步构建（步骤1）"></a>初步构建（步骤1）</h1><p>&emsp;&emsp;最为简单基本的项目是一个从源代码文件中构建出来的可执行文件。对于简单的项目，只需要一个包含三行命令的CMakeLists.txt文件。这将是所有基于CMake工具的项目的起点。CMakeLists.txt在该情况下的内容如下：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/01/01/CMake%E5%B7%A5%E5%85%B7%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/02/placement%20new%E4%B8%8Eplacement%20delete%E4%B8%80%E5%AE%9A%E8%A6%81%E6%88%90%E5%8F%8C%E6%88%90%E5%AF%B9/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -897,184 +1078,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/16/%E5%89%94%E9%99%A4template%E5%86%85%E4%B8%8E%E5%8F%82%E6%95%B0%E6%97%A0%E5%85%B3%E7%9A%84%E4%BB%A3%E7%A0%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/16/%E5%89%94%E9%99%A4template%E5%86%85%E4%B8%8E%E5%8F%82%E6%95%B0%E6%97%A0%E5%85%B3%E7%9A%84%E4%BB%A3%E7%A0%81/" class="post-title-link" itemprop="url">剔除template内与参数无关的代码</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-16 22:24:00" itemprop="dateCreated datePublished" datetime="2020-11-16T22:24:00+08:00">2020-11-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:33:53" itemprop="dateModified" datetime="2021-03-10T20:33:53+08:00">2021-03-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/11/16/%E5%89%94%E9%99%A4template%E5%86%85%E4%B8%8E%E5%8F%82%E6%95%B0%E6%97%A0%E5%85%B3%E7%9A%84%E4%BB%A3%E7%A0%81/" class="post-meta-item leancloud_visitors" data-flag-title="剔除template内与参数无关的代码" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="剔除template内与参数无关的代码"><a href="#剔除template内与参数无关的代码" class="headerlink" title="剔除template内与参数无关的代码"></a>剔除template内与参数无关的代码</h1><p>&emsp;&emsp;使用template可以有效地避免代码重复。有时候你会需求10个类，每一个都含有100个成员函数（当然啦，这里稍微有点夸张）。那么在此情况下，你只需要编写一个class template，然后剩下的事情就交给编译器去吧，由编译器来具现化这10个类跟1000个成员函数。由于class template的成员函数只有在被使用时才会被具现化，因此只有当某些函数被真正使用时，你才会获得这些函数。同样的，function template也有此类功能。为了避免写出大量重复函数代码，你只需要写一个function template，然后让编译器去完成剩下的事情就够了。看来“懒惰”才是推进人类技术进步的关键。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/16/%E5%89%94%E9%99%A4template%E5%86%85%E4%B8%8E%E5%8F%82%E6%95%B0%E6%97%A0%E5%85%B3%E7%9A%84%E4%BB%A3%E7%A0%81/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/15/%E5%AD%A6%E4%B9%A0%E5%A4%84%E7%90%86%E6%A8%A1%E7%89%88%E5%8C%96%E5%9F%BA%E7%B1%BB%E5%86%85%E7%9A%84%E5%90%8D%E7%A7%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/15/%E5%AD%A6%E4%B9%A0%E5%A4%84%E7%90%86%E6%A8%A1%E7%89%88%E5%8C%96%E5%9F%BA%E7%B1%BB%E5%86%85%E7%9A%84%E5%90%8D%E7%A7%B0/" class="post-title-link" itemprop="url">学习处理模版化基类内的名称</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-15 16:25:00" itemprop="dateCreated datePublished" datetime="2020-11-15T16:25:00+08:00">2020-11-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:34:49" itemprop="dateModified" datetime="2021-03-10T20:34:49+08:00">2021-03-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/11/15/%E5%AD%A6%E4%B9%A0%E5%A4%84%E7%90%86%E6%A8%A1%E7%89%88%E5%8C%96%E5%9F%BA%E7%B1%BB%E5%86%85%E7%9A%84%E5%90%8D%E7%A7%B0/" class="post-meta-item leancloud_visitors" data-flag-title="学习处理模版化基类内的名称" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="学习处理模版化基类内的名称"><a href="#学习处理模版化基类内的名称" class="headerlink" title="学习处理模版化基类内的名称"></a>学习处理模版化基类内的名称</h1><p>&emsp;&emsp;假设我们需要撰写一个程序，它能够传送信息到若干不同的公司去。信息要不译成密码，要不就是未经加工的文字。如果编译期间我们有足够信息来决定哪一个信息传至哪一家公司，就可以采用基于template的解法：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/15/%E5%AD%A6%E4%B9%A0%E5%A4%84%E7%90%86%E6%A8%A1%E7%89%88%E5%8C%96%E5%9F%BA%E7%B1%BB%E5%86%85%E7%9A%84%E5%90%8D%E7%A7%B0/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1145,18 +1148,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-count">68</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

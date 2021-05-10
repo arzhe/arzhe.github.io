@@ -22,18 +22,19 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="一些嘀咕&amp;emsp;&amp;emsp;在这篇blog之前，就已经有了不少的开发进度了，但是也没写些文档来记录技术路线跟开发过程中所遇到的坑，个人习惯总是在代码上写超多注释并希望以此来替代开发日志，也算是有些强迫症使然吧，为此也整理出了一套个性化的注释规范，这个就留在之后再另写一篇blog吧（可能自己也会忘记）。 &amp;emsp;&amp;emsp;其实早在疫情阶段就一直想写开发日志，但是由于各种原因，这个计划也就搁">
+  <meta name="description" content="进程标识&amp;emsp;&amp;emsp;每个进程都有一个非负整数表示的唯一进程ID。因为进程ID标识符总是唯一的，常将其用作其他标识符的一部分以保证其唯一性。例如，应用程序有时就把进程ID作为名字的一部分来创建一个唯一的文件名。 &amp;emsp;&amp;emsp;虽然是唯一的，但是进程ID是可复用的。当一个进程终止后，其进程ID就成为复用的候选者。大多数UNIX系统实现延迟复用算法，使得赋予新建进程的ID不同于最">
 <meta property="og:type" content="article">
-<meta property="og:title" content="AcAir开发日志-DAY-1">
-<meta property="og:url" content="http://yoursite.com/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97-DAY-1/index.html">
+<meta property="og:title" content="创建进程的fork函数">
+<meta property="og:url" content="http://yoursite.com/2021/05/03/%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B%E7%9A%84fork%E5%87%BD%E6%95%B0/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="一些嘀咕&amp;emsp;&amp;emsp;在这篇blog之前，就已经有了不少的开发进度了，但是也没写些文档来记录技术路线跟开发过程中所遇到的坑，个人习惯总是在代码上写超多注释并希望以此来替代开发日志，也算是有些强迫症使然吧，为此也整理出了一套个性化的注释规范，这个就留在之后再另写一篇blog吧（可能自己也会忘记）。 &amp;emsp;&amp;emsp;其实早在疫情阶段就一直想写开发日志，但是由于各种原因，这个计划也就搁">
-<meta property="article:published_time" content="2021-04-24T12:22:07.000Z">
-<meta property="article:modified_time" content="2021-04-28T14:54:39.000Z">
+<meta property="og:description" content="进程标识&amp;emsp;&amp;emsp;每个进程都有一个非负整数表示的唯一进程ID。因为进程ID标识符总是唯一的，常将其用作其他标识符的一部分以保证其唯一性。例如，应用程序有时就把进程ID作为名字的一部分来创建一个唯一的文件名。 &amp;emsp;&amp;emsp;虽然是唯一的，但是进程ID是可复用的。当一个进程终止后，其进程ID就成为复用的候选者。大多数UNIX系统实现延迟复用算法，使得赋予新建进程的ID不同于最">
+<meta property="article:published_time" content="2021-05-03T07:04:00.000Z">
+<meta property="article:modified_time" content="2021-05-10T13:38:38.000Z">
 <meta property="article:author" content="arzhe">
+<meta property="article:tag" content="线程进程">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97-DAY-1/">
+<link rel="canonical" href="http://yoursite.com/2021/05/03/%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B%E7%9A%84fork%E5%87%BD%E6%95%B0/">
 
 
 <script id="page-configurations">
@@ -46,7 +47,7 @@
   };
 </script>
 
-  <title>AcAir开发日志-DAY-1 | Hexo</title>
+  <title>创建进程的fork函数 | Hexo</title>
   
 
 
@@ -205,7 +206,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97-DAY-1/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/05/03/%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B%E7%9A%84fork%E5%87%BD%E6%95%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
@@ -218,7 +219,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          AcAir开发日志-DAY-1
+          创建进程的fork函数
         </h1>
 
         <div class="post-meta">
@@ -228,18 +229,27 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2021-04-24 20:22:07" itemprop="dateCreated datePublished" datetime="2021-04-24T20:22:07+08:00">2021-04-24</time>
+              <time title="Created: 2021-05-03 15:04:00" itemprop="dateCreated datePublished" datetime="2021-05-03T15:04:00+08:00">2021-05-03</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-04-28 22:54:39" itemprop="dateModified" datetime="2021-04-28T22:54:39+08:00">2021-04-28</time>
+                <time title="Modified: 2021-05-10 21:38:38" itemprop="dateModified" datetime="2021-05-10T21:38:38+08:00">2021-05-10</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX/" itemprop="url" rel="index"><span itemprop="name">UNIX</span></a>
+                </span>
+            </span>
 
           
-            <span id="/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97-DAY-1/" class="post-meta-item leancloud_visitors" data-flag-title="AcAir开发日志-DAY-1" title="Views">
+            <span id="/2021/05/03/%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B%E7%9A%84fork%E5%87%BD%E6%95%B0/" class="post-meta-item leancloud_visitors" data-flag-title="创建进程的fork函数" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -256,48 +266,46 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="一些嘀咕"><a href="#一些嘀咕" class="headerlink" title="一些嘀咕"></a>一些嘀咕</h1><p>&emsp;&emsp;在这篇blog之前，就已经有了不少的开发进度了，但是也没写些文档来记录技术路线跟开发过程中所遇到的坑，个人习惯总是在代码上写超多注释并希望以此来替代开发日志，也算是有些强迫症使然吧，为此也整理出了一套个性化的注释规范，这个就留在之后再另写一篇blog吧（可能自己也会忘记）。</p>
-<p>&emsp;&emsp;其实早在疫情阶段就一直想写开发日志，但是由于各种原因，这个计划也就搁浅了。想来开发已接近尾声于是有了更多的空闲时间，就借此机会来重新整理一下以前的开发思路以及遇到的各种问题。好了，言归正传，从DAY-1开始！</p>
+        <hr>
+<h1 id="进程标识"><a href="#进程标识" class="headerlink" title="进程标识"></a>进程标识</h1><p>&emsp;&emsp;每个进程都有一个非负整数表示的唯一进程ID。因为进程ID标识符总是唯一的，常将其用作其他标识符的一部分以保证其唯一性。例如，应用程序有时就把进程ID作为名字的一部分来创建一个唯一的文件名。</p>
+<p>&emsp;&emsp;虽然是唯一的，但是进程ID是可复用的。当一个进程终止后，其进程ID就成为复用的候选者。大多数UNIX系统实现延迟复用算法，使得赋予新建进程的ID不同于最近终止进程所使用的ID。这防止了将新进程误认为是使用同一ID的某个已终止的先前进程。</p>
 <a id="more"></a>
 
-<h1 id="AcAir诞生的起因"><a href="#AcAir诞生的起因" class="headerlink" title="AcAir诞生的起因"></a>AcAir诞生的起因</h1><p>&emsp;&emsp;在读研之前原计划本就是专心钻研ue4引擎，捣鼓捣鼓一些类库与服务器相关的开发，同时参与到导师的项目当中完成自己的论文。要是在这两者之间能够有些许契合就再好不过了，但是事情总是不会那么顺心如意的，导师的项目则是水下网络方向的。不过也算是对自己的一个考验吧，人生总得有些挑战才来得有意义。起初导师让我找找自己的方向，说实话，我也一头雾水，不知道该如何下手，所幸的是我遇到了一个好的导师（老杨——权当是是我私下的一个昵称吧），一直在帮我找适合我的项目跟方向。坎坎坷坷，最终，我选择了访问控制加密这类方向。</p>
-<p>&emsp;&emsp;老杨的课题组方向是水下网络，我所选择的课题自然也躲不开这个领域。也就是说访问控制跟加密要与这个有所关联，历经周折，我的课题内容终于定下来了：水下网络网关的访问控制与加密系统的设计。加密得使用国密算法（不得让我想起亮剑里面的那个场景——李云龙逮到了国民党军的交响乐团），并加以改动用来适配网关本地数据的加密。由于是用C++来进行开发，而目前很少有合适的C++访问控制框架可以拿来用以网关的访问控制系统的开发。虽说是网关，但是由于是“智能”网关，也相对于一个小的系统，无法用嵌入式的访问控制开发方式来进行coding。实际上绝大部分中小型、web端的访问控制模块与框架都是由java等一些非C／C++系语言实现的，C／C++系语言实现的一些访问控制框架也都是用来服务于大型软件与服务器的。</p>
-<p>&emsp;&emsp;这样一来，我的研究内容自然而然地集中到一点了——开发一个轻量级的C++访问控制框架。AcAir的想法萌芽而生，接下来就该考虑如何从“轻量级”这个方面下手。</p>
-<h1 id="从用户体验出发"><a href="#从用户体验出发" class="headerlink" title="从用户体验出发"></a>从用户体验出发</h1><p>&emsp;&emsp;任何良好的设计都离不开一个原则——方便用户使用。要想开发一个“优秀”的轻量级C++访问控制框架，必须要能够使用户第一时间就体验到该框架的便利性，因此一个好的交互方式是重要的，至少是不那么晦涩难懂，大量的接口，晦涩难懂的数据结构等等都是需要避免的。</p>
-<h2 id="AcAir支持的访问控制模型"><a href="#AcAir支持的访问控制模型" class="headerlink" title="AcAir支持的访问控制模型"></a>AcAir支持的访问控制模型</h2><p>&emsp;&emsp;在探究如何改善用户体验感之前，首先要确定AcAir支持的访问控制模型，一般来说，目前为止存在的访问控制模型有DAC、MAC、RBAC和ABAC等等。其中RBAC是目前最为通用模型，也是AcAir最为需要纳入考量的模型。因此，将RBAC作为AcAir框架的默认首选模型。</p>
-<h2 id="AcAir将访问控制模型直接呈现给用户"><a href="#AcAir将访问控制模型直接呈现给用户" class="headerlink" title="AcAir将访问控制模型直接呈现给用户"></a>AcAir将访问控制模型直接呈现给用户</h2><p>&emsp;&emsp;要想将框架简易化，就需要用户能够方便地直接操作访问控制模型，因此将访问控制模型抽象化为易于与用户交流的形式是十分关键的。考虑使用文本文件来与用户进行交流，用户可以采取AcAir的固有语法来自定义化自己所需要的访问控制模型，然后文本文件作为中间人架起AcAir框架与用户沟通的桥梁，AcAir通过读取文本文件，将其中用户定义的访问控制模型抽象化为数据结构进行相应的处理，之后用编写AC系统时可以使用AcAir提供的简易接口来间接地操作这些数据结构。到此，我们AcAir的大致结构已然显现，分为以下3个部分：</p>
-<ul>
-<li>用户使用AcAir提供的语法来编写所需的访问控制模型定义。</li>
-<li>AcAir框架将用户编写的访问控制模型定义抽象化为数据结构，并提供若干可以对其操作的接口。</li>
-<li>用户使用AcAir框架提供的接口，对自己定义的访问控制模型进行若干操作以实现自己的AC系统。</li>
-</ul>
-<h1 id="编写访问控制模型的语法"><a href="#编写访问控制模型的语法" class="headerlink" title="编写访问控制模型的语法"></a>编写访问控制模型的语法</h1><p>&emsp;&emsp;AcAir使用conf文件来配置用户所定义的访问控制模型，由于RBAC模型存在继承体系，故而采取一种契合其继承特点的语法来将其抽象化——面向对象。</p>
-<p>&emsp;&emsp;首先用户需要定义出所需要的角色：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">definition &#123;</span><br><span class="line">    root,</span><br><span class="line">    role_g,</span><br><span class="line">    role1,</span><br><span class="line">    role2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;系统中有一些专用进程，但是具体细节随实现而不同。ID为0的进程通常是调度进程，常常被称为交换进程。该进程是内核的一部分，它并不执行任何磁盘上的程序，因此也被称为系统进程。进程ID1通常是init进程，在自举过程结束时由内核调用。该进程的程序文件在UNIX的早期版本中是/etc/init，在较新版本中是/sbin/init。此进程负责在自举内核后启动一个UNIX系统。init通常读取与系统有关的初始化文件（/etc/rc*文件或/etc/inittab文件，以及在/etc/init.d中的文件），并将系统引导到一个状态（如多用户）。init进程绝不会终止。它是一个普通的用户进程（与交换进程不同，它不是内核中的系统进程），但是它以超级用户特权运行。</p>
+<blockquote>
+<p>在Mac OS X 10.4中，init进程被launched进程替代，执行的任务集与init相同，但扩展了功能。</p>
+</blockquote>
+<p>&emsp;&emsp;每个UNIX系统实现都有它自己的一套提供操作系统服务的内核进程，例如，在某些UNIX的虚拟存储器实现中，进程ID2是守护页进程（page daemon），此进程负责支持虚拟存储器系统的分页操作。</p>
+<p>&emsp;&emsp;除了进程ID，每个进程还有一些其他标识符。下列函数返回这些标识符。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="comment">// 返回调用进程的进程ID</span></span><br><span class="line"><span class="function"><span class="keyword">pid_t</span> <span class="title">getpid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回调用进程的父进程ID</span></span><br><span class="line"><span class="function"><span class="keyword">pid_t</span> <span class="title">getppid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回调用进程的实际用户ID</span></span><br><span class="line"><span class="function"><span class="keyword">uid_t</span> <span class="title">getuid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回调用进程的有效用户ID</span></span><br><span class="line"><span class="function"><span class="keyword">uid_t</span> <span class="title">geteuid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回调用进程的实际组ID</span></span><br><span class="line"><span class="function"><span class="keyword">gid_t</span> <span class="title">getgid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回调用进程的有效组ID</span></span><br><span class="line"><span class="function"><span class="keyword">gid_t</span> <span class="title">getegid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;如上述代码示例，AcAir支持换行定义，用户可以在definition中定义所需的角色。就像变量名声明那样，用户将所需要的角色先“声明”，再“定义”。之后用户可以像C++对类的处理那样，对角色进行类似的处理：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">role root &#123;</span><br><span class="line">    read(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    write(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    </span><br><span class="line">    member_size &#x3D; 1</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        Alice</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;注意，这些函数都没有出错返回。</p>
+<h1 id="函数fork"><a href="#函数fork" class="headerlink" title="函数fork"></a>函数fork</h1><p>&emsp;&emsp;一个现有的进程可以调用fork函数创建一个新进程：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：子进程返回0，父进程返回子进程ID；若出错，返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">pid_t</span> <span class="title">fork</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;角色root拥有2个权限策略：</p>
-<ul>
-<li>对于file1与file2有着读权限</li>
-<li>对于file1与file2有着写权限</li>
-</ul>
-<p>&emsp;&emsp;同时，能够分配给该角色的最大用户数为1，其用户指定为Alice。</p>
-<p>&emsp;&emsp;可以看到，我们的“角色类”拥有3个部分：</p>
+<p>&emsp;&emsp;由fork创建的新进程被称为子进程（child process）。fork函数被调用一次，但返回两次。两次返回的区别是子进程的返回值是0，而父进程的返回值则是新建子进程的进程ID。将子进程ID返回给父进程的理由是：因为一个进程的子进程可以有多个，并且没有一个函数使一个进程可以获得其所有子进程的进程ID。fork使子进程得到返回值0的理由是：一个进程只会有一个父进程，所以子进程总是可以调用getppid以获得父进程的进程ID（进程ID0总是由内核交换进程使用，所以一个子进程的进程ID不可能为0）。</p>
+<p>&emsp;&emsp;子进程和父进程继续执行fork调用之后的指令。子进程是父进程的副本。例如，子进程获得父进程数据空间、堆和栈的副本。注意，这是子进程所拥有的副本。父进程和子进程并不共享这些存储空间部分。父进程和子进程共享正文段。</p>
+<p>&emsp;&emsp;由于在fork之后经常跟随着exec，所以现在的很多实现并不执行一个父进程数据段、堆和栈的完全副本。作为替代，使用了写时复制（Copy-On-Write，COW）技术。这些区域由父进程和子进程共享，而且内核将它们的访问权限改变为只读。如果父进程和子进程中的任何一个试图修改这些区域，则内核只为修改区域的那块内存制作一个副本，通常是虚拟存储系统中的“一页”。</p>
+<p>&emsp;&emsp;使fork失败的两个主要原因是：</p>
 <ol>
-<li>权限策略：用以指定该角色所拥有的权限策略。</li>
-<li>限制用户数：用以限制该角色所能拥有的最大用户数量。</li>
-<li>用户表：用以列出该角色下的所有用户。</li>
+<li>系统中已经有太多的进程（通常意味着某个方面出了问题）。</li>
+<li>该实际用户ID的进程总数超过了系统限制。其中CHILD_MAX规定了每个实际用户ID在任一时刻可拥有的最大进程数。</li>
 </ol>
-<p>&emsp;&emsp;那么我们按照这个原则来定义下一个角色：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">role role_g &#123;</span><br><span class="line">    read(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    write(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        some_people</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;role role_g中对于member_size的定义缺失了，但是这在AcAir中是允许的，当member_size部分缺少时，默认其为0，也就是说，member{}中的some_people并不会被纳入role_g角色列表中，即使写入再多的用户信息，也不会被录用。那么该角色被定义出来又是为了什么呢？一个没有用户分配的角色有存在的意义吗？</p>
-<p>&emsp;&emsp;对于上述疑问，不妨让我们在C++的继承体系中一探究竟，AcAir中的role_g与C++的virtual类十分类似，我们都找不到它的存在实体，但是它所能够提供给我们的却远超实体意义。假设一下如果我们的角色有很多很多，但是它们的权限策略却十分的相像，如此一来，我们就得进行大量的重复操作。有了role_g角色（在这之后，我将称其为虚角色），我们就可以把各个角色中相同的权限策略放入其中，然后进行如下操作：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">role role1 : role_g &#123;</span><br><span class="line">    read(&quot;path_to_file_r1&quot;)</span><br><span class="line">    </span><br><span class="line">    member_size &#x3D; 1</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        Bob</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;若如此编写，则意图是要让role1“继承”role_g的所有权限策略，此外，将role1角色的用户限制在1个，该用户为Bob。“继承”会将父角色的一切都继承下来，如果member_size和member部分有所更改，那么便会覆写</p>
+<p>&emsp;&emsp;fork有以下两种用法：</p>
+<ol>
+<li>一个父进程希望复制自己，使父进程和子进程同时执行不同的代码段。这在网络服务进程中是常见的——父进程等待客户端的服务请求。当这种请求到达时，父进程调用fork，使子进程处理此请求。父进程则继续等待下一个服务请求。</li>
+<li>一个进程要执行一个不同的程序。这对shell是常见的情况。在这种情况下，子进程从fork返回后立即调用exec。</li>
+</ol>
+<p>&emsp;&emsp;某些操作系统将第2种用法中的两个操作（fork之后执行exec）组合成一个操作，称为spawn。UNIX系统将这两个操作分开，因为在很多场合需要单独使用fork，其后并不跟随exec。另外，将这两个操作分开，使得子进程在fork和exec之间可以更改自己的属性，如I/O重定向、用户ID、信号安排等。</p>
+<blockquote>
+<p>Single UNIX Specification在高级实时选项组中确实包括了spawn接口。但是该接口并不想替换fork和exec。它们的目的是支持难于有效实现fork的系统，特别是对存储管理缺少硬件支持的系统。</p>
+</blockquote>
+<h1 id="函数vfork"><a href="#函数vfork" class="headerlink" title="函数vfork"></a>函数vfork</h1><p>&emsp;&emsp;vfork函数的调用序列和返回值与fork相同，但两者的语义不同。</p>
+<blockquote>
+<p>vfork起源于较早的2.9BSD。有些人认为，该函数是有瑕疵的。但是以下4种UNIX系统：FreeBSD8.0、Linux3.2.0、Mac OS X 10.6.8和Solaris 10实际上都支持它。事实上，BSD的开发者在4.4BSD中删除了该函数，但4.4BSD派生的所有开放源码BSD版本又将其回收。SUSv3中，vfork被标记为弃用的接口，在SUSv4中被完全删除。只是由于历史的原因还是把它包含进来。可移植的应用程序不应该使用这个函数。</p>
+</blockquote>
+<p>&emsp;&emsp;vfork函数用于创建一个新进程，而该新进程的目的是exec一个新程序。vfork和fork一样都创建一个子进程，但是它并不将父进程的地址空间完全复制到子进程中，因为子进程会立即调用exec（或exit），于是也就不会引用该地址空间。不过在子进程调用exec或exit之前，它在父进程的空间中运行。这种优化工作方式在某些UNIX系统的实现中提高了效率，但如果子进程修改数据（除了用于存放vfork返回值的结果）、进行函数调用、或者没有调用exec或exit就返回都可能会带来未知的结果。</p>
+<p>&emsp;&emsp;vfork和fork之间的另一个区别是：vfork保证子进程先运行，在它调用exec或exit之后父进程才可能被调度运行，当子进程调用这两个函数中的任意一个时，父进程会恢复运行。（如果在调用这两个函数之前子进程依赖于父进程的进一步动作，则会导致死锁。）</p>
 
     </div>
 
@@ -326,6 +334,10 @@
 
 
       <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E7%BA%BF%E7%A8%8B%E8%BF%9B%E7%A8%8B/" rel="tag"><i class="fa fa-tag"></i> 线程进程</a>
+          </div>
 
         
 
@@ -333,12 +345,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/04/17/C%EF%BC%8FC++%E4%B8%AD%E7%9A%84%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90/" rel="prev" title="C／C++中的字节对齐">
-      <i class="fa fa-chevron-left"></i> C／C++中的字节对齐
+    <a href="/2021/05/02/David%20Bowie/" rel="prev" title="David Bowie">
+      <i class="fa fa-chevron-left"></i> David Bowie
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/05/02/David%20Bowie/" rel="next" title="David Bowie">
-      David Bowie <i class="fa fa-chevron-right"></i>
+    <a href="/2021/05/07/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="next" title="AcAir开发日志（二）">
+      AcAir开发日志（二） <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -398,7 +410,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一些嘀咕"><span class="nav-number">1.</span> <span class="nav-text">一些嘀咕</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AcAir诞生的起因"><span class="nav-number">2.</span> <span class="nav-text">AcAir诞生的起因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#从用户体验出发"><span class="nav-number">3.</span> <span class="nav-text">从用户体验出发</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AcAir支持的访问控制模型"><span class="nav-number">3.1.</span> <span class="nav-text">AcAir支持的访问控制模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AcAir将访问控制模型直接呈现给用户"><span class="nav-number">3.2.</span> <span class="nav-text">AcAir将访问控制模型直接呈现给用户</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编写访问控制模型的语法"><span class="nav-number">4.</span> <span class="nav-text">编写访问控制模型的语法</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#进程标识"><span class="nav-number">1.</span> <span class="nav-text">进程标识</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#函数fork"><span class="nav-number">2.</span> <span class="nav-text">函数fork</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#函数vfork"><span class="nav-number">3.</span> <span class="nav-text">函数vfork</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -413,18 +425,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-count">68</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

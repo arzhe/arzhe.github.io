@@ -3715,78 +3715,6 @@
       </tags>
   </entry>
   <entry>
-    <title>ac-air开发日志（1）</title>
-    <url>/2021/03/30/ac-air%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97%EF%BC%881%EF%BC%89/</url>
-    <content><![CDATA[<hr>
-<h1 id="什么是ac-air"><a href="#什么是ac-air" class="headerlink" title="什么是ac-air"></a>什么是ac-air</h1><p>&emsp;&emsp;ac-air是基于RBAC模型与ACL模型的一个访问控制框架，该框架使用C++进行编写，使用了C++11标准，并对访问控制模型进行抽象化。</p>
-<h1 id="为什么是ac-air"><a href="#为什么是ac-air" class="headerlink" title="为什么是ac-air"></a>为什么是ac-air</h1><p>&emsp;&emsp;现有访问控制框架中，在大型项目中有C++实现的高并发高性能的程序，在小型程序或是WEB端有PHP，Java等语言实现的高效率的程序。中型程序缺少一种轻量级的访问控制框架，考虑到Java等语言体系对于底层数据的不可控性，很难实现高性能的程序；虽然C++对于字符串的处理十分繁琐且复杂，但是由于其对于程序代码有很强的可控性，且在中型程序中字符串的处理量并没有像大型项目那么多，故而采取C++作为开发语言。</p>
-<a id="more"></a>
-
-<h1 id="如何使用ac-air"><a href="#如何使用ac-air" class="headerlink" title="如何使用ac-air"></a>如何使用ac-air</h1><p>&emsp;&emsp;你只需要从github上下载到你的项目主目录中，然后进入ac-air的build目录下执行一条简单的<code>cmake ..</code>命令即可，然后你所需要做的就是将该库包含到你的项目代码中，你也可以执行<code>cmake install ..</code>命令，然后配置你的PATH路径，将该库包含到你的PATH中。</p>
-<p>&emsp;&emsp;在你的代码中，要如何使用该框架来实现访问控制呢？示例如下：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 将访问控制模型从model.conf与policy.csv文件中抽取出来</span></span><br><span class="line">AcAir ac = NewAcAir(<span class="string">"path/to/model.conf"</span>, <span class="string">"path/to/policy.csv"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//你所定义的用户的信息</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> sub = <span class="string">"Alice"</span>; <span class="comment">//欲进行操作的用户</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> obj = <span class="string">"data"</span>;  <span class="comment">//用户欲操作的资源</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> act = <span class="string">"read"</span>;  <span class="comment">//用户欲对资源执行的操作</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//判断该用户的权限信息</span></span><br><span class="line"><span class="keyword">if</span>(ac.AcAir(sub, obj, act)) &#123;</span><br><span class="line">    <span class="comment">//允许用户执行操作</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">//拒绝用户执行操作</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;以上所示为该框架的基本使用范例，简单明了！</p>
-<h1 id="ac-air使用的技术"><a href="#ac-air使用的技术" class="headerlink" title="ac-air使用的技术"></a>ac-air使用的技术</h1><p>&emsp;&emsp;在ac-air中，访问控制模型被抽象为几个要素：</p>
-<ul>
-<li>主体请求（request)</li>
-<li>策略模型（model）</li>
-<li>策略规则（rule）</li>
-<li>匹配策略（match）</li>
-</ul>
-<p>其中主体请求，策略模型和匹配策略由conf文件来定义；策略规则由csv文件来定义。</p>
-<p>&emsp;&emsp;若采取了RBAC模型，则需要添加额外的要素：</p>
-<ul>
-<li>角色继承策略（role）</li>
-</ul>
-<h2 id="conf文件与csv文件"><a href="#conf文件与csv文件" class="headerlink" title="conf文件与csv文件"></a>conf文件与csv文件</h2><p>&emsp;&emsp;欲实现出上述如此便捷的功能，你所需要做的就只有编写2个文件：模型策略文件（model_policy.conf），策略规则文件（policy_rule.csv）。它们将访问控制模型抽象为计算机中的数据，并存储在数据结构中以便后续代码调用。</p>
-<h3 id="conf文件"><a href="#conf文件" class="headerlink" title="conf文件"></a>conf文件</h3><p>&emsp;&emsp;该文件使用conf格式，其本质与txt无任何差别，亦可采取ini，cfg后缀进行编写，其编写格式如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[section]</span><br><span class="line">option &#x3D; value</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;conf文件使用了3个元素，[section]，option和value，每一行单独编译，每一区块（即[section]之间的区域）为一个编译单元。不支持换行定义。</p>
-<p>示例：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#主体请求单元</span><br><span class="line">[request]</span><br><span class="line">rst &#x3D; sub, obj, act</span><br><span class="line"></span><br><span class="line">#策略模型单元，permit只有true与false两个值</span><br><span class="line">[model]</span><br><span class="line">mdl &#x3D; sub, obj, act, permit</span><br><span class="line"></span><br><span class="line">#角色继承策略，前项继承后项的权限</span><br><span class="line">[role]</span><br><span class="line">r &#x3D; _, _</span><br><span class="line"></span><br><span class="line">#策略匹配规则</span><br><span class="line">[match]</span><br><span class="line">m &#x3D; rst.sub &#x3D;&#x3D; mdl.sub &amp;&amp; rst.obj &#x3D;&#x3D; mdl.obj &amp;&amp; rst.act &#x3D;&#x3D; mdl.act &amp;&amp; permit</span><br></pre></td></tr></table></figure>
-
-<h4 id="主体请求单元"><a href="#主体请求单元" class="headerlink" title="主体请求单元"></a>主体请求单元</h4><p>&emsp;&emsp;将用户的信息存储其中，例如Alice要对data执行read操作时，sub就是Alice，obj就是data，act就是read。该单元中等号右边的参数即为<code>ac.AcAir(...)</code>中应传入的参数。</p>
-<h4 id="策略模型单元"><a href="#策略模型单元" class="headerlink" title="策略模型单元"></a>策略模型单元</h4><p>&emsp;&emsp;将csv文件的信息存储其中，其中permit只有两个值true和false，默认值为true。由csv文件定义。该单元与csv文件一起也就组成了我们对策略规则的描述，例如：</p>
-<p>model定义了规则：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[model]</span><br><span class="line">mdl &#x3D; sub, obj, act</span><br></pre></td></tr></table></figure>
-
-<p>csv实现了规则：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mdl, Alice, data1, read</span><br></pre></td></tr></table></figure>
-
-<p>上述描述表示Alice对于data1具有读的权限。</p>
-<h4 id="角色继承策略单元"><a href="#角色继承策略单元" class="headerlink" title="角色继承策略单元"></a>角色继承策略单元</h4><p>&emsp;&emsp;将存储角色的继承关系。由csv文件定义。</p>
-<h4 id="策略匹配规则"><a href="#策略匹配规则" class="headerlink" title="策略匹配规则"></a>策略匹配规则</h4><p>&emsp;&emsp;定义了主体请求如何与策略模型进行匹配，其本质上就是布尔表达式，可以理解为[request]和[model]定义了关于请求与策略的变量，然后将这些变量传入[match]中进行求值，从而依据结果来进行权限决策。上述示例代码是一个简单的例子，但是其规则为硬性要求，也就是你必须将[request]中的三元组与[model]中的三元组一一对应，支持+、-、*、/等算数运算符，==、!=、&gt;、&lt;等关系运算符以及&amp;&amp;、||、!等逻辑运算符。</p>
-<p>&emsp;&emsp;关于策略匹配规则更为核心的一点是，它支持自定义的匹配函数！也就是你甚至可以自己去定义匹配规则，这也是ac-air强大，灵活的地方。那么如何添加你自己的匹配函数呢？</p>
-<p>&emsp;&emsp;首先你需要定义好自己的匹配函数：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">KeyMatch</span><span class="params">(<span class="built_in">string</span> key1, <span class="built_in">string</span> key2)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//匹配实现细节</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后用以下函数来包装它：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">ReturnType <span class="title">KeyMatch</span><span class="params">(Scope scope)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">string</span> key1 = GetString(scope, <span class="number">0</span>);</span><br><span class="line">    <span class="built_in">string</span> key2 = GetString(scope, <span class="number">1</span>);</span><br><span class="line">  </span><br><span class="line">    PushBooleanValue(scope, KeyMatch(key1, key2));</span><br><span class="line">    <span class="keyword">return</span> RETURN_RESULT;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>正如你所见，有众多你所陌生的宏，但是如果你接触过duktape，也许会会心一笑，没错，该框架使用了duktape组件来完成对javascript的支持，由C++完成底层功能，然后经由duktape的“加工”，使得上层——业务层得以轻松调用它们。</p>
-<p>那么最后一步：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">ac.AddFunction(<span class="string">"my_func"</span>, KeyMatch);</span><br></pre></td></tr></table></figure>
-
-<p>将该函数注册到框架中。</p>
-<p>&emsp;&emsp;现在你可以像下面这样来使用自定义的函数：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[match]</span><br><span class="line">m &#x3D; my_func(rst.sub, rst.obj) ...</span><br></pre></td></tr></table></figure>
-
-<h3 id="csv文件"><a href="#csv文件" class="headerlink" title="csv文件"></a>csv文件</h3><p>&emsp;&emsp;该文件使用csv文件格式，其本质与txt无任何差别，只不过是遵循csv标准格式的一种txt变体。其格式如下示例：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mdl, role1, data1, read</span><br><span class="line">mdl, Alice, data2, write</span><br><span class="line"></span><br><span class="line">r, Alice, role1</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;上述代码表示，role1对data1具有读权限，Alice对data2具有写权限，Alice是角色role1的一个成员（也可以说是继承了role1的权限），这里的Alice不要误认为只能是用户，Alice包括role1在内的所有sub都可以成为角色，因为在ac-air框架中没有对字符串是否是用户还是角色进行区分，更何况也极难甚至是无法去区分，在ac-air中，所有的角色，用户都是用字符串来进行存储、处理的。</p>
-<p>&emsp;&emsp;要想区分它们，最好的办法是用户自己去明确定义它们，比如用户是Alice，角色是role_1，像这样使用划分明显的字符串来进行处理。但是请记住在ac-air框架中不存在角色与用户之分，它们都是一样的（以字符串形式表达）。亦或是在使用多层继承的RBAC模型时，给角色加上像<code>role::_one</code>这样的前缀再传给ac-air中，借此可以通过查看前缀来区分用户和角色。</p>
-]]></content>
-      <categories>
-        <category>项目开发日志</category>
-      </categories>
-      <tags>
-        <tag>ac-air</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>务必重视vector容器中元素的删除操作</title>
     <url>/2021/04/09/%E5%8A%A1%E5%BF%85%E9%87%8D%E8%A7%86vector%E5%AE%B9%E5%99%A8%E4%B8%AD%E5%85%83%E7%B4%A0%E7%9A%84%E5%88%A0%E9%99%A4%E6%93%8D%E4%BD%9C/</url>
     <content><![CDATA[<hr>
@@ -3836,7 +3764,8 @@
   <entry>
     <title>C／C++中的字节对齐</title>
     <url>/2021/04/17/C%EF%BC%8FC++%E4%B8%AD%E7%9A%84%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90/</url>
-    <content><![CDATA[<h1 id="理一理字节对齐"><a href="#理一理字节对齐" class="headerlink" title="理一理字节对齐"></a>理一理字节对齐</h1><h2 id="什么是字节对齐"><a href="#什么是字节对齐" class="headerlink" title="什么是字节对齐"></a>什么是字节对齐</h2><p>&emsp;&emsp;计算机中内存大小的基本单元是字节（byte），理论上来说，我们可以从任意地址访问某种基本数据类型，但是实际上，计算机并非逐字节大小连续地读写内存，而是以2，4或8的倍数的字节块来读写内存，这也就限制了基本数据类型在计算机中存储的方式，至少是对于我们需要一种高效的程序时，这会对我们的数据类型有所限制。那么按照一定规则来将基本数据类型在存储空间上进行排列，这个操作就叫做字节对齐。</p>
+    <content><![CDATA[<hr>
+<h1 id="理一理字节对齐"><a href="#理一理字节对齐" class="headerlink" title="理一理字节对齐"></a>理一理字节对齐</h1><h2 id="什么是字节对齐"><a href="#什么是字节对齐" class="headerlink" title="什么是字节对齐"></a>什么是字节对齐</h2><p>&emsp;&emsp;计算机中内存大小的基本单元是字节（byte），理论上来说，我们可以从任意地址访问某种基本数据类型，但是实际上，计算机并非逐字节大小连续地读写内存，而是以2，4或8的倍数的字节块来读写内存，这也就限制了基本数据类型在计算机中存储的方式，至少是对于我们需要一种高效的程序时，这会对我们的数据类型有所限制。那么按照一定规则来将基本数据类型在存储空间上进行排列，这个操作就叫做字节对齐。</p>
 <a id="more"></a>
 
 <h2 id="字节对齐的规则"><a href="#字节对齐的规则" class="headerlink" title="字节对齐的规则"></a>字节对齐的规则</h2><p>&emsp;&emsp;在了解字节对齐规则前，需要先对以下几个概念有所了解：</p>
@@ -3881,11 +3810,106 @@
 
 <p>该结构体虽然访问效率高，但是并没有节省空间，同时扩展性也并不是很好，例如，当字节对齐变化时，需要填充的字节数可能就会发生变化。</p>
 ]]></content>
+      <categories>
+        <category>杂记</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
   </entry>
   <entry>
-    <title>AcAir开发日志-DAY-1</title>
-    <url>/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97-DAY-1/</url>
-    <content><![CDATA[<h1 id="一些嘀咕"><a href="#一些嘀咕" class="headerlink" title="一些嘀咕"></a>一些嘀咕</h1><p>&emsp;&emsp;在这篇blog之前，就已经有了不少的开发进度了，但是也没写些文档来记录技术路线跟开发过程中所遇到的坑，个人习惯总是在代码上写超多注释并希望以此来替代开发日志，也算是有些强迫症使然吧，为此也整理出了一套个性化的注释规范，这个就留在之后再另写一篇blog吧（可能自己也会忘记）。</p>
+    <title>David Bowie</title>
+    <url>/2021/05/02/David%20Bowie/</url>
+    <content><![CDATA[<hr>
+<h1 id="DAVID-BOWIE（大卫-鲍伊）"><a href="#DAVID-BOWIE（大卫-鲍伊）" class="headerlink" title="DAVID BOWIE（大卫 鲍伊）"></a>DAVID BOWIE（大卫 鲍伊）</h1><p>&emsp;&emsp;在大卫鲍伊之后的流行歌手里面恐怕找不出一个与其类似风格的人了。大卫的音乐和延伸范围，以及其对待自己事业方式使他的作品无处不在。他不断的将所见所闻融入自我个性做出不同的东西，我想正是这点使他成为那种总让我们对他要做的事充满期待的艺术家，他永远都可以给你惊喜。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-1.png" alt="大卫鲍伊-1"></p>
+<a id="more"></a>
+
+<p>&emsp;&emsp;大卫琼斯出生于布里克斯顿的南伦敦地区，那时整个城市还处于二战大轰炸后的复苏期。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-2.png" alt="大卫鲍伊-2-年幼"></p>
+<p>他的第一个家在斯坦菲尔德路，也正是因为这个特殊的时期，</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-3.png" alt="大卫鲍伊-3-家"></p>
+<p>在他的晚年的时候，他回到布利克斯顿办了一场特殊的音乐会，借此来为他的故乡作出贡献</p>
+<p>&emsp;&emsp;鲍伊的少年时期就读于布罗姆利技术高中，</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-4.png" alt="大卫鲍伊-4-少年"></p>
+<p>在这里上学时，他曾经为了女孩打架挨了拳头，那只受伤的眼睛再也无法完全康复，留下眼部永久性的括约肌损伤。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-5.png" alt="大卫鲍伊-5-受伤的眼睛"></p>
+<p>我不知道眼睛的伤对他的影响有多大，但我知道那意味着他有着两只颜色不一样的眼睛。这无形中平添了一种冷峻异于常人的感觉，使得我们的大卫鲍伊更佳令人痴迷。女孩曾经说，嗯，就是，他有两只颜色迥异的眼睛。这是他有别于世俗的部分，这是那种绝对独特的人才有的感觉。只有现实中的独特，才能制造出独一无二的感觉。</p>
+]]></content>
+      <tags>
+        <tag>大卫鲍伊</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>AcAir开发日志（二）</title>
+    <url>/2021/05/07/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97%EF%BC%88%E4%BA%8C%EF%BC%89/</url>
+    <content><![CDATA[<hr>
+<h1 id="关于AcAir实现RBAC继承的想法"><a href="#关于AcAir实现RBAC继承的想法" class="headerlink" title="关于AcAir实现RBAC继承的想法"></a>关于AcAir实现RBAC继承的想法</h1><p>&emsp;&emsp;对于如何实现继承，当然第一时间可能会想到C++中的继承体系。不妨将其理念应用到AcAir框架中，对于：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">definition &#123;</span><br><span class="line">    root;</span><br><span class="line">    role_g;</span><br><span class="line">    role_1;</span><br><span class="line">    role_2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;之前已然定义了root与role_g角色的策略，现在来定义role_1与role_2的策略：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">role_1 : role_g;</span><br><span class="line">role_2 : role_g;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;很简单，要想实现出角色的继承关系，只需要按照如上代码进行编写即可，之后的事情便交给我们的AcAir就行了。</p>
+<h1 id="如何将conf配置文件抽象出来"><a href="#如何将conf配置文件抽象出来" class="headerlink" title="如何将conf配置文件抽象出来"></a>如何将conf配置文件抽象出来</h1><p>&emsp;&emsp;在完成了整个框架的大致雏型后，需要考虑的是如何将这些“字符”提取出来，并将其置入某种数据结构中。</p>
+<h2 id="conf文件中的数据单元"><a href="#conf文件中的数据单元" class="headerlink" title="conf文件中的数据单元"></a>conf文件中的数据单元</h2><p>&emsp;&emsp;首先需要明确我们要提取的数据单元：definition及其所属的“成员角色”。限定词：definition为AcAir定义一个角色集合所必需的一个单元，其后跟着一个花括号，括号内的成员以“；”来进行分割，每行一个角色成员以“；”结束。正如限定词一语的表面意义，它在conf文件中是必须的，唯一的，不可缺少，任何conf文件中都必须要有definition这一定义，并且之后需要跟进一对花括号。</p>
+<p>&emsp;&emsp;在definition之后，便需要对其中“声明”的角色进行“定义”，引用的方法是在<code>def.</code>后加上需要“定义”的角色名，例如我们要定义角色role_1，则需要这样表述：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">def.role_1 &#123;</span><br><span class="line">    <span class="comment">#your own definition</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这样我们就有了第二个限定词：<code>def.</code>，该限定词亦是必须的，其后跟着一对花括号，括号内的每一行定义都以“；”结束。</p>
+<h2 id="该如何存储数据单元"><a href="#该如何存储数据单元" class="headerlink" title="该如何存储数据单元"></a>该如何存储数据单元</h2><p>&emsp;&emsp;考虑使用一个类<code>Config</code>来存储conf中的<code>definition</code>与<code>def.role</code>单元，分别使用2个数据类型来进行存储。<code>definition</code>使用名为<code>def</code>的unordered_map&lt;string, string&gt;<code>来存储其数据，</code>def.role<code>使用名为</code>data<code>的</code>  <code>unordered_map&lt;string, unordered_map&lt;string, string&gt;&gt;</code> 来存储其数据。</p>
+]]></content>
+      <categories>
+        <category>AcAir</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>控制进程终止的函数</title>
+    <url>/2021/05/10/%E6%8E%A7%E5%88%B6%E8%BF%9B%E7%A8%8B%E7%BB%88%E6%AD%A2%E7%9A%84%E5%87%BD%E6%95%B0/</url>
+    <content><![CDATA[<hr>
+<h1 id="函数exit"><a href="#函数exit" class="headerlink" title="函数exit"></a>函数exit</h1><p>&emsp;&emsp;进程有5种正常终止以及3种异常终止方式。5种正常终止方式具体如下。</p>
+<a id="more"></a>
+
+<ol>
+<li>在main函数内执行return语句。这等效于exit。</li>
+<li>调用exit函数。此函数由ISO C定义，其操作包括调用各终止处理程序（终止处理程序在调用atexit函数时登记），然后关闭所有标准I/O流等。因为ISO C并不处理文件描述符、多进程（父进程和子进程）以及作业控制，所以这一定义对UNIX系统而言是不完整的。</li>
+<li>调用_exit或_Exit函数。ISO C定义_Exit，其目的是为进程提供一种无需运行终止处理程序或信号处理程序而终止的方法。对标准I/O流是否进行冲洗，这取决于实现。在UNIX系统中，_Exit和_exit是同义的，并不冲洗标准I/O流。_exit函数由exit调用，它处理UNIX系统特定的细节。_exit是由POSIX.1说明的。</li>
+</ol>
+<blockquote>
+<p>在大多数UNIX系统实现中，exit(3)是标准C库中的一个函数，而_exit(2)则是一个系统调用。</p>
+</blockquote>
+<ol start="4">
+<li>进程的最后一个线程在其启动例程中执行return语句。但是，该线程的返回值不用作进程的返回值。当最后一个线程从其启动例程返回时，该进程以终止状态0返回。</li>
+<li>进程的最后一个线程调用<code>pthread_exit</code>函数。如同前面一样，在这种情况中，进程终止状态总是0，这与传送给<code>pthread_exit</code>的参数无关。</li>
+</ol>
+<p>&emsp;&emsp;3种异常终止具体如下。</p>
+<ol>
+<li>调用abort。它产生SIGABRT信号，这是下一种异常终止的一种特例。</li>
+<li>当进程接收到某些信号时。信号可由进程自身（如调用abort函数）、其他进程或内核产生。例如，若进程引用进程地址空间之外的存储单元、或者除以0，内核就会为该进程产生相应的信号。</li>
+<li>最后一个线程要求取消另一个线程，若干时间之后，目标线程终止。</li>
+</ol>
+<p>&emsp;&emsp;不管进程如何终止，最后都会执行内核中的同一段代码。这段代码为相应进程关闭所有打开的描述符，释放它们所使用的存储器等。</p>
+<p>&emsp;&emsp;对于上述任意一种终止情况，我们都希望终止进程能够通知父进程它是如何终止的。对于3个终止函数（exit、_exit和_Exit），实现这一点的方法是，将其退出状态作为参数传送给函数。在异常终止情况，内核（不是进程本身）产生一个指示其异常终止原因的终止状态。在任意一种情况下，该终止进程的父进程都能用wait或waitpid函数取得其终止状态。</p>
+<p>&emsp;&emsp;注意，这里使用了“退出状态”（它是传递给向3个终止函数的参数，或main的返回值）和“终止状态”两个术语，以表示有所区别。在最后调用_exit时，内核将退出状态转换成终止状态。如果子进程正常终止，则父进程可以获得子进程的退出状态。</p>
+<h1 id="init进程"><a href="#init进程" class="headerlink" title="init进程"></a>init进程</h1><p>&emsp;&emsp;在“<a href="/2021/05/03/%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B%E7%9A%84fork%E5%87%BD%E6%95%B0/" title="创建进程的fork函数">创建进程的fork函数</a>”说明了fork函数，显而易见，子进程是在父进程调用fork后生成的。上面又说明了子进程将其终止状态返回给父进程。但是父进程在子进程之前终止，又将如何？其回答是：对于父进程已经终止的所有进程，它们的父进程都改变为init进程。我们称这些进程由init进程收养。其操作过程大致是：在一个进程终止时，内核逐个检查所有活动进程，以判断它是否是正要终止进程的子进程，如果是，则该进程的父进程ID就更改为1（init进程的ID）。这种处理方法保证了每个进程有一个父进程。</p>
+<h1 id="僵死进程"><a href="#僵死进程" class="headerlink" title="僵死进程"></a>僵死进程</h1><p>&emsp;&emsp;另一个我们关心的情况是，如果子进程在父进程之前终止，那么父进程又如何能在做相应检查时得到子进程的终止状态呢？如果子进程完全消失了，父进程在最终准备好检查子进程是否终止时是无法获取它的终止状态的。内核为每个终止子进程保存了一定量的信息，所以当终止进程的父进程调用wait或waitpid时，可以得到这些信息。这些信息至少包括进程ID、该进程的终止状态以及该进程使用的CPU时间总量。内核可以释放终止进程所使用的所有存储区，关闭其所有打开文件。在UNIX术语中，一个已经终止、但是其父进程尚未对其做善后处理（获取终止子进程的有关信息、释放它仍占用的资源）的进程被称为僵死进程（zombie）。ps(1)命令将僵死进程的状态打印为Z。如果编写一个长期运行的程序，它fork了很多子进程，那么除非父进程等待取得子进程的终止状态，不然这些子进程终止后就会变成僵死进程。</p>
+<p>&emsp;&emsp;最后一个要考虑的问题是：一个由init进程收养的进程终止时会发生什么？它会不会变成一个僵死进程？对此问题的答案是“否”，因为init被编写成无论何时只要有一个子进程终止，init就会调用一个wait函数取得其终止状态。这样也就防止了在系统中塞满僵死进程。当提及“一个init的子进程”时，这指的可能是init直接产生的进程，也可能是其父进程已终止，由init收养的进程。</p>
+]]></content>
+      <categories>
+        <category>UNIX长篇大论</category>
+      </categories>
+      <tags>
+        <tag>线程进程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>AcAir开发日志（一）</title>
+    <url>/2021/04/24/AcAir%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97%EF%BC%88%E4%B8%80%EF%BC%89/</url>
+    <content><![CDATA[<hr>
+<h1 id="一些嘀咕"><a href="#一些嘀咕" class="headerlink" title="一些嘀咕"></a>一些嘀咕</h1><p>&emsp;&emsp;在这篇blog之前，就已经有了不少的开发进度了，但是也没写些文档来记录技术路线跟开发过程中所遇到的坑，个人习惯总是在代码上写超多注释并希望以此来替代开发日志，也算是有些强迫症使然吧，为此也整理出了一套个性化的注释规范，这个就留在之后再另写一篇blog吧（可能自己也会忘记）。</p>
 <p>&emsp;&emsp;其实早在疫情阶段就一直想写开发日志，但是由于各种原因，这个计划也就搁浅了。想来开发已接近尾声于是有了更多的空闲时间，就借此机会来重新整理一下以前的开发思路以及遇到的各种问题。好了，言归正传，从DAY-1开始！</p>
 <a id="more"></a>
 
@@ -3902,16 +3926,17 @@
 </ul>
 <h1 id="编写访问控制模型的语法"><a href="#编写访问控制模型的语法" class="headerlink" title="编写访问控制模型的语法"></a>编写访问控制模型的语法</h1><p>&emsp;&emsp;AcAir使用conf文件来配置用户所定义的访问控制模型，由于RBAC模型存在继承体系，故而采取一种契合其继承特点的语法来将其抽象化——面向对象。</p>
 <p>&emsp;&emsp;首先用户需要定义出所需要的角色：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">definition &#123;</span><br><span class="line">    root,</span><br><span class="line">    role_g,</span><br><span class="line">    role1,</span><br><span class="line">    role2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">definition &#123;</span><br><span class="line">    root;</span><br><span class="line">    role_g;</span><br><span class="line">    role1;</span><br><span class="line">    role2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;如上述代码示例，AcAir支持换行定义，用户可以在definition中定义所需的角色。就像变量名声明那样，用户将所需要的角色先“声明”，再“定义”。之后用户可以像C++对类的处理那样，对角色进行类似的处理：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">role root &#123;</span><br><span class="line">    read(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    write(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    </span><br><span class="line">    member_size &#x3D; 1</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        Alice</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;如上述代码示例，AcAir支持换行定义，但是花括号里面每一行都需要以一个分号“；”结尾，用户可以在definition中定义所需的角色。就像变量名声明那样，用户将所需要的角色先“声明”，再“定义”。之后用户可以像C++对类的处理那样，对角色进行类似的处理：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">def.root &#123;</span><br><span class="line">    read("path_to_file1", "path_to_file2");</span><br><span class="line">    write("path_to_file1", "path_to_file2");</span><br><span class="line">    </span><br><span class="line">    member_size = 1;</span><br><span class="line"></span><br><span class="line">    member = Alice;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;角色root拥有2个权限策略：</p>
 <ul>
 <li>对于file1与file2有着读权限</li>
 <li>对于file1与file2有着写权限</li>
 </ul>
+<p>&emsp;&emsp;这里其实read和write还有“第三个参数”，那就是allow与deny，它们确定了该权限策略的正确与否，默认为allow，如果是allow，那么该权限策略通过，否则，该权限策略则被否决。</p>
 <p>&emsp;&emsp;同时，能够分配给该角色的最大用户数为1，其用户指定为Alice。</p>
 <p>&emsp;&emsp;可以看到，我们的“角色类”拥有3个部分：</p>
 <ol>
@@ -3920,32 +3945,66 @@
 <li>用户表：用以列出该角色下的所有用户。</li>
 </ol>
 <p>&emsp;&emsp;那么我们按照这个原则来定义下一个角色：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">role role_g &#123;</span><br><span class="line">    read(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    write(&quot;path_to_file1&quot;, &quot;path_to_file2&quot;)</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        some_people</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">def.role_g &#123;</span><br><span class="line">    read("data");</span><br><span class="line">    write("data");</span><br><span class="line">    </span><br><span class="line">    member_size = 1;</span><br><span class="line">    </span><br><span class="line">    member = Bob;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;role role_g中对于member_size的定义缺失了，但是这在AcAir中是允许的，当member_size部分缺少时，默认其为0，也就是说，member{}中的some_people并不会被纳入role_g角色列表中，即使写入再多的用户信息，也不会被录用。那么该角色被定义出来又是为了什么呢？一个没有用户分配的角色有存在的意义吗？</p>
-<p>&emsp;&emsp;对于上述疑问，不妨让我们在C++的继承体系中一探究竟，AcAir中的role_g与C++的virtual类十分类似，我们都找不到它的存在实体，但是它所能够提供给我们的却远超实体意义。假设一下如果我们的角色有很多很多，但是它们的权限策略却十分的相像，如此一来，我们就得进行大量的重复操作。有了role_g角色（在这之后，我将称其为虚角色），我们就可以把各个角色中相同的权限策略放入其中，然后进行如下操作：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">role role1 : role_g &#123;</span><br><span class="line">    read(&quot;path_to_file_r1&quot;)</span><br><span class="line">    </span><br><span class="line">    member_size &#x3D; 1</span><br><span class="line">    </span><br><span class="line">    member &#123;</span><br><span class="line">        Bob</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;若如此编写，则意图是要让role1“继承”role_g的所有权限策略，此外，将role1角色的用户限制在1个，该用户为Bob。“继承”会将父角色的一切都继承下来，如果member_size和member部分有所更改，那么便会覆写</p>
+<p>&emsp;&emsp;角色role_g拥有2个权限策略，即对data有读权限，对data有写权限，并且最多可拥有1个用户，该用户为Bob。</p>
 ]]></content>
+      <categories>
+        <category>AcAir</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
   </entry>
   <entry>
-    <title>David Bowie</title>
-    <url>/2021/05/02/David%20Bowie/</url>
-    <content><![CDATA[<h1 id="DAVID-BOWIE（大卫-鲍伊）"><a href="#DAVID-BOWIE（大卫-鲍伊）" class="headerlink" title="DAVID BOWIE（大卫 鲍伊）"></a>DAVID BOWIE（大卫 鲍伊）</h1><p>&emsp;&emsp;在大卫鲍伊之后的流行歌手里面恐怕找不出一个与其类似风格的人了。大卫的音乐和延伸范围，以及其对待自己事业方式使他的作品无处不在。他不断的将所见所闻融入自我个性做出不同的东西，我想正是这点使他成为那种总让我们对他要做的事充满期待的艺术家，他永远都可以给你惊喜。</p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-1.png" alt="大卫鲍伊-1"></p>
+    <title>创建进程的fork函数</title>
+    <url>/2021/05/03/%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B%E7%9A%84fork%E5%87%BD%E6%95%B0/</url>
+    <content><![CDATA[<hr>
+<h1 id="进程标识"><a href="#进程标识" class="headerlink" title="进程标识"></a>进程标识</h1><p>&emsp;&emsp;每个进程都有一个非负整数表示的唯一进程ID。因为进程ID标识符总是唯一的，常将其用作其他标识符的一部分以保证其唯一性。例如，应用程序有时就把进程ID作为名字的一部分来创建一个唯一的文件名。</p>
+<p>&emsp;&emsp;虽然是唯一的，但是进程ID是可复用的。当一个进程终止后，其进程ID就成为复用的候选者。大多数UNIX系统实现延迟复用算法，使得赋予新建进程的ID不同于最近终止进程所使用的ID。这防止了将新进程误认为是使用同一ID的某个已终止的先前进程。</p>
 <a id="more"></a>
 
-<p>&emsp;&emsp;大卫琼斯出生于布里克斯顿的南伦敦地区，那时整个城市还处于二战大轰炸后的复苏期。</p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-2.png" alt="大卫鲍伊-2-年幼"></p>
-<p>他的第一个家在斯坦菲尔德路，</p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-3.png" alt="大卫鲍伊-3-家"></p>
-<p>在他的晚年，他回到了布利克斯顿办一场特殊的音乐会，为那里做些贡献。</p>
-<p>&emsp;&emsp;鲍伊的少年时期就读于布罗姆利技术高中，</p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-4.png" alt="大卫鲍伊-4-少年"></p>
-<p>在这里上学时，他为了女孩打架挨了拳头，那只受伤的眼睛再也无法完全康复，留下眼部永久性的括约肌损伤。</p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/David%20Bowie-5.png" alt="大卫鲍伊-5-受伤的眼睛"></p>
-<p>我不知道眼睛的伤对他的影响有多大，但我知道那意味着他有着两只颜色不一样的眼睛。这无形中平添了一种冷峻异于常人的感觉，使得我们的大卫鲍伊更佳令人痴迷。女孩曾经说，嗯，就是，他有两只颜色迥异的眼睛。这是他有别于世俗的部分，这是那种绝对独特的人才有的感觉。只有现实中的独特，才能制造出独一无二的感觉。</p>
+<p>&emsp;&emsp;系统中有一些专用进程，但是具体细节随实现而不同。ID为0的进程通常是调度进程，常常被称为交换进程。该进程是内核的一部分，它并不执行任何磁盘上的程序，因此也被称为系统进程。进程ID1通常是init进程，在自举过程结束时由内核调用。该进程的程序文件在UNIX的早期版本中是/etc/init，在较新版本中是/sbin/init。此进程负责在自举内核后启动一个UNIX系统。init通常读取与系统有关的初始化文件（/etc/rc*文件或/etc/inittab文件，以及在/etc/init.d中的文件），并将系统引导到一个状态（如多用户）。init进程绝不会终止。它是一个普通的用户进程（与交换进程不同，它不是内核中的系统进程），但是它以超级用户特权运行。</p>
+<blockquote>
+<p>在Mac OS X 10.4中，init进程被launched进程替代，执行的任务集与init相同，但扩展了功能。</p>
+</blockquote>
+<p>&emsp;&emsp;每个UNIX系统实现都有它自己的一套提供操作系统服务的内核进程，例如，在某些UNIX的虚拟存储器实现中，进程ID2是守护页进程（page daemon），此进程负责支持虚拟存储器系统的分页操作。</p>
+<p>&emsp;&emsp;除了进程ID，每个进程还有一些其他标识符。下列函数返回这些标识符。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="comment">// 返回调用进程的进程ID</span></span><br><span class="line"><span class="function"><span class="keyword">pid_t</span> <span class="title">getpid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回调用进程的父进程ID</span></span><br><span class="line"><span class="function"><span class="keyword">pid_t</span> <span class="title">getppid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回调用进程的实际用户ID</span></span><br><span class="line"><span class="function"><span class="keyword">uid_t</span> <span class="title">getuid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回调用进程的有效用户ID</span></span><br><span class="line"><span class="function"><span class="keyword">uid_t</span> <span class="title">geteuid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回调用进程的实际组ID</span></span><br><span class="line"><span class="function"><span class="keyword">gid_t</span> <span class="title">getgid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回调用进程的有效组ID</span></span><br><span class="line"><span class="function"><span class="keyword">gid_t</span> <span class="title">getegid</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;注意，这些函数都没有出错返回。</p>
+<h1 id="函数fork"><a href="#函数fork" class="headerlink" title="函数fork"></a>函数fork</h1><p>&emsp;&emsp;一个现有的进程可以调用fork函数创建一个新进程：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：子进程返回0，父进程返回子进程ID；若出错，返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">pid_t</span> <span class="title">fork</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;由fork创建的新进程被称为子进程（child process）。fork函数被调用一次，但返回两次。两次返回的区别是子进程的返回值是0，而父进程的返回值则是新建子进程的进程ID。将子进程ID返回给父进程的理由是：因为一个进程的子进程可以有多个，并且没有一个函数使一个进程可以获得其所有子进程的进程ID。fork使子进程得到返回值0的理由是：一个进程只会有一个父进程，所以子进程总是可以调用getppid以获得父进程的进程ID（进程ID0总是由内核交换进程使用，所以一个子进程的进程ID不可能为0）。</p>
+<p>&emsp;&emsp;子进程和父进程继续执行fork调用之后的指令。子进程是父进程的副本。例如，子进程获得父进程数据空间、堆和栈的副本。注意，这是子进程所拥有的副本。父进程和子进程并不共享这些存储空间部分。父进程和子进程共享正文段。</p>
+<p>&emsp;&emsp;由于在fork之后经常跟随着exec，所以现在的很多实现并不执行一个父进程数据段、堆和栈的完全副本。作为替代，使用了写时复制（Copy-On-Write，COW）技术。这些区域由父进程和子进程共享，而且内核将它们的访问权限改变为只读。如果父进程和子进程中的任何一个试图修改这些区域，则内核只为修改区域的那块内存制作一个副本，通常是虚拟存储系统中的“一页”。</p>
+<p>&emsp;&emsp;使fork失败的两个主要原因是：</p>
+<ol>
+<li>系统中已经有太多的进程（通常意味着某个方面出了问题）。</li>
+<li>该实际用户ID的进程总数超过了系统限制。其中CHILD_MAX规定了每个实际用户ID在任一时刻可拥有的最大进程数。</li>
+</ol>
+<p>&emsp;&emsp;fork有以下两种用法：</p>
+<ol>
+<li>一个父进程希望复制自己，使父进程和子进程同时执行不同的代码段。这在网络服务进程中是常见的——父进程等待客户端的服务请求。当这种请求到达时，父进程调用fork，使子进程处理此请求。父进程则继续等待下一个服务请求。</li>
+<li>一个进程要执行一个不同的程序。这对shell是常见的情况。在这种情况下，子进程从fork返回后立即调用exec。</li>
+</ol>
+<p>&emsp;&emsp;某些操作系统将第2种用法中的两个操作（fork之后执行exec）组合成一个操作，称为spawn。UNIX系统将这两个操作分开，因为在很多场合需要单独使用fork，其后并不跟随exec。另外，将这两个操作分开，使得子进程在fork和exec之间可以更改自己的属性，如I/O重定向、用户ID、信号安排等。</p>
+<blockquote>
+<p>Single UNIX Specification在高级实时选项组中确实包括了spawn接口。但是该接口并不想替换fork和exec。它们的目的是支持难于有效实现fork的系统，特别是对存储管理缺少硬件支持的系统。</p>
+</blockquote>
+<h1 id="函数vfork"><a href="#函数vfork" class="headerlink" title="函数vfork"></a>函数vfork</h1><p>&emsp;&emsp;vfork函数的调用序列和返回值与fork相同，但两者的语义不同。</p>
+<blockquote>
+<p>vfork起源于较早的2.9BSD。有些人认为，该函数是有瑕疵的。但是以下4种UNIX系统：FreeBSD8.0、Linux3.2.0、Mac OS X 10.6.8和Solaris 10实际上都支持它。事实上，BSD的开发者在4.4BSD中删除了该函数，但4.4BSD派生的所有开放源码BSD版本又将其回收。SUSv3中，vfork被标记为弃用的接口，在SUSv4中被完全删除。只是由于历史的原因还是把它包含进来。可移植的应用程序不应该使用这个函数。</p>
+</blockquote>
+<p>&emsp;&emsp;vfork函数用于创建一个新进程，而该新进程的目的是exec一个新程序。vfork和fork一样都创建一个子进程，但是它并不将父进程的地址空间完全复制到子进程中，因为子进程会立即调用exec（或exit），于是也就不会引用该地址空间。不过在子进程调用exec或exit之前，它在父进程的空间中运行。这种优化工作方式在某些UNIX系统的实现中提高了效率，但如果子进程修改数据（除了用于存放vfork返回值的结果）、进行函数调用、或者没有调用exec或exit就返回都可能会带来未知的结果。</p>
+<p>&emsp;&emsp;vfork和fork之间的另一个区别是：vfork保证子进程先运行，在它调用exec或exit之后父进程才可能被调度运行，当子进程调用这两个函数中的任意一个时，父进程会恢复运行。（如果在调用这两个函数之前子进程依赖于父进程的进一步动作，则会导致死锁。）</p>
 ]]></content>
+      <categories>
+        <category>UNIX</category>
+      </categories>
+      <tags>
+        <tag>线程进程</tag>
+      </tags>
   </entry>
 </search>
