@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="函数wait和waitpid&amp;emsp;&amp;emsp;当一个进程正常或异常终止时，内核就向其父进程发送SIGCHLD信号。因为子进程终止是个异步事件（这可以在父进程运行的任何时候发生），所以这种信号也是内核向父进程发的异步通知。父进程可以选择忽略该信号，或者提供一个该信号发生时即被调用执行的函数（信号处理程序）。对于这种信号的系统默认动作是忽略它。当进程调用wait或waitpid时，会发生什么？">
 <meta property="article:published_time" content="2021-05-11T04:54:00.000Z">
-<meta property="article:modified_time" content="2021-05-23T14:11:15.000Z">
+<meta property="article:modified_time" content="2021-06-09T23:55:33.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="线程进程">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-05-23 22:11:15" itemprop="dateModified" datetime="2021-05-23T22:11:15+08:00">2021-05-23</time>
+                <time title="Modified: 2021-06-10 07:55:33" itemprop="dateModified" datetime="2021-06-10T07:55:33+08:00">2021-06-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -273,6 +273,8 @@
 <li>如果一个子进程已终止，正等待父进程获取其终止状态，则取得该子进程的终止状态立即返回。</li>
 <li>如果它没有任何子进程，则立即出错返回。</li>
 </ul>
+<a id="more"></a>
+
 <p>&emsp;&emsp;如果进程由于接收到SIGCHLD信号而调用wait，我们期望wait会立即返回。但是如果在随机时间点调用wait，则进程可能会阻塞。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">pid_t</span> <span class="title">wait</span><span class="params">(<span class="keyword">int</span>* statloc)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">pid_t</span> <span class="title">waitpid</span><span class="params">(<span class="keyword">pid_t</span> pid, <span class="keyword">int</span>* statloc, <span class="keyword">int</span> options)</span></span>;</span><br><span class="line"><span class="comment">// 两个函数返回值：若成功，返回进程ID；若出错，返回0或-1</span></span><br></pre></td></tr></table></figure>
 
@@ -405,7 +407,7 @@
 <h2 id="函数wait3和wait4"><a href="#函数wait3和wait4" class="headerlink" title="函数wait3和wait4"></a>函数wait3和wait4</h2><p>&emsp;&emsp;大多数UNIX系统实现提供了另外两个函数wait3和wait4。历史上，这两个函数是从UNIX系统的BSD分支沿袭下来的。它们提供的功能比POSIX.1函数wait、waitpid和waitid所提供的功能要多一个，这与附加参数有关。该参数允许内核返回由终止进程及其所有子进程使用的资源概况。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/resource.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 两个函数返回值：若成功，返回进程ID；若出错，返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">pid_t</span> <span class="title">wait3</span><span class="params">(<span class="keyword">int</span>* statloc, <span class="keyword">int</span> options, struct rusage* rusage)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">pid_t</span> <span class="title">wait4</span><span class="params">(<span class="keyword">pid_t</span> pid, <span class="keyword">int</span>* statloc, <span class="keyword">int</span> options, struct rusage* rusage)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;&emsp;资源统计信息包括用户CPU时间总量、系统CPU时间总量、缺页次数、接收到信息的次数等。</p>
+<p>&emsp;&emsp;资源统计信息包括用户CPU时间总量、系统CPU时间总量、缺页次数、接收到信息的次数等。    </p>
 
     </div>
 
@@ -525,7 +527,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">68</span>
+          <span class="site-state-item-count">67</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -536,7 +538,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
