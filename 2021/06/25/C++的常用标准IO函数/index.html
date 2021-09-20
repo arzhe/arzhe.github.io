@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="I&#x2F;O Stream的共通基础&amp;emsp;&amp;emsp;C++不直接处理输入输出，而是通过一组定义在标准库中的类型来处理IO。这些类型支持从设备中读取数据、向设备中写入数据的IO操作，设备可以是文件、控制台窗口等。还有一些类型允许内存IO，即从string读取数据，向string写入数据。 Stream对象&amp;emsp;&amp;emsp;C++ I&#x2F;O由stream完成。所谓stream就是一条数据流，字">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++的常用标准IO函数">
+<meta property="og:url" content="http://yoursite.com/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="I&#x2F;O Stream的共通基础&amp;emsp;&amp;emsp;C++不直接处理输入输出，而是通过一组定义在标准库中的类型来处理IO。这些类型支持从设备中读取数据、向设备中写入数据的IO操作，设备可以是文件、控制台窗口等。还有一些类型允许内存IO，即从string读取数据，向string写入数据。 Stream对象&amp;emsp;&amp;emsp;C++ I&#x2F;O由stream完成。所谓stream就是一条数据流，字">
+<meta property="article:published_time" content="2021-06-25T00:35:00.000Z">
+<meta property="article:modified_time" content="2021-09-20T04:11:59.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>C++的常用标准IO函数 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++的常用标准IO函数
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-06-25 08:35:00" itemprop="dateCreated datePublished" datetime="2021-06-25T08:35:00+08:00">2021-06-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-09-20 12:11:59" itemprop="dateModified" datetime="2021-09-20T12:11:59+08:00">2021-09-20</time>
+              </span>
+
+          
+            <span id="/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/" class="post-meta-item leancloud_visitors" data-flag-title="C++的常用标准IO函数" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="I-O-Stream的共通基础"><a href="#I-O-Stream的共通基础" class="headerlink" title="I/O Stream的共通基础"></a>I/O Stream的共通基础</h1><p>&emsp;&emsp;C++不直接处理输入输出，而是通过一组定义在标准库中的类型来处理IO。这些类型支持从设备中读取数据、向设备中写入数据的IO操作，设备可以是文件、控制台窗口等。还有一些类型允许内存IO，即从string读取数据，向string写入数据。</p>
+<h2 id="Stream对象"><a href="#Stream对象" class="headerlink" title="Stream对象"></a>Stream对象</h2><p>&emsp;&emsp;C++ I/O由stream完成。所谓stream就是一条数据流，字符序列在其中“川流不息”。按照面向对象原则，stream是由某个class定义出来具有特定性质的对象。输出动作被解释为“数据流进stream”，输入动作则是“数据流出stream”。另外，还有一些全局对象，是为标准I/O通道而定义的。</p>
+<a id="more"></a>
+
+<h2 id="Stream-Class"><a href="#Stream-Class" class="headerlink" title="Stream Class"></a>Stream Class</h2><p>&emsp;&emsp;正如有不同种类的I/O（例如输入、输出、文件访问），对应地也有不同的stream class，其中最重要的是：</p>
+<ul>
+<li><strong>Class istream</strong>定义input stream，用来读数据。</li>
+<li><strong>Class ostream</strong>定义output stream，用来写数据。</li>
+</ul>
+<p>&emsp;&emsp;两者分别具体实现自<code>template class basic_istream&lt;&gt;</code>或<code>basic_ostream&lt;&gt;</code>，以char作为字符类型。事实上整个IOStream程序库不依赖任何特定的字符类型，而是以一个template实参替代之。这样的参数化在string class也存在，并且也被运用于国际化议题。</p>
+<h2 id="全局的Stream对象"><a href="#全局的Stream对象" class="headerlink" title="全局的Stream对象"></a>全局的Stream对象</h2><p>&emsp;&emsp;IOStream程序库定义了数个类型为istream和ostream的全局对象，它们对应于标准I/O通道：</p>
+<ul>
+<li><strong>cin</strong>，隶属于istream，是供使用者输入用的标准输入通道，对应于C中的stdin。操作系统通常将它和键盘连接。</li>
+<li><strong>cout</strong>，隶属于ostream，是供使用者输出用的标准输出通道，对应于C中的stdout。操作系统通常将它和监视器（屏幕）连接。</li>
+<li><strong>cerr</strong>，隶属于ostream，是所有报错信息所使用的标准报错输出通道，对应于C中的stderr。操作系统通常也将它和监视器（屏幕）连接。默认情况下cerr无缓冲。</li>
+<li><strong>clog</strong>，隶属于ostream，是标准日志通道，C中没有对应物。默认情况下操作系统将它连接于cerr所连接的设备，但clog有缓冲。</li>
+</ul>
+<p>&emsp;&emsp;将“正常输出”和“报错信息输出”加以分离，可以让程序以不同的方式对待两种不同的输出。例如可以将正常输出重新定向至某个文件，而同时仍然令报错信息显示于控制台。当然，前提是操作系统必须支持标准I/O通道的重定向功能。这种分离方式起源于UNIX的I/O重定向概念。</p>
+<h1 id="IO类的相关类型信息"><a href="#IO类的相关类型信息" class="headerlink" title="IO类的相关类型信息"></a>IO类的相关类型信息</h1><h2 id="IO对象无拷贝或赋值"><a href="#IO对象无拷贝或赋值" class="headerlink" title="IO对象无拷贝或赋值"></a>IO对象无拷贝或赋值</h2><p>&emsp;&emsp;我们不能拷贝或对IO对象赋值：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ofstream out1, out2;</span><br><span class="line">out1 = out2; <span class="comment">// error!</span></span><br><span class="line"><span class="function">ofstream <span class="title">print</span><span class="params">(ofstream)</span></span>; <span class="comment">// error!</span></span><br><span class="line">out2 = <span class="built_in">print</span>(out2); <span class="comment">// error!</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;由于不能拷贝IO对象，因此我们也不能将形参或返回类型设置为流类型。进行IO操作的函数通常以引用方式传递和返回流。读写一个IO对象会改变其状态，因此传递和返回的引用不能是const的。</p>
+<h2 id="操控器"><a href="#操控器" class="headerlink" title="操控器"></a>操控器</h2><p>&emsp;&emsp;在大部分输出语句的末尾，我们都会写一个如下的东西，称为操控器：<code>std::cout &lt;&lt; std::endl</code>。这种东西是“专门用来操控stream”的一种特殊对象，通常它只会改变“输入的解释方式”或“输入的格式化方式”，例如数值的进制dec（十进制）、hex（十六进制）、oct（八进制）。用于ostream的操控器并不会凭空制造出输出数据，用于istream的操控器也不会吃掉任何输入数据。但有些操控器会引发立即动作，例如用于“刷新（flush）output缓冲区”或“跳过input缓冲区空格”的那些操控器。</p>
+<p>&emsp;&emsp;操控器endl的意思是终止一行（end line）。它做两件事情：</p>
+<ol>
+<li>输出换行符，也就是‘\n’。</li>
+<li>刷新output缓冲区（也就是对于给定的stream，应用其<code>flush()</code>强制输出缓冲区内所有数据）。 </li>
+</ol>
+<p>&emsp;&emsp;IOStream程序库定义的一些最重要的操控器见下表：</p>
+<table>
+<thead>
+<tr>
+<th>操控器</th>
+<th>类</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="C-标准cin函数"><a href="#C-标准cin函数" class="headerlink" title="C++标准cin函数"></a>C++标准cin函数</h1><h2 id="标准输入缓冲区"><a href="#标准输入缓冲区" class="headerlink" title="标准输入缓冲区"></a>标准输入缓冲区</h2><p>&emsp;&emsp;在阐述C++的cin标准读取函数前，需要了解标准输入缓冲区。当一次键盘输入结束时（也就是按下Enter键，此时Enter的分隔符也会被存入输入缓冲区）会将输入的数据存入输入缓冲区，而输入语句则直接从输入缓冲区中读取数据。正因为是直接从缓冲区读取数据，所以有时候当缓冲区中有残留数据时，输入函数直接取得这些残留数据而不会请求键盘输入。</p>
+<h2 id="cin-gt-gt"><a href="#cin-gt-gt" class="headerlink" title="cin &gt;&gt;"></a>cin &gt;&gt;</h2><p>&emsp;&emsp;该操作符是根据后面变量的类型读取数据。</p>
+<p>&emsp;&emsp;输入结束条件：遇到Enter、Space、Tab分隔符。</p>
+<p>&emsp;&emsp;对结束字符的处理：丢弃缓冲区中使得输入结束的结束符（Enter、Space、Tab）。</p>
+<p>&emsp;&emsp;若缓冲区中的第一个字符是Enter、Sapce、Tab这些分隔符，cin&gt;&gt;会将其忽略并清除，然后继续读取下一个字符，若缓冲区为空，则继续等待。如果读取成功，字符后面的分隔符会残留在缓冲区内，本次cin&gt;&gt;调用不做处理，下次cin&gt;&gt;调用时会将其忽略并消除。</p>
+<h2 id="cin-get（数组名，长度，结束符）"><a href="#cin-get（数组名，长度，结束符）" class="headerlink" title="cin.get（数组名，长度，结束符）"></a>cin.get（数组名，长度，结束符）</h2><p>&emsp;&emsp;该函数有多种形式：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> <span class="built_in">cin</span>.<span class="built_in">get</span>();</span><br><span class="line">istream&amp; <span class="built_in">cin</span>.<span class="built_in">get</span>(<span class="keyword">char</span>&amp; c);</span><br><span class="line"><span class="function">istream&amp; <span class="title">get</span><span class="params">(<span class="keyword">char</span>* s, streamsize n)</span></span>;</span><br><span class="line"><span class="function">istream&amp; <span class="title">get</span><span class="params">(<span class="keyword">char</span>* s, streamsize n, <span class="keyword">char</span> delim)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;前两种用于读取一个字符，可以使用<code>c = cin.get()</code>或者<code>cin.get(c)</code>，这两种几乎没有差别。它们从输入缓冲区读取单个字符时不忽略分隔符，直接将其读取。此外，<code>cin.get()</code>的返回值是int值，成功返回读取字符的ASCII码值，遇到文件结束符时，返回EOF，即-1。Windows下命令行输入文件结束符的方式为Ctrl + z，Linux为Ctrl + d。由于<code>cin.get(c)</code>返回的是cin对象，因此可以支持链式操作，如<code>cin.get(b).get(c)</code>。</p>
+<p>&emsp;&emsp;后两</p>
+<h2 id="cin-getline（）"><a href="#cin-getline（）" class="headerlink" title="cin.getline（）"></a>cin.getline（）</h2><p>&emsp;&emsp;<code>cin.getline(数组名，长度，结束符)</code>大体与<code>cin.get(数组名，长度，结束符)</code>类似。区别在于：当<code>cin.get()</code>输入的字符串超过长度时，不会引起cin函数的错误，后面的cin操作会继续执行，只是直接从缓冲区中读取数据。但是当<code>cin.getline()</code>输入超过长度时，会引起cin函数的错误，后面的cin操作将不再执行。而且，<code>cin.getline()</code>与<code>cin.get()</code>不同，<code>cin.getline()</code>虽然也会将结束符读取出来，但不会将结束符残留在输入缓冲区中。</p>
+<p>&emsp;&emsp;</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/20/CAEP%E6%96%87%E6%A1%A3/" rel="prev" title="CAEP文档">
+      <i class="fa fa-chevron-left"></i> CAEP文档
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/30/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Btarget_compile_definitions/" rel="next" title="CMake命令之target_compile_definitions">
+      CMake命令之target_compile_definitions <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#I-O-Stream的共通基础"><span class="nav-number">1.</span> <span class="nav-text">I&#x2F;O Stream的共通基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Stream对象"><span class="nav-number">1.1.</span> <span class="nav-text">Stream对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Stream-Class"><span class="nav-number">1.2.</span> <span class="nav-text">Stream Class</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全局的Stream对象"><span class="nav-number">1.3.</span> <span class="nav-text">全局的Stream对象</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IO类的相关类型信息"><span class="nav-number">2.</span> <span class="nav-text">IO类的相关类型信息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#IO对象无拷贝或赋值"><span class="nav-number">2.1.</span> <span class="nav-text">IO对象无拷贝或赋值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#操控器"><span class="nav-number">2.2.</span> <span class="nav-text">操控器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#C-标准cin函数"><span class="nav-number">3.</span> <span class="nav-text">C++标准cin函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#标准输入缓冲区"><span class="nav-number">3.1.</span> <span class="nav-text">标准输入缓冲区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cin-gt-gt"><span class="nav-number">3.2.</span> <span class="nav-text">cin &gt;&gt;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cin-get（数组名，长度，结束符）"><span class="nav-number">3.3.</span> <span class="nav-text">cin.get（数组名，长度，结束符）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cin-getline（）"><span class="nav-number">3.4.</span> <span class="nav-text">cin.getline（）</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>

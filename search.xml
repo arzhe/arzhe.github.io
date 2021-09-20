@@ -3725,7 +3725,40 @@
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">... </span><br><span class="line"></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; str = &#123; <span class="string">"Chuck Berry"</span>, <span class="string">"Little Richard"</span>, <span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Jerry Lee Lewis"</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除str中不是摇滚歌手的人</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">auto</span> it = str.<span class="built_in">begin</span>(); it != str.<span class="built_in">end</span>(); ++it) &#123;</span><br><span class="line">    <span class="keyword">if</span>(FIND_IF_NOT_ROCKSTAR(*it));</span><br><span class="line">        str.erase(it);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印出结果</span></span><br><span class="line">PRINT_ELEMENTS(str, <span class="string">"ALL of these are rockstar: "</span>);</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;最后打印出来的结果可能不会合乎你的预期——打印出除了Alice与Bob以外的所有人，结果而是把Bob也一同打印出来了，Alice被正确的剔除了。</p>
-<h1 id="erase所执行的操作"><a href="#erase所执行的操作" class="headerlink" title="erase所执行的操作"></a>erase所执行的操作</h1><p>&emsp;&emsp;现在让我们来看看erase到底瞒着我们干了些什么？erase用于从一个集合中删除一个元素，但是对于基于数组的容器，例如这里的vector（溯源到它的本家c数组），存储在删除元素后的所有元素都需要向前也就是往它们前一个元素的位置移动一位，以避免集合中留下“空位”，最后再将集合的容量缩减一个sizeof（type）并delete多余分配的空间。但这也导致了大量的开销，当然本篇blog不对此进行讨论。然而指向被删除元素的迭代器却不会那么聪明地也向前移动，它依然指向被删除元素的位置，也就是指向了被删除元素后的元素。</p>
+<h1 id="erase所执行的操作"><a href="#erase所执行的操作" class="headerlink" title="erase所执行的操作"></a>erase所执行的操作</h1><p>&emsp;&emsp;关于vector的erase在STL中的语义：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">iterator <span class="title">erase</span><span class="params">(const_iterator <span class="built_in">position</span>)</span></span></span><br><span class="line"><span class="function">iterator <span class="title">erase</span><span class="params">(const_iterator first, const_iterator last)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>第一个将删除position所指位置的元素，并返回所删除元素的下一个位置；第二个将删除[first,last)区间的元素，并返回所删除元素的下一个位置，也就是last。</p>
+<p>&emsp;&emsp;此外，值得一提的是，关于string的erase在STL中的语义：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">string::clear</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="built_in">string</span>&amp; <span class="title">erase</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>两个函数都会删除string内等所有字符，因此调用后string为空。</li>
+<li><code>erase()</code>返回<code>*this</code>。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="built_in">string</span>&amp; <span class="title">erase</span><span class="params">(size_type idx)</span></span></span><br><span class="line"><span class="function"><span class="built_in">string</span>&amp; <span class="title">erase</span><span class="params">(size_type idx, size_type len)</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>两种形式都删除<code>*this</code>之内从索引idx开始的最多len个字符。</li>
+<li>都返回<code>*this</code>。</li>
+<li>如果未指定<em>len</em>，则删除idx之后的所有字符。</li>
+<li>如果<code>idx &gt; size()</code>，两种形式都抛出out_if_range异常。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">iterator <span class="title">erase</span><span class="params">(const_iterator pos)</span></span></span><br><span class="line"><span class="function">iterator <span class="title">erase</span><span class="params">(const_iterator beg, const_iterator <span class="built_in">end</span>)</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>分别删除pos所指的单一字符或[beg,end)区间内的所有字符。</li>
+<li>都返回最后一个被删除字符的下一字符（因此第二形式返回的是end）。</li>
+<li>在C++11之前，pos、beg和end的类型都是iterator。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">pop_back</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>删除最末字符。</li>
+<li>对空string调用此函数，会导致不明确行为。</li>
+<li>始自C++11。</li>
+</ul>
+<p>&emsp;&emsp;现在让我们来看看erase到底瞒着我们干了些什么？erase用于从一个集合中删除一个元素，但是对于基于数组的容器，例如这里的vector（溯源到它的本家c数组），存储在删除元素后的所有元素都需要向前也就是往它们前一个元素的位置移动一位，以避免集合中留下“空位”，最后再将集合的容量缩减一个sizeof（type）并delete多余分配的空间。但这也导致了大量的开销，当然本篇blog不对此进行讨论。然而指向被删除元素的迭代器却不会那么聪明地也向前移动，它依然指向被删除元素的位置，也就是指向了被删除元素后的元素。</p>
 <p>&emsp;&emsp;让我们看下erase操作后，str中的情况：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="string">"Chuck Berry"</span>, <span class="string">"Little Richard"</span>, <span class="string">"Bob"</span>, <span class="string">"Jerry Lee Lewis"</span></span><br></pre></td></tr></table></figure>
 
@@ -4076,9 +4109,9 @@
 </li>
 </ol>
 <p>&emsp;&emsp;目前多策略、混合策略成为访问控制策略领域的研究热点[9]，它们大多专注于提高策略的结构性以及逻辑性以提高策略描述的表达能力。这也导致了策略的描述语法越来越复杂，难以实现，并且学习成本越来越高。</p>
-<p>&emsp;&emsp;因此，本文提出一种访问策略模型CAEP-M（Categories And Environment Policy Model），以下简称为CM。该模型使用CML（CAEP Model Language）策略描述语言来表达相应策略，并支持各类访问控制模型，如BLP（Bell-La Padula）[10]，RBAC[11]，ABAC[12]，ACL[13]等。在CM的基础上使用CML构建出策略实施机制CML-EM（SoPL enforcement mechanism）。CML语法较为简洁且直观，便于用户理解，也易于开发者学习。</p>
+<p>&emsp;&emsp;因此，本文提出一种访问策略模型CAEP-M（Categories Environment Policy Model），以下简称为CM。该模型使用CML（CAEP Model Language）策略描述语言来表达相应策略，并支持各类访问控制模型，如BLP（Bell-La Padula）[10]，RBAC[11]，ABAC[12]，ACL[13]等。在CM的基础上使用CML构建出策略实施机制CML-EM（SoPL enforcement mechanism）。CML语法较为简洁且直观，便于用户理解，也易于开发者学习。</p>
 <h1 id="CML语言"><a href="#CML语言" class="headerlink" title="CML语言"></a>CML语言</h1><p>&emsp;&emsp;CML适用于由IEFT[14][15]与ISO[16]定义的策略实施抽象模型。实施访问控制策略机制首先需要有合适的策略语言，然后针对特定的策略模型制定实施这些策略规则的逻辑。因此实施策略规则的逻辑一定程度上也反应了该策略语言的策略模型。一般来说，在一个支持混合策略、多用户、模型无关以及策略语言无关的系统中，需要允许用户自定义策略规则。此外，动态的策略实施逻辑在灵活性以及泛用性上要更优于静态的策略实施逻辑。目前主流的策略描述语言大多是静态的，在本文中，提出一种策略逻辑分离方案，将策略规则与策略逻辑进行分离。CML策略实施机制中实施的策略规则称为Policy，策略实施逻辑的抽象访问控制模型称为Model。更为通俗的来看，可用将Policy视为数据，Model视为逻辑。</p>
-<h2 id="策略模型"><a href="#策略模型" class="headerlink" title="策略模型"></a>策略模型</h2><p>&emsp;&emsp;CM通过两个组件来构成基本的抽象模型结构：策略请求组件（Policy Request Module，PRM），策略实施组件（Policy Enforcement Module）。PRM为权限决策制定一个请求，该请求包括对访问请求的描述：发出请求的主体、要请求访问的资源、要执行的操作以及其他的相关信息。然后该授权决策请求会被发送到PEM组件。PEM组件会检索与决策请求匹配的策略，以及评估这些策略所需的任何额外附加信息，并向PRM返回授权决策。授权决策可以是“allow access”、“deny access”或是“no policy apply to this request”。如果PRM由于某种原因无法检索策略以及评估所需的信息，则PRM会返回一个错误而不是授权决策。根据从PRM发送而来的授权决策或错误，PEM将会授予、拒绝访问请求或是以某种方式回应错误。</p>
+<h2 id="策略模型"><a href="#策略模型" class="headerlink" title="策略模型"></a>策略模型</h2><p>&emsp;&emsp;CM通过两个组件来构成基本的抽象模型结构：策略请求组件（Policy Request Module，PRM），策略实施组件（Policy Enforcement Module，PEM）。PRM为权限决策制定一个请求，该请求包括对访问请求的描述：发出请求的主体、要请求访问的资源、要执行的操作以及其他的相关信息。然后该授权决策请求会被发送到PEM组件。PEM组件会检索与决策请求匹配的策略，以及评估这些策略所需的任何额外附加信息，并向PRM返回授权决策。授权决策可以是“allow access”、“deny access”或是“no policy apply to this request”。如果PRM由于某种原因无法检索策略以及评估所需的信息，则PRM会返回一个错误而不是授权决策。根据从PRM发送而来的授权决策或错误，PEM将会授予、拒绝访问请求或是以某种方式回应错误。</p>
 <p>&emsp;&emsp;PRM无法控制策略决策的执行，这是PEM的功能。PEM通过在应用程序或平台上的具体实现来实现“拦截和描述访问请求”的功能。PRM以及其使用的CML是独立于应用程序和平台的。CM通过将策略的请求和实施进行分离来完成授权决策系统的实现，PEM具体在代码层面，PRM具体在策略语言（CML）层面。</p>
 <h2 id="授权决策请求"><a href="#授权决策请求" class="headerlink" title="授权决策请求"></a>授权决策请求</h2><p>&emsp;&emsp;CML为授权决策请求指定了一种抽象格式，以描述试图进行资源访问的属性。这些属性是在描述策略时用来引用的某类型的值。该策略属性将在后文中介绍。以下为一个例子：</p>
 <table>
@@ -4140,6 +4173,571 @@
       <categories>
         <category>论文相关</category>
       </categories>
+      <tags>
+        <tag>CML</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>EPAL与XACML</title>
+    <url>/2021/05/23/EPAL%E4%B8%8EXACML/</url>
+    <content><![CDATA[<hr>
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>&emsp;&emsp;用于支持权限策略的表达和实施的标准结构化语言必须满足以下几个要求：</p>
+<ol>
+<li>为了支持权限策略的表达，该语言不能够仅仅只在“谁对哪些资源可以执行哪些操作”上进行约束，还必须要将数据收集的目的与访问的目的相匹配。</li>
+<li>为了支持自动化执行，该语言必须支持可直接执行的策略表达，策略使用标识符来描述主体、资源、动作和访问条件，而这些所谓的标识符可以直接自动化地映射到计算机程序所使用的实际对象和操作。</li>
+<li>该语言必须是平台无关性的，以便将其作为标准使用。</li>
+</ol>
+<p>&emsp;&emsp;有两种平台无关性的语言满足上述大部分的要求，一个是<strong><em>IBM’s Enterprise Privacy Authorization Language(EPAL)</em></strong>，另外一个是<strong><em>OASIS eXtensible Access Control Markup Language(XACML)</em></strong>。</p>
+<p>&emsp;&emsp;对于企业来说，如果要选择最适合他们的需求的语言，了解这两种语言之间的差异是十分重要的；对于研究人员来说，如果要研究出比这两种语言更优秀的语言，了解这两种语言之间的差异亦是十分重要的。而后者则正是我写下此文的目的。</p>
+<a id="more"></a>
+
+<h1 id="EPAL和XACML概述"><a href="#EPAL和XACML概述" class="headerlink" title="EPAL和XACML概述"></a>EPAL和XACML概述</h1><h2 id="抽象模型"><a href="#抽象模型" class="headerlink" title="抽象模型"></a>抽象模型</h2><p>&emsp;&emsp;EPAL和XACML都使用了由IETF与ISO定义的策略实施抽象模型，在该模型中，所有访问受保护的资源的请求都要经过一个称为策略实施点（Policy Enforcement Point）的抽象组件或是PEP（Access Enforcement Function in the ISO standard）。PEP为授权决策制定了一个请求，该请求包括对访问请求的描述：谁发出请求、请求什么资源、要执行什么操作、访问请求的目的以及其他的相关信息。该授权决策请求被发送到另一个称为策略决策点（Policy Decision Point）的抽象组件或是PDP（Access Decision Function in the ISO standard）。PDP会检索与决策请求匹配的策略，以及评估这些策略所需的任何附加信息，并向PEP返回授权决策。在EPAL和XACML中，授权决策可以是“allow access”，“deny access”或是“no policies apply to this request”。如果PDP由于某种原因无法检索策略或评估所需的信息，则PDP可能返回一个错误而不是授权决策。根据授权决策，PEP授予或拒绝访问请求。一个授权决策可能伴随着义务，这些义务是PEP在实施授权决策时必须采取的动作。所谓的义务，一个典型的例子就是记录访问请求。</p>
+<p>&emsp;&emsp;PDP无法控制策略决策的执行，这是PEP的功能。PEP的实现通常是特定于应用程序或平台的，因为拦截和描述访问请求通常需要特定于应用程序或平台的实现细节。然而PDP及其使用的策略语言可以是独立于应用程序和平台的。</p>
+<h2 id="授权决策请求"><a href="#授权决策请求" class="headerlink" title="授权决策请求"></a>授权决策请求</h2><p>&emsp;&emsp;EPAL和XACML都为授权决策请求指定了一种抽象格式，以描述试图进行资源访问的属性。这些是在说明策略时可引用的命名的类型化值。以下是一个例子：</p>
+<table>
+<thead>
+<tr>
+<th>NAME</th>
+<th>TYPE</th>
+<th>VALUE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>role</td>
+<td>string</td>
+<td>“administrator”</td>
+</tr>
+<tr>
+<td>resource-id</td>
+<td>URL</td>
+<td>“<a href="http://www.example.com/acount/1234&quot;" target="_blank" rel="noopener">http://www.example.com/acount/1234&quot;</a></td>
+</tr>
+<tr>
+<td>action-id</td>
+<td>string</td>
+<td>“read”</td>
+</tr>
+<tr>
+<td>purpose</td>
+<td>string</td>
+<td>“verify balance”</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;在该例中，一个名为“administrator”的角色试图读取一个URL地址来确认账户余额。如果策略反过来，为了读取URL resource-id，用户的角色属性必须具是“administrator”的值，而目的属性必须是“verify balance”，只有这样，访问才会被允许。</p>
+<p>&emsp;&emsp;在这两种语言中，由PDP评估的授权决策请求与从PEP发送的任何特定消息格式的语法或内容之间只有弱关系；虽然PEP可以使用抽象格式作为其原生请求格式，但也可以将各种特定于应用程序的PEP请求格式映射到抽象格式。</p>
+<h2 id="策略结构"><a href="#策略结构" class="headerlink" title="策略结构"></a>策略结构</h2><p>&emsp;&emsp;在EPAL和XACML中，一个策略由一个或多个规则组成，这些规则每一个都有3个主要部分，如下：</p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>适用性（Applicability）</td>
+<td>如果满足某条件，则规则适用于一个请求</td>
+</tr>
+<tr>
+<td>条件（Condition）</td>
+<td>如果满足某条件，则规则满足</td>
+</tr>
+<tr>
+<td>效果（Effect）</td>
+<td>如果规则同时满足与适用，则规则返回{permit,deny}</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;<strong><em>Applicability</em></strong>是一组关于决策请求中的属性值的简单约束，这些约束决定规则是否适用于给定请求。<strong><em>Condition</em></strong>是一个称为条件的谓词，该条件由拥有请求（或从其他来源获得）中的字面值和属性值的函数组成。<strong><em>Effect</em></strong>则是一个效果（在EPAL中称为结果），如果规则适用并且满足，它将被返回{permit,deny}。一个<strong><em>Effect</em></strong>可以指示为“permit acces”或者是“deny acces”。可选的第四个组件是<strong><em>Obligations</em></strong>（义务），它是一个将与授权决策一起返回给PEP的命名值。隐私策略中一个典型义务是访问的资源不能与第三方共享，并且接收方必须在30天内销毁信息。对于PDP来说，义务是不透明的，理解并履行任何义务的责任落在了PEP身上。</p>
+<h2 id="策略评估"><a href="#策略评估" class="headerlink" title="策略评估"></a>策略评估</h2><p>&emsp;&emsp;首先通过确定适用性是否是被满足来评估规则。如果不适用，则不执行进一步的计算，并返回一个指示不适用的值。如果满足适用性部分，则对条件部分进行评估。如果结果为true，则返回规则的效果（Effect），如果结果不为true，则返回一个指示不适用的值。如果在评估适用性或条件部分时出现任何错误，则可能返回一个错误值。EPAL和XACML在如何确定策略评估的总体结果方面有所不同，因为不同的规则可能返回不同的值。它们在错误和义务的处理方式上也有所不同。这些差异将在下文一一展示。</p>
+<h1 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h1><p>&emsp;&emsp;虽然EPAL和XACML在结构和概念上非常相似，但两种语言之间的差异是显著的。并且极大地影响了它们的可用性和满足Web服务隐私策略语言需求的能力。以下将讨论一些关键性差异。</p>
+<h2 id="策略属性"><a href="#策略属性" class="headerlink" title="策略属性"></a>策略属性</h2><p>&emsp;&emsp;EPAL和XACML在策略变量（或属性）词汇表结构上有所不同。在EPAL中，有两种类型的属性：类别（<strong><em>categories</em></strong>）和容器属性（<strong><em>container attributes</em></strong>）。<strong><em>categories</em></strong>有四种类别：<strong>用户类别</strong>、<strong>数据类别</strong>、<strong>操作</strong>和<strong>目的</strong>。<strong><em>categories</em></strong>属性是与用户组、资源组、操作组和目的组相关联的名称，从隐私角度来看，这些组的处理方式是不同的。例如，属于具有adult值的用户类别的用户与属于具有child值的用户类别的用户可能会受到不同程度的对待。<strong>用户类别</strong>值与发出访问请求的主体相关联。<strong>数据类别</strong>，<strong>操作</strong>和<strong>目的</strong>的类别值与被访问的资源，要在资源上执行的操作以及访问资源的目的相关联。最后要注意的是，类别属性值都是字符串。</p>
+<p>&emsp;&emsp;EPAL容器属性（<strong><em>container attributes</em></strong>）用于保存策略评估所需的任何不属于隐私类别的信息。尽管容器属性可以与类别属性中的某一类别描述相同的实体，但是容器属性与任何类别类型或值之间没有显式的关联。例如，一个名为age的容器属性可能与用户的年龄或资源的年龄相关联，但语言本身不会做出任何这样的关联。每个容器属性都有一个唯一的名称和一个类型化值；支持的类型包括字符串、整数、布尔值、日期、时间等。容器属性被分组到称为容器的命名集中，容器属性的名称则来自容器。规则中的条件可以引用特定容器的属性名称，并且该属性值必须可用才能对条件进行计算：如果在计算条件时所需的容器没有被完全填充，则策略计算将返回一个错误。</p>
+<p>&emsp;&emsp;在XACML中仅有一种类型的属性，每一个属性都有唯一的名称和类型化值。属性的名称可以是URN或XPath表达式。每一个XACML属性都与四个类中的一个相关联：<strong><em>Subject</em></strong>、<strong><em>Resource</em></strong>、<strong><em>Action</em></strong>和<strong><em>Environment</em></strong>（主体、资源、操作和环境）。<strong><em>Subject</em></strong>属性描述与发出访问请求相关联的主体。<strong><em>Resource</em></strong>属性描述要访问的资源。<strong><em>Action</em></strong>属性描述要对资源执行的操作。<strong><em>Environment</em></strong>属性描述与<strong><em>Subject</em></strong>、<strong><em>Resource</em></strong>或<strong><em>Action</em></strong>不相关的访问请求的特征，例如进行访问的时间或需要进行访问的交易所依据的合同标识符。</p>
+<p>&emsp;&emsp;EPAL的容器属性与XACML的环境属性不一样。容器属性是除与隐私相关的类别以外的任何属性；它可以描述访问用户的特征、被访问的资源、操作或目的。事实上，用户、资源、操作或目的的任何属性，除了它们的隐私类别之外，一定都是容器属性。XACML的环境属性则是那些不适用于主体、资源或操作的属性。</p>
+<h2 id="XML属性值"><a href="#XML属性值" class="headerlink" title="XML属性值"></a>XML属性值</h2><p>&emsp;&emsp;XACML支持使用XPath表达式作为命名属性的一个可选项。通常通过一个被请求访问的XML文档副本，或者通过一个值为XML元素的请求属性对XPath表达式求值来计算出属性值。例如，XACML中允许有这样的条件判定式：在请求中的“subject-id”属性的值必须与“<code>//patientRecord/patientName/text()</code>”节点或“<code>//patientRecord/PhisicianName/text()</code>”节点的值相等。因此，XACML中的通用检索组件将会把XML文档中的节点作为属性处理。</p>
+<p>&emsp;&emsp;EPAL没有“使用被访问资源的内容来指定属性值”的内置机制；它不支持具有作为XML模式元素实例的值的属性，也不支持在被访问的XML文档中使用节点作为属性。如果策略要求XML资源的一个节点必须匹配给定的值，那么EPAL词汇表必须将该特定节点定义为具有自己名称的单独属性。此外，必须额外编写属性检索组件来处理对每个这样的属性值的检索和映射。这也是EPAL在为Web服务应用程序提供支持方面的一个主要缺陷。</p>
+<h2 id="策略词汇"><a href="#策略词汇" class="headerlink" title="策略词汇"></a>策略词汇</h2><p>&emsp;&emsp;除了策略属性上的差异外，这两种语言在处理总体策略词汇方面也有所不同。每个EPAL策略都包含一个对抽象结构的引用，这个抽象结构称为“词汇”，它描述了可以在该策略中使用的所有属性、容器、条件和义务。策略本身是使用对词汇结构中定义的属性、条件和义务的引用来表示的。相比之下，在XACML中，属性、条件和义务可以直接用于表达策略，也可以被定义为变量并在表达策略时来引用他；此外，也并不需要将所有变量定义在一个位置。</p>
+<p>&emsp;&emsp;然而，在同一个位置定义策略元素也有某些好处。最主要的一个就是可以定义属性之间的关系。EPAL以两种方式来使用该功能：</p>
+<ol>
+<li>EPAL允许将类别属性定义为层次结构，其中类别属性可以指向另一个类别属性作为其父类。</li>
+<li>词汇结构允许EPAL使用容器，容器可以用于对来自一个源的属性进行分组，从而帮助优化属性检索。</li>
+</ol>
+<p>&emsp;&emsp;词汇还可以帮助应用程序编写人员和策略编写人员就必须提供哪些属性达成协议。但是，以这种方式指定词汇并不能确保在评估策略时所有必要的属性都实际可用。需要注意的是，词汇规范在XACML中并不是最重要的概念，但通过定义一个属性来包含其他地方指定的属性集合标识，无需扩展语言也可以支持它。然后，策略、子策略或规则可以要求PEP为这个词汇属性提供值。策略可以要求这些值包括计算策略相关部分所需的属性集合的标识。如果这些都不匹配，将返回一个错误。这种词汇属性的值引用的规范还可以定义属性之间的层次关系。可以编写属性检索组件来解释这种层次关系的外部规范，以便在请求时返回某些指定属性值的父系或子系。</p>
+<p>&emsp;&emsp;将策略词汇指定为策略的一部分（比如在EPAL中），在实际作业中可能过于苛刻。例如，策略可能要求必须提供一个“Challenge Response”属性或一个“Private Key Authenticator”属性。如果词汇在同一个容器中列出了这两个属性，那么只支持其中一种机制的用户将永远无法获得访问，因为容器永远不会被完全填充。</p>
+<p>&emsp;&emsp;将特定格式的词汇指定为策略的一部分还存在其他问题。由于EPAL是通过引用将词汇包含在内的，因此多个策略可能包含相同的词汇。对一个策略所需的词汇的更改可能会导致使用同样词汇的另一个策略结构出现问题。这使得实现一致性策略更加困难。另一个问题是，策略和各种定义属性的外部规范之间的关系要么是间接的（通过描述性注释），要么是丢失的。但是，由于XACML中的词汇属性可以有多个值，因此可以包含正在使用的实际外部规范的标识，并且可以编写属性检索组件将这些规范中定义的属性转换为XACML的抽象属性格式。</p>
+<h2 id="授权决策请求-1"><a href="#授权决策请求-1" class="headerlink" title="授权决策请求"></a>授权决策请求</h2><p>&emsp;&emsp;在EPAL中，决策请求必须包含一个或多个用户类别属性、数据类别属性、操作类别属性和目的类别属性，以及各种容器属性集的可选值。如果授权决策请求中有多个用户类别属性，它们都必须引用相同的主体，尽管单个决策请求可能包含多个独立的数据类别、操作和用途。请求的语义是“我属于这些用户类别”。是否至少有一个用户类别可以对所有这些数据类别执行所有这些操作？</p>
+<p>&emsp;&emsp;XACML决策请求由Subject属性、Resource属性、Action属性和Environment属性的任意集合组合而成。在XACML核心规范中，一个请求可能只包含一个Action，但可能包含多个资源或主体。每个Subject都是以某种方式进行访问请求的独立主体，并且每个Subject都有自己的Subject属性集合。默认的主体是进行访问请求的主体，主体可以是任意的。在策略中，访问可以以这些Subject属性的任何组合为条件。在EPAL中，可以将其他主体指定为容器属性，但是这些附加主体不具有EPAL与用户类别相关联的特殊策略评估语义，如下文所述。</p>
+<h2 id="授权决策响应"><a href="#授权决策响应" class="headerlink" title="授权决策响应"></a>授权决策响应</h2><p>&emsp;&emsp;在EPAL中，总是会返回单个响应，其中包含指示“允许访问”、“拒绝访问”或“没有策略匹配此访问请求”的结果，或者如果在策略评估期间发生错误，则返回错误状态。响应包含与应用于用户类别、数据类别、操作和目的的每个组合的规则相关的标识符，以及与这些规则相关的义务。</p>
+<p>&emsp;&emsp;在XACML中，单个授权决策请求可以请求包含一个总体决策的响应，或者请求中指定的每个资源的单独决策。每个决策都表明允许访问、拒绝访问、没有策略适用于此访问请求，或者由于一个错误“无法确定应该允许访问还是拒绝访问”。每个决策包括与该决策相关的资源的名称，以及与该资源的决策相关联的任何义务。如果在处理过程中发生错误，决策将由策略中指定的组合算法确定（如下所述）。错误通常只有在PDP无法确定应该或者不应该允许访问时才终止评估。如果请求访问XML文档中的多个节点，则每个节点的决策都包含一个XPath表达式。</p>
+<h2 id="策略评估-1"><a href="#策略评估-1" class="headerlink" title="策略评估"></a>策略评估</h2><p>&emsp;&emsp;以下是策略评估语义的相关概念，在这两种语言中，都可以以任何保留整体语义的方式自由实现求值算法。</p>
+<p>&emsp;&emsp;一个EPAL授权决策请求被分解为一个或多个简单请求，每个请求都包含用户类别、数据类别、操作和目的的属性值的单个组合；在评估这些简单请求时使用同一组容器属性，因此容器属性必须平等地应用于决策请求中的所有用户类别、数据类别、操作和目的。简单请求的计算顺序是在策略词汇中指定用户类别值的顺序。如果在任何策略评估过程中发生错误，将立即返回一个错误作为授权决策响应。否则，如果包含任何单个用户类别值的所有简单请求的评估返回指示允许访问的结果，那么评估将终止，并返回指示允许访问的授权决策。此外，如果对任何单个简单请求的评估产生指示拒绝访问的结果，则返回指示拒绝访问的结果作为授权决策响应。</p>
+<p>&emsp;&emsp;在XACML中，除非是指定了多个resource，否则将针对授权决策请求中的所有属性对策略进行一次评估，并将评估结果作为授权决策返回。如果指定了多个resource，授权决策请求将被分解为多个简单请求，每个简单请求仅包含一个resource，每个简单请求将分别评估。如果授权决策请求请求一个总体决策，那么授权决策将仅在评估所有简单请求的结果表明允许访问时才表示允许访问。如果任何一个结果表明拒绝访问，那么将作为总体决策返回；否则，将返回指示不应用任何策略的决策。XACML会为多个resource返回单个决策，同样，EPAL也会为多个数据类别返回单个决策。但是，在EPAL中，为了使每个数据类别分别获得单独的决策，必须为每个数据类别提出单独的请求。而在XACML中，可以使用单个授权决策请求返回这些单独的决策。</p>
+<p>&emsp;&emsp;EPAL语义不支持要求请求者是多个用户类别成员的策略。例如，如果医疗保健提供者和医院工作人员是单独的用户类别，则EPAL策略不可能要求请求者同时属于两个用户类别；如果允许任一用户类别访问，则允许访问。</p>
+<h2 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h2><p>&emsp;&emsp;EPAL规则的适应性部分不能引用容器属性，条件部分不能引用类别属性。在XACML中，任何属性都可以在规则的任何部分中使用。在EPAL中，适应性谓词都与请求中必须出现的类别值完全匹配。在XACML中，任何返回布尔结果并将属性值与文字值进行比较的函数都可以在适应性谓词中使用。由于规则的适应性部分用于索引规则或优化规则评估，因此EPAL限制可能会限制索引或优化。EPAL和XACML支持一组广泛的标准函数，可用于说明访问条件；这两种语言支持的函数几乎是相同的。</p>
+<h2 id="嵌套策略"><a href="#嵌套策略" class="headerlink" title="嵌套策略"></a>嵌套策略</h2><p>&emsp;&emsp;对于管理复杂的策略，允许一个策略由多个子策略组成是非常有用的，这些子策略被分别进行评估、编写和维护。例如，“子策略”允许不同的模块管理自己的策略，同时确保在达成授权决策时考虑到所有相关的策略。即使在集中管理策略的地方，使用“子策略”也允许将策略分组为更小的单元，从而更容易、更有效地维护它们，并选择适用于特定类型请求的策略。</p>
+<p>&emsp;&emsp;EPAL不支持嵌套策略，每个策略都是独立的，没有语言定义的机制来组合应用于给定请求的多个策略的结果。XACML不支持嵌套策略：一个策略集包含一个或多个子策略，这些子策略可以包含其他策略集。每个策略集和子策略都包含自己的适用性谓词，只有满足其适用性谓词时，才对任何特定的子策略树进行评估。子策略可以内联声明，也可以使用策略标识符引用。策略引用允许使用分布式策略，支持分散的策略管理。</p>
+<h2 id="决策结果冲突"><a href="#决策结果冲突" class="headerlink" title="决策结果冲突"></a>决策结果冲突</h2><p>&emsp;&emsp;由于XACML和EPAL中的策略可能包含多个规则，而且由于对同一请求进行评估时，不同的规则可能返回不同的结果，因此在规则冲突时，必须有一种方法确定从策略评估返回的授权决策。此外，由于XACML策略可能还包含多个子策略，而且这些子策略也可能得到不同的结果，因此XACML中还必须有一种方法来解决子策略冲突。</p>
+<p>&emsp;&emsp;在EPAL中，通过按顺序计算规则，直到其中某一个规则适用于给定的授权决策请求，从而避免了冲突。对该规则的计算结果将作为授权决策返回。在XACML中，每个策略都包含一个规则组合算法的标识符，该算法将用于组合特定策略中的规则结果。XACML规范定义了几个标准规则组合算法，包括deny-overrides（如果任何规则计算为deny，则返回deny）和permit-overrides（如果至少有一个规则计算为permit，则返回permit）。每个XACML策略集同样包含策略组合算法的标识符，用于组合该策略集中的子策略的结果。标准的策略包括deny-overrides、permit-overrides和first-applicable（返回对应用于请求的第一个策略进行评估的结果），这相当于EPAL的一个冲突解决机制。XACML可以自由定义和使用其他组合算法。</p>
+<h2 id="继承角色和类别"><a href="#继承角色和类别" class="headerlink" title="继承角色和类别"></a>继承角色和类别</h2><p>&emsp;&emsp;正如ANSI基于角色的访问控制标准所定义的，角色是权限的集合。它旨在对组织中执行某些功能角色所需的权限进行建模。角色不同于EPAL类别，因为类别是实体的集合，而不是权限的集合。</p>
+]]></content>
+      <categories>
+        <category>论文</category>
+      </categories>
+      <tags>
+        <tag>访问控制</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++基础（一）</title>
+    <url>/2021/06/18/C++%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%80%EF%BC%89/</url>
+    <content><![CDATA[<hr>
+<p>该系列为C++基础知识简述汇总</p>
+<a id="more"></a>
+
+<h1 id="OOP"><a href="#OOP" class="headerlink" title="OOP"></a>OOP</h1><ol>
+<li>基类通常都应该定义一个虚析构函数，即使该函数不执行任何实际操作也是如此。</li>
+<li>当使用基类的引用（或指针）调用一个虚函数时将发生动态绑定。</li>
+<li>在派生类对象中含有与其基类对应的组成部分。</li>
+<li>每个类控制它自己的成员初始化过程。</li>
+<li>首先初始化基类的部分，然后按照声明的顺序依次初始化派生类的成员。</li>
+<li>每个类负责定义各自的接口。要想与类的对象交互必须使用该类的接口，即使这个对象是派生类的基类部分也是如此。因此，派生类对象不能直接初始化基类的成员。尽管从语法上来说可以在派生类构造函数体内给它的公有或受保护的基类成员赋值，但是最好不要这样做。和使用基类的其他场合一样，派生类应该遵循基类的接口，并且通过调用基类的构造函数来初始化那些从基类中继承而来的成员。</li>
+<li>表达式的静态类型在编译时总是已知的，它是变量声明时的类型或表达式生成的类型；动态类型则是变量或表达式表示的内存中的对象的类型。动态类型直到运行时才知。如果表达式既不是引用也不是指针，则它的动态类型与静态类型一致。</li>
+<li>不存在从基类向派生类的隐式转换；从派生类向基类的类型转换只对指针或引用类型有效。</li>
+<li>即使一个基类指针或引用绑定在一个派生类对象上，也不能执行从基类向派生类的转换。编译器在编译时无法确定某个特定的转换在运行时是否安全，这是因为编译器只能通过检查指针或引用的静态类型来推断该转换是否合法。如果在基类中含有一个或多个虚函数，可以使用<code>dynamic_cast</code>请求一个类型转换，该转换的安全检查将在运行时执行。同样，如果已知某个基类向派生类的转换是安全的，则可以使用<code>static_cast</code>来强制覆盖掉编译器的检查工作。</li>
+<li>派生类向基类的自动类型转换只对指针或引用类型有效，在派生类类型和基类类型之间不存在这样的转换。</li>
+<li>当用一个派生类对象为一个基类对象初始化或赋值时，只有该派生类对象中的基类部分会被拷贝、移动或赋值，它的派生类部分将被忽略掉。</li>
+<li>基类的引用或指针的静态类型可能与其动态类型不一致。</li>
+<li></li>
+</ol>
+]]></content>
+      <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++的常用标准IO函数</title>
+    <url>/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/</url>
+    <content><![CDATA[<hr>
+<h1 id="I-O-Stream的共通基础"><a href="#I-O-Stream的共通基础" class="headerlink" title="I/O Stream的共通基础"></a>I/O Stream的共通基础</h1><p>&emsp;&emsp;C++不直接处理输入输出，而是通过一组定义在标准库中的类型来处理IO。这些类型支持从设备中读取数据、向设备中写入数据的IO操作，设备可以是文件、控制台窗口等。还有一些类型允许内存IO，即从string读取数据，向string写入数据。</p>
+<h2 id="Stream对象"><a href="#Stream对象" class="headerlink" title="Stream对象"></a>Stream对象</h2><p>&emsp;&emsp;C++ I/O由stream完成。所谓stream就是一条数据流，字符序列在其中“川流不息”。按照面向对象原则，stream是由某个class定义出来具有特定性质的对象。输出动作被解释为“数据流进stream”，输入动作则是“数据流出stream”。另外，还有一些全局对象，是为标准I/O通道而定义的。</p>
+<a id="more"></a>
+
+<h2 id="Stream-Class"><a href="#Stream-Class" class="headerlink" title="Stream Class"></a>Stream Class</h2><p>&emsp;&emsp;正如有不同种类的I/O（例如输入、输出、文件访问），对应地也有不同的stream class，其中最重要的是：</p>
+<ul>
+<li><strong>Class istream</strong>定义input stream，用来读数据。</li>
+<li><strong>Class ostream</strong>定义output stream，用来写数据。</li>
+</ul>
+<p>&emsp;&emsp;两者分别具体实现自<code>template class basic_istream&lt;&gt;</code>或<code>basic_ostream&lt;&gt;</code>，以char作为字符类型。事实上整个IOStream程序库不依赖任何特定的字符类型，而是以一个template实参替代之。这样的参数化在string class也存在，并且也被运用于国际化议题。</p>
+<h2 id="全局的Stream对象"><a href="#全局的Stream对象" class="headerlink" title="全局的Stream对象"></a>全局的Stream对象</h2><p>&emsp;&emsp;IOStream程序库定义了数个类型为istream和ostream的全局对象，它们对应于标准I/O通道：</p>
+<ul>
+<li><strong>cin</strong>，隶属于istream，是供使用者输入用的标准输入通道，对应于C中的stdin。操作系统通常将它和键盘连接。</li>
+<li><strong>cout</strong>，隶属于ostream，是供使用者输出用的标准输出通道，对应于C中的stdout。操作系统通常将它和监视器（屏幕）连接。</li>
+<li><strong>cerr</strong>，隶属于ostream，是所有报错信息所使用的标准报错输出通道，对应于C中的stderr。操作系统通常也将它和监视器（屏幕）连接。默认情况下cerr无缓冲。</li>
+<li><strong>clog</strong>，隶属于ostream，是标准日志通道，C中没有对应物。默认情况下操作系统将它连接于cerr所连接的设备，但clog有缓冲。</li>
+</ul>
+<p>&emsp;&emsp;将“正常输出”和“报错信息输出”加以分离，可以让程序以不同的方式对待两种不同的输出。例如可以将正常输出重新定向至某个文件，而同时仍然令报错信息显示于控制台。当然，前提是操作系统必须支持标准I/O通道的重定向功能。这种分离方式起源于UNIX的I/O重定向概念。</p>
+<h1 id="IO类的相关类型信息"><a href="#IO类的相关类型信息" class="headerlink" title="IO类的相关类型信息"></a>IO类的相关类型信息</h1><h2 id="IO对象无拷贝或赋值"><a href="#IO对象无拷贝或赋值" class="headerlink" title="IO对象无拷贝或赋值"></a>IO对象无拷贝或赋值</h2><p>&emsp;&emsp;我们不能拷贝或对IO对象赋值：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">ofstream out1, out2;</span><br><span class="line">out1 = out2; <span class="comment">// error!</span></span><br><span class="line"><span class="function">ofstream <span class="title">print</span><span class="params">(ofstream)</span></span>; <span class="comment">// error!</span></span><br><span class="line">out2 = <span class="built_in">print</span>(out2); <span class="comment">// error!</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;由于不能拷贝IO对象，因此我们也不能将形参或返回类型设置为流类型。进行IO操作的函数通常以引用方式传递和返回流。读写一个IO对象会改变其状态，因此传递和返回的引用不能是const的。</p>
+<h2 id="操控器"><a href="#操控器" class="headerlink" title="操控器"></a>操控器</h2><p>&emsp;&emsp;在大部分输出语句的末尾，我们都会写一个如下的东西，称为操控器：<code>std::cout &lt;&lt; std::endl</code>。这种东西是“专门用来操控stream”的一种特殊对象，通常它只会改变“输入的解释方式”或“输入的格式化方式”，例如数值的进制dec（十进制）、hex（十六进制）、oct（八进制）。用于ostream的操控器并不会凭空制造出输出数据，用于istream的操控器也不会吃掉任何输入数据。但有些操控器会引发立即动作，例如用于“刷新（flush）output缓冲区”或“跳过input缓冲区空格”的那些操控器。</p>
+<p>&emsp;&emsp;操控器endl的意思是终止一行（end line）。它做两件事情：</p>
+<ol>
+<li>输出换行符，也就是‘\n’。</li>
+<li>刷新output缓冲区（也就是对于给定的stream，应用其<code>flush()</code>强制输出缓冲区内所有数据）。 </li>
+</ol>
+<p>&emsp;&emsp;IOStream程序库定义的一些最重要的操控器见下表：</p>
+<table>
+<thead>
+<tr>
+<th>操控器</th>
+<th>类</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="C-标准cin函数"><a href="#C-标准cin函数" class="headerlink" title="C++标准cin函数"></a>C++标准cin函数</h1><h2 id="标准输入缓冲区"><a href="#标准输入缓冲区" class="headerlink" title="标准输入缓冲区"></a>标准输入缓冲区</h2><p>&emsp;&emsp;在阐述C++的cin标准读取函数前，需要了解标准输入缓冲区。当一次键盘输入结束时（也就是按下Enter键，此时Enter的分隔符也会被存入输入缓冲区）会将输入的数据存入输入缓冲区，而输入语句则直接从输入缓冲区中读取数据。正因为是直接从缓冲区读取数据，所以有时候当缓冲区中有残留数据时，输入函数直接取得这些残留数据而不会请求键盘输入。</p>
+<h2 id="cin-gt-gt"><a href="#cin-gt-gt" class="headerlink" title="cin &gt;&gt;"></a>cin &gt;&gt;</h2><p>&emsp;&emsp;该操作符是根据后面变量的类型读取数据。</p>
+<p>&emsp;&emsp;输入结束条件：遇到Enter、Space、Tab分隔符。</p>
+<p>&emsp;&emsp;对结束字符的处理：丢弃缓冲区中使得输入结束的结束符（Enter、Space、Tab）。</p>
+<p>&emsp;&emsp;若缓冲区中的第一个字符是Enter、Sapce、Tab这些分隔符，cin&gt;&gt;会将其忽略并清除，然后继续读取下一个字符，若缓冲区为空，则继续等待。如果读取成功，字符后面的分隔符会残留在缓冲区内，本次cin&gt;&gt;调用不做处理，下次cin&gt;&gt;调用时会将其忽略并消除。</p>
+<h2 id="cin-get（数组名，长度，结束符）"><a href="#cin-get（数组名，长度，结束符）" class="headerlink" title="cin.get（数组名，长度，结束符）"></a>cin.get（数组名，长度，结束符）</h2><p>&emsp;&emsp;该函数有多种形式：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> <span class="built_in">cin</span>.<span class="built_in">get</span>();</span><br><span class="line">istream&amp; <span class="built_in">cin</span>.<span class="built_in">get</span>(<span class="keyword">char</span>&amp; c);</span><br><span class="line"><span class="function">istream&amp; <span class="title">get</span><span class="params">(<span class="keyword">char</span>* s, streamsize n)</span></span>;</span><br><span class="line"><span class="function">istream&amp; <span class="title">get</span><span class="params">(<span class="keyword">char</span>* s, streamsize n, <span class="keyword">char</span> delim)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;前两种用于读取一个字符，可以使用<code>c = cin.get()</code>或者<code>cin.get(c)</code>，这两种几乎没有差别。它们从输入缓冲区读取单个字符时不忽略分隔符，直接将其读取。此外，<code>cin.get()</code>的返回值是int值，成功返回读取字符的ASCII码值，遇到文件结束符时，返回EOF，即-1。Windows下命令行输入文件结束符的方式为Ctrl + z，Linux为Ctrl + d。由于<code>cin.get(c)</code>返回的是cin对象，因此可以支持链式操作，如<code>cin.get(b).get(c)</code>。</p>
+<p>&emsp;&emsp;后两</p>
+<h2 id="cin-getline（）"><a href="#cin-getline（）" class="headerlink" title="cin.getline（）"></a>cin.getline（）</h2><p>&emsp;&emsp;<code>cin.getline(数组名，长度，结束符)</code>大体与<code>cin.get(数组名，长度，结束符)</code>类似。区别在于：当<code>cin.get()</code>输入的字符串超过长度时，不会引起cin函数的错误，后面的cin操作会继续执行，只是直接从缓冲区中读取数据。但是当<code>cin.getline()</code>输入超过长度时，会引起cin函数的错误，后面的cin操作将不再执行。而且，<code>cin.getline()</code>与<code>cin.get()</code>不同，<code>cin.getline()</code>虽然也会将结束符读取出来，但不会将结束符残留在输入缓冲区中。</p>
+<p>&emsp;&emsp;</p>
+]]></content>
+      <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CMake命令之install</title>
+    <url>/2021/07/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Binstall/</url>
+    <content><![CDATA[<hr>
+<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line">install(TARGETS &lt;target&gt;... [...])</span><br><span class="line">install(IMPORTED_RUNTIME_ARTIFACTS &lt;target&gt;... [...])</span><br><span class="line">install(&#123;FILES | PROGRAMS&#125; &lt;file&gt;... [...])</span><br><span class="line">install(DIRECTORY &lt;dir&gt;... [...])</span><br><span class="line">install(SCRIPT &lt;file&gt; [...])</span><br><span class="line">install(CODE &lt;code&gt; [...])</span><br><span class="line">install(EXPORT &lt;export-name&gt; [...])</span><br><span class="line">install(RUNTIME_DEPENDENCY_SET &lt;set-name&gt; [...])</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>&emsp;&emsp;install指令可以用来构建一个项目的安装规则。亦可以通过调用<code>add_subdirectory()</code>命令来添加子目录中的安装规则，与父目录中的安装规则一同按照命令的声明顺序来运行该安装指令。该命令有多个标签，如上述所示，TARGETS、FILES等。以下为多个标签的通用选项：</p>
+<ul>
+<li><p><code>DESTINATION</code></p>
+<p>&emsp;&emsp;指定安装文件的路径。参数可以是相对路径也可以是绝对路径。</p>
+<p>&emsp;&emsp;当参数是相对路径时，该路径是相对于<code>CMAKE_INSTALL_PREFIX</code>变量的值，该变量在UNIX下默认为<code>/usr/local</code>，在Windows下默认为<code>c:/Program Files/${PROJECT_NAME}</code>。在UNIX上可以使用<code>DESTDIR</code>变量来重新定位整个安装路径。例如：<code>make DESTDIR=/home/arzhe install</code>，这会将<code>DESTDIR</code>的值添加至默认安装目录（在UNIX下，也就是<code>/usr/local</code>）的前缀，最终软件会被安装至<code>/home/arzhe/usr/local</code>目录下。<code>DESTDIR</code>不能被用于Windows中，因为Windows默认安装目录不能以其他目录作为前缀。</p>
+<p>&emsp;&emsp;当参数是绝对路径时（以<code>/</code>开头或者是驱动器号），安装路径就是该完整路径。</p>
+<p>&emsp;&emsp;由于绝对路径不支持cpack安装程序构建器，所以更推荐使用相对路径。此外，也没有必要添加前缀<code>CMAKE_INSTALL_PREFIX</code>变量来声明一个绝对路径，该前缀在使用相对路径时，会被自动添加至该路径。</p>
+</li>
+<li><p><code>PERMISSIONS</code></p>
+<p>&emsp;&emsp;为安装文件指定权限。一般为以下参数：</p>
+<table>
+<thead>
+<tr>
+<th>READ</th>
+<th>WRITE</th>
+<th>EXECUTE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>OWNER_READ</code></td>
+<td><code>OWNER_WRITE</code></td>
+<td><code>OWNER_EXECUTE</code></td>
+</tr>
+<tr>
+<td><code>GROUP_READ</code></td>
+<td><code>PROUP_WRITE</code></td>
+<td><code>GROUP_EXECUTE</code></td>
+</tr>
+<tr>
+<td><code>WORLD_READ</code></td>
+<td><code>WORLD_WRITE</code></td>
+<td><code>WORLD_EXECUTE</code></td>
+</tr>
+</tbody></table>
+</li>
+<li><p><code>CONFIGURATIONS</code></p>
+<p>&emsp;&emsp;指定应用程序的安装配置（例如Debug，Release等）。例如：</p>
+<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line">install(TARGETS target</span><br><span class="line">        CONFIGURATIONS Debug</span><br><span class="line">        RUNTIME DESTINATION Debug/bin)</span><br><span class="line">install(TARGETS target</span><br><span class="line">        CONFIGURATIONS Release</span><br><span class="line">        RUNTIME DESTINATION Release/bin)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>COMPONENT</code></p>
+<p>&emsp;&emsp;指定与安装规则相关联的安装组件名称，例如“runtime”或“development”。在特定组件的安装过程中，只会执行与特定组件相关联的安装规则。在整个安装期间，所有的组件都会被安装，除非被标记为<code>EXCLUDE_FROM_ALL</code>。如果没有提供<code>COMPONENT</code>标签，那么一个默认组件“Unspecified”将会被创建。</p>
+</li>
+<li><p><code>EXCLUDE_FROM_ALL</code></p>
+<p>&emsp;&emsp;将该文件排除在完整安装之外，并且只作为特定组件的一部分来安装。</p>
+</li>
+<li><p><code>RENAME</code></p>
+<p>&emsp;&emsp;为安装文件重命名（可能与原文件名不同），只有当该命令安装了单个文件时，才允许重命名。</p>
+</li>
+<li><p><code>OPTIONAL</code></p>
+<p>&emsp;&emsp;如果将被安装的文件不存在，那么将指定该操作不是一个错误。</p>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>cmake</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CMake命令之target_compile_definitions</title>
+    <url>/2021/06/30/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Btarget_compile_definitions/</url>
+    <content><![CDATA[<hr>
+<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line">target_compile_definitions(&lt;target&gt;</span><br><span class="line">  &lt;INTERFACE&gt;|&lt;PUBLIC&gt;|&lt;PRIVATE&gt; [items1...]</span><br><span class="line">  [&lt;INTERFACE&gt;|&lt;PUBLIC&gt;|PRIVATE&gt; [items2...] ...])</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;该命令会为给定的<code>&lt;target&gt;</code>添加编译定义项。其中<code>&lt;INTERFACE&gt;|&lt;PUBLIC&gt;|&lt;PRIVATE&gt;</code>指定了<code>[items...]</code>可以传播的域。</p>
+<a id="more"></a>
+
+<p>&emsp;&emsp;<code>&lt;target&gt;</code>必须是由<code>add_excutable()</code>或<code>add_library()</code>命令创建而来的，并且不能是<code>Alias target</code>。<code>PRIVATE</code>和<code>PUBLIC</code>选项会填充<code>&lt;target&gt;</code>的<code>COMPILE_DEFINITIONS</code>变量。<code>PUBLIC</code>和<code>INTERFACE</code>选项填充<code>&lt;target&gt;</code>的<code>INTERFACE_COMPILE_DEFINITIONS</code>变量。</p>
+<p>&emsp;&emsp;以-D开头的item中的-D会被移除，任何空的item也会被移除。例如，以下几个命令都是等价的：</p>
+<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line">target_compile_definition(foo PUBLIC FOO)</span><br><span class="line">target_compile_definition(foo PUBLIC -DFOO)   <span class="comment"># -D removed</span></span><br><span class="line">target_compile_definition(foo PUBLIC <span class="string">""</span> FOO)  <span class="comment"># "" ignored</span></span><br><span class="line">target_compile_definition(foo PUBLIC -D FOO)  <span class="comment"># -D becomes "", then ignored</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;编译定义项也可以有值：</p>
+<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line">target_compile_definition(foo PUBLIC FOO=1)</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;需要注意的是，很多编译器会将<code>-DFOO</code>与<code>-DFOO=1</code>划上等号，也就是说默认“没有值的编译定义项”的值为1，然而也有其他的一些编译器并不会做出这样的规定。所以最好总是给编译定义项添加值。</p>
+]]></content>
+      <tags>
+        <tag>cmake</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CMake简述</title>
+    <url>/2021/07/01/CMake%E7%AE%80%E8%BF%B0/</url>
+    <content><![CDATA[<h1 id="cmake是什么"><a href="#cmake是什么" class="headerlink" title="cmake是什么"></a>cmake是什么</h1><p>&emsp;&emsp;cmake是跨平台系统构建器CMake的命令行接口工具。若要使用CMake来构建一个项目，生成一个项目构建系统，可以使用cmake来构建项目、安装项目，或者直接运行相应的构建工具（如make）。</p>
+<h1 id="CMake的构建系统（Buildsystems）"><a href="#CMake的构建系统（Buildsystems）" class="headerlink" title="CMake的构建系统（Buildsystems）"></a>CMake的构建系统（Buildsystems）</h1><p>&emsp;&emsp;<strong>构建系统</strong>描述了如何使用构建工具将源代码构建成可执行文件和相关库，这个过程是自动化的。例如，<strong>构建系统</strong>可以是与命令行make工具一起使用的Makefile，也可以是集成开发环境（IDE）的项目文件。为了避免维护多个这样的<strong>构建系统</strong>，一个项目可以使用CMake语言编写的文件来抽象地定义它的<strong>构建系统</strong>。在这些文件中，CMake通过一个称为生成器（generator）的后端在本地为每个用户生成一个首选的<strong>构建系统</strong>。</p>
+<p>&emsp;&emsp;为了生成CMake的构建系统，必须遵循以下几点：</p>
+<a id="more"></a>
+
+<h2 id="Source-Tree"><a href="#Source-Tree" class="headerlink" title="Source Tree"></a>Source Tree</h2><p>&emsp;&emsp;顶级目录包含项目的源文件，该项目使用CMake语言编写的文件来指定其<strong>构建系统</strong>，从顶级文件CMakeLists.txt开始一步步构建出其<strong>构建系统</strong>。这些文件定义了需要构建的目标以及它们的依赖项。</p>
+<h2 id="Build-Tree"><a href="#Build-Tree" class="headerlink" title="Build Tree"></a>Build Tree</h2><p>&emsp;&emsp;顶级目录用于存储<strong>构建系统</strong>文件和构建的输出文件（如可执行文件和库）。CMake编写一个CMakeCache.txt文件来指定该文件所在的目录为<strong>Build Tree</strong>，并且将诸如<strong>构建系统</strong>的相关配置项存储于其中。</p>
+<p>&emsp;&emsp;为了保持源码树（source tree）的“整洁”，可以使用外部编译，也就是使用<strong>Build Tree</strong>来作为编译的工作目录，这会将所有的构建输出文件置于该目录中。虽然内部编译也支持，但是为了源码树的“整洁”，不建议这样做。</p>
+<h2 id="Generator"><a href="#Generator" class="headerlink" title="Generator"></a>Generator</h2><p>&emsp;&emsp;构建器会选择一种<strong>构建系统</strong>来生成。可以使用<code>cmake --help</code>来查看本地支持的一些构建器：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-07-02%20%E4%B8%8A%E5%8D%888.30.28.png" alt="generator"></p>
+<p>可以使用<code>-G</code>来指定一个构建器，或者默认使用CMake为当前平台选择的一个构建器。当使用<strong>命令行构建工具构建器</strong>时，CMake会默认编译工具链所需的环境已经在shell中配置完毕。当使用<strong>IDE构建工具构建器</strong>时，则不需要提供特定的环境。</p>
+<h1 id="生成一个项目的构建系统"><a href="#生成一个项目的构建系统" class="headerlink" title="生成一个项目的构建系统"></a>生成一个项目的构建系统</h1><p>&emsp;&emsp;使用下列命令行之一运行CMake来指定源码树和构建树，并生成一个<strong>构建系统</strong>：</p>
+<ul>
+<li><p><code>cmake [&lt;option&gt;] &lt;path-to-source&gt;</code></p>
+<p>使用当前工作目录作为构建树，<code>&lt;path-to-source&gt;</code>作为源码树。指定的路径可以是绝对路径，也可以是当前工作目录的相对路径。源码树必须包含一个<code>CMakeLists.txt</code>文件，并且不能包含<code>CMakeCache.txt</code>文件，因为后者会将其所在目录标识为构建树。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mkdir build; cd build</span><br><span class="line">cmake ../src</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>cmake [&lt;option&gt;] &lt;path-to-existing-build&gt;</code></p>
+<p>使用<code>&lt;path-to-existion-build&gt;</code>作为构建树，并且从它的<code>CMakeCache.txt</code>文件中加载到源码树的路径，该文件必须已经由之前的CMake运行生成。指定的路径可以是绝对路径，也可以是当前工作目录的相对路径。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd build</span><br><span class="line">cmake .</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>cmake [&lt;option&gt;] -S &lt;path-to-source&gt; -B &lt;path-to-build&gt;</code></p>
+<p>使用<code>&lt;path-to-build&gt;</code>作为构建树，<code>&lt;path-to-source&gt;</code>作为源码树。指定的路径可以是绝对路径，也可以是当前工作目录的相对路径。源码树必须包含一个<code>CMakeLists.txt</code>文件。构建树如果不存在，将会被自动创建出来。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cmake -S src -B build</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>构建系统生成后，可以使用相应的本地构建工具来构建项目。比如，在使用了<code>Unix Makefiles</code>构建器后，可以直接使用make命令来完成项目的构建。或者使用<code>cmake --build</code>来调用相应的构建器来完成项目的构建。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>Cmake的install操作</title>
+    <url>/2021/07/04/Cmake%E7%9A%84install%E6%93%8D%E4%BD%9C/</url>
+    <content><![CDATA[<hr>
+<h1 id="如何使用cmake来执行install操作"><a href="#如何使用cmake来执行install操作" class="headerlink" title="如何使用cmake来执行install操作"></a>如何使用cmake来执行install操作</h1><p>&emsp;&emsp;首先假定我们有以下目录树以及相关文件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ProjectTopDir</span><br><span class="line">---&gt;CMakeLists.txt</span><br><span class="line">---&gt;Util</span><br><span class="line">    ---&gt;CMakeLists.txt</span><br><span class="line">    ---&gt;util.h</span><br><span class="line">    ---&gt;u1.cpp</span><br><span class="line">    ---&gt;u2.cpp</span><br><span class="line">---&gt;build</span><br><span class="line">---&gt;src</span><br><span class="line">    ---&gt;tutorial.cpp</span><br></pre></td></tr></table></figure>
+
+<p>其中源码树为ProjectTopDir，构建树为build，所有中间文件以及最终目标将存放在build树中。我们额外定义了一个Util库，存放着相关的工具库，CMakeLists.txt大致为如下所示：</p>
+<a id="more"></a>
+
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">add_library</span>(Util u1.cpp u2.cpp)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_include_directories</span>(Util</span><br><span class="line">    INTERFACE</span><br><span class="line">        <span class="variable">$&#123;CMAKE_CURRNET_SOURCE_DIR&#125;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">install</span>(<span class="keyword">TARGET</span> Util DESTINATION lib)</span><br><span class="line"><span class="keyword">install</span>(FILES util.h DESTINATION <span class="keyword">include</span>)</span><br></pre></td></tr></table></figure>
+
+<p>该CMakeLists.txt定义了一个静态库，并且默认安装在/usr/local目录下（UNIX）。当然用户可以通过在执行<code>cmake --install .</code>命令时添加一个额外参数<code>--prefix &quot;pre-to-installDir-path&quot;</code>来指定一个安装目录的前缀，例如当执行<code>cmake --install . --prefix &quot;/usr/localInstall&quot;</code>时，该静态库的会被安装在<code>/usr/localInstall/lib</code>中，头文件则会被安装在<code>/usr/localInstall/include</code>中。</p>
+<p>&emsp;&emsp;在顶层的CMakeLists.txt文件中，大致如下：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.1</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">project</span>(Tutorial VERSION <span class="number">1.0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_subdirectory</span>(Util)</span><br><span class="line"></span><br><span class="line"><span class="keyword">list</span>(APPEND EXTRA_LIBS Util)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_executable</span>(<span class="variable">$&#123;PROJECT_NAME&#125;</span> src/tutorial.cpp)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_link_libraries</span>(<span class="variable">$&#123;PROJECT_NAME&#125;</span></span><br><span class="line">    PUBLIC</span><br><span class="line">        <span class="variable">$&#123;EXTRA_LIBS&#125;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">install</span>(<span class="keyword">TARGET</span> <span class="variable">$&#123;PROJECT_NAME&#125;</span> DESTINATION bin)</span><br></pre></td></tr></table></figure>
+
+<p>同样的，该可执行文件将会被安装在<code>/usr/localInstall/bin</code>中。</p>
+<p>&emsp;&emsp;需要注意的是，在执行<code>cmake --install . --prefix &quot;...&quot;</code>之前，需要先构建出该项目的构建系统，以及使用构建器来完成项目的构建。例如在顶级目录中执行<code>cmake . -B build</code>命令，然后进入build目录下，执行<code>make</code>命令，至此，项目构建完毕。</p>
+<p>&emsp;&emsp;关于cmake更为详细的install指令收录在</p>
+]]></content>
+      <tags>
+        <tag>cmake</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>关于c与c++中空指针的细节</title>
+    <url>/2021/08/19/%E5%85%B3%E4%BA%8Ec%E4%B8%8Ec++%E4%B8%AD%E7%A9%BA%E6%8C%87%E9%92%88%E7%9A%84%E7%BB%86%E8%8A%82/</url>
+    <content><![CDATA[<hr>
+<h1 id="NULL，’-0’，”0”，”-0”"><a href="#NULL，’-0’，”0”，”-0”" class="headerlink" title="NULL，’\0’，”0”，”\0”"></a>NULL，’\0’，”0”，”\0”</h1><p>&emsp;&emsp;本质来说，NULL，0，’\0’都是一样的，都为0值。虽然它们的值都是0，但是含义却不尽相同。</p>
+<h2 id="NULL"><a href="#NULL" class="headerlink" title="NULL"></a>NULL</h2><p>&emsp;&emsp;虽然值是0，但是它的含义却不一样，或者可以这样说，它的类型不一样。NULL是指针类型，不过它是空指针，即值为0。</p>
+<a id="more"></a>
+
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// null.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%p\n"</span>, a);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们将其进行编译：</p>
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">$ gcc -o null null.c</span><br></pre></td></tr></table></figure>
+
+<p>会出现以下错误：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-08-19%20%E4%B8%8A%E5%8D%8811.55.19.png" alt="编译结果"></p>
+<p>它给了我们一个警告，提示尝试将指针转换为整数。这也验证了我们前面的说法。</p>
+<!--more-->
+
+<p>&emsp;&emsp;实际上NULL通常是如下定义：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NULL (void*)0</span></span><br></pre></td></tr></table></figure>
+
+<p>所以，如果要给一个指针类型初始化，那么你给它一个NULL，使得能够明显的看到这是一个指针。当然，在C++中，它的定义变成如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NULL 0</span></span><br></pre></td></tr></table></figure>
+
+<p>所以在C++中，更推荐使用nullptr，而不是NULL。</p>
+<h2 id="‘-0’"><a href="#‘-0’" class="headerlink" title="‘\0’"></a>‘\0’</h2><p>&emsp;&emsp;\是转义符号，’\0’用单引号包含起来，再加上转义，实际上也就是0了，只不过它代表的是字符。如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// null.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> a = <span class="string">'\0'</span>;</span><br><span class="line">    <span class="keyword">char</span> b = <span class="string">'0'</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"a = %d, b = %d\n"</span>, a, b);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译运行结果就是如下了：</p>
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">$ gcc -o null null.c</span><br><span class="line">./null</span><br><span class="line">a = <span class="number">0</span>, b = <span class="number">48</span></span><br></pre></td></tr></table></figure>
+
+<p>我们最常见到的就是它作为字符串的结束符。所以经常会看到下面这样的写法：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">char</span> str[<span class="number">16</span>];</span><br><span class="line">...</span><br><span class="line">str[<span class="number">15</span>] = <span class="string">'\0'</span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>printf</code>以及<code>strcmp</code>都是遇到’\0’结束。</p>
+<h2 id="“0”"><a href="#“0”" class="headerlink" title="“0”"></a>“0”</h2><p>&emsp;&emsp;用双引号包括起来的0是字符串，结尾处有一个我们看不到的’\0’。</p>
+<h2 id="“-0”"><a href="#“-0”" class="headerlink" title="“\0”"></a>“\0”</h2><p>&emsp;&emsp;这也是字符串，只不过是两个空字符。使用strlen计算字符串长度为0。</p>
+<h1 id="建议在C-中使用nullptr而不是NULL"><a href="#建议在C-中使用nullptr而不是NULL" class="headerlink" title="建议在C++中使用nullptr而不是NULL"></a>建议在C++中使用nullptr而不是NULL</h1><p>&emsp;&emsp;在stddef.h可以看到如下代码：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">undef</span> NULL</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(__cplusplus)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NULL 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NULL ((void *)0)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>也就是说，在C++中，NULL不过也是0罢了，把它当作空指针只是一个无可奈何的选择。那么为什么在C++和C中不一样呢？因为C++中不能将<code>void*</code>类型的指针隐式转换成其他指针类型。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> i1 = <span class="literal">NULL</span>; <span class="comment">// ok</span></span><br><span class="line"><span class="keyword">int</span> i2 = <span class="literal">nullptr</span>; <span class="comment">// nope</span></span><br><span class="line"><span class="keyword">int</span>* p1 = <span class="literal">NULL</span>; <span class="comment">// ok</span></span><br><span class="line"><span class="keyword">int</span>* p2 = <span class="literal">nullptr</span>; <span class="comment">// ok</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="为什么使用nullptr"><a href="#为什么使用nullptr" class="headerlink" title="为什么使用nullptr"></a>为什么使用nullptr</h2><p>&emsp;&emsp;nullptr并非整数类型，甚至不是指针类型，但是能转换成任意指针类型。nullptr的实际类型是std::nullptr_t。</p>
+<p>&emsp;&emsp;为什么作为指针的语义，我们应该使用nullptr，而不是NULL。考虑如下代码：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// test.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">(<span class="keyword">void</span>* p)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p is pointer"</span> &lt;&lt; p &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"num is int"</span> &lt;&lt; num &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    test(<span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将上述代码编译后，编译会报错，提示二义性，按照“重载函数规则”，两个都可以匹配，因此最终报错。如果我们使用nullptr却不会报错。</p>
+<p>&emsp;&emsp;除此之外，在C++模版中它还有更好的表现，考虑如下代码：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// test.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> F, <span class="keyword">typename</span> P&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">(F f, P p)</span> </span>&#123;</span><br><span class="line">    f(p);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">(<span class="keyword">int</span>* i)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"foo"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    test(foo, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将上述代码进行编译后：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-08-19%20%E4%B8%8B%E5%8D%887.56.32.png" alt="编译结果"></p>
+<p>编译报错了，很显然NULL被推导为long int，而不是空指针，因而导致函数类型不匹配而报错。但是如果我们使用nullptr就不会有上述问题。</p>
+<p>&emsp;&emsp;最后，指针被定义空指针时，该指针指向的地址是什么呢？空指针在C／C++中占有特殊的地址，通常它是用来判断一个指针的有效性的。空指针一般定义为0。现代操作系统都会保留从0开始的一块内存，至于这块内存有多大，视不同的操作而定。一旦程序试图访问这块内存，系统就会触发一个异常／信号。操作系统为什么要保留一块内存，而不是一个字节的内存呢？这是因为内存管理都是按页进行管理的，根本就无法单纯保留一个字节，而至少保留一个页面。</p>
+]]></content>
+      <categories>
+        <category>杂记</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CAEP文档</title>
+    <url>/2021/06/20/CAEP%E6%96%87%E6%A1%A3/</url>
+    <content><![CDATA[<hr>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>&emsp;&emsp;CAEP使用三个部分来构成策略权限决策模型：Applicability（适应性）、Condition（条件）和Effect（决策结果）。分别2个模块：PRM（策略请求模块）和PEM（策略实施模块）。PRM作为标准规范为用户与适配器（PEM）搭建桥梁，针对不同的策略语言，使用适配器来满足标准规范PRM。使用2个文件来分别描述这2个模块：prm.ini和pem.csv，亦或是其他文件（例如，db）。因此可以将适配器看作是“中间件”，CAEP默认其为csv读取库。prm.ini存储的是我们的访问控制模型，pem.csv存储的是我们具体的用户权限配置。</p>
+<p>&emsp;&emsp;权限的本质就是“某个用户，对某个资源，是否可以进行某些操作”，CAEP将此本质精练化，基本上只需要生成一个结构“Can”，构造这个结构的时候加载prm.ini和pem.csv。</p>
+<a id="more"></a>
+
+<h1 id="prm-ini与pem-csv编写规则"><a href="#prm-ini与pem-csv编写规则" class="headerlink" title="prm.ini与pem.csv编写规则"></a>prm.ini与pem.csv编写规则</h1><p>&emsp;&emsp;由于CAEP支持ACL与RBAC等访问控制模型，因此有针对不同模型等编写规范。</p>
+<h2 id="ACL"><a href="#ACL" class="headerlink" title="ACL"></a>ACL</h2><h3 id="prm-ini"><a href="#prm-ini" class="headerlink" title="prm.ini"></a>prm.ini</h3><p>&emsp;&emsp;示例如下：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="comment"># prm.ini</span></span><br><span class="line"><span class="section">[request_applicability]</span></span><br><span class="line"><span class="attr">q</span> = sub, res, act</span><br><span class="line"></span><br><span class="line"><span class="section">[policy_applicability]</span></span><br><span class="line"><span class="attr">p</span> = sub, res, act</span><br><span class="line"></span><br><span class="line"><span class="section">[condition]</span></span><br><span class="line"><span class="attr">c</span> = q.sub == p.sub &amp;&amp; q.res == p.res &amp;&amp; q.act == p.act</span><br><span class="line"></span><br><span class="line"><span class="section">[effect]</span></span><br><span class="line"><span class="attr">e</span> = permit_override</span><br><span class="line"><span class="comment"># e = deny_override</span></span><br><span class="line"><span class="comment"># e = first_applicable</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如上所示，prm.ini支持#作为注释行标识符，每行为一个单独策略解释。对于ACL模型，prm.ini必须有4个区域：request_applicability、policy_applicability、condition和effect。方括号内的词汇称为section，区域内等号左边称为key，右边称为value。</p>
+<p>&emsp;&emsp;applicability区域内的表达式将分别匹配用户请求的格式与策略的格式，如果用户请求格式与request_applicability区域格式匹配，则将进行下一步动作，否则，返回一个错误。例如，用户发出的一个请求格式：<code>Alice, file1, read</code>适应于<code>sub, res, act</code>，则匹配成功。此后，CAEP将按policy_applicability区域的格式检索pem.csv文件中的策略语句，如果检索成功，则将策略存储在CAEP的存储区<code>Model</code>中以便与先前匹配成功的用户请求语句共同进行条件运算。否则，返回一个警告：提示用户没有编写相应的策略语句。</p>
+<p>&emsp;&emsp;如果applicability区域都成功匹配，并且CAEP的策略存储区<code>Model</code>非空，则CAEP将按照condition区域内的组合算法来计算出这些策略语句与用户请求语句的计算结果，其中计算结果有两种：permit和deny。</p>
+<p>&emsp;&emsp;如果上述过程顺利进行，则effect区域将进行最后的授权决策评估，该区域也是对“策略冲突”问题的一个解决方案。分为“允许优先”（permit_override）、“拒绝优先”（deny_override）和“顺序评估”（first_applicable）3种策略评估算法。顾名思义，“允许优先”算法中只要有一个策略语句匹配结果为true，则最后的决策评估为permit，否则为deny；“拒绝优先”算法中只要有一个策略语句匹配结果为false，则最后的决策评估为deny，否则为permit；“顺序评估”算法中策略语句匹配的顺序（也就是策略语句的编写顺序）将决定最后的决策评估结果，第一个匹配的策略语句如果为true，结果为permit，否则为deny。</p>
+<h3 id="pem-csv"><a href="#pem-csv" class="headerlink" title="pem.csv"></a>pem.csv</h3><p>&emsp;&emsp;示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">p, Alice, file1, read</span><br><span class="line">p, Bob, file2, read</span><br><span class="line">p, Charlse, file*, read</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;该策略文件中拥有3个策略语句，每条策略语句需要以prm.ini文件中的key为开头，然后依次定义以逗号分隔开来的value中的词汇。而且对于res词汇，支持正则表达式。对于ACL，pem.csv文件只需要定义p的key值语句。</p>
+<h2 id="RBAC"><a href="#RBAC" class="headerlink" title="RBAC"></a>RBAC</h2><h3 id="prm-ini-1"><a href="#prm-ini-1" class="headerlink" title="prm.ini"></a>prm.ini</h3><p>&emsp;&emsp;示例如下：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="comment">#prm.ini</span></span><br><span class="line"><span class="section">[request_applicability]</span></span><br><span class="line"><span class="attr">q</span> = sub, res, act</span><br><span class="line"><span class="comment"># q = sub, res, act, domain</span></span><br><span class="line"></span><br><span class="line"><span class="section">[policy_applicability]</span></span><br><span class="line"><span class="attr">p</span> = sub, res, act</span><br><span class="line"><span class="comment"># p = sub, res, act, domain</span></span><br><span class="line"></span><br><span class="line"><span class="section">[role_applicability]</span></span><br><span class="line"><span class="attr">r</span> = ~, ~</span><br><span class="line"><span class="comment"># r = ~, ~, ~</span></span><br><span class="line"></span><br><span class="line"><span class="section">[condition]</span></span><br><span class="line"><span class="attr">c</span> = r(q.sub, p.sub) &amp;&amp; q.res == p.res &amp;&amp; q.act == p.act</span><br><span class="line"></span><br><span class="line"><span class="section">[effect]</span></span><br><span class="line"><span class="attr">e</span> = permit_override</span><br><span class="line"><span class="comment"># e = deny_override</span></span><br><span class="line"><span class="comment"># e = first_applicable</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;关于RBAC模型的编写范例与ACL大致一样，RBAC多了一个role_applicability区域，该区域规定了角色的编写规范，两个有继承关系的角色以逗号分隔开来，CAEP将在pem.csv文件中检索与其相匹配的角色继承语句，第一个为子角色，第二个为父角色。当有3个“～”标识符时，则第三个为域，表明角色的继承关系只在某域中生效。</p>
+<h3 id="pem-csv-1"><a href="#pem-csv-1" class="headerlink" title="pem.csv"></a>pem.csv</h3><p>&emsp;&emsp;示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">p, Alice, file1, read</span><br><span class="line">p, Bob, file2, read</span><br><span class="line">p, Charlse, file*, read</span><br><span class="line">p, group1, file*, read&#x2F;write</span><br><span class="line"></span><br><span class="line">r, Alice, group1</span><br><span class="line">r, Bob, group1</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;在RBAC模型中，除了定义p的key策略语句，还需要定义r的key策略语句。其他的规范均与ACL一样。</p>
+<h1 id="解析prm-ini文件的库"><a href="#解析prm-ini文件的库" class="headerlink" title="解析prm.ini文件的库"></a>解析prm.ini文件的库</h1><p>&emsp;&emsp;在CAEP中有config，rbac，effect和model一共4个库与解析prm.ini文件有关。 </p>
+<h2 id="config库"><a href="#config库" class="headerlink" title="config库"></a>config库</h2><p>&emsp;&emsp;该库定义了一个<code>config_interface.h</code>的头文件，用来提供接口给用户，用户可以通过该接口来实现对prm.ini文件的读取操作。CAEP内置了prm.ini文件的读取操作：<code>config.h</code>，该接口提供了相应的函数来将prm.ini文件内的策略语句存储于CAEP配置存储区中，该存储区使用红黑树结构进行内存分配，将prm.ini中的每一个“区域”转换为三元组：section、key和value。并将其存储于<code>unordered_map&lt;string, unordered_map&lt;string, string&gt;&gt; data</code>中。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>返回值</th>
+<th>作用</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ParseFile(string f_name)</code></td>
+<td><code>void</code></td>
+<td>从传入参数的对应文件名的文件中解析“区域”</td>
+<td><code>private</code></td>
+</tr>
+<tr>
+<td><code>ParseBuffer(istream* buffer)</code></td>
+<td><code>void</code></td>
+<td>从传入参数的输入流中解析“区域”</td>
+<td><code>private</code></td>
+</tr>
+<tr>
+<td><code>AddConfigData(string section, string key, string value)</code></td>
+<td><code>bool</code></td>
+<td>将传入参数的三元组添加至存储区</td>
+<td><code>private</code></td>
+</tr>
+<tr>
+<td><code>NewConfig(string conf_name)</code></td>
+<td><code>shared_ptr&lt;Config&gt;</code></td>
+<td>返回一个配置器，用户通过操作该配置器来对三元组数据进行处理</td>
+<td><code>public static</code></td>
+</tr>
+<tr>
+<td><code>NewConfigFromText(string text)</code></td>
+<td><code>shared_ptr&lt;Config&gt;</code></td>
+<td>同上</td>
+<td><code>public static</code></td>
+</tr>
+<tr>
+<td><code>GetString(string key)</code></td>
+<td><code>string</code></td>
+<td>传入的参数为section-key的一种字符串形式（以“::”分隔开来），返回对应section-key的字符串形式的value值</td>
+<td><code>public</code></td>
+</tr>
+<tr>
+<td><code>GetStrings(string key)</code></td>
+<td><code>vector&lt;string&gt;</code></td>
+<td>同上，返回对应的section-key的以逗号分隔的vector形式的value值</td>
+<td><code>public</code></td>
+</tr>
+</tbody></table>
+<h2 id="rbac库"><a href="#rbac库" class="headerlink" title="rbac库"></a>rbac库</h2><p>&emsp;&emsp;该库为RBAC模型服务，该库定义了<code>Role</code>类，该库提供对角色的各类操作，并使用链式结构<code>vector&lt;Role*&gt; roles</code>来存储抽象数据“角色”，在CAEP中角色与用户都是以字符串形式存储的，因此角色与用户并没有严格的区分，但是用户可以在角色或用户前加上前缀来区分它们，例如：角色Apple与用户Apple，使用role::Apple以及user::Apple来区分。但是在CAEP中，将用户与角色统称为“角色”。Role的继承子角色（或用户）存储在vector容器中。RBAC库提供<code>role_manager.h</code>接口以实现角色管理功能，CAEP内置<code>default_role_manager.h</code>来进行角色的管理。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>返回值</th>
+<th>作用</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NewRole(string name)</code></td>
+<td><code>Role*</code></td>
+<td>以传入的参数name创建一个角色</td>
+<td><code>public static</code></td>
+</tr>
+<tr>
+<td><code>AddRole(Role* role)</code></td>
+<td><code>void</code></td>
+<td>以传入的参数role添加一个继承子角色（或用户）</td>
+<td><code>public</code></td>
+</tr>
+<tr>
+<td><code>DeleteRole(Role* role)</code></td>
+<td><code>void</code></td>
+<td>以传入的参数role删除该继承子角色</td>
+<td><code>public</code></td>
+</tr>
+<tr>
+<td><code>HasRole(string name, int hierarchy)</code></td>
+<td><code>bool</code></td>
+<td>判定在hierarchy继承层级下，是否有某角色</td>
+<td><code>hierarchy</code>为RBAC的继承体系的继承层次，<code>public</code></td>
+</tr>
+<tr>
+<td><code>HasDirectRole(string name)</code></td>
+<td><code>bool</code></td>
+<td>判定RBAC体系的某角色是否有某直接继承其的子角色（一般用于判定某角色是否有某用户，相当于<code>hierarchy</code>为1的<code>HasRole</code>函数）</td>
+<td>一般用于判定角色是否拥有某用户，<code>public</code></td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;<code>default_role_manager</code>类实现了<code>role_manager</code>的接口，提供了<code>unordered_map&lt;string, Role*&gt;</code>类型的数据来管理CAEP所有的角色以及用户，该数据只负责角色的继承关系以及用户的依存信息的存储。</p>
+<h1 id="caep安装以及使用"><a href="#caep安装以及使用" class="headerlink" title="caep安装以及使用"></a>caep安装以及使用</h1><h2 id="caep的安装下载（UNIX）"><a href="#caep的安装下载（UNIX）" class="headerlink" title="caep的安装下载（UNIX）"></a>caep的安装下载（UNIX）</h2><p>&emsp;&emsp;在安装目录下的命令行终端输入如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;arzhe&#x2F;caep.git</span><br></pre></td></tr></table></figure>
+
+<p>建议使用out-of-source编译，创建build目录，在build目录下执行以下命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cmake ..</span><br><span class="line">cmake --build .</span><br><span class="line">cmake --install .</span><br></pre></td></tr></table></figure>
+
+<p>至此caep安装完毕，然后将caep的安装目录添加至环境路径，就可以在你的项目中使用它了。caep的默认安装路径为<code>/usr/local/include</code>以及<code>/usr/local/lib</code>，分别为头文件以及库的安装路径。</p>
+<h2 id="caep的使用"><a href="#caep的使用" class="headerlink" title="caep的使用"></a>caep的使用</h2><p>&emsp;&emsp;在按上述流程安装完毕caep后，在你的项目中添加：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;caep/caep.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>之后便可以使用ceap提供的便捷框架来进行项目的开发。在之后项目的编译中添加如下：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="keyword">on</span>)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"></span><br><span class="line">target_include_library(<span class="variable">$&#123;PROJECT_NAME&#125;</span> caep)</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+]]></content>
       <tags>
         <tag>CML</tag>
       </tags>

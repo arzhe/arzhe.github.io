@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="概述&amp;emsp;&amp;emsp;CAEP使用三个部分来构成策略权限决策模型：Applicability（适应性）、Condition（条件）和Effect（决策结果）。分别2个模块：PRM（策略请求模块）和PEM（策略实施模块）。PRM作为标准规范为用户与适配器（PEM）搭建桥梁，针对不同的策略语言，使用适配器来满足标准规范PRM。使用2个文件来分别描述这2个模块：prm.ini和pem.csv，亦">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CAEP文档">
+<meta property="og:url" content="http://yoursite.com/2021/06/20/CAEP%E6%96%87%E6%A1%A3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="概述&amp;emsp;&amp;emsp;CAEP使用三个部分来构成策略权限决策模型：Applicability（适应性）、Condition（条件）和Effect（决策结果）。分别2个模块：PRM（策略请求模块）和PEM（策略实施模块）。PRM作为标准规范为用户与适配器（PEM）搭建桥梁，针对不同的策略语言，使用适配器来满足标准规范PRM。使用2个文件来分别描述这2个模块：prm.ini和pem.csv，亦">
+<meta property="article:published_time" content="2021-06-20T00:42:00.000Z">
+<meta property="article:modified_time" content="2021-09-20T04:12:44.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="CML">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2021/06/20/CAEP%E6%96%87%E6%A1%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>CAEP文档 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/06/20/CAEP%E6%96%87%E6%A1%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CAEP文档
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-06-20 08:42:00" itemprop="dateCreated datePublished" datetime="2021-06-20T08:42:00+08:00">2021-06-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-09-20 12:12:44" itemprop="dateModified" datetime="2021-09-20T12:12:44+08:00">2021-09-20</time>
+              </span>
+
+          
+            <span id="/2021/06/20/CAEP%E6%96%87%E6%A1%A3/" class="post-meta-item leancloud_visitors" data-flag-title="CAEP文档" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>&emsp;&emsp;CAEP使用三个部分来构成策略权限决策模型：Applicability（适应性）、Condition（条件）和Effect（决策结果）。分别2个模块：PRM（策略请求模块）和PEM（策略实施模块）。PRM作为标准规范为用户与适配器（PEM）搭建桥梁，针对不同的策略语言，使用适配器来满足标准规范PRM。使用2个文件来分别描述这2个模块：prm.ini和pem.csv，亦或是其他文件（例如，db）。因此可以将适配器看作是“中间件”，CAEP默认其为csv读取库。prm.ini存储的是我们的访问控制模型，pem.csv存储的是我们具体的用户权限配置。</p>
+<p>&emsp;&emsp;权限的本质就是“某个用户，对某个资源，是否可以进行某些操作”，CAEP将此本质精练化，基本上只需要生成一个结构“Can”，构造这个结构的时候加载prm.ini和pem.csv。</p>
+<a id="more"></a>
+
+<h1 id="prm-ini与pem-csv编写规则"><a href="#prm-ini与pem-csv编写规则" class="headerlink" title="prm.ini与pem.csv编写规则"></a>prm.ini与pem.csv编写规则</h1><p>&emsp;&emsp;由于CAEP支持ACL与RBAC等访问控制模型，因此有针对不同模型等编写规范。</p>
+<h2 id="ACL"><a href="#ACL" class="headerlink" title="ACL"></a>ACL</h2><h3 id="prm-ini"><a href="#prm-ini" class="headerlink" title="prm.ini"></a>prm.ini</h3><p>&emsp;&emsp;示例如下：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># prm.ini</span></span><br><span class="line"><span class="section">[request_applicability]</span></span><br><span class="line"><span class="attr">q</span> = sub, res, act</span><br><span class="line"></span><br><span class="line"><span class="section">[policy_applicability]</span></span><br><span class="line"><span class="attr">p</span> = sub, res, act</span><br><span class="line"></span><br><span class="line"><span class="section">[condition]</span></span><br><span class="line"><span class="attr">c</span> = q.sub == p.sub &amp;&amp; q.res == p.res &amp;&amp; q.act == p.act</span><br><span class="line"></span><br><span class="line"><span class="section">[effect]</span></span><br><span class="line"><span class="attr">e</span> = permit_override</span><br><span class="line"><span class="comment"># e = deny_override</span></span><br><span class="line"><span class="comment"># e = first_applicable</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如上所示，prm.ini支持#作为注释行标识符，每行为一个单独策略解释。对于ACL模型，prm.ini必须有4个区域：request_applicability、policy_applicability、condition和effect。方括号内的词汇称为section，区域内等号左边称为key，右边称为value。</p>
+<p>&emsp;&emsp;applicability区域内的表达式将分别匹配用户请求的格式与策略的格式，如果用户请求格式与request_applicability区域格式匹配，则将进行下一步动作，否则，返回一个错误。例如，用户发出的一个请求格式：<code>Alice, file1, read</code>适应于<code>sub, res, act</code>，则匹配成功。此后，CAEP将按policy_applicability区域的格式检索pem.csv文件中的策略语句，如果检索成功，则将策略存储在CAEP的存储区<code>Model</code>中以便与先前匹配成功的用户请求语句共同进行条件运算。否则，返回一个警告：提示用户没有编写相应的策略语句。</p>
+<p>&emsp;&emsp;如果applicability区域都成功匹配，并且CAEP的策略存储区<code>Model</code>非空，则CAEP将按照condition区域内的组合算法来计算出这些策略语句与用户请求语句的计算结果，其中计算结果有两种：permit和deny。</p>
+<p>&emsp;&emsp;如果上述过程顺利进行，则effect区域将进行最后的授权决策评估，该区域也是对“策略冲突”问题的一个解决方案。分为“允许优先”（permit_override）、“拒绝优先”（deny_override）和“顺序评估”（first_applicable）3种策略评估算法。顾名思义，“允许优先”算法中只要有一个策略语句匹配结果为true，则最后的决策评估为permit，否则为deny；“拒绝优先”算法中只要有一个策略语句匹配结果为false，则最后的决策评估为deny，否则为permit；“顺序评估”算法中策略语句匹配的顺序（也就是策略语句的编写顺序）将决定最后的决策评估结果，第一个匹配的策略语句如果为true，结果为permit，否则为deny。</p>
+<h3 id="pem-csv"><a href="#pem-csv" class="headerlink" title="pem.csv"></a>pem.csv</h3><p>&emsp;&emsp;示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">p, Alice, file1, read</span><br><span class="line">p, Bob, file2, read</span><br><span class="line">p, Charlse, file*, read</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;该策略文件中拥有3个策略语句，每条策略语句需要以prm.ini文件中的key为开头，然后依次定义以逗号分隔开来的value中的词汇。而且对于res词汇，支持正则表达式。对于ACL，pem.csv文件只需要定义p的key值语句。</p>
+<h2 id="RBAC"><a href="#RBAC" class="headerlink" title="RBAC"></a>RBAC</h2><h3 id="prm-ini-1"><a href="#prm-ini-1" class="headerlink" title="prm.ini"></a>prm.ini</h3><p>&emsp;&emsp;示例如下：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#prm.ini</span></span><br><span class="line"><span class="section">[request_applicability]</span></span><br><span class="line"><span class="attr">q</span> = sub, res, act</span><br><span class="line"><span class="comment"># q = sub, res, act, domain</span></span><br><span class="line"></span><br><span class="line"><span class="section">[policy_applicability]</span></span><br><span class="line"><span class="attr">p</span> = sub, res, act</span><br><span class="line"><span class="comment"># p = sub, res, act, domain</span></span><br><span class="line"></span><br><span class="line"><span class="section">[role_applicability]</span></span><br><span class="line"><span class="attr">r</span> = ~, ~</span><br><span class="line"><span class="comment"># r = ~, ~, ~</span></span><br><span class="line"></span><br><span class="line"><span class="section">[condition]</span></span><br><span class="line"><span class="attr">c</span> = r(q.sub, p.sub) &amp;&amp; q.res == p.res &amp;&amp; q.act == p.act</span><br><span class="line"></span><br><span class="line"><span class="section">[effect]</span></span><br><span class="line"><span class="attr">e</span> = permit_override</span><br><span class="line"><span class="comment"># e = deny_override</span></span><br><span class="line"><span class="comment"># e = first_applicable</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;关于RBAC模型的编写范例与ACL大致一样，RBAC多了一个role_applicability区域，该区域规定了角色的编写规范，两个有继承关系的角色以逗号分隔开来，CAEP将在pem.csv文件中检索与其相匹配的角色继承语句，第一个为子角色，第二个为父角色。当有3个“～”标识符时，则第三个为域，表明角色的继承关系只在某域中生效。</p>
+<h3 id="pem-csv-1"><a href="#pem-csv-1" class="headerlink" title="pem.csv"></a>pem.csv</h3><p>&emsp;&emsp;示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">p, Alice, file1, read</span><br><span class="line">p, Bob, file2, read</span><br><span class="line">p, Charlse, file*, read</span><br><span class="line">p, group1, file*, read&#x2F;write</span><br><span class="line"></span><br><span class="line">r, Alice, group1</span><br><span class="line">r, Bob, group1</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;在RBAC模型中，除了定义p的key策略语句，还需要定义r的key策略语句。其他的规范均与ACL一样。</p>
+<h1 id="解析prm-ini文件的库"><a href="#解析prm-ini文件的库" class="headerlink" title="解析prm.ini文件的库"></a>解析prm.ini文件的库</h1><p>&emsp;&emsp;在CAEP中有config，rbac，effect和model一共4个库与解析prm.ini文件有关。 </p>
+<h2 id="config库"><a href="#config库" class="headerlink" title="config库"></a>config库</h2><p>&emsp;&emsp;该库定义了一个<code>config_interface.h</code>的头文件，用来提供接口给用户，用户可以通过该接口来实现对prm.ini文件的读取操作。CAEP内置了prm.ini文件的读取操作：<code>config.h</code>，该接口提供了相应的函数来将prm.ini文件内的策略语句存储于CAEP配置存储区中，该存储区使用红黑树结构进行内存分配，将prm.ini中的每一个“区域”转换为三元组：section、key和value。并将其存储于<code>unordered_map&lt;string, unordered_map&lt;string, string&gt;&gt; data</code>中。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>返回值</th>
+<th>作用</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ParseFile(string f_name)</code></td>
+<td><code>void</code></td>
+<td>从传入参数的对应文件名的文件中解析“区域”</td>
+<td><code>private</code></td>
+</tr>
+<tr>
+<td><code>ParseBuffer(istream* buffer)</code></td>
+<td><code>void</code></td>
+<td>从传入参数的输入流中解析“区域”</td>
+<td><code>private</code></td>
+</tr>
+<tr>
+<td><code>AddConfigData(string section, string key, string value)</code></td>
+<td><code>bool</code></td>
+<td>将传入参数的三元组添加至存储区</td>
+<td><code>private</code></td>
+</tr>
+<tr>
+<td><code>NewConfig(string conf_name)</code></td>
+<td><code>shared_ptr&lt;Config&gt;</code></td>
+<td>返回一个配置器，用户通过操作该配置器来对三元组数据进行处理</td>
+<td><code>public static</code></td>
+</tr>
+<tr>
+<td><code>NewConfigFromText(string text)</code></td>
+<td><code>shared_ptr&lt;Config&gt;</code></td>
+<td>同上</td>
+<td><code>public static</code></td>
+</tr>
+<tr>
+<td><code>GetString(string key)</code></td>
+<td><code>string</code></td>
+<td>传入的参数为section-key的一种字符串形式（以“::”分隔开来），返回对应section-key的字符串形式的value值</td>
+<td><code>public</code></td>
+</tr>
+<tr>
+<td><code>GetStrings(string key)</code></td>
+<td><code>vector&lt;string&gt;</code></td>
+<td>同上，返回对应的section-key的以逗号分隔的vector形式的value值</td>
+<td><code>public</code></td>
+</tr>
+</tbody></table>
+<h2 id="rbac库"><a href="#rbac库" class="headerlink" title="rbac库"></a>rbac库</h2><p>&emsp;&emsp;该库为RBAC模型服务，该库定义了<code>Role</code>类，该库提供对角色的各类操作，并使用链式结构<code>vector&lt;Role*&gt; roles</code>来存储抽象数据“角色”，在CAEP中角色与用户都是以字符串形式存储的，因此角色与用户并没有严格的区分，但是用户可以在角色或用户前加上前缀来区分它们，例如：角色Apple与用户Apple，使用role::Apple以及user::Apple来区分。但是在CAEP中，将用户与角色统称为“角色”。Role的继承子角色（或用户）存储在vector容器中。RBAC库提供<code>role_manager.h</code>接口以实现角色管理功能，CAEP内置<code>default_role_manager.h</code>来进行角色的管理。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>返回值</th>
+<th>作用</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NewRole(string name)</code></td>
+<td><code>Role*</code></td>
+<td>以传入的参数name创建一个角色</td>
+<td><code>public static</code></td>
+</tr>
+<tr>
+<td><code>AddRole(Role* role)</code></td>
+<td><code>void</code></td>
+<td>以传入的参数role添加一个继承子角色（或用户）</td>
+<td><code>public</code></td>
+</tr>
+<tr>
+<td><code>DeleteRole(Role* role)</code></td>
+<td><code>void</code></td>
+<td>以传入的参数role删除该继承子角色</td>
+<td><code>public</code></td>
+</tr>
+<tr>
+<td><code>HasRole(string name, int hierarchy)</code></td>
+<td><code>bool</code></td>
+<td>判定在hierarchy继承层级下，是否有某角色</td>
+<td><code>hierarchy</code>为RBAC的继承体系的继承层次，<code>public</code></td>
+</tr>
+<tr>
+<td><code>HasDirectRole(string name)</code></td>
+<td><code>bool</code></td>
+<td>判定RBAC体系的某角色是否有某直接继承其的子角色（一般用于判定某角色是否有某用户，相当于<code>hierarchy</code>为1的<code>HasRole</code>函数）</td>
+<td>一般用于判定角色是否拥有某用户，<code>public</code></td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;<code>default_role_manager</code>类实现了<code>role_manager</code>的接口，提供了<code>unordered_map&lt;string, Role*&gt;</code>类型的数据来管理CAEP所有的角色以及用户，该数据只负责角色的继承关系以及用户的依存信息的存储。</p>
+<h1 id="caep安装以及使用"><a href="#caep安装以及使用" class="headerlink" title="caep安装以及使用"></a>caep安装以及使用</h1><h2 id="caep的安装下载（UNIX）"><a href="#caep的安装下载（UNIX）" class="headerlink" title="caep的安装下载（UNIX）"></a>caep的安装下载（UNIX）</h2><p>&emsp;&emsp;在安装目录下的命令行终端输入如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;arzhe&#x2F;caep.git</span><br></pre></td></tr></table></figure>
+
+<p>建议使用out-of-source编译，创建build目录，在build目录下执行以下命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmake ..</span><br><span class="line">cmake --build .</span><br><span class="line">cmake --install .</span><br></pre></td></tr></table></figure>
+
+<p>至此caep安装完毕，然后将caep的安装目录添加至环境路径，就可以在你的项目中使用它了。caep的默认安装路径为<code>/usr/local/include</code>以及<code>/usr/local/lib</code>，分别为头文件以及库的安装路径。</p>
+<h2 id="caep的使用"><a href="#caep的使用" class="headerlink" title="caep的使用"></a>caep的使用</h2><p>&emsp;&emsp;在按上述流程安装完毕caep后，在你的项目中添加：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;caep/caep.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>之后便可以使用ceap提供的便捷框架来进行项目的开发。在之后项目的编译中添加如下：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="keyword">on</span>)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"></span><br><span class="line">target_include_library(<span class="variable">$&#123;PROJECT_NAME&#125;</span> caep)</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/CML/" rel="tag"><i class="fa fa-tag"></i> CML</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/06/18/C++%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%80%EF%BC%89/" rel="prev" title="C++基础（一）">
+      <i class="fa fa-chevron-left"></i> C++基础（一）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/" rel="next" title="C++的常用标准IO函数">
+      C++的常用标准IO函数 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#prm-ini与pem-csv编写规则"><span class="nav-number">2.</span> <span class="nav-text">prm.ini与pem.csv编写规则</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ACL"><span class="nav-number">2.1.</span> <span class="nav-text">ACL</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#prm-ini"><span class="nav-number">2.1.1.</span> <span class="nav-text">prm.ini</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pem-csv"><span class="nav-number">2.1.2.</span> <span class="nav-text">pem.csv</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RBAC"><span class="nav-number">2.2.</span> <span class="nav-text">RBAC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#prm-ini-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">prm.ini</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pem-csv-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">pem.csv</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解析prm-ini文件的库"><span class="nav-number">3.</span> <span class="nav-text">解析prm.ini文件的库</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#config库"><span class="nav-number">3.1.</span> <span class="nav-text">config库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rbac库"><span class="nav-number">3.2.</span> <span class="nav-text">rbac库</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#caep安装以及使用"><span class="nav-number">4.</span> <span class="nav-text">caep安装以及使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#caep的安装下载（UNIX）"><span class="nav-number">4.1.</span> <span class="nav-text">caep的安装下载（UNIX）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#caep的使用"><span class="nav-number">4.2.</span> <span class="nav-text">caep的使用</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>

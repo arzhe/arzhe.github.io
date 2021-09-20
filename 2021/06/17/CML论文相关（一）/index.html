@@ -29,7 +29,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="摘要&amp;emsp;&amp;emsp;数据加密安全以及访问控制安全是海洋信息网络安全的重中之重，是在海洋信息系统中进行安全的信息管理的不可或缺的部分。但是众多访问控制机制以及安全策略语言导致了目前不同的系统有着自己的一套访问控制的实现体系，要想使不同的海洋信息网络系统之间自由沟通，便需要学习不同的访问控制策略，分别编写自己的安全策略；此外，各种晦涩难懂的，冗余语法结构的安全策略语言以及机制导致了使用者的学">
 <meta property="article:published_time" content="2021-06-17T14:30:00.000Z">
-<meta property="article:modified_time" content="2021-06-17T14:32:18.000Z">
+<meta property="article:modified_time" content="2021-08-17T06:51:01.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="CML">
 <meta name="twitter:card" content="summary">
@@ -228,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2021-06-17 22:30:00 / Modified: 22:32:18" itemprop="dateCreated datePublished" datetime="2021-06-17T22:30:00+08:00">2021-06-17</time>
+              <time title="Created: 2021-06-17 22:30:00" itemprop="dateCreated datePublished" datetime="2021-06-17T22:30:00+08:00">2021-06-17</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-08-17 14:51:01" itemprop="dateModified" datetime="2021-08-17T14:51:01+08:00">2021-08-17</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -273,9 +279,9 @@
 </li>
 </ol>
 <p>&emsp;&emsp;目前多策略、混合策略成为访问控制策略领域的研究热点[9]，它们大多专注于提高策略的结构性以及逻辑性以提高策略描述的表达能力。这也导致了策略的描述语法越来越复杂，难以实现，并且学习成本越来越高。</p>
-<p>&emsp;&emsp;因此，本文提出一种访问策略模型CAEP-M（Categories And Environment Policy Model），以下简称为CM。该模型使用CML（CAEP Model Language）策略描述语言来表达相应策略，并支持各类访问控制模型，如BLP（Bell-La Padula）[10]，RBAC[11]，ABAC[12]，ACL[13]等。在CM的基础上使用CML构建出策略实施机制CML-EM（SoPL enforcement mechanism）。CML语法较为简洁且直观，便于用户理解，也易于开发者学习。</p>
+<p>&emsp;&emsp;因此，本文提出一种访问策略模型CAEP-M（Categories Environment Policy Model），以下简称为CM。该模型使用CML（CAEP Model Language）策略描述语言来表达相应策略，并支持各类访问控制模型，如BLP（Bell-La Padula）[10]，RBAC[11]，ABAC[12]，ACL[13]等。在CM的基础上使用CML构建出策略实施机制CML-EM（SoPL enforcement mechanism）。CML语法较为简洁且直观，便于用户理解，也易于开发者学习。</p>
 <h1 id="CML语言"><a href="#CML语言" class="headerlink" title="CML语言"></a>CML语言</h1><p>&emsp;&emsp;CML适用于由IEFT[14][15]与ISO[16]定义的策略实施抽象模型。实施访问控制策略机制首先需要有合适的策略语言，然后针对特定的策略模型制定实施这些策略规则的逻辑。因此实施策略规则的逻辑一定程度上也反应了该策略语言的策略模型。一般来说，在一个支持混合策略、多用户、模型无关以及策略语言无关的系统中，需要允许用户自定义策略规则。此外，动态的策略实施逻辑在灵活性以及泛用性上要更优于静态的策略实施逻辑。目前主流的策略描述语言大多是静态的，在本文中，提出一种策略逻辑分离方案，将策略规则与策略逻辑进行分离。CML策略实施机制中实施的策略规则称为Policy，策略实施逻辑的抽象访问控制模型称为Model。更为通俗的来看，可用将Policy视为数据，Model视为逻辑。</p>
-<h2 id="策略模型"><a href="#策略模型" class="headerlink" title="策略模型"></a>策略模型</h2><p>&emsp;&emsp;CM通过两个组件来构成基本的抽象模型结构：策略请求组件（Policy Request Module，PRM），策略实施组件（Policy Enforcement Module）。PRM为权限决策制定一个请求，该请求包括对访问请求的描述：发出请求的主体、要请求访问的资源、要执行的操作以及其他的相关信息。然后该授权决策请求会被发送到PEM组件。PEM组件会检索与决策请求匹配的策略，以及评估这些策略所需的任何额外附加信息，并向PRM返回授权决策。授权决策可以是“allow access”、“deny access”或是“no policy apply to this request”。如果PRM由于某种原因无法检索策略以及评估所需的信息，则PRM会返回一个错误而不是授权决策。根据从PRM发送而来的授权决策或错误，PEM将会授予、拒绝访问请求或是以某种方式回应错误。</p>
+<h2 id="策略模型"><a href="#策略模型" class="headerlink" title="策略模型"></a>策略模型</h2><p>&emsp;&emsp;CM通过两个组件来构成基本的抽象模型结构：策略请求组件（Policy Request Module，PRM），策略实施组件（Policy Enforcement Module，PEM）。PRM为权限决策制定一个请求，该请求包括对访问请求的描述：发出请求的主体、要请求访问的资源、要执行的操作以及其他的相关信息。然后该授权决策请求会被发送到PEM组件。PEM组件会检索与决策请求匹配的策略，以及评估这些策略所需的任何额外附加信息，并向PRM返回授权决策。授权决策可以是“allow access”、“deny access”或是“no policy apply to this request”。如果PRM由于某种原因无法检索策略以及评估所需的信息，则PRM会返回一个错误而不是授权决策。根据从PRM发送而来的授权决策或错误，PEM将会授予、拒绝访问请求或是以某种方式回应错误。</p>
 <p>&emsp;&emsp;PRM无法控制策略决策的执行，这是PEM的功能。PEM通过在应用程序或平台上的具体实现来实现“拦截和描述访问请求”的功能。PRM以及其使用的CML是独立于应用程序和平台的。CM通过将策略的请求和实施进行分离来完成授权决策系统的实现，PEM具体在代码层面，PRM具体在策略语言（CML）层面。</p>
 <h2 id="授权决策请求"><a href="#授权决策请求" class="headerlink" title="授权决策请求"></a>授权决策请求</h2><p>&emsp;&emsp;CML为授权决策请求指定了一种抽象格式，以描述试图进行资源访问的属性。这些属性是在描述策略时用来引用的某类型的值。该策略属性将在后文中介绍。以下为一个例子：</p>
 <table>
@@ -372,10 +378,13 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/05/11/wait%E5%87%BD%E6%95%B0%E7%B0%87/" rel="prev" title="wait函数簇">
-      <i class="fa fa-chevron-left"></i> wait函数簇
+    <a href="/2021/05/23/EPAL%E4%B8%8EXACML/" rel="prev" title="EPAL与XACML">
+      <i class="fa fa-chevron-left"></i> EPAL与XACML
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/18/C++%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%80%EF%BC%89/" rel="next" title="C++基础（一）">
+      C++基础（一） <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -449,18 +458,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-count">76</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

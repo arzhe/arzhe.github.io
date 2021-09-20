@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="介绍&amp;emsp;&amp;emsp;用于支持权限策略的表达和实施的标准结构化语言必须满足以下几个要求：  为了支持权限策略的表达，该语言不能够仅仅只在“谁对哪些资源可以执行哪些操作”上进行约束，还必须要将数据收集的目的与访问的目的相匹配。 为了支持自动化执行，该语言必须支持可直接执行的策略表达，策略使用标识符来描述主体、资源、动作和访问条件，而这些所谓的标识符可以直接自动化地映射到计算机程序所使用的实际">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EPAL与XACML">
+<meta property="og:url" content="http://yoursite.com/2021/05/23/EPAL%E4%B8%8EXACML/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="介绍&amp;emsp;&amp;emsp;用于支持权限策略的表达和实施的标准结构化语言必须满足以下几个要求：  为了支持权限策略的表达，该语言不能够仅仅只在“谁对哪些资源可以执行哪些操作”上进行约束，还必须要将数据收集的目的与访问的目的相匹配。 为了支持自动化执行，该语言必须支持可直接执行的策略表达，策略使用标识符来描述主体、资源、动作和访问条件，而这些所谓的标识符可以直接自动化地映射到计算机程序所使用的实际">
+<meta property="article:published_time" content="2021-05-23T00:45:00.000Z">
+<meta property="article:modified_time" content="2021-06-14T02:31:15.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="访问控制">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2021/05/23/EPAL%E4%B8%8EXACML/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>EPAL与XACML | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/05/23/EPAL%E4%B8%8EXACML/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          EPAL与XACML
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-05-23 08:45:00" itemprop="dateCreated datePublished" datetime="2021-05-23T08:45:00+08:00">2021-05-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-06-14 10:31:15" itemprop="dateModified" datetime="2021-06-14T10:31:15+08:00">2021-06-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/05/23/EPAL%E4%B8%8EXACML/" class="post-meta-item leancloud_visitors" data-flag-title="EPAL与XACML" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>&emsp;&emsp;用于支持权限策略的表达和实施的标准结构化语言必须满足以下几个要求：</p>
+<ol>
+<li>为了支持权限策略的表达，该语言不能够仅仅只在“谁对哪些资源可以执行哪些操作”上进行约束，还必须要将数据收集的目的与访问的目的相匹配。</li>
+<li>为了支持自动化执行，该语言必须支持可直接执行的策略表达，策略使用标识符来描述主体、资源、动作和访问条件，而这些所谓的标识符可以直接自动化地映射到计算机程序所使用的实际对象和操作。</li>
+<li>该语言必须是平台无关性的，以便将其作为标准使用。</li>
+</ol>
+<p>&emsp;&emsp;有两种平台无关性的语言满足上述大部分的要求，一个是<strong><em>IBM’s Enterprise Privacy Authorization Language(EPAL)</em></strong>，另外一个是<strong><em>OASIS eXtensible Access Control Markup Language(XACML)</em></strong>。</p>
+<p>&emsp;&emsp;对于企业来说，如果要选择最适合他们的需求的语言，了解这两种语言之间的差异是十分重要的；对于研究人员来说，如果要研究出比这两种语言更优秀的语言，了解这两种语言之间的差异亦是十分重要的。而后者则正是我写下此文的目的。</p>
+<a id="more"></a>
+
+<h1 id="EPAL和XACML概述"><a href="#EPAL和XACML概述" class="headerlink" title="EPAL和XACML概述"></a>EPAL和XACML概述</h1><h2 id="抽象模型"><a href="#抽象模型" class="headerlink" title="抽象模型"></a>抽象模型</h2><p>&emsp;&emsp;EPAL和XACML都使用了由IETF与ISO定义的策略实施抽象模型，在该模型中，所有访问受保护的资源的请求都要经过一个称为策略实施点（Policy Enforcement Point）的抽象组件或是PEP（Access Enforcement Function in the ISO standard）。PEP为授权决策制定了一个请求，该请求包括对访问请求的描述：谁发出请求、请求什么资源、要执行什么操作、访问请求的目的以及其他的相关信息。该授权决策请求被发送到另一个称为策略决策点（Policy Decision Point）的抽象组件或是PDP（Access Decision Function in the ISO standard）。PDP会检索与决策请求匹配的策略，以及评估这些策略所需的任何附加信息，并向PEP返回授权决策。在EPAL和XACML中，授权决策可以是“allow access”，“deny access”或是“no policies apply to this request”。如果PDP由于某种原因无法检索策略或评估所需的信息，则PDP可能返回一个错误而不是授权决策。根据授权决策，PEP授予或拒绝访问请求。一个授权决策可能伴随着义务，这些义务是PEP在实施授权决策时必须采取的动作。所谓的义务，一个典型的例子就是记录访问请求。</p>
+<p>&emsp;&emsp;PDP无法控制策略决策的执行，这是PEP的功能。PEP的实现通常是特定于应用程序或平台的，因为拦截和描述访问请求通常需要特定于应用程序或平台的实现细节。然而PDP及其使用的策略语言可以是独立于应用程序和平台的。</p>
+<h2 id="授权决策请求"><a href="#授权决策请求" class="headerlink" title="授权决策请求"></a>授权决策请求</h2><p>&emsp;&emsp;EPAL和XACML都为授权决策请求指定了一种抽象格式，以描述试图进行资源访问的属性。这些是在说明策略时可引用的命名的类型化值。以下是一个例子：</p>
+<table>
+<thead>
+<tr>
+<th>NAME</th>
+<th>TYPE</th>
+<th>VALUE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>role</td>
+<td>string</td>
+<td>“administrator”</td>
+</tr>
+<tr>
+<td>resource-id</td>
+<td>URL</td>
+<td>“<a href="http://www.example.com/acount/1234&quot;" target="_blank" rel="noopener">http://www.example.com/acount/1234&quot;</a></td>
+</tr>
+<tr>
+<td>action-id</td>
+<td>string</td>
+<td>“read”</td>
+</tr>
+<tr>
+<td>purpose</td>
+<td>string</td>
+<td>“verify balance”</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;在该例中，一个名为“administrator”的角色试图读取一个URL地址来确认账户余额。如果策略反过来，为了读取URL resource-id，用户的角色属性必须具是“administrator”的值，而目的属性必须是“verify balance”，只有这样，访问才会被允许。</p>
+<p>&emsp;&emsp;在这两种语言中，由PDP评估的授权决策请求与从PEP发送的任何特定消息格式的语法或内容之间只有弱关系；虽然PEP可以使用抽象格式作为其原生请求格式，但也可以将各种特定于应用程序的PEP请求格式映射到抽象格式。</p>
+<h2 id="策略结构"><a href="#策略结构" class="headerlink" title="策略结构"></a>策略结构</h2><p>&emsp;&emsp;在EPAL和XACML中，一个策略由一个或多个规则组成，这些规则每一个都有3个主要部分，如下：</p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>适用性（Applicability）</td>
+<td>如果满足某条件，则规则适用于一个请求</td>
+</tr>
+<tr>
+<td>条件（Condition）</td>
+<td>如果满足某条件，则规则满足</td>
+</tr>
+<tr>
+<td>效果（Effect）</td>
+<td>如果规则同时满足与适用，则规则返回{permit,deny}</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;<strong><em>Applicability</em></strong>是一组关于决策请求中的属性值的简单约束，这些约束决定规则是否适用于给定请求。<strong><em>Condition</em></strong>是一个称为条件的谓词，该条件由拥有请求（或从其他来源获得）中的字面值和属性值的函数组成。<strong><em>Effect</em></strong>则是一个效果（在EPAL中称为结果），如果规则适用并且满足，它将被返回{permit,deny}。一个<strong><em>Effect</em></strong>可以指示为“permit acces”或者是“deny acces”。可选的第四个组件是<strong><em>Obligations</em></strong>（义务），它是一个将与授权决策一起返回给PEP的命名值。隐私策略中一个典型义务是访问的资源不能与第三方共享，并且接收方必须在30天内销毁信息。对于PDP来说，义务是不透明的，理解并履行任何义务的责任落在了PEP身上。</p>
+<h2 id="策略评估"><a href="#策略评估" class="headerlink" title="策略评估"></a>策略评估</h2><p>&emsp;&emsp;首先通过确定适用性是否是被满足来评估规则。如果不适用，则不执行进一步的计算，并返回一个指示不适用的值。如果满足适用性部分，则对条件部分进行评估。如果结果为true，则返回规则的效果（Effect），如果结果不为true，则返回一个指示不适用的值。如果在评估适用性或条件部分时出现任何错误，则可能返回一个错误值。EPAL和XACML在如何确定策略评估的总体结果方面有所不同，因为不同的规则可能返回不同的值。它们在错误和义务的处理方式上也有所不同。这些差异将在下文一一展示。</p>
+<h1 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h1><p>&emsp;&emsp;虽然EPAL和XACML在结构和概念上非常相似，但两种语言之间的差异是显著的。并且极大地影响了它们的可用性和满足Web服务隐私策略语言需求的能力。以下将讨论一些关键性差异。</p>
+<h2 id="策略属性"><a href="#策略属性" class="headerlink" title="策略属性"></a>策略属性</h2><p>&emsp;&emsp;EPAL和XACML在策略变量（或属性）词汇表结构上有所不同。在EPAL中，有两种类型的属性：类别（<strong><em>categories</em></strong>）和容器属性（<strong><em>container attributes</em></strong>）。<strong><em>categories</em></strong>有四种类别：<strong>用户类别</strong>、<strong>数据类别</strong>、<strong>操作</strong>和<strong>目的</strong>。<strong><em>categories</em></strong>属性是与用户组、资源组、操作组和目的组相关联的名称，从隐私角度来看，这些组的处理方式是不同的。例如，属于具有adult值的用户类别的用户与属于具有child值的用户类别的用户可能会受到不同程度的对待。<strong>用户类别</strong>值与发出访问请求的主体相关联。<strong>数据类别</strong>，<strong>操作</strong>和<strong>目的</strong>的类别值与被访问的资源，要在资源上执行的操作以及访问资源的目的相关联。最后要注意的是，类别属性值都是字符串。</p>
+<p>&emsp;&emsp;EPAL容器属性（<strong><em>container attributes</em></strong>）用于保存策略评估所需的任何不属于隐私类别的信息。尽管容器属性可以与类别属性中的某一类别描述相同的实体，但是容器属性与任何类别类型或值之间没有显式的关联。例如，一个名为age的容器属性可能与用户的年龄或资源的年龄相关联，但语言本身不会做出任何这样的关联。每个容器属性都有一个唯一的名称和一个类型化值；支持的类型包括字符串、整数、布尔值、日期、时间等。容器属性被分组到称为容器的命名集中，容器属性的名称则来自容器。规则中的条件可以引用特定容器的属性名称，并且该属性值必须可用才能对条件进行计算：如果在计算条件时所需的容器没有被完全填充，则策略计算将返回一个错误。</p>
+<p>&emsp;&emsp;在XACML中仅有一种类型的属性，每一个属性都有唯一的名称和类型化值。属性的名称可以是URN或XPath表达式。每一个XACML属性都与四个类中的一个相关联：<strong><em>Subject</em></strong>、<strong><em>Resource</em></strong>、<strong><em>Action</em></strong>和<strong><em>Environment</em></strong>（主体、资源、操作和环境）。<strong><em>Subject</em></strong>属性描述与发出访问请求相关联的主体。<strong><em>Resource</em></strong>属性描述要访问的资源。<strong><em>Action</em></strong>属性描述要对资源执行的操作。<strong><em>Environment</em></strong>属性描述与<strong><em>Subject</em></strong>、<strong><em>Resource</em></strong>或<strong><em>Action</em></strong>不相关的访问请求的特征，例如进行访问的时间或需要进行访问的交易所依据的合同标识符。</p>
+<p>&emsp;&emsp;EPAL的容器属性与XACML的环境属性不一样。容器属性是除与隐私相关的类别以外的任何属性；它可以描述访问用户的特征、被访问的资源、操作或目的。事实上，用户、资源、操作或目的的任何属性，除了它们的隐私类别之外，一定都是容器属性。XACML的环境属性则是那些不适用于主体、资源或操作的属性。</p>
+<h2 id="XML属性值"><a href="#XML属性值" class="headerlink" title="XML属性值"></a>XML属性值</h2><p>&emsp;&emsp;XACML支持使用XPath表达式作为命名属性的一个可选项。通常通过一个被请求访问的XML文档副本，或者通过一个值为XML元素的请求属性对XPath表达式求值来计算出属性值。例如，XACML中允许有这样的条件判定式：在请求中的“subject-id”属性的值必须与“<code>//patientRecord/patientName/text()</code>”节点或“<code>//patientRecord/PhisicianName/text()</code>”节点的值相等。因此，XACML中的通用检索组件将会把XML文档中的节点作为属性处理。</p>
+<p>&emsp;&emsp;EPAL没有“使用被访问资源的内容来指定属性值”的内置机制；它不支持具有作为XML模式元素实例的值的属性，也不支持在被访问的XML文档中使用节点作为属性。如果策略要求XML资源的一个节点必须匹配给定的值，那么EPAL词汇表必须将该特定节点定义为具有自己名称的单独属性。此外，必须额外编写属性检索组件来处理对每个这样的属性值的检索和映射。这也是EPAL在为Web服务应用程序提供支持方面的一个主要缺陷。</p>
+<h2 id="策略词汇"><a href="#策略词汇" class="headerlink" title="策略词汇"></a>策略词汇</h2><p>&emsp;&emsp;除了策略属性上的差异外，这两种语言在处理总体策略词汇方面也有所不同。每个EPAL策略都包含一个对抽象结构的引用，这个抽象结构称为“词汇”，它描述了可以在该策略中使用的所有属性、容器、条件和义务。策略本身是使用对词汇结构中定义的属性、条件和义务的引用来表示的。相比之下，在XACML中，属性、条件和义务可以直接用于表达策略，也可以被定义为变量并在表达策略时来引用他；此外，也并不需要将所有变量定义在一个位置。</p>
+<p>&emsp;&emsp;然而，在同一个位置定义策略元素也有某些好处。最主要的一个就是可以定义属性之间的关系。EPAL以两种方式来使用该功能：</p>
+<ol>
+<li>EPAL允许将类别属性定义为层次结构，其中类别属性可以指向另一个类别属性作为其父类。</li>
+<li>词汇结构允许EPAL使用容器，容器可以用于对来自一个源的属性进行分组，从而帮助优化属性检索。</li>
+</ol>
+<p>&emsp;&emsp;词汇还可以帮助应用程序编写人员和策略编写人员就必须提供哪些属性达成协议。但是，以这种方式指定词汇并不能确保在评估策略时所有必要的属性都实际可用。需要注意的是，词汇规范在XACML中并不是最重要的概念，但通过定义一个属性来包含其他地方指定的属性集合标识，无需扩展语言也可以支持它。然后，策略、子策略或规则可以要求PEP为这个词汇属性提供值。策略可以要求这些值包括计算策略相关部分所需的属性集合的标识。如果这些都不匹配，将返回一个错误。这种词汇属性的值引用的规范还可以定义属性之间的层次关系。可以编写属性检索组件来解释这种层次关系的外部规范，以便在请求时返回某些指定属性值的父系或子系。</p>
+<p>&emsp;&emsp;将策略词汇指定为策略的一部分（比如在EPAL中），在实际作业中可能过于苛刻。例如，策略可能要求必须提供一个“Challenge Response”属性或一个“Private Key Authenticator”属性。如果词汇在同一个容器中列出了这两个属性，那么只支持其中一种机制的用户将永远无法获得访问，因为容器永远不会被完全填充。</p>
+<p>&emsp;&emsp;将特定格式的词汇指定为策略的一部分还存在其他问题。由于EPAL是通过引用将词汇包含在内的，因此多个策略可能包含相同的词汇。对一个策略所需的词汇的更改可能会导致使用同样词汇的另一个策略结构出现问题。这使得实现一致性策略更加困难。另一个问题是，策略和各种定义属性的外部规范之间的关系要么是间接的（通过描述性注释），要么是丢失的。但是，由于XACML中的词汇属性可以有多个值，因此可以包含正在使用的实际外部规范的标识，并且可以编写属性检索组件将这些规范中定义的属性转换为XACML的抽象属性格式。</p>
+<h2 id="授权决策请求-1"><a href="#授权决策请求-1" class="headerlink" title="授权决策请求"></a>授权决策请求</h2><p>&emsp;&emsp;在EPAL中，决策请求必须包含一个或多个用户类别属性、数据类别属性、操作类别属性和目的类别属性，以及各种容器属性集的可选值。如果授权决策请求中有多个用户类别属性，它们都必须引用相同的主体，尽管单个决策请求可能包含多个独立的数据类别、操作和用途。请求的语义是“我属于这些用户类别”。是否至少有一个用户类别可以对所有这些数据类别执行所有这些操作？</p>
+<p>&emsp;&emsp;XACML决策请求由Subject属性、Resource属性、Action属性和Environment属性的任意集合组合而成。在XACML核心规范中，一个请求可能只包含一个Action，但可能包含多个资源或主体。每个Subject都是以某种方式进行访问请求的独立主体，并且每个Subject都有自己的Subject属性集合。默认的主体是进行访问请求的主体，主体可以是任意的。在策略中，访问可以以这些Subject属性的任何组合为条件。在EPAL中，可以将其他主体指定为容器属性，但是这些附加主体不具有EPAL与用户类别相关联的特殊策略评估语义，如下文所述。</p>
+<h2 id="授权决策响应"><a href="#授权决策响应" class="headerlink" title="授权决策响应"></a>授权决策响应</h2><p>&emsp;&emsp;在EPAL中，总是会返回单个响应，其中包含指示“允许访问”、“拒绝访问”或“没有策略匹配此访问请求”的结果，或者如果在策略评估期间发生错误，则返回错误状态。响应包含与应用于用户类别、数据类别、操作和目的的每个组合的规则相关的标识符，以及与这些规则相关的义务。</p>
+<p>&emsp;&emsp;在XACML中，单个授权决策请求可以请求包含一个总体决策的响应，或者请求中指定的每个资源的单独决策。每个决策都表明允许访问、拒绝访问、没有策略适用于此访问请求，或者由于一个错误“无法确定应该允许访问还是拒绝访问”。每个决策包括与该决策相关的资源的名称，以及与该资源的决策相关联的任何义务。如果在处理过程中发生错误，决策将由策略中指定的组合算法确定（如下所述）。错误通常只有在PDP无法确定应该或者不应该允许访问时才终止评估。如果请求访问XML文档中的多个节点，则每个节点的决策都包含一个XPath表达式。</p>
+<h2 id="策略评估-1"><a href="#策略评估-1" class="headerlink" title="策略评估"></a>策略评估</h2><p>&emsp;&emsp;以下是策略评估语义的相关概念，在这两种语言中，都可以以任何保留整体语义的方式自由实现求值算法。</p>
+<p>&emsp;&emsp;一个EPAL授权决策请求被分解为一个或多个简单请求，每个请求都包含用户类别、数据类别、操作和目的的属性值的单个组合；在评估这些简单请求时使用同一组容器属性，因此容器属性必须平等地应用于决策请求中的所有用户类别、数据类别、操作和目的。简单请求的计算顺序是在策略词汇中指定用户类别值的顺序。如果在任何策略评估过程中发生错误，将立即返回一个错误作为授权决策响应。否则，如果包含任何单个用户类别值的所有简单请求的评估返回指示允许访问的结果，那么评估将终止，并返回指示允许访问的授权决策。此外，如果对任何单个简单请求的评估产生指示拒绝访问的结果，则返回指示拒绝访问的结果作为授权决策响应。</p>
+<p>&emsp;&emsp;在XACML中，除非是指定了多个resource，否则将针对授权决策请求中的所有属性对策略进行一次评估，并将评估结果作为授权决策返回。如果指定了多个resource，授权决策请求将被分解为多个简单请求，每个简单请求仅包含一个resource，每个简单请求将分别评估。如果授权决策请求请求一个总体决策，那么授权决策将仅在评估所有简单请求的结果表明允许访问时才表示允许访问。如果任何一个结果表明拒绝访问，那么将作为总体决策返回；否则，将返回指示不应用任何策略的决策。XACML会为多个resource返回单个决策，同样，EPAL也会为多个数据类别返回单个决策。但是，在EPAL中，为了使每个数据类别分别获得单独的决策，必须为每个数据类别提出单独的请求。而在XACML中，可以使用单个授权决策请求返回这些单独的决策。</p>
+<p>&emsp;&emsp;EPAL语义不支持要求请求者是多个用户类别成员的策略。例如，如果医疗保健提供者和医院工作人员是单独的用户类别，则EPAL策略不可能要求请求者同时属于两个用户类别；如果允许任一用户类别访问，则允许访问。</p>
+<h2 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h2><p>&emsp;&emsp;EPAL规则的适应性部分不能引用容器属性，条件部分不能引用类别属性。在XACML中，任何属性都可以在规则的任何部分中使用。在EPAL中，适应性谓词都与请求中必须出现的类别值完全匹配。在XACML中，任何返回布尔结果并将属性值与文字值进行比较的函数都可以在适应性谓词中使用。由于规则的适应性部分用于索引规则或优化规则评估，因此EPAL限制可能会限制索引或优化。EPAL和XACML支持一组广泛的标准函数，可用于说明访问条件；这两种语言支持的函数几乎是相同的。</p>
+<h2 id="嵌套策略"><a href="#嵌套策略" class="headerlink" title="嵌套策略"></a>嵌套策略</h2><p>&emsp;&emsp;对于管理复杂的策略，允许一个策略由多个子策略组成是非常有用的，这些子策略被分别进行评估、编写和维护。例如，“子策略”允许不同的模块管理自己的策略，同时确保在达成授权决策时考虑到所有相关的策略。即使在集中管理策略的地方，使用“子策略”也允许将策略分组为更小的单元，从而更容易、更有效地维护它们，并选择适用于特定类型请求的策略。</p>
+<p>&emsp;&emsp;EPAL不支持嵌套策略，每个策略都是独立的，没有语言定义的机制来组合应用于给定请求的多个策略的结果。XACML不支持嵌套策略：一个策略集包含一个或多个子策略，这些子策略可以包含其他策略集。每个策略集和子策略都包含自己的适用性谓词，只有满足其适用性谓词时，才对任何特定的子策略树进行评估。子策略可以内联声明，也可以使用策略标识符引用。策略引用允许使用分布式策略，支持分散的策略管理。</p>
+<h2 id="决策结果冲突"><a href="#决策结果冲突" class="headerlink" title="决策结果冲突"></a>决策结果冲突</h2><p>&emsp;&emsp;由于XACML和EPAL中的策略可能包含多个规则，而且由于对同一请求进行评估时，不同的规则可能返回不同的结果，因此在规则冲突时，必须有一种方法确定从策略评估返回的授权决策。此外，由于XACML策略可能还包含多个子策略，而且这些子策略也可能得到不同的结果，因此XACML中还必须有一种方法来解决子策略冲突。</p>
+<p>&emsp;&emsp;在EPAL中，通过按顺序计算规则，直到其中某一个规则适用于给定的授权决策请求，从而避免了冲突。对该规则的计算结果将作为授权决策返回。在XACML中，每个策略都包含一个规则组合算法的标识符，该算法将用于组合特定策略中的规则结果。XACML规范定义了几个标准规则组合算法，包括deny-overrides（如果任何规则计算为deny，则返回deny）和permit-overrides（如果至少有一个规则计算为permit，则返回permit）。每个XACML策略集同样包含策略组合算法的标识符，用于组合该策略集中的子策略的结果。标准的策略包括deny-overrides、permit-overrides和first-applicable（返回对应用于请求的第一个策略进行评估的结果），这相当于EPAL的一个冲突解决机制。XACML可以自由定义和使用其他组合算法。</p>
+<h2 id="继承角色和类别"><a href="#继承角色和类别" class="headerlink" title="继承角色和类别"></a>继承角色和类别</h2><p>&emsp;&emsp;正如ANSI基于角色的访问控制标准所定义的，角色是权限的集合。它旨在对组织中执行某些功能角色所需的权限进行建模。角色不同于EPAL类别，因为类别是实体的集合，而不是权限的集合。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6/" rel="tag"><i class="fa fa-tag"></i> 访问控制</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/05/11/wait%E5%87%BD%E6%95%B0%E7%B0%87/" rel="prev" title="wait函数簇">
+      <i class="fa fa-chevron-left"></i> wait函数簇
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/06/17/CML%E8%AE%BA%E6%96%87%E7%9B%B8%E5%85%B3%EF%BC%88%E4%B8%80%EF%BC%89/" rel="next" title="CML论文相关（一）">
+      CML论文相关（一） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EPAL和XACML概述"><span class="nav-number">2.</span> <span class="nav-text">EPAL和XACML概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#抽象模型"><span class="nav-number">2.1.</span> <span class="nav-text">抽象模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#授权决策请求"><span class="nav-number">2.2.</span> <span class="nav-text">授权决策请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#策略结构"><span class="nav-number">2.3.</span> <span class="nav-text">策略结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#策略评估"><span class="nav-number">2.4.</span> <span class="nav-text">策略评估</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#比较"><span class="nav-number">3.</span> <span class="nav-text">比较</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#策略属性"><span class="nav-number">3.1.</span> <span class="nav-text">策略属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XML属性值"><span class="nav-number">3.2.</span> <span class="nav-text">XML属性值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#策略词汇"><span class="nav-number">3.3.</span> <span class="nav-text">策略词汇</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#授权决策请求-1"><span class="nav-number">3.4.</span> <span class="nav-text">授权决策请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#授权决策响应"><span class="nav-number">3.5.</span> <span class="nav-text">授权决策响应</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#策略评估-1"><span class="nav-number">3.6.</span> <span class="nav-text">策略评估</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#规则"><span class="nav-number">3.7.</span> <span class="nav-text">规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#嵌套策略"><span class="nav-number">3.8.</span> <span class="nav-text">嵌套策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#决策结果冲突"><span class="nav-number">3.9.</span> <span class="nav-text">决策结果冲突</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#继承角色和类别"><span class="nav-number">3.10.</span> <span class="nav-text">继承角色和类别</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>

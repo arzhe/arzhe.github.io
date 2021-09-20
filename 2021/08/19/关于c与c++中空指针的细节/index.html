@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="NULL，’\0’，”0”，”\0”&amp;emsp;&amp;emsp;本质来说，NULL，0，’\0’都是一样的，都为0值。虽然它们的值都是0，但是含义却不尽相同。 NULL&amp;emsp;&amp;emsp;虽然值是0，但是它的含义却不一样，或者可以这样说，它的类型不一样。NULL是指针类型，不过它是空指针，即值为0。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于c与c++中空指针的细节">
+<meta property="og:url" content="http://yoursite.com/2021/08/19/%E5%85%B3%E4%BA%8Ec%E4%B8%8Ec++%E4%B8%AD%E7%A9%BA%E6%8C%87%E9%92%88%E7%9A%84%E7%BB%86%E8%8A%82/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="NULL，’\0’，”0”，”\0”&amp;emsp;&amp;emsp;本质来说，NULL，0，’\0’都是一样的，都为0值。虽然它们的值都是0，但是含义却不尽相同。 NULL&amp;emsp;&amp;emsp;虽然值是0，但是它的含义却不一样，或者可以这样说，它的类型不一样。NULL是指针类型，不过它是空指针，即值为0。">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-08-19%20%E4%B8%8A%E5%8D%8811.55.19.png">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-08-19%20%E4%B8%8B%E5%8D%887.56.32.png">
+<meta property="article:published_time" content="2021-08-19T00:25:00.000Z">
+<meta property="article:modified_time" content="2021-09-20T00:09:34.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-08-19%20%E4%B8%8A%E5%8D%8811.55.19.png">
+
+<link rel="canonical" href="http://yoursite.com/2021/08/19/%E5%85%B3%E4%BA%8Ec%E4%B8%8Ec++%E4%B8%AD%E7%A9%BA%E6%8C%87%E9%92%88%E7%9A%84%E7%BB%86%E8%8A%82/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>关于c与c++中空指针的细节 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/08/19/%E5%85%B3%E4%BA%8Ec%E4%B8%8Ec++%E4%B8%AD%E7%A9%BA%E6%8C%87%E9%92%88%E7%9A%84%E7%BB%86%E8%8A%82/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          关于c与c++中空指针的细节
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-08-19 08:25:00" itemprop="dateCreated datePublished" datetime="2021-08-19T08:25:00+08:00">2021-08-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-09-20 08:09:34" itemprop="dateModified" datetime="2021-09-20T08:09:34+08:00">2021-09-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">杂记</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/08/19/%E5%85%B3%E4%BA%8Ec%E4%B8%8Ec++%E4%B8%AD%E7%A9%BA%E6%8C%87%E9%92%88%E7%9A%84%E7%BB%86%E8%8A%82/" class="post-meta-item leancloud_visitors" data-flag-title="关于c与c++中空指针的细节" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="NULL，’-0’，”0”，”-0”"><a href="#NULL，’-0’，”0”，”-0”" class="headerlink" title="NULL，’\0’，”0”，”\0”"></a>NULL，’\0’，”0”，”\0”</h1><p>&emsp;&emsp;本质来说，NULL，0，’\0’都是一样的，都为0值。虽然它们的值都是0，但是含义却不尽相同。</p>
+<h2 id="NULL"><a href="#NULL" class="headerlink" title="NULL"></a>NULL</h2><p>&emsp;&emsp;虽然值是0，但是它的含义却不一样，或者可以这样说，它的类型不一样。NULL是指针类型，不过它是空指针，即值为0。</p>
+<a id="more"></a>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// null.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%p\n"</span>, a);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们将其进行编译：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -o null null.c</span><br></pre></td></tr></table></figure>
+
+<p>会出现以下错误：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-08-19%20%E4%B8%8A%E5%8D%8811.55.19.png" alt="编译结果"></p>
+<p>它给了我们一个警告，提示尝试将指针转换为整数。这也验证了我们前面的说法。</p>
+<!--more-->
+
+<p>&emsp;&emsp;实际上NULL通常是如下定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NULL (void*)0</span></span><br></pre></td></tr></table></figure>
+
+<p>所以，如果要给一个指针类型初始化，那么你给它一个NULL，使得能够明显的看到这是一个指针。当然，在C++中，它的定义变成如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NULL 0</span></span><br></pre></td></tr></table></figure>
+
+<p>所以在C++中，更推荐使用nullptr，而不是NULL。</p>
+<h2 id="‘-0’"><a href="#‘-0’" class="headerlink" title="‘\0’"></a>‘\0’</h2><p>&emsp;&emsp;\是转义符号，’\0’用单引号包含起来，再加上转义，实际上也就是0了，只不过它代表的是字符。如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// null.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> a = <span class="string">'\0'</span>;</span><br><span class="line">    <span class="keyword">char</span> b = <span class="string">'0'</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"a = %d, b = %d\n"</span>, a, b);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译运行结果就是如下了：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -o null null.c</span><br><span class="line">./null</span><br><span class="line">a = <span class="number">0</span>, b = <span class="number">48</span></span><br></pre></td></tr></table></figure>
+
+<p>我们最常见到的就是它作为字符串的结束符。所以经常会看到下面这样的写法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> str[<span class="number">16</span>];</span><br><span class="line">...</span><br><span class="line">str[<span class="number">15</span>] = <span class="string">'\0'</span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>printf</code>以及<code>strcmp</code>都是遇到’\0’结束。</p>
+<h2 id="“0”"><a href="#“0”" class="headerlink" title="“0”"></a>“0”</h2><p>&emsp;&emsp;用双引号包括起来的0是字符串，结尾处有一个我们看不到的’\0’。</p>
+<h2 id="“-0”"><a href="#“-0”" class="headerlink" title="“\0”"></a>“\0”</h2><p>&emsp;&emsp;这也是字符串，只不过是两个空字符。使用strlen计算字符串长度为0。</p>
+<h1 id="建议在C-中使用nullptr而不是NULL"><a href="#建议在C-中使用nullptr而不是NULL" class="headerlink" title="建议在C++中使用nullptr而不是NULL"></a>建议在C++中使用nullptr而不是NULL</h1><p>&emsp;&emsp;在stddef.h可以看到如下代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">undef</span> NULL</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(__cplusplus)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NULL 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NULL ((void *)0)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>也就是说，在C++中，NULL不过也是0罢了，把它当作空指针只是一个无可奈何的选择。那么为什么在C++和C中不一样呢？因为C++中不能将<code>void*</code>类型的指针隐式转换成其他指针类型。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i1 = <span class="literal">NULL</span>; <span class="comment">// ok</span></span><br><span class="line"><span class="keyword">int</span> i2 = <span class="literal">nullptr</span>; <span class="comment">// nope</span></span><br><span class="line"><span class="keyword">int</span>* p1 = <span class="literal">NULL</span>; <span class="comment">// ok</span></span><br><span class="line"><span class="keyword">int</span>* p2 = <span class="literal">nullptr</span>; <span class="comment">// ok</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="为什么使用nullptr"><a href="#为什么使用nullptr" class="headerlink" title="为什么使用nullptr"></a>为什么使用nullptr</h2><p>&emsp;&emsp;nullptr并非整数类型，甚至不是指针类型，但是能转换成任意指针类型。nullptr的实际类型是std::nullptr_t。</p>
+<p>&emsp;&emsp;为什么作为指针的语义，我们应该使用nullptr，而不是NULL。考虑如下代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// test.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">(<span class="keyword">void</span>* p)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"p is pointer"</span> &lt;&lt; p &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"num is int"</span> &lt;&lt; num &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    test(<span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将上述代码编译后，编译会报错，提示二义性，按照“重载函数规则”，两个都可以匹配，因此最终报错。如果我们使用nullptr却不会报错。</p>
+<p>&emsp;&emsp;除此之外，在C++模版中它还有更好的表现，考虑如下代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// test.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> F, <span class="keyword">typename</span> P&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">(F f, P p)</span> </span>&#123;</span><br><span class="line">    f(p);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">(<span class="keyword">int</span>* i)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"foo"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    test(foo, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将上述代码进行编译后：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-08-19%20%E4%B8%8B%E5%8D%887.56.32.png" alt="编译结果"></p>
+<p>编译报错了，很显然NULL被推导为long int，而不是空指针，因而导致函数类型不匹配而报错。但是如果我们使用nullptr就不会有上述问题。</p>
+<p>&emsp;&emsp;最后，指针被定义空指针时，该指针指向的地址是什么呢？空指针在C／C++中占有特殊的地址，通常它是用来判断一个指针的有效性的。空指针一般定义为0。现代操作系统都会保留从0开始的一块内存，至于这块内存有多大，视不同的操作而定。一旦程序试图访问这块内存，系统就会触发一个异常／信号。操作系统为什么要保留一块内存，而不是一个字节的内存呢？这是因为内存管理都是按页进行管理的，根本就无法单纯保留一个字节，而至少保留一个页面。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Binstall/" rel="prev" title="CMake命令之install">
+      <i class="fa fa-chevron-left"></i> CMake命令之install
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NULL，’-0’，”0”，”-0”"><span class="nav-number">1.</span> <span class="nav-text">NULL，’\0’，”0”，”\0”</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#NULL"><span class="nav-number">1.1.</span> <span class="nav-text">NULL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#‘-0’"><span class="nav-number">1.2.</span> <span class="nav-text">‘\0’</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#“0”"><span class="nav-number">1.3.</span> <span class="nav-text">“0”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#“-0”"><span class="nav-number">1.4.</span> <span class="nav-text">“\0”</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#建议在C-中使用nullptr而不是NULL"><span class="nav-number">2.</span> <span class="nav-text">建议在C++中使用nullptr而不是NULL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么使用nullptr"><span class="nav-number">2.1.</span> <span class="nav-text">为什么使用nullptr</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>
