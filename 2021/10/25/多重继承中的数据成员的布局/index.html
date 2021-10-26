@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="多重继承中的数据成员的布局包含empty virtual base class的多重继承的布局&amp;emsp;&amp;emsp;考虑以下类的继承关系： 1234class X &amp;#123;&amp;#125;;class Y : public virtual X &amp;#123;&amp;#125;;class Z : public virtual X &amp;#123;&amp;#125;;class A : public Y, pub">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多重继承中的数据成员的布局">
+<meta property="og:url" content="http://yoursite.com/2021/10/25/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="多重继承中的数据成员的布局包含empty virtual base class的多重继承的布局&amp;emsp;&amp;emsp;考虑以下类的继承关系： 1234class X &amp;#123;&amp;#125;;class Y : public virtual X &amp;#123;&amp;#125;;class Z : public virtual X &amp;#123;&amp;#125;;class A : public Y, pub">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/C%2B%2B%E7%B1%BB%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-10-25%20%E4%B8%8B%E5%8D%888.00.45%281%29.png">
+<meta property="article:published_time" content="2021-10-25T11:44:00.000Z">
+<meta property="article:modified_time" content="2021-10-26T07:27:15.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/C%2B%2B%E7%B1%BB%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-10-25%20%E4%B8%8B%E5%8D%888.00.45%281%29.png">
+
+<link rel="canonical" href="http://yoursite.com/2021/10/25/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>多重继承中的数据成员的布局 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/10/25/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          多重继承中的数据成员的布局
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-10-25 19:44:00" itemprop="dateCreated datePublished" datetime="2021-10-25T19:44:00+08:00">2021-10-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-10-26 15:27:15" itemprop="dateModified" datetime="2021-10-26T15:27:15+08:00">2021-10-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/10/25/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/" class="post-meta-item leancloud_visitors" data-flag-title="多重继承中的数据成员的布局" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="多重继承中的数据成员的布局"><a href="#多重继承中的数据成员的布局" class="headerlink" title="多重继承中的数据成员的布局"></a>多重继承中的数据成员的布局</h1><h2 id="包含empty-virtual-base-class的多重继承的布局"><a href="#包含empty-virtual-base-class的多重继承的布局" class="headerlink" title="包含empty virtual base class的多重继承的布局"></a>包含empty virtual base class的多重继承的布局</h2><p>&emsp;&emsp;考虑以下类的继承关系：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Y</span> :</span> <span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Z</span> :</span> <span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> :</span> <span class="keyword">public</span> Y, <span class="keyword">public</span> Z &#123;&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/C%2B%2B%E7%B1%BB%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-10-25%20%E4%B8%8B%E5%8D%888.00.45%281%29.png" alt="1继承关系"></p>
+<p>&emsp;&emsp;上述X，Y，Z和A中没有任何一个class拥有明显的数据，仅仅表示继承关系。乍一看，似乎每一个class的大小都应该是0。错，即使是class X的大小也不为0：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X : <span class="number">1</span></span><br><span class="line"><span class="keyword">sizeof</span> Y : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Z : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> A : <span class="number">16</span></span><br></pre></td></tr></table></figure>
+
+<p>以上为64位UNIX的GCC编译器的编译结果。</p>
+<p>&emsp;&emsp;一个空的class如class X，事实上，它并不是空的。它有一个隐藏的1byte大小，这是被编译器安插进去的一个char。这使得这一个class的多个objects得以在内存中拥有独一无二的地址。</p>
+<p>&emsp;&emsp;那么为什么Y和Z的大小却是8呢？其实这个大小和机器（32位或是64位）有关，也和编译器有关。事实上Y，Z和A的大小受到三个因素的影响：</p>
+<ol>
+<li><strong>语言本身所造成的额外负担</strong>，当语言支持virtual base classes时，就会导致一些额外负担。在derived class中，这个额外负担反映在指针身上，它或是指向virtual base class subobject，或者指向一个相关表格；表格中存放的不是virtual base class subobject的地址，就是其偏移位置（offset）。32位系统中的指针是4bytes，而64位系统中的指针是8bytes。</li>
+<li><strong>编译器对于特殊情况所提供的优化处理</strong>，virtual base class X subobject的1bytes大小也出现在class Y 和 Z 身上。传统上它被放在derived class的固定部分的尾端。某些编译器会对empty virtual class提供特殊支持，例如在我的UNIX上就提供了这种特殊优化。</li>
+<li><strong>Alignment的限制</strong>，class Y 和 Z 的大小截至目前为8字节（8bytes的alignment）。它们的有效对齐值为8bytes，因此无需填补额外字节。有关字节对齐见“<a href="/2021/04/17/C%EF%BC%8FC++%E4%B8%AD%E7%9A%84%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90/" title="C／C++中的字节对齐">C／C++中的字节对齐</a>”。</li>
+</ol>
+<p>&emsp;&emsp;Empty virtual base class已经成为C++OO设计的一个特有术语了。它提供一个virtual interface，没有定义任何数据。某些较新的编译器对此提供了特殊处理（例如GCC编译器与VC编译器）。在这个策略下，一个empty virtual base class被视为derived class object最开头的一部分，也就是说它并没有花费任何额外空间。这就节省了上述第2点的1byte。只剩下第1点所说的额外负担。在此模型下，Y和Z的大小都是8。</p>
+<p>&emsp;&emsp;那么class A的大小是什么呢？记住，一个virtual base class subobject只会在derived class中存在一份实例，不管它在class继承体系中出现多少次！很明显，class A的大小某种程度上必须视你所使用的编译器与机器而定：</p>
+<ol>
+<li><p>32位机器，没有特殊处理empty virtual base class的编译器：</p>
+<ul>
+<li>被大家共享的唯一一个class X实例，大小为1byte。</li>
+<li>Base class Y的大小，减去“virtual base class X而配置”的大小（见上述第2点），结果是4bytes，Base class Z同理也是4bytes。加起来就是8bytes。</li>
+<li>class A自己的大小：0bytes。</li>
+<li>class A的alignment数量（如果有的话），前述3项总和，也就是调整对齐前的大小为9bytes。class A必须调整至4bytes边界，所以需要填补3bytes。结果就是12bytes。</li>
+</ul>
+</li>
+<li><p>64位机器，没有特殊处理empty virtual base class的编译器：</p>
+<ul>
+<li>被大家共享的唯一一个class X实例，大小为1byte。</li>
+<li>Base class Y的大小，减去“virtual base class X而配置”的大小（见上述第2点），结果是8bytes，Base class Z同理也是8bytes。加起来就是16bytes。</li>
+<li>class A自己的大小：0byte。</li>
+<li>class A的alignment数量（如果有的话），前述3项总和，也就是调整对齐前的大小为17bytes。class A必须调整至8bytes边界，所以需要填补7bytes。结果就是24bytes。</li>
+</ul>
+</li>
+<li><p>32位机器，有特殊处理empty virtual base class的编译器：</p>
+<ul>
+<li>前述class X实例的那个1byte将被拿掉。</li>
+<li>Base class Y的大小是4bytes，同理Base class Z也是4bytes。</li>
+<li>class A自己的大小：0byte。</li>
+<li>class A的alignment数量（如果有的话），前述2项总和，也就是调整对齐前的大小为8bytes。不需要进行填补。结果就是8bytes。</li>
+</ul>
+</li>
+<li><p>64位机器，有特殊处理empty virtual base class的编译器：</p>
+<ul>
+<li>前述class X实例等那个1byte将被拿掉。</li>
+<li>Base class Y的大小是8bytes，同理Base class Z也是8bytes。</li>
+<li>class A自己的大小：0byte。</li>
+<li>class A的alignment数量（如果有的话），前述2项总和，也就是调整对齐前的大小为16bytes。不需要进行填补。结果就是16bytes。（也是我的机器上的运行结果）</li>
+</ul>
+</li>
+</ol>
+<p>&emsp;&emsp;注意，如果我们在virtual base class X中放置一个（以上）的data members，两种编译器（“有特殊处理”者和“没有特殊处理”者）就会产出完全相同的对象布局。因为它们的“特殊处理”只针对于empty virtual base class。</p>
+<p>&emsp;&emsp;C++Standard并不强制规定如“base class subobjects的排列顺序”或“不同存取层级的data members的排列顺序”这种琐碎细节。它也不规定virtual functions或virtual base classes的实现细节。C++Standard只说：那些细节由各家厂商决定。本系列博客各处，都会区分“C++Standard”和“目前的C++实现标准”两种情况进行讨论。</p>
+<h2 id="包含virtual-functions的virtual-base-class的多重继承的布局"><a href="#包含virtual-functions的virtual-base-class的多重继承的布局" class="headerlink" title="包含virtual functions的virtual base class的多重继承的布局"></a>包含virtual functions的virtual base class的多重继承的布局</h2><p>&emsp;&emsp;考虑以下类的继承关系：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">virtual</span> ~X();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Y</span> :</span> <span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Z</span> :</span> <span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">bar</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> :</span> <span class="keyword">public</span> Y, <span class="keyword">public</span> Z &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">bar</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>class X，Y，Z和A都各自有一个虚函数表指针（vptr），它们的位置可能因编译器不同而不同，C++Standard允许vptr被放在对象中的任何位置，但是在此例中，并无区别，因为这些class都没有任何data members。同一个类的不同实例共用同一份虚函数表，它们都通过各自的vptr指向该虚函数表（编译器在编译期就为我们创建好了）。在64位机器上：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Y : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Z : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> A : <span class="number">16</span></span><br></pre></td></tr></table></figure>
+
+<p>对于class Y，Z和A中的vptr指向的虚函数表分别有如下讨论：</p>
+<ul>
+<li><strong>class Y</strong>，它覆盖了class X的foo函数，因此，它的vptr指向的虚函数表，也仅仅是在class X的虚函数表的基础上，覆盖了foo函数的入口地址。</li>
+<li><strong>class Z</strong>，它有自己的虚函数，它的vptr指向的虚函数表，是在class X的虚函数表的基础上，在尾部添加了Z的虚函数的指针。如果定义了多个自己的虚函数，将按照声明次序依次添加到虚表的尾部。</li>
+<li><strong>class A</strong>，它有两个vptr，第一个虚函数表是其第一个继承的类的虚函数表复制（从左到右），然后class A新增或覆写的虚函数会反映到其第一个虚函数表，第二个虚函数表也就是class Z的虚表的复制。</li>
+</ul>
+<p>&emsp;&emsp;上述情况都是在X，Y，Z和A都有虚函数的情景下讨论的，那么如果class Y没有虚函数表，class Z有虚函数，class A的成员布局又是如何呢？这种情况下，class A的第一个虚函数表将是class Z的虚函数表的复制。那么如果class Y和class Z都没有虚函数表，class A有虚函数呢？这种情况下，class A的第一个虚函数表将会是其自己的虚函数表。所以我们不难推断，谁有虚函数表，谁就放前面。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/10/14/MySQL%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="MySQL那些事（二）">
+      <i class="fa fa-chevron-left"></i> MySQL那些事（二）
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#多重继承中的数据成员的布局"><span class="nav-number">1.</span> <span class="nav-text">多重继承中的数据成员的布局</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#包含empty-virtual-base-class的多重继承的布局"><span class="nav-number">1.1.</span> <span class="nav-text">包含empty virtual base class的多重继承的布局</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#包含virtual-functions的virtual-base-class的多重继承的布局"><span class="nav-number">1.2.</span> <span class="nav-text">包含virtual functions的virtual base class的多重继承的布局</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">79</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>
