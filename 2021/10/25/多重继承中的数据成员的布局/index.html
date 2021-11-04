@@ -30,7 +30,7 @@
 <meta property="og:description" content="多重继承中的数据成员的布局包含empty virtual base class的多重继承的布局&amp;emsp;&amp;emsp;考虑以下类的继承关系： 1234class X &amp;#123;&amp;#125;;class Y : public virtual X &amp;#123;&amp;#125;;class Z : public virtual X &amp;#123;&amp;#125;;class A : public Y, pub">
 <meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/C%2B%2B%E7%B1%BB%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-10-25%20%E4%B8%8B%E5%8D%888.00.45%281%29.png">
 <meta property="article:published_time" content="2021-10-25T11:44:00.000Z">
-<meta property="article:modified_time" content="2021-10-26T07:27:15.000Z">
+<meta property="article:modified_time" content="2021-11-04T09:06:53.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
@@ -238,7 +238,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-10-26 15:27:15" itemprop="dateModified" datetime="2021-10-26T15:27:15+08:00">2021-10-26</time>
+                <time title="Modified: 2021-11-04 17:06:53" itemprop="dateModified" datetime="2021-11-04T17:06:53+08:00">2021-11-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -272,7 +272,11 @@
 <h1 id="多重继承中的数据成员的布局"><a href="#多重继承中的数据成员的布局" class="headerlink" title="多重继承中的数据成员的布局"></a>多重继承中的数据成员的布局</h1><h2 id="包含empty-virtual-base-class的多重继承的布局"><a href="#包含empty-virtual-base-class的多重继承的布局" class="headerlink" title="包含empty virtual base class的多重继承的布局"></a>包含empty virtual base class的多重继承的布局</h2><p>&emsp;&emsp;考虑以下类的继承关系：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Y</span> :</span> <span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Z</span> :</span> <span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> :</span> <span class="keyword">public</span> Y, <span class="keyword">public</span> Z &#123;&#125;;</span><br></pre></td></tr></table></figure>
 
+<a id="more"></a>
+
 <p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/C%2B%2B%E7%B1%BB%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-10-25%20%E4%B8%8B%E5%8D%888.00.45%281%29.png" alt="1继承关系"></p>
+<!--more-->
+
 <p>&emsp;&emsp;上述X，Y，Z和A中没有任何一个class拥有明显的数据，仅仅表示继承关系。乍一看，似乎每一个class的大小都应该是0。错，即使是class X的大小也不为0：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X : <span class="number">1</span></span><br><span class="line"><span class="keyword">sizeof</span> Y : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Z : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> A : <span class="number">16</span></span><br></pre></td></tr></table></figure>
 
@@ -377,7 +381,10 @@
     <a href="/2021/10/14/MySQL%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="MySQL那些事（二）">
       <i class="fa fa-chevron-left"></i> MySQL那些事（二）
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/01/%E5%8D%95%E4%B8%80%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/" rel="next" title="单一继承中的数据成员的布局">
+      单一继承中的数据成员的布局 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -451,7 +458,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">79</span>
+          <span class="site-state-item-count">77</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -462,7 +469,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
