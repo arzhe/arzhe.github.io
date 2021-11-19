@@ -28,13 +28,15 @@
 <meta property="og:url" content="http://yoursite.com/2021/10/25/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="多重继承中的数据成员的布局包含empty virtual base class的多重继承的布局&amp;emsp;&amp;emsp;考虑以下类的继承关系： 1234class X &amp;#123;&amp;#125;;class Y : public virtual X &amp;#123;&amp;#125;;class Z : public virtual X &amp;#123;&amp;#125;;class A : public Y, pub">
-<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/C%2B%2B%E7%B1%BB%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-10-25%20%E4%B8%8B%E5%8D%888.00.45%281%29.png">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-11-04%20%E4%B8%8B%E5%8D%8811.12.42%281%29.png">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-11-04%20%E4%B8%8B%E5%8D%8811.31.24%282%29.png">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-11-04%20%E4%B8%8B%E5%8D%8811.37.28%283%29.png">
 <meta property="article:published_time" content="2021-10-25T11:44:00.000Z">
-<meta property="article:modified_time" content="2021-11-04T09:06:53.000Z">
+<meta property="article:modified_time" content="2021-11-06T04:06:49.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/C%2B%2B%E7%B1%BB%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-10-25%20%E4%B8%8B%E5%8D%888.00.45%281%29.png">
+<meta name="twitter:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-11-04%20%E4%B8%8B%E5%8D%8811.12.42%281%29.png">
 
 <link rel="canonical" href="http://yoursite.com/2021/10/25/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/">
 
@@ -238,7 +240,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-11-04 17:06:53" itemprop="dateModified" datetime="2021-11-04T17:06:53+08:00">2021-11-04</time>
+                <time title="Modified: 2021-11-06 12:06:49" itemprop="dateModified" datetime="2021-11-06T12:06:49+08:00">2021-11-06</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -273,9 +275,6 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Y</span> :</span> <span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Z</span> :</span> <span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> :</span> <span class="keyword">public</span> Y, <span class="keyword">public</span> Z &#123;&#125;;</span><br></pre></td></tr></table></figure>
 
 <a id="more"></a>
-
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/C%2B%2B%E7%B1%BB%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-10-25%20%E4%B8%8B%E5%8D%888.00.45%281%29.png" alt="1继承关系"></p>
-<!--more-->
 
 <p>&emsp;&emsp;上述X，Y，Z和A中没有任何一个class拥有明显的数据，仅仅表示继承关系。乍一看，似乎每一个class的大小都应该是0。错，即使是class X的大小也不为0：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X : <span class="number">1</span></span><br><span class="line"><span class="keyword">sizeof</span> Y : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Z : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> A : <span class="number">16</span></span><br></pre></td></tr></table></figure>
@@ -332,13 +331,133 @@
 <p>class X，Y，Z和A都各自有一个虚函数表指针（vptr），它们的位置可能因编译器不同而不同，C++Standard允许vptr被放在对象中的任何位置，但是在此例中，并无区别，因为这些class都没有任何data members。同一个类的不同实例共用同一份虚函数表，它们都通过各自的vptr指向该虚函数表（编译器在编译期就为我们创建好了）。在64位机器上：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Y : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Z : <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> A : <span class="number">16</span></span><br></pre></td></tr></table></figure>
 
-<p>对于class Y，Z和A中的vptr指向的虚函数表分别有如下讨论：</p>
+<p>&emsp;&emsp;在多重继承下，一个derived class内含<code>n-1</code>个额外的virtual tables，<code>n</code>表示其上一层base classes的个数（因此，单一继承将不会有额外的virtual tables）。对于class Y，Z和A中的virtual tables分别有如下讨论：</p>
 <ul>
 <li><strong>class Y</strong>，它覆盖了class X的foo函数，因此，它的vptr指向的虚函数表，也仅仅是在class X的虚函数表的基础上，覆盖了foo函数的入口地址。</li>
 <li><strong>class Z</strong>，它有自己的虚函数，它的vptr指向的虚函数表，是在class X的虚函数表的基础上，在尾部添加了Z的虚函数的指针。如果定义了多个自己的虚函数，将按照声明次序依次添加到虚表的尾部。</li>
-<li><strong>class A</strong>，它有两个vptr，第一个虚函数表是其第一个继承的类的虚函数表复制（从左到右），然后class A新增或覆写的虚函数会反映到其第一个虚函数表，第二个虚函数表也就是class Z的虚表的复制。</li>
+<li><strong>class A</strong>，它有两个virtual tables被编译器产出：<ul>
+<li>一个主要实例，与Y（最左端base class）共享。</li>
+<li>一个次要实例，与Z（第二个base class）有关。</li>
 </ul>
-<p>&emsp;&emsp;上述情况都是在X，Y，Z和A都有虚函数的情景下讨论的，那么如果class Y没有虚函数表，class Z有虚函数，class A的成员布局又是如何呢？这种情况下，class A的第一个虚函数表将是class Z的虚函数表的复制。那么如果class Y和class Z都没有虚函数表，class A有虚函数呢？这种情况下，class A的第一个虚函数表将会是其自己的虚函数表。所以我们不难推断，谁有虚函数表，谁就放前面。</p>
+</li>
+</ul>
+<p>&emsp;&emsp;上述情况都是在X，Y，Z和A都有虚函数的情景下讨论的，那么如果class Y没有虚函数表，class Z有虚函数，class A的成员布局又是如何呢？这种情况下，class A的第一个虚函数表将与class Z的虚函数表共享。那么如果class Y和class Z都没有虚函数表，class A有虚函数呢？这种情况下，class A的第一个虚函数表将会是其自己的虚函数表。所以我们不难推断，谁有虚函数表，谁就放前面。</p>
+<p>&emsp;&emsp;考虑以下代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point2D</span> &#123;</span>                                                                               </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">int</span> y;</span><br><span class="line"></span><br><span class="line">    Point2D() &#123; </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Point2D's             address: %p\n"</span>, <span class="keyword">this</span>);</span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    <span class="keyword">virtual</span> ~Point2D() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">()</span> </span>&#123; </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Point2D::x's          address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;x));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Point2D::y's          address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;y));</span><br><span class="line">    &#125; </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point3D</span> :</span> <span class="keyword">public</span> <span class="keyword">virtual</span> Point2D &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> z;</span><br><span class="line"></span><br><span class="line">    Point3D() &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Point3D's             address: %p\n"</span>, <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Point3D::x's          address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;x));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Point3D::y's          address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;y));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Point3D::z's          address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;z));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Line</span> :</span> <span class="keyword">public</span> <span class="keyword">virtual</span> Point2D &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> length;</span><br><span class="line"> </span><br><span class="line">    Line() &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Line's                address: %p\n"</span>, <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">line</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Line::x's             address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;x));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Line::y's             address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;y));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Line::length's        address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;length));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Cube</span> :</span> <span class="keyword">public</span> Point3D, <span class="keyword">public</span> Line &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> area;</span><br><span class="line"> </span><br><span class="line">    Cube() &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Cube's                address: %p\n"</span>, <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">build</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Cube::x's             address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;x));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Cube::y's             address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;y));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Cube::z's             address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;z));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Cube::length's        address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;length));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Cube::area's          address: %p\n"</span>, &amp;(<span class="keyword">this</span>-&gt;area));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;编译后各class object的内存布局如下：</p>
+<ul>
+<li>Point2D的内存布局：</li>
+</ul>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-11-04%20%E4%B8%8B%E5%8D%8811.12.42%281%29.png" alt="1"></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Address(offset)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>（Point2D），vptr_Point2D</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Point2D::x</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Point2D::y</td>
+<td>12</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Point3D的内存布局：</li>
+</ul>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-11-04%20%E4%B8%8B%E5%8D%8811.31.24%282%29.png" alt="2"></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Address(offset)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>（Point3D），vptr_Point3D</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Point3D::z</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Padding（字节补齐）</td>
+<td>12</td>
+</tr>
+<tr>
+<td>（Point2D），vptr_Point2D</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Point3D::Point2D::x</td>
+<td>24</td>
+</tr>
+<tr>
+<td>Point3D::Point2D::y</td>
+<td>28</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Line的内存布局：</li>
+</ul>
+<p>&emsp;&emsp;其内存布局同Point3D。</p>
+<ul>
+<li>Cube的内存布局：</li>
+</ul>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/2021-11-04%20%E4%B8%8B%E5%8D%8811.37.28%283%29.png" alt="3"></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Address(offset)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>（Cube，Cube::Point3D），vptr_Cube</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cube::Point3D::z</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Padding（字节补齐）</td>
+<td>12</td>
+</tr>
+<tr>
+<td>（Cube::Line），vptr_Line</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Cube::Line::length</td>
+<td>24</td>
+</tr>
+<tr>
+<td>Cube::area</td>
+<td>28</td>
+</tr>
+<tr>
+<td>（virtual::Point2D），vptr_Point2D</td>
+<td>32</td>
+</tr>
+<tr>
+<td>virtual::Point2D::x</td>
+<td>40</td>
+</tr>
+<tr>
+<td>Virtual::Point2D::y</td>
+<td>44</td>
+</tr>
+</tbody></table>
 
     </div>
 
@@ -458,7 +577,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

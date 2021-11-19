@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="概述&amp;emsp;&amp;emsp;在&lt;ctime&gt;或&lt;time.h&gt;头文件中，包含了用于获取和操作日期和时间信息的函数的各类定义。其经常用于日志的格式化输出。本文将系统全面的介绍上述各类函数。以下是函数，宏以及类型的概览：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++有关时间的操作">
+<meta property="og:url" content="http://yoursite.com/2021/11/19/C++%E6%9C%89%E5%85%B3%E6%97%B6%E9%97%B4%E7%9A%84%E6%93%8D%E4%BD%9C/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="概述&amp;emsp;&amp;emsp;在&lt;ctime&gt;或&lt;time.h&gt;头文件中，包含了用于获取和操作日期和时间信息的函数的各类定义。其经常用于日志的格式化输出。本文将系统全面的介绍上述各类函数。以下是函数，宏以及类型的概览：">
+<meta property="article:published_time" content="2021-11-19T02:44:00.000Z">
+<meta property="article:modified_time" content="2021-11-19T03:14:19.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2021/11/19/C++%E6%9C%89%E5%85%B3%E6%97%B6%E9%97%B4%E7%9A%84%E6%93%8D%E4%BD%9C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>C++有关时间的操作 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/11/19/C++%E6%9C%89%E5%85%B3%E6%97%B6%E9%97%B4%E7%9A%84%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++有关时间的操作
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-11-19 10:44:00 / Modified: 11:14:19" itemprop="dateCreated datePublished" datetime="2021-11-19T10:44:00+08:00">2021-11-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">杂记</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/11/19/C++%E6%9C%89%E5%85%B3%E6%97%B6%E9%97%B4%E7%9A%84%E6%93%8D%E4%BD%9C/" class="post-meta-item leancloud_visitors" data-flag-title="C++有关时间的操作" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>&emsp;&emsp;在<code>&lt;ctime&gt;</code>或<code>&lt;time.h&gt;</code>头文件中，包含了用于获取和操作日期和时间信息的函数的各类定义。其经常用于日志的格式化输出。本文将系统全面的介绍上述各类函数。以下是函数，宏以及类型的概览：</p>
+<a id="more"></a>
+
+<h1 id="指引"><a href="#指引" class="headerlink" title="指引"></a>指引</h1><h2 id="Functions"><a href="#Functions" class="headerlink" title="Functions"></a>Functions</h2><ul>
+<li>clock：<a href="#clock">clock program</a></li>
+<li>difftime：<a href="#difftime">返回两个时间点之差</a></li>
+<li>mktime：<a href="#mktime">将结构体tm转换为time_t类型</a></li>
+<li>time：<a href="#time">获取当前时间</a></li>
+</ul>
+<h2 id="Convertion"><a href="#Convertion" class="headerlink" title="Convertion"></a>Convertion</h2><ul>
+<li>asctime：<a href="#asctime">将结构体tm转换为字符串</a></li>
+<li>ctime：<a href="#ctime">将time_t类型的值转换为字符串</a></li>
+<li>gmtime：<a href="#gmtime">将time_t类型的值转换为UTC的tm类型的值</a></li>
+<li>localtime：<a href="#localtime">将time_t类型的值转换为local的tm类型的值</a></li>
+<li>strftime：<a href="#strftime">将时间格式化为字符串</a></li>
+</ul>
+<h2 id="Macro-constants"><a href="#Macro-constants" class="headerlink" title="Macro constants"></a>Macro constants</h2><ul>
+<li>CLOCKS_PER_SEC：<a href="#CLOCKS_PER_SEC">时钟每秒摆动次数</a></li>
+</ul>
+<h2 id="types"><a href="#types" class="headerlink" title="types"></a>types</h2><ul>
+<li>clock_t：<a href="#clock_t">时钟类型</a></li>
+<li>time_t：<a href="#time_t">时间类型</a></li>
+<li>struct tm：<a href="#tm">时间结构体</a></li>
+</ul>
+<h1 id="clock"><a href="#clock" class="headerlink" title="clock"></a><span id="clock">clock</span></h1><h2 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">clock_t</span> <span class="title">clock</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;返回程序消耗的处理器时间。返回的值以时钟的摆动（滴答）次数表示，它是系统指定长度的常量时间单位（与每秒的<code>CLOCK_PER_SEC</code>时钟滴答次数有关）。</p>
+<p>&emsp;&emsp;在不同的系统中，时钟参考的时间是不同的，但是它与程序的执行有关（通常是它的启动）。为了计算程序实际的处理时间，时钟返回值应该与之前调用的同一个函数返回的值进行比较。</p>
+<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><p>&emsp;&emsp;none</p>
+<h2 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;从一个epoch开始，经过的时钟摆动次数，该epoch与特定程序的执行相关。</p>
+<p>&emsp;&emsp;如果失败了，则返回-1。</p>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // clock_t, clock, CLOCKS_PER_SEC</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">DoSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">... <span class="comment">// do something.</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">clock_t</span> t;</span><br><span class="line">    t = clock();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"starting ...\n"</span>);</span><br><span class="line">    DoSomething();</span><br><span class="line">    t = clock() - t;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"It took me %d clicks (%f seconds).\n"</span>, </span><br><span class="line">           t, (<span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(t)) / CLOCKS_PER_SEC);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据竞争"><a href="#数据竞争" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;并发地调用这个函数是安全的，不会导致数据竞争。</p>
+<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不会抛出异常。</p>
+<h1 id="difftime"><a href="#difftime" class="headerlink" title="difftime"></a><span id="difftime">difftime</span></h1><h2 id="函数原型-1"><a href="#函数原型-1" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">difftime</span><span class="params">(<span class="keyword">time_t</span> <span class="built_in">end</span>, <span class="keyword">time_t</span> <span class="built_in">begin</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明-1"><a href="#说明-1" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;计算两个时间之差。</p>
+<h2 id="参数-1"><a href="#参数-1" class="headerlink" title="参数"></a>参数</h2><ul>
+<li>end：计算时间间隔长度的上限者</li>
+<li>begin：计算时间间隔长度的下限者，如果end小于begin，则返回负值。</li>
+</ul>
+<h2 id="返回值-1"><a href="#返回值-1" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;<code>(end - begin)</code>的结果。</p>
+<h2 id="例子-1"><a href="#例子-1" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // time_t, struct tm, difftime, time, mktime</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">time_t</span> now;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span> <span class="title">new_year</span>;</span></span><br><span class="line">    <span class="keyword">double</span> seconds;</span><br><span class="line">  </span><br><span class="line">    <span class="comment">// get current time, same as: now = time(NULL).</span></span><br><span class="line">    time(&amp;now);</span><br><span class="line">    </span><br><span class="line">    new_year = *localtime(&amp;now);</span><br><span class="line">    new_year.tm_mon = <span class="number">0</span></span><br><span class="line">    new_year.tm_mday = <span class="number">1</span>;</span><br><span class="line">    new_year.tm_hour = <span class="number">0</span>;</span><br><span class="line">    new_year.tm_min = <span class="number">0</span>;</span><br><span class="line">    new_year.tm_sec = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    seconds = difftime(now, mktime(&amp;new_year));</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%.f seconds since new year in the current timezone.\n"</span>, seconds);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据竞争-1"><a href="#数据竞争-1" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;并发地调用这个函数是安全的，不会导致数据竞争。</p>
+<h2 id="异常-1"><a href="#异常-1" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不会抛出异常。</p>
+<h1 id="mktime"><a href="#mktime" class="headerlink" title="mktime"></a><span id="mktime">mktime</span></h1><h2 id="函数原型-2"><a href="#函数原型-2" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">time_t</span> <span class="title">mktime</span><span class="params">(struct tm* time_ptr)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明-2"><a href="#说明-2" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将结构体tm转换为time_t类型。返回时间类型time_t的值，该值表示由timeptr指向的结构体tm所描述的本地时间（可修改）。</p>
+<p>&emsp;&emsp;该函数执行的操作与<code>localtime</code>相反。</p>
+<h2 id="参数-2"><a href="#参数-2" class="headerlink" title="参数"></a>参数</h2><ul>
+<li>time_ptr：指向结构体tm的指针，该结构包含日历时间的各个组件。</li>
+</ul>
+<h2 id="返回值-2"><a href="#返回值-2" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;时间time_t的值，如果日历时间不能表示，则返回-1值。</p>
+<h2 id="例子-2"><a href="#例子-2" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // time_t, struct tm, time, mktime</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">time_t</span> raw_time;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span>* <span class="title">time_info</span>;</span></span><br><span class="line">    <span class="keyword">int</span> year, month, day;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* weekday[] = &#123; <span class="string">"Sunday"</span>, <span class="string">"Monday"</span>, <span class="string">"Tuesday"</span>,</span><br><span class="line">                              <span class="string">"Wednesday"</span>, <span class="string">"Thursday"</span>,</span><br><span class="line">                              <span class="string">"Friday"</span>, <span class="string">"Saturday"</span> &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Enter year: "</span>); fflush(<span class="built_in">stdout</span>); <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;year);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Enter month: "</span>); fflush(<span class="built_in">stdout</span>); <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;month);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Enter day: "</span>); fflush(<span class="built_in">stdout</span>); <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;day);</span><br><span class="line">  </span><br><span class="line">    time(&amp;raw_time);</span><br><span class="line">    time_info = localtime(&amp;raw_time);</span><br><span class="line">    time_info-&gt;tm_year = year - <span class="number">1900</span>;</span><br><span class="line">    time_info-&gt;tm_mon = month - <span class="number">1</span>;</span><br><span class="line">    time_info-&gt;tm_mday = day;</span><br><span class="line">    </span><br><span class="line">    mktime(time_info);</span><br><span class="line">  </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"That day is a %s.\n"</span>, weekday[time_info-&gt;tm_wday]);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据竞争-2"><a href="#数据竞争-2" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;time_ptr所指向的对象如果被访问，有可能会被修改。</p>
+<h2 id="异常-2"><a href="#异常-2" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不会抛出异常。</p>
+<h1 id="time"><a href="#time" class="headerlink" title="time"></a><span id="time">time</span></h1><h2 id="函数原型-3"><a href="#函数原型-3" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">time_t</span> <span class="title">time</span><span class="params">(<span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明-3"><a href="#说明-3" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;获取当前日历时间作为time_t类型的值。</p>
+<p>&emsp;&emsp;返回的值通常表示从1970年1月1日00:00小时（即当前的unix时间戳）开始的秒数。由于库可能使用不同的时间表示方式，因此，可移植程序不应直接使用该函数返回的值，而应始终依赖对标准库的其他元素的调用，将它们转换为可移植类型（如localtime、gmtime和difftime）。</p>
+<h2 id="参数-3"><a href="#参数-3" class="headerlink" title="参数"></a>参数</h2><ul>
+<li>timer：类型为time_t的对象的指针，其中存储时间值。该参数也可以是空指针（默认参数），在这种情况下，函数仍然返回一个time_t类型的值。</li>
+</ul>
+<h2 id="返回值-3"><a href="#返回值-3" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;返回当前日历时间作为time_t类型的值。</p>
+<h2 id="例子-3"><a href="#例子-3" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // time_t, struct tm, difftime, time, mktime</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">time_t</span> timer;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span> <span class="title">time_info</span> = &#123;</span><span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">double</span> seconds;</span><br><span class="line">    </span><br><span class="line">    time_info.year = <span class="number">100</span>;</span><br><span class="line">    time_info.mon = <span class="number">0</span>;</span><br><span class="line">    time_info.mday = <span class="number">1</span>;</span><br><span class="line">    time_info.hour = <span class="number">0</span>;</span><br><span class="line">    time_info.<span class="built_in">min</span> = <span class="number">0</span>;</span><br><span class="line">    time_info.sec = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">    time(&amp;timer);</span><br><span class="line">    seconds = difftime(timer, mktime(&amp;time_info));</span><br><span class="line">  </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%.f seconds since January 1, 2000 in the current timezone"</span>, seconds);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据竞争-3"><a href="#数据竞争-3" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;计时器所指向的对象被修改（如果不为空）。</p>
+<h2 id="异常-3"><a href="#异常-3" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不会抛出异常。</p>
+<h1 id="asctime"><a href="#asctime" class="headerlink" title="asctime"></a><span id="asctime">asctime</span></h1><h2 id="函数原型-4"><a href="#函数原型-4" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">asctime</span><span class="params">(<span class="keyword">const</span> struct tm* time_ptr)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明-4"><a href="#说明-4" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将结构体tm转换为字符串。其返回的字符串的格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Www Mmm dd hh:mm:ss yyyy</span><br></pre></td></tr></table></figure>
+
+<p>Www是星期，Mmm是月份（字母表示），dd是日期（按月，也就是1-31），hh:mm:ss是时间，yyyy是年份。该字符串最后面是一个换行符（<code>&#39;\n&#39;</code>），并且有一个结束符（<code>&#39;\0&#39;</code>）。</p>
+<p>以下函数的功能等同于<code>asctime</code>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">asctime</span><span class="params">(<span class="keyword">const</span> struct tm* timeptr)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> wday_name[] = &#123;</span><br><span class="line">        <span class="string">"Sun"</span>, <span class="string">"Mon"</span>, <span class="string">"Tue"</span>, <span class="string">"Web"</span>, <span class="string">"Thu"</span>, <span class="string">"Fri"</span>, <span class="string">"Sat"</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> mon_name[] = &#123;</span><br><span class="line">        <span class="string">"Jan"</span>, <span class="string">"Feb"</span>, <span class="string">"Mar"</span>, <span class="string">"Apr"</span>, <span class="string">"May"</span>, <span class="string">"Jun"</span>,</span><br><span class="line">        <span class="string">"July"</span>, <span class="string">"Aug"</span>, <span class="string">"Sep"</span>, <span class="string">"Oct"</span>, <span class="string">"Nov"</span>, <span class="string">"Dec"</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">char</span> result[<span class="number">26</span>];</span><br><span class="line">    <span class="built_in">sprintf</span>(result, <span class="string">"%.3s %.3s%3d %.2d:%.2d:%.2d %d\n"</span>,</span><br><span class="line">            wday_name[timeptr-&gt;tm_wday],</span><br><span class="line">            mon_name[timeptr-&gt;tm_mon],</span><br><span class="line">            timeptr-&gt;tm_mday, </span><br><span class="line">            timeptr-&gt;tm_hour, timeptr-&gt;tm_min, timeptr-&gt;tm_sec,</span><br><span class="line">            <span class="number">19000</span> + timeptr-&gt;year);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果要自定义格式化输出时间，见<a href="#strftime">strftime</a>。</p>
+<h2 id="参数-4"><a href="#参数-4" class="headerlink" title="参数"></a>参数</h2><ul>
+<li>time_ptr：指向结构体tm的指针，该结构包含日历时间的各个组件。</li>
+</ul>
+<h2 id="返回值-4"><a href="#返回值-4" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;包含日期与时间的信息的C风格字符串。</p>
+<h2 id="例子-4"><a href="#例子-4" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // time_t, struct tm, time, localtime, asctime</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">time_t</span> raw_time;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span>* <span class="title">time_info</span>;</span></span><br><span class="line">    </span><br><span class="line">    time(&amp;raw_time);</span><br><span class="line">    time_info = localtime(&amp;raw_time);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"The current data/time is: %s"</span>, asctime(time_info));</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据竞争-4"><a href="#数据竞争-4" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;该函数访问time_ptr所指向的对象。该函数还访问和修改共享的内部缓冲区，这可能会导致并发调用asctime或ctime时的数据竞争。一些库提供了一个替代函数来避免这种数据竞争：<code>asctime_r</code>(不可移植)。</p>
+<h2 id="异常-4"><a href="#异常-4" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不抛出异常。</p>
+<h1 id="ctime"><a href="#ctime" class="headerlink" title="ctime"></a><span id="ctime">ctime</span></h1><h2 id="函数原型-5"><a href="#函数原型-5" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">ctime</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>该函数与<code>asctime</code>等价。</p>
+<h1 id="gmtime"><a href="#gmtime" class="headerlink" title="gmtime"></a><span id="gmtime">gmtime</span></h1><h2 id="函数原型-6"><a href="#函数原型-6" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct tm* <span class="title">gmtime</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明-5"><a href="#说明-5" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将time_t类型转换为UTC时间表示的结构体tm。与<code>localtime</code>对应。</p>
+<h2 id="参数-5"><a href="#参数-5" class="headerlink" title="参数"></a>参数</h2><ul>
+<li>timer：指向包含time_t类型的时间值。</li>
+</ul>
+<h2 id="返回值-5"><a href="#返回值-5" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;一个指向结构体tm的指针，该结构体成员用与计时器的UTC时间表示相对应的值填充。</p>
+<h2 id="例子-5"><a href="#例子-5" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // time_t, struct tm, time, gmtime</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MST (-7)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UTC (0)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CCT (+8)</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">time_t</span> raw_time;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span>* <span class="title">time_info</span>;</span></span><br><span class="line">    </span><br><span class="line">    time(&amp;raw_time);</span><br><span class="line">    time_info = gmtime(&amp;raw_time);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">puts</span> (<span class="string">"Current time around the World:"</span>);</span><br><span class="line">    <span class="built_in">printf</span> (<span class="string">"Phoenix, AZ (U.S.) :  %2d:%02d\n"</span>, </span><br><span class="line">            (time_info-&gt;tm_hour+MST)%<span class="number">24</span>, time_info-&gt;tm_min);</span><br><span class="line">    <span class="built_in">printf</span> (<span class="string">"Reykjavik (Iceland) : %2d:%02d\n"</span>, </span><br><span class="line">            (time_info-&gt;tm_hour+UTC)%<span class="number">24</span>, time_info-&gt;tm_min);</span><br><span class="line">    <span class="built_in">printf</span> (<span class="string">"Beijing (China) :     %2d:%02d\n"</span>, </span><br><span class="line">            (time_info-&gt;tm_hour+CCT)%<span class="number">24</span>, time_info-&gt;tm_min);</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据竞争-5"><a href="#数据竞争-5" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;该函数访问定时器所指向的对象。该函数还访问和修改共享的内部对象，这可能会在并发调用gmtime和localtime时引入数据竞争。一些库提供了避免这种数据竞争的替代函数：<code>gmtime_r</code>(不可移植)。</p>
+<h2 id="异常-5"><a href="#异常-5" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不抛出异常。</p>
+<h1 id="localtime"><a href="#localtime" class="headerlink" title="localtime"></a><span id="localtime">localtime</span></h1><h2 id="函数原型-7"><a href="#函数原型-7" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct tm* <span class="title">localtime</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>与函数<code>gmtime</code>类似。</p>
+<h1 id="strftime"><a href="#strftime" class="headerlink" title="strftime"></a><span id="strftime">strftime</span></h1><h2 id="函数原型-8"><a href="#函数原型-8" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">strftime</span><span class="params">(<span class="keyword">char</span>* ptr, <span class="keyword">size_t</span> max_size, <span class="keyword">const</span> <span class="keyword">char</span>* format,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">const</span> struct tm* time_ptr)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明-6"><a href="#说明-6" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将结构体tm的中描述的时间的相应值按照format格式化，并限制其最大长度为max_size，然后复制到ptr中。</p>
+<h2 id="参数-6"><a href="#参数-6" class="headerlink" title="参数"></a>参数</h2><ul>
+<li>ptr：该指针指向最后结果存储的位置</li>
+<li>max_size：max_size：要复制到ptr中的最大字符数，包括结束字符（<code>&#39;\0&#39;</code>）。</li>
+<li>format：包含任何正则字符和特殊格式说明符的组合的C风格字符串。这些格式说明符被函数替换为相应的值，以表示timep_tr中指定的时间。它们都以百分号(%)开头，具体如下表：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>specifier</th>
+<th>Replaced by</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>%a</code></td>
+<td>Abbreviated weekday name *</td>
+<td><code>Thu</code></td>
+</tr>
+<tr>
+<td><code>%A</code></td>
+<td>Full weekday name *</td>
+<td><code>Thursday</code></td>
+</tr>
+<tr>
+<td><code>%b</code></td>
+<td>Abbreviated month name *</td>
+<td><code>Aug</code></td>
+</tr>
+<tr>
+<td><code>%B</code></td>
+<td>Full month name *</td>
+<td><code>August</code></td>
+</tr>
+<tr>
+<td><code>%c</code></td>
+<td>Date and time representation *</td>
+<td><code>Thu Aug 23 14:55:02 2001</code></td>
+</tr>
+<tr>
+<td><code>%C</code></td>
+<td>Year divided by 100 and truncated to integer (<code>00-99</code>)</td>
+<td><code>20</code></td>
+</tr>
+<tr>
+<td><code>%d</code></td>
+<td>Day of the month, zero-padded (<code>01-31</code>)</td>
+<td><code>23</code></td>
+</tr>
+<tr>
+<td><code>%D</code></td>
+<td>Short <code>MM/DD/YY</code> date, equivalent to <code>%m/%d/%y</code></td>
+<td><code>08/23/01</code></td>
+</tr>
+<tr>
+<td><code>%e</code></td>
+<td>Day of the month, space-padded (<code>1-31</code>)</td>
+<td><code>23</code></td>
+</tr>
+<tr>
+<td><code>%F</code></td>
+<td>Short <code>YYYY-MM-DD</code> date, equivalent to <code>%Y-%m-%d</code></td>
+<td><code>2001-08-23</code></td>
+</tr>
+<tr>
+<td><code>%g</code></td>
+<td>Week-based year, last two digits (<code>00-99</code>)</td>
+<td><code>01</code></td>
+</tr>
+<tr>
+<td><code>%G</code></td>
+<td>Week-based year</td>
+<td><code>2001</code></td>
+</tr>
+<tr>
+<td><code>%h</code></td>
+<td>Abbreviated month name * (same as <code>%b</code>)</td>
+<td><code>Aug</code></td>
+</tr>
+<tr>
+<td><code>%H</code></td>
+<td>Hour in 24h format (<code>00-23</code>)</td>
+<td><code>14</code></td>
+</tr>
+<tr>
+<td><code>%I</code></td>
+<td>Hour in 12h format (<code>01-12</code>)</td>
+<td><code>02</code></td>
+</tr>
+<tr>
+<td><code>%j</code></td>
+<td>Day of the year (<code>001-366</code>)</td>
+<td><code>235</code></td>
+</tr>
+<tr>
+<td><code>%m</code></td>
+<td>Month as a decimal number (<code>01-12</code>)</td>
+<td><code>08</code></td>
+</tr>
+<tr>
+<td><code>%M</code></td>
+<td>Minute (<code>00-59</code>)</td>
+<td><code>55</code></td>
+</tr>
+<tr>
+<td><code>%n</code></td>
+<td>New-line character (<code>&#39;\n&#39;</code>)</td>
+<td>``</td>
+</tr>
+<tr>
+<td><code>%p</code></td>
+<td>AM or PM designation</td>
+<td><code>PM</code></td>
+</tr>
+<tr>
+<td><code>%r</code></td>
+<td>12-hour clock time *</td>
+<td><code>02:55:02 pm</code></td>
+</tr>
+<tr>
+<td><code>%R</code></td>
+<td>24-hour <code>HH:MM</code> time, equivalent to <code>%H:%M</code></td>
+<td><code>14:55</code></td>
+</tr>
+<tr>
+<td><code>%S</code></td>
+<td>Second (<code>00-61</code>)</td>
+<td><code>02</code></td>
+</tr>
+<tr>
+<td><code>%t</code></td>
+<td>Horizontal-tab character (<code>&#39;\t&#39;</code>)</td>
+<td>``</td>
+</tr>
+<tr>
+<td><code>%T</code></td>
+<td>ISO 8601 time format (<code>HH:MM:SS</code>), equivalent to <code>%H:%M:%S</code></td>
+<td><code>14:55:02</code></td>
+</tr>
+<tr>
+<td><code>%u</code></td>
+<td>ISO 8601 weekday as number with Monday as <code>1</code> (<code>1-7</code>)</td>
+<td><code>4</code></td>
+</tr>
+<tr>
+<td><code>%U</code></td>
+<td>Week number with the first Sunday as the first day of week one (<code>00-53</code>)</td>
+<td><code>33</code></td>
+</tr>
+<tr>
+<td><code>%V</code></td>
+<td>ISO 8601 week number (<code>01-53</code>)</td>
+<td><code>34</code></td>
+</tr>
+<tr>
+<td><code>%w</code></td>
+<td>Weekday as a decimal number with Sunday as <code>0</code> (<code>0-6</code>)</td>
+<td><code>4</code></td>
+</tr>
+<tr>
+<td><code>%W</code></td>
+<td>Week number with the first Monday as the first day of week one (<code>00-53</code>)</td>
+<td><code>34</code></td>
+</tr>
+<tr>
+<td><code>%x</code></td>
+<td>Date representation *</td>
+<td><code>08/23/01</code></td>
+</tr>
+<tr>
+<td><code>%X</code></td>
+<td>Time representation *</td>
+<td><code>14:55:02</code></td>
+</tr>
+<tr>
+<td><code>%y</code></td>
+<td>Year, last two digits (<code>00-99</code>)</td>
+<td><code>01</code></td>
+</tr>
+<tr>
+<td><code>%Y</code></td>
+<td>Year</td>
+<td><code>2001</code></td>
+</tr>
+<tr>
+<td><code>%z</code></td>
+<td>ISO 8601 offset from UTC in timezone (1 minute=1, 1 hour=100) If timezone cannot be determined, no characters</td>
+<td><code>+100</code></td>
+</tr>
+<tr>
+<td><code>%Z</code></td>
+<td>Timezone name or abbreviation * If timezone cannot be determined, no characters</td>
+<td><code>CDT</code></td>
+</tr>
+<tr>
+<td><code>%%</code></td>
+<td>A <code>%</code> sign</td>
+<td><code>%</code></td>
+</tr>
+</tbody></table>
+<ul>
+<li>time_ptr：指向结构体tm的指针，该结构包含日历时间的各个组件。</li>
+</ul>
+<h2 id="返回值-6"><a href="#返回值-6" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;如果要复制的C字符串的长度(包括结束符)没有超过max_size，则函数返回复制到ptr的字符总数(不包括结束符)。否则，它将返回0，并且ptr所指向的数组的内容是不确定的。</p>
+<h2 id="例子-6"><a href="#例子-6" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // time_t, struct tm, time, localtime, strftime</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">time_t</span> raw_time;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span>* <span class="title">time_info</span>;</span></span><br><span class="line">    <span class="keyword">char</span> <span class="built_in">buffer</span>[<span class="number">80</span>];</span><br><span class="line">  </span><br><span class="line">    time(&amp;raw_time);</span><br><span class="line">    time_info = localtime(&amp;raw_time);</span><br><span class="line">  </span><br><span class="line">    strftime(<span class="built_in">buffer</span>, <span class="number">80</span>, <span class="string">"Now it's %I:%M%p."</span>, time_info);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="built_in">buffer</span>);</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据竞争-6"><a href="#数据竞争-6" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;该函数访问format所指向的数组和time_ptr所指向的对象。如果成功，它还会修改ptr所指向的数组中的元素。同时更改地区设置也可能导致数据竞争。</p>
+<h2 id="异常-6"><a href="#异常-6" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不会抛出异常。</p>
+<h1 id="CLOCKS-PER-SEC"><a href="#CLOCKS-PER-SEC" class="headerlink" title="CLOCKS_PER_SEC"></a><span id="CLOCKS_PER_SEC">CLOCKS_PER_SEC</span></h1><h2 id="说明-7"><a href="#说明-7" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;此宏扩展为表示每秒时钟滴答数的表达式。时钟滴答数是系统特定长度的常量时间单位。例如时钟函数<code>clock</code>返回的时间单位，将返回的时钟滴答计数除以这个表达式得到秒数。</p>
+<h1 id="time-t"><a href="#time-t" class="headerlink" title="time_t"></a><span id="time_t">time_t</span></h1><h2 id="说明-8"><a href="#说明-8" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;基本算术类型的别名，能够表示时间，如由函数time返回的时间。由于历史原因，它通常被实现为一个整数值，表示自1970年1月1日00:00小时(即unix时间戳)以来经过的秒数。虽然库可以使用替代时间表示来实现这种类型。可移植程序不应该直接使用这种类型的值，而是始终依赖于对标准库元素的调用来将它们转换为可移植类型。</p>
+<h1 id="struct-tm"><a href="#struct-tm" class="headerlink" title="struct tm"></a><span id="tm">struct tm</span></h1><h2 id="说明-9"><a href="#说明-9" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;该结构体包含能够表示一个日历的9个组件，它们都是int类型的成员：</p>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Type</th>
+<th>Meaning</th>
+<th>Range</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tm_sec</td>
+<td><code>int</code></td>
+<td>seconds after the minute</td>
+<td><code>0-60*</code></td>
+</tr>
+<tr>
+<td>tm_min</td>
+<td><code>int</code></td>
+<td>minutes after the hour</td>
+<td><code>0-59</code></td>
+</tr>
+<tr>
+<td>tm_hour</td>
+<td><code>int</code></td>
+<td>hours since midnight</td>
+<td><code>0-23</code></td>
+</tr>
+<tr>
+<td>tm_mday</td>
+<td><code>int</code></td>
+<td>day of the month</td>
+<td><code>1-31</code></td>
+</tr>
+<tr>
+<td>tm_mon</td>
+<td><code>int</code></td>
+<td>months since January</td>
+<td><code>0-11</code></td>
+</tr>
+<tr>
+<td>tm_year</td>
+<td><code>int</code></td>
+<td>years since 1900</td>
+<td></td>
+</tr>
+<tr>
+<td>tm_wday</td>
+<td><code>int</code></td>
+<td>days since Sunday</td>
+<td><code>0-6</code></td>
+</tr>
+<tr>
+<td>tm_yday</td>
+<td><code>int</code></td>
+<td>days since January 1</td>
+<td><code>0-365</code></td>
+</tr>
+<tr>
+<td>tm_isdst</td>
+<td><code>int</code></td>
+<td>Daylight Saving Time flag</td>
+<td></td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/11/C++%E6%96%B0%E6%A0%87%E5%87%86%E4%B8%8B%E7%9A%84%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91/" rel="prev" title="C++新标准下的多线程并发">
+      <i class="fa fa-chevron-left"></i> C++新标准下的多线程并发
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#指引"><span class="nav-number">2.</span> <span class="nav-text">指引</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Functions"><span class="nav-number">2.1.</span> <span class="nav-text">Functions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Convertion"><span class="nav-number">2.2.</span> <span class="nav-text">Convertion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Macro-constants"><span class="nav-number">2.3.</span> <span class="nav-text">Macro constants</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#types"><span class="nav-number">2.4.</span> <span class="nav-text">types</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#clock"><span class="nav-number">3.</span> <span class="nav-text">clock</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#函数原型"><span class="nav-number">3.1.</span> <span class="nav-text">函数原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明"><span class="nav-number">3.2.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参数"><span class="nav-number">3.3.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#返回值"><span class="nav-number">3.4.</span> <span class="nav-text">返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例子"><span class="nav-number">3.5.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据竞争"><span class="nav-number">3.6.</span> <span class="nav-text">数据竞争</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常"><span class="nav-number">3.7.</span> <span class="nav-text">异常</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#difftime"><span class="nav-number">4.</span> <span class="nav-text">difftime</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#函数原型-1"><span class="nav-number">4.1.</span> <span class="nav-text">函数原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明-1"><span class="nav-number">4.2.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参数-1"><span class="nav-number">4.3.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#返回值-1"><span class="nav-number">4.4.</span> <span class="nav-text">返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例子-1"><span class="nav-number">4.5.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据竞争-1"><span class="nav-number">4.6.</span> <span class="nav-text">数据竞争</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常-1"><span class="nav-number">4.7.</span> <span class="nav-text">异常</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mktime"><span class="nav-number">5.</span> <span class="nav-text">mktime</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#函数原型-2"><span class="nav-number">5.1.</span> <span class="nav-text">函数原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明-2"><span class="nav-number">5.2.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参数-2"><span class="nav-number">5.3.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#返回值-2"><span class="nav-number">5.4.</span> <span class="nav-text">返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例子-2"><span class="nav-number">5.5.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据竞争-2"><span class="nav-number">5.6.</span> <span class="nav-text">数据竞争</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常-2"><span class="nav-number">5.7.</span> <span class="nav-text">异常</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#time"><span class="nav-number">6.</span> <span class="nav-text">time</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#函数原型-3"><span class="nav-number">6.1.</span> <span class="nav-text">函数原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明-3"><span class="nav-number">6.2.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参数-3"><span class="nav-number">6.3.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#返回值-3"><span class="nav-number">6.4.</span> <span class="nav-text">返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例子-3"><span class="nav-number">6.5.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据竞争-3"><span class="nav-number">6.6.</span> <span class="nav-text">数据竞争</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常-3"><span class="nav-number">6.7.</span> <span class="nav-text">异常</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#asctime"><span class="nav-number">7.</span> <span class="nav-text">asctime</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#函数原型-4"><span class="nav-number">7.1.</span> <span class="nav-text">函数原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明-4"><span class="nav-number">7.2.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参数-4"><span class="nav-number">7.3.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#返回值-4"><span class="nav-number">7.4.</span> <span class="nav-text">返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例子-4"><span class="nav-number">7.5.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据竞争-4"><span class="nav-number">7.6.</span> <span class="nav-text">数据竞争</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常-4"><span class="nav-number">7.7.</span> <span class="nav-text">异常</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ctime"><span class="nav-number">8.</span> <span class="nav-text">ctime</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#函数原型-5"><span class="nav-number">8.1.</span> <span class="nav-text">函数原型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#gmtime"><span class="nav-number">9.</span> <span class="nav-text">gmtime</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#函数原型-6"><span class="nav-number">9.1.</span> <span class="nav-text">函数原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明-5"><span class="nav-number">9.2.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参数-5"><span class="nav-number">9.3.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#返回值-5"><span class="nav-number">9.4.</span> <span class="nav-text">返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例子-5"><span class="nav-number">9.5.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据竞争-5"><span class="nav-number">9.6.</span> <span class="nav-text">数据竞争</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常-5"><span class="nav-number">9.7.</span> <span class="nav-text">异常</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#localtime"><span class="nav-number">10.</span> <span class="nav-text">localtime</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#函数原型-7"><span class="nav-number">10.1.</span> <span class="nav-text">函数原型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#strftime"><span class="nav-number">11.</span> <span class="nav-text">strftime</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#函数原型-8"><span class="nav-number">11.1.</span> <span class="nav-text">函数原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#说明-6"><span class="nav-number">11.2.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参数-6"><span class="nav-number">11.3.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#返回值-6"><span class="nav-number">11.4.</span> <span class="nav-text">返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例子-6"><span class="nav-number">11.5.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据竞争-6"><span class="nav-number">11.6.</span> <span class="nav-text">数据竞争</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常-6"><span class="nav-number">11.7.</span> <span class="nav-text">异常</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CLOCKS-PER-SEC"><span class="nav-number">12.</span> <span class="nav-text">CLOCKS_PER_SEC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#说明-7"><span class="nav-number">12.1.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#time-t"><span class="nav-number">13.</span> <span class="nav-text">time_t</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#说明-8"><span class="nav-number">13.1.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#struct-tm"><span class="nav-number">14.</span> <span class="nav-text">struct tm</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#说明-9"><span class="nav-number">14.1.</span> <span class="nav-text">说明</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">79</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>
