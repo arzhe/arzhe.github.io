@@ -4445,112 +4445,6 @@
       </tags>
   </entry>
   <entry>
-    <title>MySQL那些事（一）</title>
-    <url>/2021/10/13/MySQL%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%88%E4%B8%80%EF%BC%89/</url>
-    <content><![CDATA[<hr>
-<h1 id="使用MySQL"><a href="#使用MySQL" class="headerlink" title="使用MySQL"></a>使用MySQL</h1><h2 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h2><p>&emsp;&emsp;为了连接MySQL，需要以下信息：</p>
-<ul>
-<li>主机名（计算机名）——如果连接到本地MySQL服务器，为localhost。</li>
-<li>端口（如果使用默认端口3306之外的端口。</li>
-<li>一个合法的用户名。</li>
-<li>用户口令（如果需要）</li>
-</ul>
-<a id="more"></a>
-
-<h2 id="选择数据库"><a href="#选择数据库" class="headerlink" title="选择数据库"></a>选择数据库</h2><p>&emsp;&emsp;在连接到数据库时，没有任何数据库打开供我们选择。在能执行任意数据库操作之前，需要选择一个数据库。为此，可使用<code>USE</code>关键字。</p>
-<blockquote>
-<p><strong>关键字</strong>，作为MySQL语言组成部分的一个保留字，绝对不要用关键字命名一个表或列。</p>
-</blockquote>
-<p>例如，为了使用mydatabase数据库，应该输入以下内容：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">USE mydatabase;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;输出</span><br><span class="line">Database changed</span><br></pre></td></tr></table></figure>
-
-<p><code>USE</code>语句并不返回任何结果。依赖于使用的客户机，显示某种形式的通知。例如，这里显示出的<code>Database changed</code>消息是mysql命令行实用程序在数据库选择成功后显示的。</p>
-<p>&emsp;&emsp;记住，必须先使用<code>USE</code>打开数据库，才能读取其中的数据。</p>
-<h2 id="了解数据库"><a href="#了解数据库" class="headerlink" title="了解数据库"></a>了解数据库</h2><p>&emsp;&emsp;如果我们不知道可以使用的数据库名，该怎么办？可以使用<code>SHOW DATABASES</code>命令来显示可用数据库的列表：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SHOW DATABASES;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;输出</span><br><span class="line">+--------------------+</span><br><span class="line">| Database           |</span><br><span class="line">+--------------------+</span><br><span class="line">| mysql              |</span><br><span class="line">| test               |</span><br><span class="line">| ...                |</span><br><span class="line">+--------------------+</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为了获得当前数据库内可用表的列表，可以使用<code>SHOW TABLES</code>：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SHOW TABLES;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;输出</span><br><span class="line">+--------------------+</span><br><span class="line">| Tables_in_mysql    +</span><br><span class="line">+--------------------+</span><br><span class="line">| customers          |</span><br><span class="line">| orders             |</span><br><span class="line">| products           |</span><br><span class="line">| prices             |</span><br><span class="line">+--------------------+</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;<code>SHOW</code>也可以用来显示表列，例如：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SHOW COLUMNS FROM customers;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;输出</span><br><span class="line">+---------+---------+------+-----+</span><br><span class="line">| Filed   | Type    | NULL | ... |</span><br><span class="line">+---------+---------+------+-----+</span><br><span class="line">| cu_id   | int(1)  | NO   | ... |</span><br><span class="line">| cu_name | char(1) | YSE  | ... |</span><br><span class="line">| ...     | ...     | ...  | ... |</span><br><span class="line">+---------+---------+------+-----+</span><br></pre></td></tr></table></figure>
-
-<p><code>SHOW COLUMNS FROM</code>要求给出一个表名（这个例子中为customers），它对每个字段返回一行，行中包括表的各种信息。</p>
-<blockquote>
-<p><strong>自动增量</strong>，某些表列需要唯一值。例如，订单编号，雇员ID等。在每个行添加到表中时，MySQL可以自动地为每个行分配下一个可用编号，不用在添加一行时手动分配唯一值（记住该值为最后一次使用的值）。这个功能就是自动增量，如果需要它，必须在用<code>CREATE</code>语句创建表时把它作为表定义的一部分。</p>
-<p><strong><code>DESCRIBE</code>语句</strong>，MySQL支持用<code>DESCRIBE</code>作为<code>SHOW COLUMNS FROM</code>的一种快捷方式，换句话说，上述命令等价于<code>DESCRIBE customers</code>。</p>
-</blockquote>
-<h1 id="检索数据"><a href="#检索数据" class="headerlink" title="检索数据"></a>检索数据</h1><h2 id="SELECT语句"><a href="#SELECT语句" class="headerlink" title="SELECT语句"></a>SELECT语句</h2><h3 id="检索单个列"><a href="#检索单个列" class="headerlink" title="检索单个列"></a>检索单个列</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_name</span><br><span class="line">FROM products;</span><br></pre></td></tr></table></figure>
-
-<p>上述语句利用<code>SELECT</code>语句从products表中检索一个名为prod_name的列。</p>
-<h3 id="检索多个列"><a href="#检索多个列" class="headerlink" title="检索多个列"></a>检索多个列</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_id, prod_name, prod_price</span><br><span class="line">FROM products;</span><br></pre></td></tr></table></figure>
-
-<p>上述语句从products表中检索3个列。</p>
-<h3 id="检索所有列"><a href="#检索所有列" class="headerlink" title="检索所有列"></a>检索所有列</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT *</span><br><span class="line">FROM products;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>一般来说，除非确实需要表中的每个列，否则最好别用*通配符。此外该通配符也有一个优点，可以检索出名字未知的列。</p>
-</blockquote>
-<h3 id="检索不同的行"><a href="#检索不同的行" class="headerlink" title="检索不同的行"></a>检索不同的行</h3><p>&emsp;&emsp;正如我们所见，<code>SELECT</code>返回所有匹配的行。但是，如果不想要每个值每次都出现，该怎么办？假如我们想得出products表中产品的所有供应商ID：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT DISTINCT vend_id</span><br><span class="line">FROM products;</span><br></pre></td></tr></table></figure>
-
-<p>该命令只返回不同（唯一）的vend_id值。如果使用<code>DISTINCT</code>关键字，它必须直接放在列名的前面。</p>
-<blockquote>
-<p>不能部分使用<code>DISTINCT</code>，该关键字应用于所有列，不仅是前置它的列。</p>
-</blockquote>
-<h3 id="限制结果"><a href="#限制结果" class="headerlink" title="限制结果"></a>限制结果</h3><p>&emsp;&emsp;为了返回第一行或者前几行，可以使用<code>LIMIT</code>字句。例如：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_name</span><br><span class="line">FROM products</span><br><span class="line">LIMIT 5;</span><br></pre></td></tr></table></figure>
-
-<p>该命令指示MySQL返回不多于5行（即从行0开始也就是第一行，选择前5行输出）。</p>
-<p>&emsp;&emsp;类似的，亦可以指定从某行开始输出指定行数：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_name</span><br><span class="line">FROM products</span><br><span class="line">LIMIT 5, 5;</span><br></pre></td></tr></table></figure>
-
-<p>该命令指示MySQL返回从行5开始的最多5行（即从第6行开始的最多5行）。</p>
-<p>&emsp;&emsp;因此，带一个值的<code>LIMIT</code>总是从第一行开始，给出的数为返回的行数；带两个值的<code>LIMIT</code>可以指定第一个值为行号，第二个值为返回的行数。</p>
-<blockquote>
-<p><strong>行0</strong>，检索出来的第一行为行0而不是行1。因此，<code>LIMIT 1, 1</code>将检索出第二行而不是第一行。</p>
-<p>MySQL 5支持<code>LIMIT</code>的另一种替代语法。<code>LIMIT 6 OFFSET 5</code>指示MySQL返回从第6行开始的最多5行，也就是等价于<code>LIMIT 5, 5</code>。</p>
-</blockquote>
-<h3 id="使用完全限定的表名"><a href="#使用完全限定的表名" class="headerlink" title="使用完全限定的表名"></a>使用完全限定的表名</h3><p>&emsp;&emsp;迄今为止，使用过的SQL例子只通过列名引用列。当然也可以使用完全限定的名字来引用列（同时使用表名和列名）：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT products.prod_name</span><br><span class="line">FROM products;</span><br></pre></td></tr></table></figure>
-
-<p>此外，表名也可以是完全限定的：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT products.prod_name</span><br><span class="line">FROM mydatabase.products;</span><br></pre></td></tr></table></figure>
-
-<p>#排序检索数据</p>
-<h2 id="排序数据"><a href="#排序数据" class="headerlink" title="排序数据"></a>排序数据</h2><p>&emsp;&emsp;正如前述的<code>SELECT</code>语句输出的数据并没有特定的顺序。其实，检索出的数据并不是以纯粹的随机顺序显示的。如果不排序，数据一般以它在底层表中出现的顺序显示。这可以是数据最初添加到表中的顺序。但是，如果数据后来进行过更新或删除，则顺序将会受到MySQL重用回收存储空间的影响。因此，如果不明确控制的话，不能（也不该）依赖该排序顺序。关系数据库设计理论认为，如果不明确规定排序顺序，则不应该假定检索出的数据的顺序有意义。</p>
-<h3 id="升序排序-（默认）"><a href="#升序排序-（默认）" class="headerlink" title="升序排序 （默认）"></a>升序排序 （默认）</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_name</span><br><span class="line">FROM products</span><br><span class="line">ORDER BY prod_name;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>通常，<code>ORDER BY</code>子句中使用的列将是为显示所选择的列。但是，实际上并不一定要这样，用非检索的列排序数据是完全合法的。</p>
-</blockquote>
-<h3 id="对多个列排序"><a href="#对多个列排序" class="headerlink" title="对多个列排序"></a>对多个列排序</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_id, prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">ORDER BY prod_price, prod_name;</span><br></pre></td></tr></table></figure>
-
-<p>对上述3个列进行检索，并按其中两个列，对结果进行排序——首先按价格，再按名称排序。上述例子，仅在多行具有相同的prod_price值时，才对产品按prod_name进行排序。如果prod_price列中所有值都是唯一的，则不会按prod_name排序。</p>
-<h3 id="降序排序"><a href="#降序排序" class="headerlink" title="降序排序"></a>降序排序</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_id, prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">ORDER BY prod_price DESC;</span><br></pre></td></tr></table></figure>
-
-<p>如果打算对多个列进行排序，该怎么办？</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_id, prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">ORDER BY prod_price DESC, prod_name;</span><br></pre></td></tr></table></figure>
-
-<p>以降序排列产品（最贵的在前面），然后再对产品名排序。</p>
-<blockquote>
-<p>如果想在多个列上进行降序排列，必须对每个列指定<code>DESC</code>关键字。</p>
-</blockquote>
-<h3 id="一个简单示例"><a href="#一个简单示例" class="headerlink" title="一个简单示例"></a>一个简单示例</h3><p>找出最昂贵的物品id以及其价格：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_id, prod_price</span><br><span class="line">FROM products</span><br><span class="line">ORDER BY prod_price DESC</span><br><span class="line">LIMIT 1;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>在给出<code>ORDER BY</code>子句时，应该保证其位于FROM子句之后。如果使用<code>LIMIT</code>子句，它必须位于<code>ORDER BY</code>之后。使用子句的次序不正确，将产生错误信息。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>MySQL</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>多重继承中的数据成员的布局</title>
     <url>/2021/10/25/%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E6%88%90%E5%91%98%E7%9A%84%E5%B8%83%E5%B1%80/</url>
     <content><![CDATA[<hr>
@@ -4747,127 +4641,6 @@
       </categories>
       <tags>
         <tag>C++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MySQL那些事（二）</title>
-    <url>/2021/10/14/MySQL%E9%82%A3%E4%BA%9B%E4%BA%8B%EF%BC%88%E4%BA%8C%EF%BC%89/</url>
-    <content><![CDATA[<hr>
-<h1 id="过滤数据"><a href="#过滤数据" class="headerlink" title="过滤数据"></a>过滤数据</h1><h2 id="使用WHERE子句"><a href="#使用WHERE子句" class="headerlink" title="使用WHERE子句"></a>使用WHERE子句</h2><p>&emsp;&emsp;在<code>SELECT</code>语句中，数据根据<code>WHERE</code>子句中指定的搜索条件进行过滤。<code>WHERE</code>子句在表名（<code>FROM</code>子句）之后给出：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_name, prod_price</span><br><span class="line">FROM products</span><br><span class="line">WHERE prod_price &#x3D; 250;</span><br></pre></td></tr></table></figure>
-
-<p>这条语句从products表中检索两个列，只返回prod_name值为250的行。</p>
-<a id="more"></a>
-
-<blockquote>
-<p>在同时使用<code>ORDER BY</code>和<code>WHERE</code>子句时，应该让<code>ORDER BY</code>位于<code>WHERE</code>之后。</p>
-</blockquote>
-<h2 id="WHERE子句操作符"><a href="#WHERE子句操作符" class="headerlink" title="WHERE子句操作符"></a>WHERE子句操作符</h2><p>&emsp;&emsp;下表列出MySQL支持的所有条件操作符：</p>
-<table>
-<thead>
-<tr>
-<th>操作符</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>=</td>
-<td>等于</td>
-</tr>
-<tr>
-<td>&lt;&gt;</td>
-<td>不等于</td>
-</tr>
-<tr>
-<td>!=</td>
-<td>不等于</td>
-</tr>
-<tr>
-<td>&lt;</td>
-<td>小于</td>
-</tr>
-<tr>
-<td>&lt;=</td>
-<td>小于等于</td>
-</tr>
-<tr>
-<td>&gt;</td>
-<td>大于</td>
-</tr>
-<tr>
-<td>&gt;=</td>
-<td>大于等于</td>
-</tr>
-<tr>
-<td>BETWEEN</td>
-<td>在指定的两个值之间</td>
-</tr>
-</tbody></table>
-<h3 id="检查单个字符"><a href="#检查单个字符" class="headerlink" title="检查单个字符"></a>检查单个字符</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_name, prod_price</span><br><span class="line">FROM products</span><br><span class="line">WHERE prod_name &#x3D; &#39;phone&#39;;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>MySQL在执行匹配时默认不区分大小写。</p>
-</blockquote>
-<h3 id="检查范围"><a href="#检查范围" class="headerlink" title="检查范围"></a>检查范围</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_name, prod_price</span><br><span class="line">FROM products</span><br><span class="line">WHERE prod_price BETWEEN 5 AND 10;</span><br></pre></td></tr></table></figure>
-
-<h3 id="空值检查"><a href="#空值检查" class="headerlink" title="空值检查"></a>空值检查</h3><p>&emsp;&emsp;在创建表时，表设计人员可以指定其中的列是否可以不包含值。在一个列不包含值时，称其为包含空值NULL。</p>
-<blockquote>
-<p><strong>NULL</strong>，无值，它与字段包含0、空字符串或仅仅包含空格不同。</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_name</span><br><span class="line">FROM products</span><br><span class="line">WHERE prod_price IS NULL;</span><br></pre></td></tr></table></figure>
-
-<p>这条语句返回没有价格（空prod_price字段，不是价格为0）的所有产品。</p>
-<h1 id="数据过滤"><a href="#数据过滤" class="headerlink" title="数据过滤"></a>数据过滤</h1><h2 id="组合WHERE子句"><a href="#组合WHERE子句" class="headerlink" title="组合WHERE子句"></a>组合WHERE子句</h2><p>&emsp;&emsp;MySQL允许给出多个<code>WHERE</code>子句。这些子句可以两种方式使用：以<code>AND</code>子句的方式或<code>OR</code>子句的方式使用。</p>
-<h3 id="AND操作符"><a href="#AND操作符" class="headerlink" title="AND操作符"></a>AND操作符</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_id, prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">WHERE vend_id &#x3D; 007 AND prod_price &lt;&#x3D; 250;</span><br></pre></td></tr></table></figure>
-
-<h3 id="OR操作符"><a href="#OR操作符" class="headerlink" title="OR操作符"></a>OR操作符</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_id, prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">WHERE vend_id &#x3D; 007 OR prod_price &lt;&#x3D; 250;</span><br></pre></td></tr></table></figure>
-
-<h3 id="计算次序"><a href="#计算次序" class="headerlink" title="计算次序"></a>计算次序</h3><p>&emsp;&emsp;组合<code>AND</code>和<code>OR</code>带来一个有趣的问题。SQL（像大多数语言）在处理<code>OR</code>操作符之前，优先处理<code>AND</code>操作符。换句话说<code>AND</code>在计算次序中优先级更高。因此如果想要计算次序按照我们所预想的那样进行，可以使用圆括号明确地分组相应的操作符：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">WHERE (vend_id &#x3D; 007 OR vend_id &#x3D; 008) AND prod_price &lt;&#x3D; 250;</span><br></pre></td></tr></table></figure>
-
-<h2 id="IN操作符"><a href="#IN操作符" class="headerlink" title="IN操作符"></a>IN操作符</h2><p>&emsp;&emsp;圆括号在<code>WHERE</code>子句中还有另一种用法。<code>IN</code>操作符用来指定条件范围，范围中的每个条件都可以进行匹配：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">WHERE vend_id IN (007, 008)</span><br><span class="line">ORDER BY prod_name;</span><br></pre></td></tr></table></figure>
-
-<p>此<code>SELECT</code>语句检索供应商007和008制造的所有产品。其实<code>IN</code>操作符完成与<code>OR</code>操作符相同的功能。等价于：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">WHERE vend_id &#x3D; 007 OR vend_id &#x3D;&#x3D; 008</span><br><span class="line">ORDER BY prod_name;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为什么使用<code>IN</code>操作符？</p>
-<ul>
-<li>在使用长的合法选项清单时，<code>IN</code>操作符的语法更清楚且直观。</li>
-<li>在使用<code>IN</code>时，计算的次序更容易管理（因为使用的操作符更少）。</li>
-<li><code>IN</code>操作符一般比<code>OR</code>操作符清单执行更快。</li>
-<li><code>IN</code>最大的优点是可以包含其他<code>SELECT</code>语句，使得能够更动态的建立<code>SELECT</code>子句。</li>
-</ul>
-<h2 id="NOT操作符"><a href="#NOT操作符" class="headerlink" title="NOT操作符"></a>NOT操作符</h2><p>&emsp;&emsp;<code>WHERE</code>子句中的<code>NOT</code>操作符有且只有一个功能，那就是否定它之后跟的任何条件。为了列出除007和008之外的所有供应商制造的产品，可编写如下语句：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">WHERE vend_id NOT IN (007, 008)</span><br><span class="line">ORDER BY prod_name;</span><br></pre></td></tr></table></figure>
-
-<h1 id="用通配符进行过滤"><a href="#用通配符进行过滤" class="headerlink" title="用通配符进行过滤"></a>用通配符进行过滤</h1><h2 id="LINK操作符"><a href="#LINK操作符" class="headerlink" title="LINK操作符"></a>LINK操作符</h2><p>&emsp;&emsp;为在搜索子句中使用通配符，必须使用<code>LINK</code>操作符。</p>
-<h3 id="百分号（-）通配符"><a href="#百分号（-）通配符" class="headerlink" title="百分号（%）通配符"></a>百分号（%）通配符</h3><p>&emsp;&emsp;最常使用的通配符就是百分号。在搜索串中，<code>%</code>表示任何字符出现任意次数。例如，为了找出所有以“phone”开头的产品，可使用以下语句：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">WHERE prod_name LINK &#39;phone%&#39;;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>区分大小写</strong>，根据MySQL的配置方式，搜索可以是区分大小写的。如果区分大小写，’phone%’与’Phone13’将不匹配。</p>
-</blockquote>
-<p>&emsp;&emsp;除了一个或多个字符，<code>%</code>还能匹配0个字符。</p>
-<blockquote>
-<p><strong>注意尾空格</strong>，尾空格可能会干扰通配符匹配。例如，’phone’后面如果有一个或多个空格，则子句<code>WHERE prod_name LINK &#39;%phone&#39;</code>将不会匹配它们。</p>
-<p><strong>注意NULL</strong>，虽然似乎<code>%</code>通配符可以匹配任何东西，但有一个例外，即NULL。</p>
-</blockquote>
-<h3 id="下划线（-）通配符"><a href="#下划线（-）通配符" class="headerlink" title="下划线（_）通配符"></a>下划线（_）通配符</h3><p>&emsp;&emsp;另一个有用的通配符是下划线<code>_</code>。下划线的用途与<code>%</code>一样，但下划线只匹配单个字符而不是多个字符。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT prod_price, prod_name</span><br><span class="line">FROM products</span><br><span class="line">WHERE prod_name LINK &#39;_phone&#39;;</span><br></pre></td></tr></table></figure>
-
-<p>与<code>%</code>能匹配0个字符不一样，<code>_</code>总是匹配一个字符，不能多也不能少。</p>
-<h2 id="使用通配符的技巧"><a href="#使用通配符的技巧" class="headerlink" title="使用通配符的技巧"></a>使用通配符的技巧</h2><p>&emsp;&emsp;正如所见，MySQL的通配符很有用。但这种功能是有代价的：通配符搜索的处理一般要比前面讨论的其他搜索所花的时间更长。这里给出一些使用通配符要注意的技巧：</p>
-<ul>
-<li>不要过度使用通配符。如果其他操作符能达到相同的目的，应该使用其他操作符。</li>
-<li>在确实需要使用通配符时，除非绝对有必要，否则不要把它们用在搜索模式的开始处。把通配符置于搜索模式的开始处，搜索起来是最慢的。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>MySQL</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
       </tags>
   </entry>
   <entry>
@@ -5126,32 +4899,6 @@
       </tags>
   </entry>
   <entry>
-    <title>C++新标准下的多线程并发</title>
-    <url>/2021/11/11/C++%E6%96%B0%E6%A0%87%E5%87%86%E4%B8%8B%E7%9A%84%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91/</url>
-    <content><![CDATA[<hr>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;在C++11之前，不论语言或标准库，对并发处理没有任何支持，即使实现可自由给予若干承诺（大多采用POSIX来进行并发的开发）。随着C++11以及之后的C++14和C++17的到来，这种情况有了改变，不论语言本身或标准库都得到了强化，可支持并发编程。它们都是对早已流行多年的POSIX threads常用特性的抽象。</p>
-<a id="more"></a>
-
-<h1 id="高级接口：async-和Future"><a href="#高级接口：async-和Future" class="headerlink" title="高级接口：async()和Future"></a>高级接口：async()和Future</h1><p>&emsp;&emsp;</p>
-<p>&emsp;&emsp;就初学者而言，“以多线程运行程序”的最佳起点就是C++标准库中由<code>std::async()</code>和<code>class std::future&lt;&gt;</code>提供的高级接口：</p>
-<ul>
-<li><code>async()</code>提供一个接口，让一段机能或者说一个callable object若是可能的话在后台运行，成为一个独立线程。</li>
-<li><code>class Future&lt;&gt;</code>允许你等待线程结束并获取其结果（一个返回值，或者也许是一个异常）。</li>
-</ul>
-<h2 id="sync-和Future的第一个用例"><a href="#sync-和Future的第一个用例" class="headerlink" title="sync()和Future的第一个用例"></a>sync()和Future的第一个用例</h2><p>&emsp;&emsp;假设我们需要计算两个操作数的总和，而这两个操作数是两个函数的返回值。通常做法如下：</p>
-<p><code>func1() + func2()</code></p>
-<p>这意味着对操作数的处理是循序发生的。程序首先调用<code>func1()</code>然后调用<code>func2()</code>，或是颠倒过来（由于C++语言特性，无法预测这两个函数的执行顺序）。不论哪种情况，整体的处理时间就是<code>func1()</code>所花时间加上<code>func2()</code>所花时间，再加上计算总和所花时间。</p>
-<p>&emsp;&emsp;可以尝试并行运行<code>func1()</code>和<code>func2()</code>，使其整体运行时间只需要是“<code>func1()和</code>func2()`运行时间中的较大者”加上计算总和的时间。</p>
-<p>​                                                                                                                                                                       </p>
-]]></content>
-      <categories>
-        <category>C++多线程并发</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>C++有关时间的操作</title>
     <url>/2021/11/19/C++%E6%9C%89%E5%85%B3%E6%97%B6%E9%97%B4%E7%9A%84%E6%93%8D%E4%BD%9C/</url>
     <content><![CDATA[<hr>
@@ -5161,13 +4908,16 @@
 <h1 id="指引"><a href="#指引" class="headerlink" title="指引"></a>指引</h1><h2 id="Functions"><a href="#Functions" class="headerlink" title="Functions"></a>Functions</h2><ul>
 <li>clock：<a href="#clock">clock program</a></li>
 <li>difftime：<a href="#difftime">返回两个时间点之差</a></li>
-<li>mktime：<a href="#mktime">将结构体tm转换为time_t类型</a></li>
 <li>time：<a href="#time">获取当前时间</a></li>
+<li>gettimeofday：<a href="#gettimeofday">获取当前时间</a></li>
+<li>clock_gettime：<a href="#clock_gettime">获取当前时间</a></li>
 </ul>
 <h2 id="Convertion"><a href="#Convertion" class="headerlink" title="Convertion"></a>Convertion</h2><ul>
+<li>mktime：<a href="#mktime">将结构体tm转换为time_t类型</a></li>
 <li>asctime：<a href="#asctime">将结构体tm转换为字符串</a></li>
 <li>ctime：<a href="#ctime">将time_t类型的值转换为字符串</a></li>
 <li>gmtime：<a href="#gmtime">将time_t类型的值转换为UTC的tm类型的值</a></li>
+<li>gmtime_r：<a href="#gmtime_r">将time_t类型的值转换为UTC的tm类型的值且线程安全</a></li>
 <li>localtime：<a href="#localtime">将time_t类型的值转换为local的tm类型的值</a></li>
 <li>strftime：<a href="#strftime">将时间格式化为字符串</a></li>
 </ul>
@@ -5202,33 +4952,60 @@
 
 <h2 id="数据竞争-1"><a href="#数据竞争-1" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;并发地调用这个函数是安全的，不会导致数据竞争。</p>
 <h2 id="异常-1"><a href="#异常-1" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不会抛出异常。</p>
-<h1 id="mktime"><a href="#mktime" class="headerlink" title="mktime"></a><span id="mktime">mktime</span></h1><h2 id="函数原型-2"><a href="#函数原型-2" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">time_t</span> <span class="title">mktime</span><span class="params">(struct tm* time_ptr)</span></span>;</span><br></pre></td></tr></table></figure>
+<h1 id="time"><a href="#time" class="headerlink" title="time"></a><span id="time">time</span></h1><h2 id="函数原型-2"><a href="#函数原型-2" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">time_t</span> <span class="title">time</span><span class="params">(<span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<h2 id="说明-2"><a href="#说明-2" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将结构体tm转换为time_t类型。返回时间类型time_t的值，该值表示由timeptr指向的结构体tm所描述的本地时间（可修改）。</p>
-<p>&emsp;&emsp;该函数执行的操作与<code>localtime</code>相反。</p>
-<h2 id="参数-2"><a href="#参数-2" class="headerlink" title="参数"></a>参数</h2><ul>
-<li>time_ptr：指向结构体tm的指针，该结构包含日历时间的各个组件。</li>
-</ul>
-<h2 id="返回值-2"><a href="#返回值-2" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;时间time_t的值，如果日历时间不能表示，则返回-1值。</p>
-<h2 id="例子-2"><a href="#例子-2" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // time_t, struct tm, time, mktime</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">time_t</span> raw_time;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span>* <span class="title">time_info</span>;</span></span><br><span class="line">    <span class="keyword">int</span> year, month, day;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* weekday[] = &#123; <span class="string">"Sunday"</span>, <span class="string">"Monday"</span>, <span class="string">"Tuesday"</span>,</span><br><span class="line">                              <span class="string">"Wednesday"</span>, <span class="string">"Thursday"</span>,</span><br><span class="line">                              <span class="string">"Friday"</span>, <span class="string">"Saturday"</span> &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Enter year: "</span>); fflush(<span class="built_in">stdout</span>); <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;year);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Enter month: "</span>); fflush(<span class="built_in">stdout</span>); <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;month);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Enter day: "</span>); fflush(<span class="built_in">stdout</span>); <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;day);</span><br><span class="line">  </span><br><span class="line">    time(&amp;raw_time);</span><br><span class="line">    time_info = localtime(&amp;raw_time);</span><br><span class="line">    time_info-&gt;tm_year = year - <span class="number">1900</span>;</span><br><span class="line">    time_info-&gt;tm_mon = month - <span class="number">1</span>;</span><br><span class="line">    time_info-&gt;tm_mday = day;</span><br><span class="line">    </span><br><span class="line">    mktime(time_info);</span><br><span class="line">  </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"That day is a %s.\n"</span>, weekday[time_info-&gt;tm_wday]);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="数据竞争-2"><a href="#数据竞争-2" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;time_ptr所指向的对象如果被访问，有可能会被修改。</p>
-<h2 id="异常-2"><a href="#异常-2" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不会抛出异常。</p>
-<h1 id="time"><a href="#time" class="headerlink" title="time"></a><span id="time">time</span></h1><h2 id="函数原型-3"><a href="#函数原型-3" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">time_t</span> <span class="title">time</span><span class="params">(<span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="说明-3"><a href="#说明-3" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;获取当前日历时间作为time_t类型的值。</p>
+<h2 id="说明-2"><a href="#说明-2" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;获取当前日历时间作为time_t类型的值。</p>
 <p>&emsp;&emsp;返回的值通常表示从1970年1月1日00:00小时（即当前的unix时间戳）开始的秒数。由于库可能使用不同的时间表示方式，因此，可移植程序不应直接使用该函数返回的值，而应始终依赖对标准库的其他元素的调用，将它们转换为可移植类型（如localtime、gmtime和difftime）。</p>
-<h2 id="参数-3"><a href="#参数-3" class="headerlink" title="参数"></a>参数</h2><ul>
+<h2 id="参数-2"><a href="#参数-2" class="headerlink" title="参数"></a>参数</h2><ul>
 <li>timer：类型为time_t的对象的指针，其中存储时间值。该参数也可以是空指针（默认参数），在这种情况下，函数仍然返回一个time_t类型的值。</li>
 </ul>
-<h2 id="返回值-3"><a href="#返回值-3" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;返回当前日历时间作为time_t类型的值。</p>
-<h2 id="例子-3"><a href="#例子-3" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // time_t, struct tm, difftime, time, mktime</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">time_t</span> timer;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span> <span class="title">time_info</span> = &#123;</span><span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">double</span> seconds;</span><br><span class="line">    </span><br><span class="line">    time_info.year = <span class="number">100</span>;</span><br><span class="line">    time_info.mon = <span class="number">0</span>;</span><br><span class="line">    time_info.mday = <span class="number">1</span>;</span><br><span class="line">    time_info.hour = <span class="number">0</span>;</span><br><span class="line">    time_info.<span class="built_in">min</span> = <span class="number">0</span>;</span><br><span class="line">    time_info.sec = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">    time(&amp;timer);</span><br><span class="line">    seconds = difftime(timer, mktime(&amp;time_info));</span><br><span class="line">  </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%.f seconds since January 1, 2000 in the current timezone"</span>, seconds);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="返回值-2"><a href="#返回值-2" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;返回当前日历时间作为time_t类型的值。</p>
+<h2 id="例子-2"><a href="#例子-2" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // time_t, struct tm, difftime, time, mktime</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">time_t</span> timer;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span> <span class="title">time_info</span> = &#123;</span><span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">double</span> seconds;</span><br><span class="line">    </span><br><span class="line">    time_info.year = <span class="number">100</span>;</span><br><span class="line">    time_info.mon = <span class="number">0</span>;</span><br><span class="line">    time_info.mday = <span class="number">1</span>;</span><br><span class="line">    time_info.hour = <span class="number">0</span>;</span><br><span class="line">    time_info.<span class="built_in">min</span> = <span class="number">0</span>;</span><br><span class="line">    time_info.sec = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">    time(&amp;timer);</span><br><span class="line">    seconds = difftime(timer, mktime(&amp;time_info));</span><br><span class="line">  </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%.f seconds since January 1, 2000 in the current timezone"</span>, seconds);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="数据竞争-3"><a href="#数据竞争-3" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;计时器所指向的对象被修改（如果不为空）。</p>
+<h2 id="数据竞争-2"><a href="#数据竞争-2" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;计时器所指向的对象被修改（如果不为空）。</p>
+<h2 id="异常-2"><a href="#异常-2" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不会抛出异常。</p>
+<h1 id="gettimeofday"><a href="#gettimeofday" class="headerlink" title="gettimeofday"></a><span id="gettimeofday">gettimeofday</span></h1><h2 id="函数原型-3"><a href="#函数原型-3" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">gettimeofday</span><span class="params">(struct timeval* tv, struct timezone* tz)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明-3"><a href="#说明-3" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;获取当前时间作为结构体timeval的值，即会把当前时间由tv所指的结构体返回，当地时区的信息则放在tz所指的结构体中。</p>
+<h2 id="参数-3"><a href="#参数-3" class="headerlink" title="参数"></a>参数</h2><ul>
+<li>struct timeval*：指向struct timeval的指针，其指向的结构体结构如下：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">long</span> <span class="keyword">time_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> &#123;</span></span><br><span class="line">    <span class="keyword">time_t</span> tv_sec; <span class="comment">// 秒，1</span></span><br><span class="line">    <span class="keyword">long</span> tv_usec;  <span class="comment">// 微秒，10*6</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 其更为精确的结构体为</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timespec</span> &#123;</span></span><br><span class="line">    <span class="keyword">time_t</span> tv_sec; <span class="comment">// 秒，1</span></span><br><span class="line">    <span class="keyword">long</span> tv_nsec;  <span class="comment">// 纳秒，10*9</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>struct timezone*：指向struct timezone的指针，其指向的结构体结构如下：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timezone</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> tz_minuteswest;</span><br><span class="line">    <span class="keyword">int</span> tz_dsttime;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 该结构体一般用于time的函数中都置于NULL。</span></span><br></pre></td></tr></table></figure>
+
+<p>#<span id="clock_gettime">clock_gettime</span></p>
+<h2 id="函数原型-4"><a href="#函数原型-4" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">clock_gettime</span><span class="params">(<span class="keyword">clockid_t</span> clk_id, struct timespec* tp)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明-4"><a href="#说明-4" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;获取当前时间作为结构体timesepc的值，即会把当前时间由tp所指的结构体返回，该函数比<code>gettimeofday</code>更为精确，因为<code>struct timesepc</code>是纳秒级别的，而<code>struct timeval</code>是微秒级别的。</p>
+<h2 id="参数-4"><a href="#参数-4" class="headerlink" title="参数"></a>参数</h2><ul>
+<li>clockid_t：用于指定计时时钟的类型，一般有以下几种类型：<ul>
+<li>CLOCK_REALTIME：系统实时时间，随系统实时时间而改变。</li>
+<li>CLOCK_MONOTONIC：从系统启动这一刻起开始计时，不受系统时间被用户改变的影响。</li>
+<li>CLOCK_PROCESS_CPUTIME_ID：本进程到当前代码系统CPU所花费的时间。</li>
+<li>CLOCK_THREAD_CPUTIME_ID：本线程到当前代码系统CPU所花费的时间。</li>
+</ul>
+</li>
+<li>struct timespec*：指向结构体timesepc的指针。比结构体timeval更为精确。</li>
+</ul>
+<h1 id="mktime"><a href="#mktime" class="headerlink" title="mktime"></a><span id="mktime">mktime</span></h1><h2 id="函数原型-5"><a href="#函数原型-5" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">time_t</span> <span class="title">mktime</span><span class="params">(struct tm* time_ptr)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明-5"><a href="#说明-5" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将结构体tm转换为time_t类型。返回时间类型time_t的值，该值表示由timeptr指向的结构体tm所描述的本地时间（可修改）。</p>
+<p>&emsp;&emsp;该函数执行的操作与<code>localtime</code>相反。</p>
+<h2 id="参数-5"><a href="#参数-5" class="headerlink" title="参数"></a>参数</h2><ul>
+<li>time_ptr：指向结构体tm的指针，该结构包含日历时间的各个组件。</li>
+</ul>
+<h2 id="返回值-3"><a href="#返回值-3" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;时间time_t的值，如果日历时间不能表示，则返回-1值。</p>
+<h2 id="例子-3"><a href="#例子-3" class="headerlink" title="例子"></a>例子</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; // printf</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;  // time_t, struct tm, time, mktime</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">time_t</span> raw_time;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span>* <span class="title">time_info</span>;</span></span><br><span class="line">    <span class="keyword">int</span> year, month, day;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* weekday[] = &#123; <span class="string">"Sunday"</span>, <span class="string">"Monday"</span>, <span class="string">"Tuesday"</span>,</span><br><span class="line">                              <span class="string">"Wednesday"</span>, <span class="string">"Thursday"</span>,</span><br><span class="line">                              <span class="string">"Friday"</span>, <span class="string">"Saturday"</span> &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Enter year: "</span>); fflush(<span class="built_in">stdout</span>); <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;year);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Enter month: "</span>); fflush(<span class="built_in">stdout</span>); <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;month);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Enter day: "</span>); fflush(<span class="built_in">stdout</span>); <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;day);</span><br><span class="line">  </span><br><span class="line">    time(&amp;raw_time);</span><br><span class="line">    time_info = localtime(&amp;raw_time);</span><br><span class="line">    time_info-&gt;tm_year = year - <span class="number">1900</span>;</span><br><span class="line">    time_info-&gt;tm_mon = month - <span class="number">1</span>;</span><br><span class="line">    time_info-&gt;tm_mday = day;</span><br><span class="line">    </span><br><span class="line">    mktime(time_info);</span><br><span class="line">  </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"That day is a %s.\n"</span>, weekday[time_info-&gt;tm_wday]);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据竞争-3"><a href="#数据竞争-3" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;time_ptr所指向的对象如果被访问，有可能会被修改。</p>
 <h2 id="异常-3"><a href="#异常-3" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不会抛出异常。</p>
-<h1 id="asctime"><a href="#asctime" class="headerlink" title="asctime"></a><span id="asctime">asctime</span></h1><h2 id="函数原型-4"><a href="#函数原型-4" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">asctime</span><span class="params">(<span class="keyword">const</span> struct tm* time_ptr)</span></span>;</span><br></pre></td></tr></table></figure>
+<h1 id="asctime"><a href="#asctime" class="headerlink" title="asctime"></a><span id="asctime">asctime</span></h1><h2 id="函数原型-6"><a href="#函数原型-6" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">asctime</span><span class="params">(<span class="keyword">const</span> struct tm* time_ptr)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<h2 id="说明-4"><a href="#说明-4" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将结构体tm转换为字符串。其返回的字符串的格式如下：</p>
+<h2 id="说明-6"><a href="#说明-6" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将结构体tm转换为字符串。其返回的字符串的格式如下：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Www Mmm dd hh:mm:ss yyyy</span><br></pre></td></tr></table></figure>
 
 <p>Www是星期，Mmm是月份（字母表示），dd是日期（按月，也就是1-31），hh:mm:ss是时间，yyyy是年份。该字符串最后面是一个换行符（<code>&#39;\n&#39;</code>），并且有一个结束符（<code>&#39;\0&#39;</code>）。</p>
@@ -5236,7 +5013,7 @@
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">asctime</span><span class="params">(<span class="keyword">const</span> struct tm* timeptr)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> wday_name[] = &#123;</span><br><span class="line">        <span class="string">"Sun"</span>, <span class="string">"Mon"</span>, <span class="string">"Tue"</span>, <span class="string">"Web"</span>, <span class="string">"Thu"</span>, <span class="string">"Fri"</span>, <span class="string">"Sat"</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> mon_name[] = &#123;</span><br><span class="line">        <span class="string">"Jan"</span>, <span class="string">"Feb"</span>, <span class="string">"Mar"</span>, <span class="string">"Apr"</span>, <span class="string">"May"</span>, <span class="string">"Jun"</span>,</span><br><span class="line">        <span class="string">"July"</span>, <span class="string">"Aug"</span>, <span class="string">"Sep"</span>, <span class="string">"Oct"</span>, <span class="string">"Nov"</span>, <span class="string">"Dec"</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">char</span> result[<span class="number">26</span>];</span><br><span class="line">    <span class="built_in">sprintf</span>(result, <span class="string">"%.3s %.3s%3d %.2d:%.2d:%.2d %d\n"</span>,</span><br><span class="line">            wday_name[timeptr-&gt;tm_wday],</span><br><span class="line">            mon_name[timeptr-&gt;tm_mon],</span><br><span class="line">            timeptr-&gt;tm_mday, </span><br><span class="line">            timeptr-&gt;tm_hour, timeptr-&gt;tm_min, timeptr-&gt;tm_sec,</span><br><span class="line">            <span class="number">19000</span> + timeptr-&gt;year);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;如果要自定义格式化输出时间，见<a href="#strftime">strftime</a>。</p>
-<h2 id="参数-4"><a href="#参数-4" class="headerlink" title="参数"></a>参数</h2><ul>
+<h2 id="参数-6"><a href="#参数-6" class="headerlink" title="参数"></a>参数</h2><ul>
 <li>time_ptr：指向结构体tm的指针，该结构包含日历时间的各个组件。</li>
 </ul>
 <h2 id="返回值-4"><a href="#返回值-4" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;包含日期与时间的信息的C风格字符串。</p>
@@ -5244,13 +5021,13 @@
 
 <h2 id="数据竞争-4"><a href="#数据竞争-4" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;该函数访问time_ptr所指向的对象。该函数还访问和修改共享的内部缓冲区，这可能会导致并发调用asctime或ctime时的数据竞争。一些库提供了一个替代函数来避免这种数据竞争：<code>asctime_r</code>(不可移植)。</p>
 <h2 id="异常-4"><a href="#异常-4" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不抛出异常。</p>
-<h1 id="ctime"><a href="#ctime" class="headerlink" title="ctime"></a><span id="ctime">ctime</span></h1><h2 id="函数原型-5"><a href="#函数原型-5" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">ctime</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
+<h1 id="ctime"><a href="#ctime" class="headerlink" title="ctime"></a><span id="ctime">ctime</span></h1><h2 id="函数原型-7"><a href="#函数原型-7" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">ctime</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>该函数与<code>asctime</code>等价。</p>
-<h1 id="gmtime"><a href="#gmtime" class="headerlink" title="gmtime"></a><span id="gmtime">gmtime</span></h1><h2 id="函数原型-6"><a href="#函数原型-6" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">struct tm* <span class="title">gmtime</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
+<h1 id="gmtime"><a href="#gmtime" class="headerlink" title="gmtime"></a><span id="gmtime">gmtime</span></h1><h2 id="函数原型-8"><a href="#函数原型-8" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">struct tm* <span class="title">gmtime</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<h2 id="说明-5"><a href="#说明-5" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将time_t类型转换为UTC时间表示的结构体tm。与<code>localtime</code>对应。</p>
-<h2 id="参数-5"><a href="#参数-5" class="headerlink" title="参数"></a>参数</h2><ul>
+<h2 id="说明-7"><a href="#说明-7" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将time_t类型转换为UTC时间表示的结构体tm。与<code>localtime</code>对应。</p>
+<h2 id="参数-7"><a href="#参数-7" class="headerlink" title="参数"></a>参数</h2><ul>
 <li>timer：指向包含time_t类型的时间值。</li>
 </ul>
 <h2 id="返回值-5"><a href="#返回值-5" class="headerlink" title="返回值"></a>返回值</h2><p>&emsp;&emsp;一个指向结构体tm的指针，该结构体成员用与计时器的UTC时间表示相对应的值填充。</p>
@@ -5258,13 +5035,16 @@
 
 <h2 id="数据竞争-5"><a href="#数据竞争-5" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;该函数访问定时器所指向的对象。该函数还访问和修改共享的内部对象，这可能会在并发调用gmtime和localtime时引入数据竞争。一些库提供了避免这种数据竞争的替代函数：<code>gmtime_r</code>(不可移植)。</p>
 <h2 id="异常-5"><a href="#异常-5" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不抛出异常。</p>
-<h1 id="localtime"><a href="#localtime" class="headerlink" title="localtime"></a><span id="localtime">localtime</span></h1><h2 id="函数原型-7"><a href="#函数原型-7" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">struct tm* <span class="title">localtime</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
+<h1 id="gmtime-r"><a href="#gmtime-r" class="headerlink" title="gmtime_r"></a><span id="gmtime_r">gmtime_r</span></h1><h2 id="函数原型-9"><a href="#函数原型-9" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">struct tm* <span class="title">gmtime_r</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="说明-8"><a href="#说明-8" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将time_t类型转换为UTC时间表示的结构体tm。与<code>localtime</code>对应。这个函数与<code>gmtime</code>功能一样，但是该函数是线程安全的，更为推荐使用该函数。但是缺点是不可移植。</p>
+<h1 id="localtime"><a href="#localtime" class="headerlink" title="localtime"></a><span id="localtime">localtime</span></h1><h2 id="函数原型-10"><a href="#函数原型-10" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">struct tm* <span class="title">localtime</span><span class="params">(<span class="keyword">const</span> <span class="keyword">time_t</span>* timer)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>与函数<code>gmtime</code>类似。</p>
-<h1 id="strftime"><a href="#strftime" class="headerlink" title="strftime"></a><span id="strftime">strftime</span></h1><h2 id="函数原型-8"><a href="#函数原型-8" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">strftime</span><span class="params">(<span class="keyword">char</span>* ptr, <span class="keyword">size_t</span> max_size, <span class="keyword">const</span> <span class="keyword">char</span>* format,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">const</span> struct tm* time_ptr)</span></span>;</span><br></pre></td></tr></table></figure>
+<h1 id="strftime"><a href="#strftime" class="headerlink" title="strftime"></a><span id="strftime">strftime</span></h1><h2 id="函数原型-11"><a href="#函数原型-11" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">strftime</span><span class="params">(<span class="keyword">char</span>* ptr, <span class="keyword">size_t</span> max_size, <span class="keyword">const</span> <span class="keyword">char</span>* format,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">const</span> struct tm* time_ptr)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<h2 id="说明-6"><a href="#说明-6" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将结构体tm的中描述的时间的相应值按照format格式化，并限制其最大长度为max_size，然后复制到ptr中。</p>
-<h2 id="参数-6"><a href="#参数-6" class="headerlink" title="参数"></a>参数</h2><ul>
+<h2 id="说明-9"><a href="#说明-9" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;将结构体tm的中描述的时间的相应值按照format格式化，并限制其最大长度为max_size，然后复制到ptr中。</p>
+<h2 id="参数-8"><a href="#参数-8" class="headerlink" title="参数"></a>参数</h2><ul>
 <li>ptr：该指针指向最后结果存储的位置</li>
 <li>max_size：max_size：要复制到ptr中的最大字符数，包括结束字符（<code>&#39;\0&#39;</code>）。</li>
 <li>format：包含任何正则字符和特殊格式说明符的组合的C风格字符串。这些格式说明符被函数替换为相应的值，以表示timep_tr中指定的时间。它们都以百分号(%)开头，具体如下表：</li>
@@ -5471,9 +5251,9 @@
 
 <h2 id="数据竞争-6"><a href="#数据竞争-6" class="headerlink" title="数据竞争"></a>数据竞争</h2><p>&emsp;&emsp;该函数访问format所指向的数组和time_ptr所指向的对象。如果成功，它还会修改ptr所指向的数组中的元素。同时更改地区设置也可能导致数据竞争。</p>
 <h2 id="异常-6"><a href="#异常-6" class="headerlink" title="异常"></a>异常</h2><p>&emsp;&emsp;保证不会抛出异常。</p>
-<h1 id="CLOCKS-PER-SEC"><a href="#CLOCKS-PER-SEC" class="headerlink" title="CLOCKS_PER_SEC"></a><span id="CLOCKS_PER_SEC">CLOCKS_PER_SEC</span></h1><h2 id="说明-7"><a href="#说明-7" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;此宏扩展为表示每秒时钟滴答数的表达式。时钟滴答数是系统特定长度的常量时间单位。例如时钟函数<code>clock</code>返回的时间单位，将返回的时钟滴答计数除以这个表达式得到秒数。</p>
-<h1 id="time-t"><a href="#time-t" class="headerlink" title="time_t"></a><span id="time_t">time_t</span></h1><h2 id="说明-8"><a href="#说明-8" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;基本算术类型的别名，能够表示时间，如由函数time返回的时间。由于历史原因，它通常被实现为一个整数值，表示自1970年1月1日00:00小时(即unix时间戳)以来经过的秒数。虽然库可以使用替代时间表示来实现这种类型。可移植程序不应该直接使用这种类型的值，而是始终依赖于对标准库元素的调用来将它们转换为可移植类型。</p>
-<h1 id="struct-tm"><a href="#struct-tm" class="headerlink" title="struct tm"></a><span id="tm">struct tm</span></h1><h2 id="说明-9"><a href="#说明-9" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;该结构体包含能够表示一个日历的9个组件，它们都是int类型的成员：</p>
+<h1 id="CLOCKS-PER-SEC"><a href="#CLOCKS-PER-SEC" class="headerlink" title="CLOCKS_PER_SEC"></a><span id="CLOCKS_PER_SEC">CLOCKS_PER_SEC</span></h1><h2 id="说明-10"><a href="#说明-10" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;此宏扩展为表示每秒时钟滴答数的表达式。时钟滴答数是系统特定长度的常量时间单位。例如时钟函数<code>clock</code>返回的时间单位，将返回的时钟滴答计数除以这个表达式得到秒数。</p>
+<h1 id="time-t"><a href="#time-t" class="headerlink" title="time_t"></a><span id="time_t">time_t</span></h1><h2 id="说明-11"><a href="#说明-11" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;基本算术类型的别名，能够表示时间，如由函数time返回的时间。由于历史原因，它通常被实现为一个整数值，表示自1970年1月1日00:00小时(即unix时间戳)以来经过的秒数。虽然库可以使用替代时间表示来实现这种类型。可移植程序不应该直接使用这种类型的值，而是始终依赖于对标准库元素的调用来将它们转换为可移植类型。</p>
+<h1 id="struct-tm"><a href="#struct-tm" class="headerlink" title="struct tm"></a><span id="tm">struct tm</span></h1><h2 id="说明-12"><a href="#说明-12" class="headerlink" title="说明"></a>说明</h2><p>&emsp;&emsp;该结构体包含能够表示一个日历的9个组件，它们都是int类型的成员：</p>
 <table>
 <thead>
 <tr>
@@ -5545,5 +5325,60 @@
       <tags>
         <tag>C++</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>中国网游发展史之千禧年初</title>
+    <url>/2021/12/01/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E5%8D%83%E7%A6%A7%E5%B9%B4%E5%88%9D/</url>
+    <content><![CDATA[<hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;雅达利的兴衰和约翰卡马克的传奇故事，这些故事虽然精彩，但是我们都没有经历。我的意思是没有在正确的时间玩过那些改变了游戏历史的游戏。对于我们中国人来说，经历过游戏禁令的90后来说，我们所经历的游戏发展史大多都是小霸王-街机-光碟PC-PC单机-PC网游-PC单机，就这么简单。当然了，这里不代表所有人。虽然我们玩的我们所经历的，大多都是别人玩剩下的。但这，对于我们来说，同样精彩。同样给我们留下了不可磨灭的记忆。所以，我就以一个普通家庭90后的角度，来讲述一个中国人的游戏发展史。</p>
+<a id="more"></a>
+
+<h2 id="PC时代背景"><a href="#PC时代背景" class="headerlink" title="PC时代背景"></a>PC时代背景</h2><p>&emsp;&emsp;我接触电脑算是比较早的了，因为小时候父母做生意没时间照顾我，记得小学2年级还是3年级就把位送到了那种贵族寄宿学校，学校开设了微机课，当时还有DOS系统，打开电脑以后就只有黑屏加一堆看不懂的英文，输入相应的指令才能进入电脑里安装过的程序，大概是这样吧，反正挺复杂的。后来因为种种原因，父母把我接回湖北老家。虽然人回来了，但网瘾的种子已经埋下，“网瘾少年”的不归路也正式开始了。</p>
+<p>&emsp;&emsp;新鲜事物对人对吸引力是无穷无尽的，电脑作为一个划时代的产物更像是一个口袋装满糖果的恶魔让我深陷其中无法自拔。WINDOWS系统的各种屏保都能玩一下午的，相信不止我一个吧。你们不要小看当时所谓的网瘾啊，现在这个手机也能运行3D游戏的时代，游戏已经不再是新鲜事物了，你要说你现在还有网瘾——不可能！只有经历过那个时代的人，才能深刻体会到什么是真正的网瘾。你可能体会过三天三夜持续游戏，但你体会过三天三夜甚至一周玩游戏全程都保持非常亢奋的状态吗？当时的网瘾不夸张的说可以用着魔这两个词来形容。摸到键盘和鼠标的那一刻就可以深刻体会到肾上腺素激增和多巴胺分泌颅内高潮的快感，一会不玩，浑身难受。现在，网瘾基本就不存在了，顶多可以说是自制力差，贪玩。</p>
+<p>&emsp;&emsp;emmm，扯远了，回来以后对电脑当然也是念念不忘了，但那个年代，电脑这个东西对于一般人完全就是奢侈品，当时，我这的同龄人都还在玩FC和街机，有的根本不知道电脑为何物。而当时的网吧也不叫网吧，叫电脑房。因为电脑高昂的价格，上网费用也高的离谱，三块钱一小时，那个年代的三块钱可不是一个小数目。但电脑作为一种新兴的高科技产品，在它刚起步的时候很多成年人还没有意识到电脑强大的游戏功能，当时也有很多成年人去参加电脑补习班，学的就是打字复制粘贴，现在看起来智障都能无师自通的东西。</p>
+<p>&emsp;&emsp;得益于初期电脑良好的口碑，我可以明目张胆的问父母要钱去网吧，emmm，不对，是去电脑房。当时的网吧还没有发达的管理系统，上网和下机的时间都是网管拿本子记下来的，到时间再过去提醒你该下机了，时间也没有那么精确，所以我每次都能玩一个半小时或者将近两个小时，周围都是18岁左右的或者一些成年人，我一个小学生，他们也没有跟我斤斤计较，告诉我超时间了就放我走了。当时玩的都是什么呢？红色警戒、帝国时代和cs等等游戏，当然了，还有QQ。对，你没有看错，QQ。我当时还小，也才刚刚注册过QQ（这还是我爸公司员工帮我注册的）。大多都是16岁到20多岁的，特别是女孩一到网吧啥也不干，就只戴着耳机玩QQ，现在你可能体会不到啊。但对于当时的人来说，这种新型的社交方式也一样有着无穷的吸引力，而且很多人连基本的操作都不会，有不会打开QQ的，有不知道自己密码的，有不会选择聊天对象的。这些鸡毛蒜皮的小事都得麻烦网管，再加上记录上下机时间，当时的网管可真不容易啊。</p>
+<p>&emsp;&emsp;网吧在那个时代的意义也不仅仅是玩游戏和聊QQ，那个时候可以让人们娱乐的东西并不多，喜欢动漫的，有钱的买光碟，没钱的看漫画，就连看各种电影都要租碟才可以。网吧出现以后，一台电脑这些问题全解决了。当然了，去网吧看电影，看动漫，这种奢侈的事情是不适合小孩子的。我当时玩的最多的就是红色警戒了，因为那个年代游戏比较少，中文版的游戏就更少了，本来红色警戒在当时最火的游戏类型之一RTS游戏中就是门槛最低最简单易懂的了，比如没有人口限制，后来又加入了各种MOD，像共和国之辉。基于上述种种原因，所以这款游戏才在中国火到如此地步，但最终都投入到了CS的怀抱中。</p>
+<p>&emsp;&emsp;在网游热潮来临之前，网吧除了玩QQ的和看电影的，几乎都是CS，至少在我们这是这样的，但这种现状没维持多久就被网游打破了，大概是从石器时代开始 ，在这之前也有很多话时代的游戏因水土不服并未掀起太大的波澜。1999年，网络创世纪进入中国，这是中国第一款图形网络游戏，在这之前几乎都是文字网游。这款游戏创建了网络游戏的框架，确立了网络游戏的规则，这些规则和框架大多被沿用至今。</p>
+<h1 id="2000千禧年"><a href="#2000千禧年" class="headerlink" title="2000千禧年"></a>2000千禧年</h1><h2 id="鼻祖"><a href="#鼻祖" class="headerlink" title="鼻祖"></a>鼻祖</h2><p>&emsp;&emsp;2000年7月中国历史上第一款自主研发的图形网络游戏——万王之王，正式上线。在那个到处都是呼哈哈嘿的年代，这款国产网游居然有中文配音，你敢信？万王之王也是首款进入了韩国市场的网游。当年的韩国作为网游界的一哥还是二哥？向中国输出了大量网络游戏，但你可能不知道的是，首先打入对方市场的是中国。这款游戏就是万王之王。</p>
+<p>&emsp;&emsp;早期游戏的死亡惩罚是非常可怕的，万王之王也一样，它的死亡惩罚是掉光你所有携带的金币和装备外加一点所有属性，所以每当发生国战的时候，你只需要捡捡尸体就可以发家致富了。</p>
+<h2 id="插曲"><a href="#插曲" class="headerlink" title="插曲"></a>插曲</h2><p>&emsp;&emsp;韩国（进入中国）的第一款网游——黑暗之光，由宇智科通代理引入中国。当时的韩国网游公司认为中国基本没有多少可玩的网络游戏，竞争对手也只有万王之王，其他的都是一些文字网游，所以游戏才做了一半就强行将它推向市场。后果可想而知，国内宁愿玩文字网游也不玩你这破游戏。宇智科通也自此销声匿迹。</p>
+<h2 id="中国网游时代的来临"><a href="#中国网游时代的来临" class="headerlink" title="中国网游时代的来临"></a>中国网游时代的来临</h2><p>&emsp;&emsp;时间来到了2001年，2001年是中国网游市场真正开始走向正规的时代。部分举足轻重的互联网公司，网易，盛大，也开始崭露头角。</p>
+<p>&emsp;&emsp;2001年1月，石器时代由北京华义代理引入中国。这是日系网游第一次进入中国，后来也因为石器时代，正式形成欧日韩三国鼎立的网游环境。很多人说这款游戏死于外挂，这不尽然，我认为这不如说是华义自己作死的。其实这款游戏进入中国以后没过多久，日方就将源代码也卖给了华义。后边各种坑爹道具都是华义自己运作的，不管外挂也就罢了，甚至很多变态道具就是为了迎合外挂而推出的。他们在意的是如何快速敛财，并没有考虑过游戏可以活多久。</p>
+<p>&emsp;&emsp;2001年3月，中国大陆第一款原创网络游戏——第四世界，问世了。<img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E4%B8%AD%E5%9B%BD%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E5%8F%91%E5%B1%95%E5%8F%B2/%E7%AC%AC%E5%9B%9B%E4%B8%96%E7%95%8C.png" alt="第四世界">默默无闻的推向市场，默默无闻的退场，鲜有人知，第一款游戏就搞成这样，真是讽刺。</p>
+<p>&emsp;&emsp;2001年4月，千年由亚联代理引入中国。千年，传奇，红月，在当时并称三大网游。千年死与外挂和复制物品；红月死于游戏内容空洞属性变态，甚至还出现了1000级的概念，秒杀一词也是从红月开始出现的；最后活下来的只有传奇了。当然了，传奇在当时也一样面临外挂问题，也有复制物品的bug。韩国游戏的漏洞有多大，看看现在的吃鸡就知道了。但传奇相比于其他两款游戏更简单，更易上手，这也许就是它活下来的原因吧。如果你说宣传力度，千年可一点都不比传奇差。</p>
+<p>&emsp;&emsp;2001年5月，联众世界出现了，这个软件在当时到底有多火呢？我可以这么说，那时每个上班族的电脑里几乎都有一个联众世界，大多都是25岁以上的玩家，还都不会打字，只会打kkkkkkk。然后又陆续引进了龙族、红月、碰碰i时代、三国世纪和金庸群侠传。龙族因为其强大的外挂功能最终导致死亡，那龙族的外挂到底猖獗到什么程度呢？连修改单机游戏数据的修改器都可以拿来修改这款网游，那还玩个P啊。<img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E4%B8%AD%E5%9B%BD%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E5%8F%91%E5%B1%95%E5%8F%B2/%E9%BE%99%E6%97%8F.png" alt="龙族">)金庸群侠传也是一款好游戏，<img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E4%B8%AD%E5%9B%BD%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E5%8F%91%E5%B1%95%E5%8F%B2/%E9%87%91%E5%BA%B8%E7%BE%A4%E4%BE%A0%E4%BC%A0.png" alt="金庸群侠传">很多设计理念即使放到现在也是非常超前了，但早期网游的通病——外挂泛滥。而没有外挂手动练级的话，简直就是地狱一般的折磨。那这外挂，你管还是不管呢？这是一个问题。不过这款游戏至今仍在运营，其他的我就不多说了。</p>
+<p>&emsp;&emsp;接下来就是真正进入大众视野的网游了。</p>
+<p>&emsp;&emsp;2001年11月，中国出现了两款划时代的网络游戏，网易自主研发的大话西游1和盛大代理的传奇。</p>
+<h2 id="传奇给中国市场带来的变化"><a href="#传奇给中国市场带来的变化" class="headerlink" title="传奇给中国市场带来的变化"></a>传奇给中国市场带来的变化</h2><p>&emsp;&emsp;2001年11月，韩国wemade公司开发的游戏——传奇，由盛大代理引入中国，这款游戏不仅引爆了中国网游的热潮，还让中国网游从萌芽期一举进入到发展期，并且让陈天桥成为了中国最年轻的首富。在盛大拿到传奇的代理权之前，这家公司因为动画产业的失败一直处于烧钱等死的状态。2001年初，陈天桥用他仅剩的30万美金拿下了传奇在中国的独家代理权，就连服务器和宽带都是陈天桥用这个合同给忽悠过来的，而之前一只投资盛大的中华网，却不能接受盛大的突然转型而提出撤资，后来估计肠子都悔青了。盛大与wemade之间的代理纠纷就不多说了，接下来就聊一聊，这个贯穿了端游页游手游三个时代的传奇游戏，为什么可以火到如此地步？传奇经久不衰的原因在我看来要从5个方面来讲：背景，跟风，玩法，情怀和私服。</p>
+<p>&emsp;&emsp;先说背景，在传奇之前，几乎没有多少可玩的网游，选择也比较少。个别可以入眼的游戏也因为早期的互联网公司缺乏游戏运营经验，并没有让玩家满意，所以传奇的出现就让那个没有什么选择的时代有了一个唯一的选择。千年，龙族，红月的玩家迅速涌入到传奇，仅仅用了一年的时间，同时在线人数就达到了70万。而且那时候没人会上游戏门户网站，也不会有人去主动了解游戏，“大家都在玩传奇，我当然也要玩啦”。所以很多人是因为玩传奇才学会上网，是因为传奇才学会网上冲浪。在情怀的驱使下，就算有更好的游戏，在他们心里依旧比不上传奇。当然了，这只是其中的一点，如果仅仅是因为这个原因，那就太肤浅了。</p>
+<p>&emsp;&emsp;接下来就是玩法，简单粗暴的设定，简单粗暴的技能，学习成本基本为零，人人都能上手，打怪掉宝，杀人夺宝，就是这么简单。设定上虽然简单，但游戏体验上却没有那么简单。当时的游戏打怪奖励几乎就只有经验值，但传奇可不一样，这款游戏几乎每一个怪都有可能给你惊喜，这就让原本非常无聊的打怪玩法变得非常有成就感。也许下一个怪就有可能让你走上人生巅峰，装备一直在提升，属性一直在增长，这种数字上的增长也给人一种无限的满足感。简单一点说就是有盼头。再者说，当年可没人觉得打怪无聊，给人当代练都玩的美滋滋。</p>
+<p>&emsp;&emsp;还有就是探险，老玩家跟新玩家是完全不一样的游戏体验，在那个搜索引擎根本搜不到攻略的时代，新玩家出了城以后，根本不知道自己身处何方，漫无目的的跑，漫无目的的打，漫无目的的提升装备，在一片沙漠中，突然看到一座寺庙，在一片森林中突然看到一个山洞，被祖玛侍卫捶死，被巨型昆虫包围。那种探险的感觉给予了玩家无限的神秘感。老玩家的话，那就是pk了，这也是传奇的核心玩法，为什么吃鸡现在这么火，就是因为这个杀人舔包的设定。再加上当时古惑仔的热播，还有坏蛋小说，现实中讲那种义气，是要付出代价的，但游戏中就不一样了。这就为那个时代的年轻人提供了一个平台，为了朋友，为了帮会，抛头颅洒热血，谁被欺负了一呼百应，这种强大的归属感，也埋下了情怀的种子。这款游戏还有一个平民乐趣，就是捡漏。比如说攻打一个公会的时候，可能会被暴的血本无归，也可能会发一笔横财。</p>
+<p>&emsp;&emsp;最后就是私服了，有人说传奇死于私服，其实私服说它是mod也不过分，每个私服的玩法都不一样，不过也是万变不离其宗的，但游戏体验确实有微妙的不同，当年有仿盛大版本的，有合体版的，还有什么仙剑版的，说的明白点，就像那种因为各种mod经久不衰的单机游戏一样，没有私服传奇，就没有传奇的今天。贪玩蓝月这些页游则是在传奇的基础上进一步简化，传奇但精髓已经舍弃，只是包裹着传奇外衣的糖衣炮弹，没有探索玩法，也没有了每只怪都有惊喜的激励机制，有的只是靠人民币所换来的虚荣心。现在的网游本身已经没有什么新鲜感了，就算是新游戏也是画面较好的老三样，相比区别不大画面好一些的新网游，还不如选择承载了自己青春的情怀游戏。</p>
+<blockquote>
+<p>由于本人并未玩到传奇等这些元老级网络游戏，因此，以上玩法以及游玩经历的讲述均来自于与我本人一同开发过游戏的前辈的口中。特此@AlexOldZhang，@清白，@HotFixxxxx，@H好。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>中国网游发展史</category>
+      </categories>
+      <tags>
+        <tag>杂谈</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>一个简便的多线程日志开发随笔</title>
+    <url>/2021/11/27/%E4%B8%80%E4%B8%AA%E7%AE%80%E4%BE%BF%E7%9A%84%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%97%A5%E5%BF%97%E5%BC%80%E5%8F%91%E9%9A%8F%E7%AC%94/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;该Log的设计主要用于个人项目“<a href="https://github.com/arzhe/caep" target="_blank" rel="noopener">Caep</a>”的日志系统。仿照了muduo库的设计，但由于Caep并不是一个线程库，Caep是一个访问控制框架，多线程的开发应该有额外的库来辅助开发者进行开发。</p>
+<p>&emsp;&emsp;与Log相关的类包括了<code>FileUtil</code>、<code>LogFile</code>、<code>AsyncLogging</code>、<code>LogStream</code>、<code>Logging</code>。其中前四个类都包含一个<code>append</code>函数，Log的设计也是主要围绕这个<code>append</code>函数展开的。</p>
+<a id="more"></a>
+
+<ul>
+<li>FileUtil是最底层的文件类，封装了Log文件的打开、写入并在类析构的时候关闭文件，底层使用了标准IO，该append函数直接向文件写。</li>
+<li>LogFile进一步封装了FileUtil，并设置了一个循环次数，没过这么多次就flush一次。</li>
+<li>AsyncLogging是核心，它负责启动一个log线程，专门用来将log写入LogFile，应用了“双缓冲技术”，其实有4个以上的缓冲区，但思想是一样的。AsyncLogging负责(定时到或被填满时)将缓冲区中的数据写入LogFile中。</li>
+<li>LogStream主要用来格式化输出，重载了&lt;&lt;运算符，同时也有自己的一块缓冲区，这里缓冲区的存在是为了缓存一行，把多个&lt;&lt;的结果连成一块。</li>
+<li>Logging是对外接口，Logging类内涵一个LogStream对象，主要是为了每次打log的时候在log之前和之后加上固定的格式化的信息，比如打log的行、文件名等信息。</li>
+</ul>
+]]></content>
   </entry>
 </search>
