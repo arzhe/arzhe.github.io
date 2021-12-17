@@ -202,6 +202,364 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/16/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/16/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%89%EF%BC%89/" class="post-title-link" itemprop="url">UNIX文件IO（三）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-16 11:16:00" itemprop="dateCreated datePublished" datetime="2021-12-16T11:16:00+08:00">2021-12-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-12-17 23:37:08" itemprop="dateModified" datetime="2021-12-17T23:37:08+08:00">2021-12-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/12/16/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%89%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX文件IO（三）" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="函数sync、fsync和fdatasync"><a href="#函数sync、fsync和fdatasync" class="headerlink" title="函数sync、fsync和fdatasync"></a>函数sync、fsync和fdatasync</h1><p>&emsp;&emsp;传统的<code>UNIX</code>系统实现在内核中设有缓冲区高速缓存或页高速缓存，大多数磁盘<code>I/O</code>都通过缓冲区进行。当我们向文件写入数据时，内核通常先将数据复制到缓冲区中，然后排入队列，晚些时候再写入磁盘。这种方式被称为延迟写。</p>
+<p>&emsp;&emsp;通常，当内核需要重用缓冲区来存放其他磁盘块数据时，它会把所有延迟写数据块写入磁盘。为了保证磁盘上实际文件系统与缓冲区中内容的一致性，<code>UNIX</code>系统提供了<code>sync</code>、<code>fsync</code>和<code>fdatasync</code>三个函数。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/12/16/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%89%EF%BC%89/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/12/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/12/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%BA%8C%EF%BC%89/" class="post-title-link" itemprop="url">UNIX文件IO（二）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-12 15:40:00" itemprop="dateCreated datePublished" datetime="2021-12-12T15:40:00+08:00">2021-12-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-12-17 23:36:42" itemprop="dateModified" datetime="2021-12-17T23:36:42+08:00">2021-12-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/12/12/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%BA%8C%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX文件IO（二）" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="文件共享"><a href="#文件共享" class="headerlink" title="文件共享"></a>文件共享</h1><p>&emsp;&emsp;UNIX系统支持在不同进程间共享打开文件。在介绍<code>dup</code>函数之前，先要说明这种共享。为此先介绍内核用于所有<code>I/O</code>的数据结构。</p>
+<p>&emsp;&emsp;内核使用3种数据结构表示打开文件，它们之间的关系决定了在文件共享方面一个进程对另一个进程可能产生的影响。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/12/12/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%BA%8C%EF%BC%89/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">UNIX文件IO（一）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-08 16:12:00" itemprop="dateCreated datePublished" datetime="2021-12-08T16:12:00+08:00">2021-12-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-12-17 23:36:21" itemprop="dateModified" datetime="2021-12-17T23:36:21+08:00">2021-12-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX文件IO（一）" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;UNIX系统中大多数文件IO只需用到5个函数：<code>open</code>、<code>read</code>、<code>write</code>、<code>lseek</code>以及<code>close</code>。本文将分别讨论以上函数的作用以及不同缓冲长度对<code>read</code>和<code>write</code>函数的影响。</p>
+<p>&emsp;&emsp;本文描述的函数经常被称为不带缓冲的IO，也就是每个<code>read</code>和<code>write</code>都调用内核中的一个系统调用。这些不带缓冲带IO函数不是ISO C的组成部分，但是，它们是POSIX.1和Single UNIX Specification的组成部分。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/" class="post-title-link" itemprop="url">中国网游发展史之腾讯进军网游产业</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-06 09:38:00" itemprop="dateCreated datePublished" datetime="2021-12-06T09:38:00+08:00">2021-12-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-12-17 23:35:04" itemprop="dateModified" datetime="2021-12-17T23:35:04+08:00">2021-12-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2/" itemprop="url" rel="index"><span itemprop="name">中国网游发展史</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/" class="post-meta-item leancloud_visitors" data-flag-title="中国网游发展史之腾讯进军网游产业" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="曲折坎坷的2003年"><a href="#曲折坎坷的2003年" class="headerlink" title="曲折坎坷的2003年"></a>曲折坎坷的2003年</h1><p>&emsp;&emsp;2003年1月，骑士online正式公测，由搜狐代理运营。这是一款大型3D角色扮演类游戏，自公测以来一直深受众多玩家们的喜爱，但在那个网游飞速发展的年代，骑士online也不可避免的走向了衰竭。为了留住玩家，搜狐在2006年改变了运营策略，将游戏转为道具收费的模式。这样的转变也起到了良好的效果，大量老玩家纷纷回到了骑士online的怀抱。值得一提的是搜狐就骑士online这款游戏与韩方签订了4年合约，但转为免费模式的经济效益并没有达到搜狐预期的效果，所以续约这事也就自然而然的谈崩了。但纸总是包不住火的，早在2006年8月的时候网上便已流传出关于骑士online即将停止运营的消息，众多玩家因为担心骑士online的前景去官方论坛讨说法。搜狐顶不住压力，第二天就在游戏的官方网站上发布了一则公告，大体内容是这样的：“望所有玩家坚定对《骑士online》这款产品的信心，我们不但不会停止对《骑士online》的运营，还会把他做得更加精彩”。可在这则公告发布不到三个月的时间搜狐却又发布了一则公告，大概内容是这样的：“为保障广大中国区玩家的利益，经搜狐游戏与韩方的协商决定，骑士online的服务器运行时间延长到2007年3月20日”。这则公告字里行间好像都在为玩家考虑，良心啊，别着急，更良心的还在后面。传言是8月底，辟谣也是8月底，3个月以后，也就是11月底又突然公布游戏即将停运。那么这3个月里都发生了什么呢？9月底也就是谣言出现的一个月以后，搜狐为了稳定玩家的情绪，推出了一个活动，叫什么“十一黄金周，骑士伴你行”，说要提前更新新版本，新装备，新技能，新任务，又推出了各种氪金活动并表示骑士online前途一片光明。后边的事，大家应该都可以猜到了，这明显就是典型的商业欺诈。而且这款游戏因为转为免费运营以后人气也不低，说关就关了，关之前还把这么多玩家当猴耍了，这谁受得了，在看到即将停服的消息以后，大量玩家涌入了315网站进行投诉。最后。。。也是不了了之了，毕竟你在进入网游之前都会接受一个你看都不会看的协议，知道那个吧，每个网游都有的，而且当时网络环境也没有现在这么发达，要是放到现在，我举个例子，魔兽世界要是昨天刚刚不限量卖一波无敌，幽灵虎，凤凰等各种坐骑，今天就遗憾的通知大家游戏停运了，相信玩家会直接把暴雪都给爆破了。值得一提的是，现在还可以通过steam平台找到这款游戏，欧服台服仍在运营。</p>
+<p>&emsp;&emsp;同在1月推出的网游还有游戏新干线代理的仙境传说，这款游戏一入眼就给人一种早期日式单机游戏的感觉。Q萌的画风，Q萌的表情包，还有其强大的社交功能，都让这款游戏成为了很多人心目中的经典之作。游戏的画面采用2D人物然后是伪3D建模，在当时的Q版网游中这款游戏的画面也是最顶尖的一款，再加上他生动形象的表情包和电视广告的投放，俘获了一大批女孩子的芳心。早期的网游大多都是刷刷刷，玩法基本就是肝，但那个时期的玩家，说难听点，没什么见识，就算是无聊的机械式刷怪也可以刷他个三天三夜。还有什么公会战之类的pvp玩法就不说了，总之这款游戏的亮点在我看来就是初步形成了休闲网游的雏形。要说哪款游戏的外挂最变态，RO说第二，没人敢说第一，他是脱机外挂的鼻祖，玩过传奇的应该都听说过脱机外挂这玩意吧，就是直接跳过游戏的客户端，用外挂登陆游戏从而实现一台电脑30个账号同时运行。你以为这种外挂就很夸张了吗？别着急，RO还有服务器托管的外挂，电脑都不用开，这用现在的说法应该就是云外挂了吧。</p>
+<p>&emsp;&emsp;2003年2月，网星代理了大宇制作的轩辕剑online，这款网游并没有达到单机轩辕剑的高度，品质不够优秀，网游的制作经验也比较匮乏。虽然是3D建模，但画质相比于同期的韩国网游相差太多了，还不如做成2D。职业分化也非常严重，8个职业各具特色，但基本没有独立的生存能力，甚至连小怪都打不过，也许大宇认为网游就应该这样吧。其他地方也都普普通通，跟同期的韩游完全没有可比性，唯一不普通的地方就是点卡了，轩辕剑online的收费在当时是价格最高的网游，迷之自信。</p>
+<p>&emsp;&emsp;2003年2月，上海育碧代理了宇宙神作无尽的任务，魔兽初期的成功就是因为借鉴了这款游戏的优点。</p>
+<p>&emsp;&emsp;2003年3月，由亚联游戏代理百战天虫，玩法就是现在的弹弹堂了，百战天虫应该就是这个模式的鼻祖吧。当时很多玩家厌倦了刷刷刷单游戏模式，休闲网游也在这时开始崛起。</p>
+<p>&emsp;&emsp;2003年4月，天人互娱代理魔剑online，很多资深网游玩家对这款游戏的评价都非常的高，但天人互娱是一个单机游戏发行商，没有什么网游运营经验，这导致国服bug多，服务器也不稳定，而且游戏模式过于超前无法被玩家接受，所以仅仅一年的时间国服就停止运营了。这款游戏的整个世界都可以由玩家自己来建设城邦，甚至摧毁敌人城邦，而且这不是什么SLG游戏，是真正的大型角色扮演游戏。</p>
+<p>&emsp;&emsp;腾讯看到各大互联网公司都靠网游赚的盆满钵满终于坐不住了，随后老马带着腾讯团队直奔上海拜访了陈天桥也就是盛大的CEO。大家整天黑腾讯，现在知道腾讯是跟谁学的了吧。随后又去美国观摩了E3展会，2003年5月，随着QQ游戏平台的发布，腾讯也顺势代理了凯旋，开始进军网游产业。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/01/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E5%8D%83%E7%A6%A7%E5%B9%B4%E5%88%9D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -233,7 +591,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-12-04 12:55:10" itemprop="dateModified" datetime="2021-12-04T12:55:10+08:00">2021-12-04</time>
+                <time title="Modified: 2021-12-04 13:02:06" itemprop="dateModified" datetime="2021-12-04T13:02:06+08:00">2021-12-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -719,373 +1077,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Binstall/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Binstall/" class="post-title-link" itemprop="url">CMake命令之install</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-07-05 09:04:00" itemprop="dateCreated datePublished" datetime="2021-07-05T09:04:00+08:00">2021-07-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-10-28 16:39:58" itemprop="dateModified" datetime="2021-10-28T16:39:58+08:00">2021-10-28</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/cmake%E5%91%BD%E4%BB%A4/" itemprop="url" rel="index"><span itemprop="name">cmake命令</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/07/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Binstall/" class="post-meta-item leancloud_visitors" data-flag-title="CMake命令之install" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">install(TARGETS &lt;target&gt;... [...])</span><br><span class="line">install(IMPORTED_RUNTIME_ARTIFACTS &lt;target&gt;... [...])</span><br><span class="line">install(&#123;FILES | PROGRAMS&#125; &lt;file&gt;... [...])</span><br><span class="line">install(DIRECTORY &lt;dir&gt;... [...])</span><br><span class="line">install(SCRIPT &lt;file&gt; [...])</span><br><span class="line">install(CODE &lt;code&gt; [...])</span><br><span class="line">install(EXPORT &lt;export-name&gt; [...])</span><br><span class="line">install(RUNTIME_DEPENDENCY_SET &lt;set-name&gt; [...])</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/07/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Binstall/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/04/Cmake%E7%9A%84install%E6%93%8D%E4%BD%9C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/04/Cmake%E7%9A%84install%E6%93%8D%E4%BD%9C/" class="post-title-link" itemprop="url">Cmake的install操作</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-07-04 09:36:00" itemprop="dateCreated datePublished" datetime="2021-07-04T09:36:00+08:00">2021-07-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-10-28 16:39:06" itemprop="dateModified" datetime="2021-10-28T16:39:06+08:00">2021-10-28</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/cmake%E5%B7%A5%E5%85%B7%E6%95%99%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">cmake工具教程</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/07/04/Cmake%E7%9A%84install%E6%93%8D%E4%BD%9C/" class="post-meta-item leancloud_visitors" data-flag-title="Cmake的install操作" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="如何使用cmake来执行install操作"><a href="#如何使用cmake来执行install操作" class="headerlink" title="如何使用cmake来执行install操作"></a>如何使用cmake来执行install操作</h1><p>&emsp;&emsp;首先假定我们有以下目录树以及相关文件：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ProjectTopDir</span><br><span class="line">---&gt;CMakeLists.txt</span><br><span class="line">---&gt;Util</span><br><span class="line">    ---&gt;CMakeLists.txt</span><br><span class="line">    ---&gt;util.h</span><br><span class="line">    ---&gt;u1.cpp</span><br><span class="line">    ---&gt;u2.cpp</span><br><span class="line">---&gt;build</span><br><span class="line">---&gt;src</span><br><span class="line">    ---&gt;tutorial.cpp</span><br></pre></td></tr></table></figure>
-
-<p>其中源码树为ProjectTopDir，构建树为build，所有中间文件以及最终目标将存放在build树中。我们额外定义了一个Util库，存放着相关的工具库，CMakeLists.txt大致为如下所示：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/07/04/Cmake%E7%9A%84install%E6%93%8D%E4%BD%9C/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/01/CMake%E7%AE%80%E8%BF%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/01/CMake%E7%AE%80%E8%BF%B0/" class="post-title-link" itemprop="url">CMake简述</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-07-01 21:24:00" itemprop="dateCreated datePublished" datetime="2021-07-01T21:24:00+08:00">2021-07-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-10-28 16:40:09" itemprop="dateModified" datetime="2021-10-28T16:40:09+08:00">2021-10-28</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/cmake%E5%B7%A5%E5%85%B7%E6%95%99%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">cmake工具教程</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/07/01/CMake%E7%AE%80%E8%BF%B0/" class="post-meta-item leancloud_visitors" data-flag-title="CMake简述" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="cmake是什么"><a href="#cmake是什么" class="headerlink" title="cmake是什么"></a>cmake是什么</h1><p>&emsp;&emsp;cmake是跨平台系统构建器CMake的命令行接口工具。若要使用CMake来构建一个项目，生成一个项目构建系统，可以使用cmake来构建项目、安装项目，或者直接运行相应的构建工具（如make）。</p>
-<h1 id="CMake的构建系统（Buildsystems）"><a href="#CMake的构建系统（Buildsystems）" class="headerlink" title="CMake的构建系统（Buildsystems）"></a>CMake的构建系统（Buildsystems）</h1><p>&emsp;&emsp;<strong>构建系统</strong>描述了如何使用构建工具将源代码构建成可执行文件和相关库，这个过程是自动化的。例如，<strong>构建系统</strong>可以是与命令行make工具一起使用的Makefile，也可以是集成开发环境（IDE）的项目文件。为了避免维护多个这样的<strong>构建系统</strong>，一个项目可以使用CMake语言编写的文件来抽象地定义它的<strong>构建系统</strong>。在这些文件中，CMake通过一个称为生成器（generator）的后端在本地为每个用户生成一个首选的<strong>构建系统</strong>。</p>
-<p>&emsp;&emsp;为了生成CMake的构建系统，必须遵循以下几点：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/07/01/CMake%E7%AE%80%E8%BF%B0/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/06/30/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Btarget_compile_definitions/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/30/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Btarget_compile_definitions/" class="post-title-link" itemprop="url">CMake命令之target_compile_definitions</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-06-30 15:52:00" itemprop="dateCreated datePublished" datetime="2021-06-30T15:52:00+08:00">2021-06-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-10-28 16:36:59" itemprop="dateModified" datetime="2021-10-28T16:36:59+08:00">2021-10-28</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/cmake%E5%91%BD%E4%BB%A4/" itemprop="url" rel="index"><span itemprop="name">cmake命令</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/06/30/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Btarget_compile_definitions/" class="post-meta-item leancloud_visitors" data-flag-title="CMake命令之target_compile_definitions" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target_compile_definitions(&lt;target&gt;</span><br><span class="line">  &lt;INTERFACE&gt;|&lt;PUBLIC&gt;|&lt;PRIVATE&gt; [items1...]</span><br><span class="line">  [&lt;INTERFACE&gt;|&lt;PUBLIC&gt;|PRIVATE&gt; [items2...] ...])</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;该命令会为给定的<code>&lt;target&gt;</code>添加编译定义项。其中<code>&lt;INTERFACE&gt;|&lt;PUBLIC&gt;|&lt;PRIVATE&gt;</code>指定了<code>[items...]</code>可以传播的域。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/06/30/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Btarget_compile_definitions/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1152,7 +1147,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-count">82</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1163,7 +1158,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

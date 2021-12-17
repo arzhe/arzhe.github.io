@@ -5333,7 +5333,7 @@
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;雅达利的兴衰和约翰卡马克的传奇故事，这些故事虽然精彩，但是我们都没有经历。我的意思是没有在正确的时间玩过那些改变了游戏历史的游戏。对于我们中国人来说，经历过游戏禁令的90后来说，我们所经历的游戏发展史大多都是小霸王-街机-光碟PC-PC单机-PC网游-PC单机，就这么简单。当然了，这里不代表所有人。虽然我们玩的我们所经历的，大多都是别人玩剩下的。但这，对于我们来说，同样精彩。同样给我们留下了不可磨灭的记忆。所以，我就以一个普通家庭90后的角度，来讲述一个中国人的游戏发展史。</p>
 <a id="more"></a>
 
-<h2 id="PC时代背景"><a href="#PC时代背景" class="headerlink" title="PC时代背景"></a>PC时代背景</h2><p>&emsp;&emsp;我接触电脑算是比较早的了，因为小时候父母做生意没时间照顾我，记得小学2年级还是3年级就把位送到了那种贵族寄宿学校，学校开设了微机课，当时还有DOS系统，打开电脑以后就只有黑屏加一堆看不懂的英文，输入相应的指令才能进入电脑里安装过的程序，大概是这样吧，反正挺复杂的。后来因为种种原因，父母把我接回湖北老家。虽然人回来了，但网瘾的种子已经埋下，“网瘾少年”的不归路也正式开始了。</p>
+<h2 id="PC时代背景"><a href="#PC时代背景" class="headerlink" title="PC时代背景"></a>PC时代背景</h2><p>&emsp;&emsp;我接触电脑算是比较早的了，因为小时候父母做生意没时间照顾我，记得小学2年级还是3年级就把我送到了那种贵族寄宿学校，学校开设了微机课，当时还有DOS系统，打开电脑以后就只有黑屏加一堆看不懂的英文，输入相应的指令才能进入电脑里安装过的程序，大概是这样吧，反正挺复杂的。后来因为种种原因，父母把我接回湖北老家。虽然人回来了，但网瘾的种子已经埋下，“网瘾少年”的不归路也正式开始了。</p>
 <p>&emsp;&emsp;新鲜事物对人对吸引力是无穷无尽的，电脑作为一个划时代的产物更像是一个口袋装满糖果的恶魔让我深陷其中无法自拔。WINDOWS系统的各种屏保都能玩一下午的，相信不止我一个吧。你们不要小看当时所谓的网瘾啊，现在这个手机也能运行3D游戏的时代，游戏已经不再是新鲜事物了，你要说你现在还有网瘾——不可能！只有经历过那个时代的人，才能深刻体会到什么是真正的网瘾。你可能体会过三天三夜持续游戏，但你体会过三天三夜甚至一周玩游戏全程都保持非常亢奋的状态吗？当时的网瘾不夸张的说可以用着魔这两个词来形容。摸到键盘和鼠标的那一刻就可以深刻体会到肾上腺素激增和多巴胺分泌颅内高潮的快感，一会不玩，浑身难受。现在，网瘾基本就不存在了，顶多可以说是自制力差，贪玩。</p>
 <p>&emsp;&emsp;emmm，扯远了，回来以后对电脑当然也是念念不忘了，但那个年代，电脑这个东西对于一般人完全就是奢侈品，当时，我这的同龄人都还在玩FC和街机，有的根本不知道电脑为何物。而当时的网吧也不叫网吧，叫电脑房。因为电脑高昂的价格，上网费用也高的离谱，三块钱一小时，那个年代的三块钱可不是一个小数目。但电脑作为一种新兴的高科技产品，在它刚起步的时候很多成年人还没有意识到电脑强大的游戏功能，当时也有很多成年人去参加电脑补习班，学的就是打字复制粘贴，现在看起来智障都能无师自通的东西。</p>
 <p>&emsp;&emsp;得益于初期电脑良好的口碑，我可以明目张胆的问父母要钱去网吧，emmm，不对，是去电脑房。当时的网吧还没有发达的管理系统，上网和下机的时间都是网管拿本子记下来的，到时间再过去提醒你该下机了，时间也没有那么精确，所以我每次都能玩一个半小时或者将近两个小时，周围都是18岁左右的或者一些成年人，我一个小学生，他们也没有跟我斤斤计较，告诉我超时间了就放我走了。当时玩的都是什么呢？红色警戒、帝国时代和cs等等游戏，当然了，还有QQ。对，你没有看错，QQ。我当时还小，也才刚刚注册过QQ（这还是我爸公司员工帮我注册的）。大多都是16岁到20多岁的，特别是女孩一到网吧啥也不干，就只戴着耳机玩QQ，现在你可能体会不到啊。但对于当时的人来说，这种新型的社交方式也一样有着无穷的吸引力，而且很多人连基本的操作都不会，有不会打开QQ的，有不知道自己密码的，有不会选择聊天对象的。这些鸡毛蒜皮的小事都得麻烦网管，再加上记录上下机时间，当时的网管可真不容易啊。</p>
@@ -5380,5 +5380,391 @@
 <li>Logging是对外接口，Logging类内涵一个LogStream对象，主要是为了每次打log的时候在log之前和之后加上固定的格式化的信息，比如打log的行、文件名等信息。</li>
 </ul>
 ]]></content>
+  </entry>
+  <entry>
+    <title>UNIX文件IO（一）</title>
+    <url>/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/</url>
+    <content><![CDATA[<hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;UNIX系统中大多数文件IO只需用到5个函数：<code>open</code>、<code>read</code>、<code>write</code>、<code>lseek</code>以及<code>close</code>。本文将分别讨论以上函数的作用以及不同缓冲长度对<code>read</code>和<code>write</code>函数的影响。</p>
+<p>&emsp;&emsp;本文描述的函数经常被称为不带缓冲的IO，也就是每个<code>read</code>和<code>write</code>都调用内核中的一个系统调用。这些不带缓冲带IO函数不是ISO C的组成部分，但是，它们是POSIX.1和Single UNIX Specification的组成部分。</p>
+<a id="more"></a>
+
+<h1 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h1><p>&emsp;&emsp;对于内核而言，所有打开的文件都通过文件描述符引用。文件描述符是一个非负整数。当打开一个现有文件或创建一个新文件时，内核向进程返回一个文件描述符。当读、写一个文件时，使用<code>open</code>或<code>create</code>返回的文件描述符标识该文件，将其作为参数传送给<code>read</code>或<code>write</code>。</p>
+<p>&emsp;&emsp;按照惯例，UNIX系统shell把文件描述符0与进程的标准输入关联，文件描述符1与标准输出关联，文件描述符2与标准错误关联。这是各种shell以及很多应用程序使用的惯例，与UNIX内核无关。尽管如此，如果不遵循这种惯例，很多UNIX系统应用程序就不能正常工作。</p>
+<p>&emsp;&emsp;在符合POSIX.1的应用程序中，幻数0、1、2虽然已经被标准化，但应当把它们替换成符号常量<code>STDIN_FILENO</code>、<code>STDOUT_FILENO</code>和<code>STDERR_FILENO</code>以提高可读性。这些常量都定义在头文件<code>&lt;unistd.h&gt;</code>中。</p>
+<p>&emsp;&emsp;文件描述符的变化范围是<code>0～OPEN_MAX-1</code>。早期的UNIX系统实现采用的上限是19（允许进程最多打开20个文件），但现在很多系统将其上限值增至63。</p>
+<blockquote>
+<p>对于FreeBSD 8.0、Linux 3.2.0、MacOS X 10.6.8来说，文件描述符的变化范围几乎是无限的。它只受到系统配置的存储器总量、整型的字长以及系统管理员所配置的软限制和硬限制的约束。</p>
+</blockquote>
+<h1 id="函数open和openat"><a href="#函数open和openat" class="headerlink" title="函数open和openat"></a>函数open和openat</h1><p>&emsp;&emsp;调用<code>open</code>和<code>openat</code>函数可以打开或创建一个文件。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 两函数的返回值：若成功，返回文件描述符；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">open</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* path, <span class="keyword">int</span> oflag, ... <span class="comment">/* mode_t mode */</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">openat</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">const</span> <span class="keyword">char</span>* path, <span class="keyword">int</span> oflag, ... <span class="comment">/* mode_t mode */</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;我们将最后一个参数写为<code>...</code>，ISO C用这种方法表明余下的参数的数量及其类型是可变的。对于<code>open</code>函数而言，仅当创建新文件时才使用最后这个参数。在函数原型中将此参数放置在注释中。</p>
+<p>&emsp;&emsp;<code>path</code>参数是要打开或创建文件的名字。<code>oflag</code>参数可用来说明此函数的多个选项。用下列一个或多个常量进行“或”运算构成<code>oflag</code>参数（这些常量在头文件<code>&lt;fcntl.h&gt;</code>中定义）。</p>
+<ul>
+<li><code>O_RDONLY</code>：只读打开。</li>
+<li><code>O_WRONLY</code>：只写打开。</li>
+<li><code>RDWR</code>：读、写打开。</li>
+</ul>
+<blockquote>
+<p>&emsp;&emsp;大多数实现将<code>O_RDONLY</code>定义为0，<code>O_WRONLY</code>定义为1，<code>O_RDWR</code>定义为2，以与早期的程序兼容。</p>
+</blockquote>
+<ul>
+<li><code>O_EXEC</code>：只执行打开。</li>
+<li><code>O_SEARCH</code>：只搜索打开（应用于目录）。</li>
+</ul>
+<blockquote>
+<p>&emsp;&emsp;<code>O_SEARCH</code>常量的目的在于在目录打开时验证它的搜索权限。对目录的文件描述符的后续操作就不需要再次检查对该目录的搜索权限。但目前大部分操作系统都不支持<code>O_SEARCH</code>。即使通过<code>man</code>命令也搜索不到。</p>
+</blockquote>
+<p>&emsp;&emsp;在前三个常量中必须指定一个且只能指定一个。下列常量则是可选的。</p>
+<ul>
+<li><code>O_APPEND</code>：每次写时都追加到文件的尾端。</li>
+<li><code>O_CLOEXEC</code>：把<code>FD_CLOEXEC</code>常量设置为文件描述符标志。</li>
+<li><code>O_CREAT</code>：若此文件不存在则创建它。使用此选项时，<code>open</code>函数需同时说明第三个参数<code>mode</code>（<code>openat</code>函数需说明第四个参数<code>mode</code>），用<code>mode</code>指定该新文件的访问权限位。</li>
+<li><code>O_DIRECTORY</code>：如果<code>path</code>引用的不是目录，则出错。</li>
+<li><code>O_EXCL</code>：如果同时指定了<code>O_CREAT</code>，而文件已经存在，则出错。用此可以测试一个文件是否存在，如果不存在，则创建此文件，这使测试和创建两者成为一个原子操作。</li>
+<li><code>O_NOCTTY</code>：如果<code>path</code>引用的是终端设备，则不将该设备分配作为此进程的控制终端。</li>
+<li><code>O_NOFOLLOW</code>：如果<code>path</code>引用的是一个符号链接，则出错。</li>
+<li><code>O_NONBLOCK</code>：如果<code>path</code>引用的是一个<code>FIFO</code>、一个块特殊文件或一个字符特殊文件，则此选项为文件的本次打开操作和后续的<code>I/O</code>操作设置为非阻塞方式。</li>
+<li><code>O_SYNC</code>：使每次<code>write</code>等待物理<code>I/O</code>操作完成，包括由该<code>write</code>操作引起的文件属性更新所需的<code>I/O</code>。</li>
+<li><code>O_TRUNC</code>：如果此文件存在，而且为只写或读-写成功打开，则将其长度截断为0。</li>
+<li><code>O_TTY_INIT</code>：如果打开一个还未打开的终端设备，设置非标准<code>terminos</code>参数值，使其符合<code>Single UNIX Specification</code>。</li>
+</ul>
+<p>&emsp;&emsp;由<code>open</code>和<code>openat</code>函数返回的文件描述符一定是最小的未用描述符数值。这点被某些应用程序用来在标准输入、标准输出或标准错误上打开新的文件。例如，一个应用程序可以先关闭标准输出（通常是文件描述符1），然后再打开另一个文件，执行打开操作前就能了解到该文件一定会在文件描述符1上打开。<code>dup2</code>函数可以更好的来保证在一个给定的描述符上打开一个文件。</p>
+<p>&emsp;&emsp;<code>fd</code>参数把<code>open</code>和<code>openat</code>函数区分开来，共有三种可能性。</p>
+<ol>
+<li><code>path</code>参数指定的是绝对路径名，在这种情况下，<code>fd</code>参数被忽略，<code>openat</code>函数就相当于<code>open</code>函数。</li>
+<li><code>path</code>参数指定的是相对路径名，<code>fd</code>参数指出了相对路径名在文件系统中的开始地址。<code>fd</code>参数是通过打开相对路径名所在的目录来获取的。</li>
+<li><code>path</code>参数指定了相对路径名，<code>fd</code>参数具有特殊值<code>AT_FDCWD</code>。在这种情况下，路径名在当前工作目录中获取，<code>openat</code>函数在操作上与<code>open</code>函数类似。</li>
+</ol>
+<h2 id="文件名和路径名截断"><a href="#文件名和路径名截断" class="headerlink" title="文件名和路径名截断"></a>文件名和路径名截断</h2><p>&emsp;&emsp;如果<code>NAME_MAX</code>是14，而我们却试图在当前目录创建一个文件名包含15个字符的新文件，此时会发生什么呢？按照传统，早期的<code>System V</code>版本（如<code>SVR2</code>）允许这种使用方法，但总是将文件名截断为14个字符，而且不给出任何信息，而<code>BSD</code>类的系统则返回出错状态，并将<code>errno</code>设置为<code>ENAMETOOLONG</code>。无声无息地截断文件名会引起问题，而且它不仅仅影响到创建新文件。如果<code>NAME_MAX</code>是14，而存在一个文件名恰好就是14个字符的文件，那么以路径名作为其参数的任一函数都无法确定该文件的原始名是什么。其原因就是这些函数无法判断该文件名是否被截断过。</p>
+<p>&emsp;&emsp;在<code>POSIX.1</code>中，常量<code>_POSIX_NO_TRUNC</code>决定是要截断过长的文件名或路径名，还是返回一个出错。</p>
+<p>&emsp;&emsp;若<code>_POSIX_NO_TRUNC</code>有效，则在整个路径名超过<code>PATH_MAX</code>，或路径名中的任一文件名超过<code>NAME_MAX</code>时，出错返回，并将<code>errno</code>设置为<code>ENAMETOOLONG</code>。</p>
+<blockquote>
+<p>&emsp;&emsp;大多数现代文件系统支持文件名的最大长度可以为255。因为文件名通常比这个限制要短，因此对大多数应用程序来说这个限制还未出现什么问题。</p>
+</blockquote>
+<h1 id="函数create"><a href="#函数create" class="headerlink" title="函数create"></a>函数create</h1><p>&emsp;&emsp;也可调用<code>create</code>函数创建一个新文件。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，返回为只写打开的文件描述符；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">create</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* path, <span class="keyword">mode_t</span> mode)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;此函数等效于：<code>open(path, O_WRONLY | O_CREAT | O_TRUNC, mode)</code>。</p>
+<h1 id="函数close"><a href="#函数close" class="headerlink" title="函数close"></a>函数close</h1><p>&emsp;&emsp;可调用<code>close</code>函数关闭一个打开文件。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，返回0；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">close</span><span class="params">(<span class="keyword">int</span> fd)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;关闭一个文件时还会释放该进程加在该文件上的所有记录锁。</p>
+<p>&emsp;&emsp;当一个进程终止时，内核自动关闭它所有的打开文件。很多程序都利用了这一功能而不显式地用<code>close</code>关闭打开文件。</p>
+<h1 id="函数lseek"><a href="#函数lseek" class="headerlink" title="函数lseek"></a>函数lseek</h1><p>&emsp;&emsp;每个打开文件都有一个与其相关联的“当前文件偏移量”（<code>current file offset</code>）。它通常是一个非负整数，用以度量从文件开始处计算的字节数。通常，读、写操作都从当前文件偏移量处开始，并使偏移量增加所读写的字节数。按系统默认的情况，当打开一个文件时，除非指定<code>O_APPEND</code>选项，否则该偏移量被设置为0。</p>
+<p>&emsp;&emsp;可以调用<code>lseek</code>显式地为一个打开文件设置偏移量。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，返回新的文件偏移量；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">off_t</span> <span class="title">lseek</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">off_t</span> offset, <span class="keyword">int</span> whence)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;对参数<code>offset</code>的解释与参数<code>whence</code>的值有关。</p>
+<ul>
+<li>若<code>whence</code>是<code>SEEK_SET</code>，则将该文件的偏移量设置为距文件开始处<code>offset</code>个字节。</li>
+<li>若<code>whence</code>是<code>SEEK_CUR</code>，则将该文件的偏移量设置为其当前值加<code>offset</code>，<code>offset</code>可为正或负。</li>
+<li>若<code>whence</code>是<code>SEEK_END</code>，则将该文件的偏移量设置为文件长度加<code>offset</code>，<code>offset</code>可为正或负。</li>
+</ul>
+<p>&emsp;&emsp;若<code>lseek</code>成功执行，则返回新的文件偏移量，可以用下列方法确定打开文件的当前偏移量：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">off_t</span> current_pos;</span><br><span class="line">current_pos = lseek(fd, <span class="number">0</span>, SEEK_CUR);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;用这种方法也可用来确定所涉及的文件是否可以设置偏移量。如果文件描述符指向的是一个管道、<code>FIFO</code>或网络套接字，则<code>lseek</code>返回-1，并将<code>errno</code>设置为<code>ESPIPE</code>。</p>
+<p>&emsp;&emsp;文件偏移量可以大于文件的当前长度，在这种情况下，对该文件的下一次写将加长该文件，并在文件中构成一个空洞，这一点是允许的。位于文件中但没有写过的字节都被读为0。</p>
+<p>&emsp;&emsp;文件中的空洞并不要求在磁盘上占用存储区。具体处理方式与文件系统的实现有关，当定位到超出文件尾端之后写时，对于新写的数据需要分配磁盘块，但是对于原文件尾端和新开始写位置之间的部分则不需要分配磁盘块。</p>
+<blockquote>
+<p>&emsp;&emsp;尽管可以实现64位文件偏移量，但是能否创建一个大于2GB（2^31 - 1字节）的文件则依赖于底层文件系统的类型。</p>
+</blockquote>
+<h1 id="函数read"><a href="#函数read" class="headerlink" title="函数read"></a>函数read</h1><p>&emsp;&emsp;调用<code>read</code>函数从打开文件中读数据。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：读到的字节数，若已到文件尾，返回0；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">read</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">void</span>* buf, <span class="keyword">size_t</span> nbytes)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如<code>read</code>成功，则返回读到的字节数。如已到达文件的尾端，则返回0。</p>
+<p>&emsp;&emsp;有多种情况可使实际读到的字节数少于要求读的字节数：</p>
+<ul>
+<li>读普通文件时，在读到要求字节数之前已到达了文件尾端。例如，若在到达文件尾端之前有30个字节，而要求读100个字节，则<code>read</code>返回30。下一次再调用<code>read</code>时，它将返回0（文件尾端）。</li>
+<li>当从终端设备读时，通常一次最多读一行。</li>
+<li>当从网络读时，网络中的缓冲机制可能造成返回值小于所要求读的字节数。</li>
+<li>当从管道或<code>FIFO</code>读时，如若管道包含的字节小于所需的数量，那么<code>read</code>将只返回实际可用的字节数。</li>
+</ul>
+<p>&emsp;&emsp;读操作从文件的当前偏移量处开始，在成功返回之前，该偏移量将增加实际读到的字节数。<code>POSIX.1</code>从几个方面对<code>read</code>函数的原型做了更改。经典的原型定义是：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">read</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">char</span>* buf, <span class="keyword">unsigned</span> nbytes)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>首先，为了与<code>ISO C</code>一致，第二个参数由<code>char*</code>改为<code>void*</code>。在<code>ISO C</code>中，类型<code>void*</code>用于表示通用指针。</li>
+<li>其次，返回值必须是一个带符号整型（<code>ssize_t</code>），以保证能够返回正整数字节数、0（表示文件尾端）或-1（出错）。</li>
+</ul>
+<h1 id="函数write"><a href="#函数write" class="headerlink" title="函数write"></a>函数write</h1><p>&emsp;&emsp;调用<code>write</code>函数向打开文件写数据。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，返回已写的字节数；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">write</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">const</span> coid* buf, <span class="keyword">size_t</span> nbytes)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;其返回值通常与参数<code>nbytes</code>相同，否则表示出错。<code>write</code>出错的一个常见原因是磁盘已写满，或者超过了一个给定进程的文件长度限制。</p>
+<p>&emsp;&emsp;对于普通文件，写操作从文件的当前偏移量处开始。如果在打开该文件时，指定了<code>O_APPEND</code>选项，则在每次写操作之前，将文件偏移量设置在文件的当前结尾处。在一次成功写之后，该文件偏移量增加实际写的字节数。</p>
+]]></content>
+      <categories>
+        <category>UNIX长篇大论</category>
+      </categories>
+      <tags>
+        <tag>UNIX文件</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>UNIX文件IO（二）</title>
+    <url>/2021/12/12/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%BA%8C%EF%BC%89/</url>
+    <content><![CDATA[<hr>
+<h1 id="文件共享"><a href="#文件共享" class="headerlink" title="文件共享"></a>文件共享</h1><p>&emsp;&emsp;UNIX系统支持在不同进程间共享打开文件。在介绍<code>dup</code>函数之前，先要说明这种共享。为此先介绍内核用于所有<code>I/O</code>的数据结构。</p>
+<p>&emsp;&emsp;内核使用3种数据结构表示打开文件，它们之间的关系决定了在文件共享方面一个进程对另一个进程可能产生的影响。</p>
+<a id="more"></a>
+
+<ol>
+<li>每个进程在进程表中都有一个记录项，记录项中包含一张打开文件描述符表，可将其视为一个矢量，每个描述符占用一项。与每个文件描述符相关联的是：<ol>
+<li>文件描述符标志；</li>
+<li>指向一个文件表项的指针。</li>
+</ol>
+</li>
+<li>内核为所有打开文件维持一张文件表。每个文件表项包含：<ol>
+<li>文件状态标志（读、写、添写、同步和非阻塞等）；</li>
+<li>当前文件偏移量；</li>
+<li>指向该文件<code>v</code>节点表项的指针。</li>
+</ol>
+</li>
+<li>每个打开文件（或设备）都有一个<code>v</code>节点结构。<code>v</code>节点包括了文件类型和对此文件进行各种操作函数的指针。对于大多数文件，<code>v</code>节点还包括了该文件的<code>i</code>节点（索引节点）。这些信息是在打开文件时从磁盘上读入内存的，所以，文件的所有相关信息都是随时可用的。例如，<code>i</code>节点包含了文件的所有者、文件长度、指向文件实际数据块在磁盘上所在位置的指针等。</li>
+</ol>
+<blockquote>
+<p>&emsp;&emsp;<code>Linux</code>没有使用<code>v</code>节点，而是使用了通用<code>i</code>节点结构。虽然两种实现有所不同，但在概念上，<code>v</code>节点和<code>i</code>节点是一样的。两者都指向文件系统特有的<code>i</code>节点结构。</p>
+</blockquote>
+<p>&emsp;&emsp;本文忽略了那些不影响讨论的实现细节。例如，打开文件描述符表可存放在用户空间（作为一个独立的对应于每个进程的结构，可用换出），而非进程表中。这些表中也可以用多种方式实现，不必一定是数组，例如，可将它们实现为结构的链表。如果不考虑实现细节的话，通用概念是相同的。</p>
+<p>&emsp;&emsp;下图显示了一个进程对应的3张表之间的关系。该进程有两个不同的打开文件：一个文件从标准输入打开（文件描述符0），另一个从标准输出打开（文件描述符1）。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E6%96%87%E4%BB%B6IO/%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.png" alt="打开文件的内核数据结构"></p>
+<p>&emsp;&emsp;如果两个独立进程各自打开了同一文件，则有如下图关系。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E6%96%87%E4%BB%B6IO/%E4%B8%A4%E4%B8%AA%E7%8B%AC%E7%AB%8B%E8%BF%9B%E7%A8%8B%E5%90%84%E8%87%AA%E6%89%93%E5%BC%80%E5%90%8C%E4%B8%80%E6%96%87%E4%BB%B6.png" alt="两个独立进程各自打开同一文件"></p>
+<p>&emsp;&emsp;假定第一个进程在文件描述符3上打开该文件，而另一个进程在文件描述符4上打开该文件。打开该文件的每个进程都获得各自的一个文件表项，但对一个给定的文件只有一个<code>v</code>节点表项。之所以每个进程都获得自己的文件表项，是因为这可以使每个进程都有它自己的对该文件的当前偏移量。</p>
+<p>&emsp;&emsp;给出了这些数据结构后，现在对前面所述的操作进一步说明。</p>
+<ul>
+<li>在完成每个<code>write</code>后，在文件表项中的当前文件偏移量即增加所写入的字节数。如果这导致当前文件偏移量超出了当前文件长度，则将<code>i</code>节点表项中的当前文件长度设置为当前文件偏移量（也就是该文件加长了）。</li>
+<li>如果用<code>O_APPEND</code>标志打开一个文件，则相应标志也被设置到文件表项的文件状态标志中。每次对这种具有追加写标志的文件执行写操作时，文件表项中的当前文件偏移量首先会被设置为<code>i</code>节点表项中的文件长度。这就使得每次写入的数据都追加到文件的当前尾端处。</li>
+<li>若一个文件用<code>lseek</code>定位到文件当前的尾端，则文件表项中的当前文件偏移量被设置为<code>i</code>节点表项中的当前文件长度（注意，这与用<code>O_APPEND</code>标志打开文件是不同的，见<a href="#原子操作">原子操作</a>）。</li>
+<li><code>lseek</code>函数只修改文件表项中的当前文件偏移量，不进行任何<code>I/O</code>操作。</li>
+</ul>
+<p>&emsp;&emsp;可能有多个文件描述符指向同一文件表项。在讨论<a href="#dup"><code>dup函数</code></a>时，我们就能看到这一点。在<code>fork</code>后也发生同样的情况，此时父进程、子进程各自的每一个打开文件描述符共享同一个文件表项。</p>
+<p>&emsp;&emsp;注意，文件描述符标志和文件表项标志在作用范围方面的区别，前者只用于一个进程的一个描述符，而后者则应用于指向该文件表项的任何进程中的所有描述符。在讨论<a href="#fcntl"><code>fcntl函数</code></a>时，将会了解如何获取和修改文件描述符标志和文件状态标志。</p>
+<p>&emsp;&emsp;前面所述的一切对于多个进程读取同一文件都能正常工作。每个进程都有它自己的文件表项，其中也有它自己的当前文件偏移量。但是，当多个进程写同一文件时，则可能会产生预想不到的结果。为了说明如何避免这种情况，需要理解原子操作的概念。</p>
+<h1 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a><span id="原子操作">原子操作</span></h1><h2 id="追加到一个文件"><a href="#追加到一个文件" class="headerlink" title="追加到一个文件"></a>追加到一个文件</h2><p>&emsp;&emsp;考虑一个进程，它要将数据追加到一个文件尾端。早期的UNIX系统版本并不支持<code>open</code>的<code>O_APPEND</code>选项，所以程序被编写成下列形式：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(lseek(fd, END_FILE_POS, <span class="number">2</span>) &lt; <span class="number">0</span>) <span class="comment">// position to EOF.</span></span><br><span class="line">    ERR_SYS(<span class="string">"lseek error!"</span>);</span><br><span class="line"><span class="keyword">if</span>(<span class="built_in">write</span>(fd, buff, <span class="number">100</span>) != <span class="number">100</span>)    <span class="comment">// write.</span></span><br><span class="line">    ERR_SYS(<span class="string">"write error!"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;对单个进程而言，这段程序能正常工作，但若有多个进程同时使用这种方法将数据追加写到同一文件，则会产生问题（例如，若此程序由多个进程同时执行，各自将消息追击到一个日志文件中，就会产生这种情况）。</p>
+<p>&emsp;&emsp;假定有两个独立的进程<code>A</code>和<code>B</code>都对同一文件进行追加写操作。每个进程都已打开了该文件，但未使用<code>O_APPEND</code>标志。此时，各数据结构之间的关系如上图所示。每个进程都有它自己的文件表项，但是共享一个<code>v</code>节点表项。假定进程<code>A</code>调用了<code>lseek</code>，它将进程<code>A</code>的该文件当前偏移量设置为1500字节（当前文件尾端处）。然后内核切换进程，进程<code>B</code>运行。进程<code>B</code>执行<code>lseek</code>，也将其对该文件的当前偏移量增加至1600。因为该文件的长度已经增加了，所以内核将<code>v</code>节点中的当前文件长度更新为1600。然后，内核又进行进程切换，使进程<code>A</code>恢复运行。当<code>A</code>调用<code>write</code>时，就从其当前文件偏移量（1500）处开始将数据写入到文件。这样也就覆盖了进程<code>B</code>刚才写入到该文件中的数据。</p>
+<p>&emsp;&emsp;问题出在逻辑操作“先定位到文件尾端，然后写”，它使用了两个分开的函数调用。解决方法是使这两个操作对于其他进程而言成为一个原子操作。任何要求多于一个函数调用的操作都不是原子操作，因为在两个函数调用之间，内核有可能会临时挂起进程。</p>
+<p>&emsp;&emsp;<code>UNIX</code>系统为这样的操作提供了一种原子操作方法，即在打开文件时设置<code>O_APPEND</code>标志。正如前一章所述，这样做使得内核在每次写操作之前，都将进程的当前偏移量设置到该文件的尾端处，于是在每次写之前就不再需要调用<code>lseek</code>。</p>
+<h2 id="函数pread和pwrite"><a href="#函数pread和pwrite" class="headerlink" title="函数pread和pwrite"></a>函数pread和pwrite</h2><p>&emsp;&emsp;<code>Single UNIX Specification</code>包括了<code>XSI</code>扩展，该扩展允许原子性地定位并执行<code>I/O</code>。<code>pthread</code>和<code>pwrite</code>就是这种扩展。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：读到的字节数，若已到文件尾，返回0；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">pread</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">void</span>* buf, <span class="keyword">size_t</span> nbytes, <span class="keyword">off_t</span> offset)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，返回已写的字节数；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">pwrite</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">const</span> <span class="keyword">void</span>* buf, <span class="keyword">size_t</span> nbytes, <span class="keyword">off_t</span> offset)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;调用<code>pread</code>相当于调用<code>lseek</code>后调用<code>read</code>，但是<code>pread</code>又与这种顺序调用有下列重要区别。</p>
+<ul>
+<li>调用<code>pread</code>时，无法中断其定位和读操作。</li>
+<li>不更新当前文件偏移量。</li>
+</ul>
+<p>&emsp;&emsp;调用<code>pwrite</code>相当于调用<code>lseek</code>后调用<code>write</code>，但也与它们有类似的区别。</p>
+<h2 id="创建一个文件"><a href="#创建一个文件" class="headerlink" title="创建一个文件"></a>创建一个文件</h2><p>&emsp;&emsp;对<code>open</code>函数的<code>O_CREAT</code>和<code>O_EXCL</code>选项进行说明时，我们已见到另一个有关原子操作的例子。当同时指定这两个选项，而该文件又已经存在时，<code>open</code>将失败。前文曾提到检查文件是否存在和创建文件这两个操作是作为一个原子操作执行的。如果没有这样一个原子操作，那么可能会编写下列程序段：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>((fd == <span class="built_in">open</span>(pathname, O_WRONLY)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(errno == ENOENT) &#123;</span><br><span class="line">        <span class="keyword">if</span>((fd = create(path, mode)) &lt; ) &#123;</span><br><span class="line">            ERR_SYS(<span class="string">"create error"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        ERR_SYS(<span class="string">"open error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果在<code>open</code>和<code>create</code>之间，另一个进程创建了该文件，就会出现问题。若在这两个函数调用之间，另一个进程创建了该文件，并且写入了一些数据，然后，原来进程执行这段程序中的<code>create</code>，这时，刚由另一个进程写入的数据就会被擦去。如若将这两者合并在一个原子操作中，这种问题也就不会出现。</p>
+<p>&emsp;&emsp;一般而言，原子操作指的是由多步组成的一个操作。如果该操作原子地执行，则要么执行完所有步骤，要么一步也不执行，不可能只执行所有步骤的一个子集。</p>
+<h1 id="函数dup和dup2"><a href="#函数dup和dup2" class="headerlink" title="函数dup和dup2"></a>函数dup和dup2</h1><p>&emsp;&emsp;下面两个函数都可以用来复制一个现有的文件描述符。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 两函数的返回值：若成功，返回新的文件描述符；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dup</span><span class="params">(<span class="keyword">int</span> fd)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dup2</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">int</span> fd2)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;由<code>dup</code>返回的新文件描述符一定是当前可用文件描述符中的最小数值。对于<code>dup2</code>，可以用<code>fd2</code>参数指定新文件描述符的值。如果<code>fd2</code>已经打开，则先将其关闭。如若<code>fd</code>等于<code>fd2</code>，则<code>dup2</code>返回<code>fd2</code>，而不关闭它。否则，<code>fd2</code>的<code>FD_CLOEXEC</code>文件描述符标志就被清除，这样<code>fd2</code>在进程调用<code>exec</code>时是打开状态。</p>
+<p>&emsp;&emsp;这些函数返回的新文件描述符与参数<code>fd</code>共享同一个文件表项，如下图所示。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E6%96%87%E4%BB%B6IO/dup%E5%90%8E%E7%9A%84%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.png" alt="dup后的内核数据结构"></p>
+<p>&emsp;&emsp;在此图中，我们假定进程启动时执行了：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">newfd = dup(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>当此函数开始执行时，假定一下个可用的描述符是3（这是非常可能的，因为0，1和2都由<code>shell</code>打开）。因为两个描述符指向同一个文件表项，所以它们共享同一文件状态标志（读、写、追加等）以及同一当前文件偏移量。</p>
+<p>&emsp;&emsp;每个文件描述符都有它自己的一套文件描述符标志。例如，新描述符的执行时关闭标志总是由<code>dup</code>函数清除。</p>
+<p>&emsp;&emsp;复制一个描述符的另一种方法是使用<code>fcntl</code>函数，实际上，调用</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">dup(fd);</span><br></pre></td></tr></table></figure>
+
+<p>等效于</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">fcntl(fd, F_DUPFD, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>而调用</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">dup2(fd, fd2);</span><br></pre></td></tr></table></figure>
+
+<p>等效于</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">close</span>(fd2);</span><br><span class="line">fcntl(fd, F_DUPFD, fd2);</span><br></pre></td></tr></table></figure>
+
+<p>在后一种情况下，<code>dup2</code>并不完全等同于<code>close</code>加上<code>fnctl</code>。它们之间的区别具体如下。</p>
+<ul>
+<li><code>dup2</code>是一个原子操作，而<code>close</code>和<code>fcntl</code>包括两个函数调用。有可能在<code>close</code>和<code>fcntl</code>之间调用了信号捕获函数，它可能修改了文件描述符。如果不同的线程改变了文件描述符的话也会出现相同的问题。</li>
+<li><code>dup2</code>和<code>fcntl</code>有一些不同的<code>errno</code>。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>UNIX长篇大论</category>
+      </categories>
+      <tags>
+        <tag>UNIX文件</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>中国网游发展史之腾讯进军网游产业</title>
+    <url>/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/</url>
+    <content><![CDATA[<hr>
+<h1 id="曲折坎坷的2003年"><a href="#曲折坎坷的2003年" class="headerlink" title="曲折坎坷的2003年"></a>曲折坎坷的2003年</h1><p>&emsp;&emsp;2003年1月，骑士online正式公测，由搜狐代理运营。这是一款大型3D角色扮演类游戏，自公测以来一直深受众多玩家们的喜爱，但在那个网游飞速发展的年代，骑士online也不可避免的走向了衰竭。为了留住玩家，搜狐在2006年改变了运营策略，将游戏转为道具收费的模式。这样的转变也起到了良好的效果，大量老玩家纷纷回到了骑士online的怀抱。值得一提的是搜狐就骑士online这款游戏与韩方签订了4年合约，但转为免费模式的经济效益并没有达到搜狐预期的效果，所以续约这事也就自然而然的谈崩了。但纸总是包不住火的，早在2006年8月的时候网上便已流传出关于骑士online即将停止运营的消息，众多玩家因为担心骑士online的前景去官方论坛讨说法。搜狐顶不住压力，第二天就在游戏的官方网站上发布了一则公告，大体内容是这样的：“望所有玩家坚定对《骑士online》这款产品的信心，我们不但不会停止对《骑士online》的运营，还会把他做得更加精彩”。可在这则公告发布不到三个月的时间搜狐却又发布了一则公告，大概内容是这样的：“为保障广大中国区玩家的利益，经搜狐游戏与韩方的协商决定，骑士online的服务器运行时间延长到2007年3月20日”。这则公告字里行间好像都在为玩家考虑，良心啊，别着急，更良心的还在后面。传言是8月底，辟谣也是8月底，3个月以后，也就是11月底又突然公布游戏即将停运。那么这3个月里都发生了什么呢？9月底也就是谣言出现的一个月以后，搜狐为了稳定玩家的情绪，推出了一个活动，叫什么“十一黄金周，骑士伴你行”，说要提前更新新版本，新装备，新技能，新任务，又推出了各种氪金活动并表示骑士online前途一片光明。后边的事，大家应该都可以猜到了，这明显就是典型的商业欺诈。而且这款游戏因为转为免费运营以后人气也不低，说关就关了，关之前还把这么多玩家当猴耍了，这谁受得了，在看到即将停服的消息以后，大量玩家涌入了315网站进行投诉。最后。。。也是不了了之了，毕竟你在进入网游之前都会接受一个你看都不会看的协议，知道那个吧，每个网游都有的，而且当时网络环境也没有现在这么发达，要是放到现在，我举个例子，魔兽世界要是昨天刚刚不限量卖一波无敌，幽灵虎，凤凰等各种坐骑，今天就遗憾的通知大家游戏停运了，相信玩家会直接把暴雪都给爆破了。值得一提的是，现在还可以通过steam平台找到这款游戏，欧服台服仍在运营。</p>
+<p>&emsp;&emsp;同在1月推出的网游还有游戏新干线代理的仙境传说，这款游戏一入眼就给人一种早期日式单机游戏的感觉。Q萌的画风，Q萌的表情包，还有其强大的社交功能，都让这款游戏成为了很多人心目中的经典之作。游戏的画面采用2D人物然后是伪3D建模，在当时的Q版网游中这款游戏的画面也是最顶尖的一款，再加上他生动形象的表情包和电视广告的投放，俘获了一大批女孩子的芳心。早期的网游大多都是刷刷刷，玩法基本就是肝，但那个时期的玩家，说难听点，没什么见识，就算是无聊的机械式刷怪也可以刷他个三天三夜。还有什么公会战之类的pvp玩法就不说了，总之这款游戏的亮点在我看来就是初步形成了休闲网游的雏形。要说哪款游戏的外挂最变态，RO说第二，没人敢说第一，他是脱机外挂的鼻祖，玩过传奇的应该都听说过脱机外挂这玩意吧，就是直接跳过游戏的客户端，用外挂登陆游戏从而实现一台电脑30个账号同时运行。你以为这种外挂就很夸张了吗？别着急，RO还有服务器托管的外挂，电脑都不用开，这用现在的说法应该就是云外挂了吧。</p>
+<p>&emsp;&emsp;2003年2月，网星代理了大宇制作的轩辕剑online，这款网游并没有达到单机轩辕剑的高度，品质不够优秀，网游的制作经验也比较匮乏。虽然是3D建模，但画质相比于同期的韩国网游相差太多了，还不如做成2D。职业分化也非常严重，8个职业各具特色，但基本没有独立的生存能力，甚至连小怪都打不过，也许大宇认为网游就应该这样吧。其他地方也都普普通通，跟同期的韩游完全没有可比性，唯一不普通的地方就是点卡了，轩辕剑online的收费在当时是价格最高的网游，迷之自信。</p>
+<p>&emsp;&emsp;2003年2月，上海育碧代理了宇宙神作无尽的任务，魔兽初期的成功就是因为借鉴了这款游戏的优点。</p>
+<p>&emsp;&emsp;2003年3月，由亚联游戏代理百战天虫，玩法就是现在的弹弹堂了，百战天虫应该就是这个模式的鼻祖吧。当时很多玩家厌倦了刷刷刷单游戏模式，休闲网游也在这时开始崛起。</p>
+<p>&emsp;&emsp;2003年4月，天人互娱代理魔剑online，很多资深网游玩家对这款游戏的评价都非常的高，但天人互娱是一个单机游戏发行商，没有什么网游运营经验，这导致国服bug多，服务器也不稳定，而且游戏模式过于超前无法被玩家接受，所以仅仅一年的时间国服就停止运营了。这款游戏的整个世界都可以由玩家自己来建设城邦，甚至摧毁敌人城邦，而且这不是什么SLG游戏，是真正的大型角色扮演游戏。</p>
+<p>&emsp;&emsp;腾讯看到各大互联网公司都靠网游赚的盆满钵满终于坐不住了，随后老马带着腾讯团队直奔上海拜访了陈天桥也就是盛大的CEO。大家整天黑腾讯，现在知道腾讯是跟谁学的了吧。随后又去美国观摩了E3展会，2003年5月，随着QQ游戏平台的发布，腾讯也顺势代理了凯旋，开始进军网游产业。</p>
+]]></content>
+      <categories>
+        <category>中国网游发展史</category>
+      </categories>
+      <tags>
+        <tag>杂谈</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>UNIX文件IO（三）</title>
+    <url>/2021/12/16/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%89%EF%BC%89/</url>
+    <content><![CDATA[<hr>
+<h1 id="函数sync、fsync和fdatasync"><a href="#函数sync、fsync和fdatasync" class="headerlink" title="函数sync、fsync和fdatasync"></a>函数sync、fsync和fdatasync</h1><p>&emsp;&emsp;传统的<code>UNIX</code>系统实现在内核中设有缓冲区高速缓存或页高速缓存，大多数磁盘<code>I/O</code>都通过缓冲区进行。当我们向文件写入数据时，内核通常先将数据复制到缓冲区中，然后排入队列，晚些时候再写入磁盘。这种方式被称为延迟写。</p>
+<p>&emsp;&emsp;通常，当内核需要重用缓冲区来存放其他磁盘块数据时，它会把所有延迟写数据块写入磁盘。为了保证磁盘上实际文件系统与缓冲区中内容的一致性，<code>UNIX</code>系统提供了<code>sync</code>、<code>fsync</code>和<code>fdatasync</code>三个函数。</p>
+<a id="more"></a>
+
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，返回0；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fsync</span><span class="params">(<span class="keyword">int</span> fd)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fdatasync</span><span class="params">(<span class="keyword">int</span> fd)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sync</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;<code>sync</code>只是将所有修改过的块缓冲区排入写队列，然后就返回，它并不等待实际写磁盘操作结束。</p>
+<p>&emsp;&emsp;通常，称为<code>update</code>的系统守护进程周期性地调用（一般每隔30秒）<code>sync</code>函数。这就保证了定期冲洗（<code>flush</code>）内核的块缓冲区。命令<code>sync(1)</code>也调用<code>sync</code>函数。</p>
+<p>&emsp;&emsp;<code>fsync</code>函数只对由文件描述符<code>fd</code>指定的一个文件起作用，并且等待写磁盘操作结束才返回。<code>fsync</code>可用于数据库这样的应用程序，这种应用程序需要确保修改过的块立即写到磁盘上。</p>
+<p>&emsp;&emsp;<code>fdatasync</code>函数类似于<code>fsync</code>，但它只影响文件的数据部分。而除数据外，<code>fsync</code>还会同步更新文件的属性。</p>
+<h1 id="函数fcntl"><a href="#函数fcntl" class="headerlink" title="函数fcntl"></a>函数fcntl</h1><p>&emsp;&emsp;<code>fcntl</code>函数可以改变已经打开文件的属性。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fctnl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，则依赖于cmd；若出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fcntl</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">int</span> cmd, ... <span class="comment">/* int arg */</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;在以下各个实例中，第3个参数总是一个整数，与上面所示函数原型中的注释部分对应。需要注意的是，该参数亦可以是指向一个结构的指针。</p>
+<p>&emsp;&emsp;<code>fcntl</code>函数有以下5种功能。</p>
+<ul>
+<li>复制一个已有的描述符（<code>cmd = F_DUPFD 或 F_DUPFD_CLOEXEC</code>）。</li>
+<li>获取／设置文件描述符标志（<code>cmd = F_GETFD 或 F_SETFD</code>）。</li>
+<li>获取／设置文件状态标志（<code>cmd = F_GETFL 或 F_SETFL</code>）。</li>
+<li>获取／设置异步<code>I/O</code>所有权（<code>cmd = F_GETOWN 或 F_SETOWN</code>）。</li>
+<li>获取／设置记录锁（<code>cmd = F_GETLK、F_SETLK 或 F_SETLKW</code>）。</li>
+</ul>
+<p>&emsp;&emsp;本系列博客先说明这11种<code>cmd</code>中的前8种（后3种与记录锁有关）。以下将讨论与进程表项中各文件描述符相关联的文件描述符标志以及每个文件表项中的文件状态标志。</p>
+<ul>
+<li><code>F_DUPFD</code>：复制文件描述符<code>fd</code>。新文件描述符作为函数值返回。它是尚未打开的各描述符中大于或等于第三个参数值（取为整型值）中各值的最小值。新描述符与<code>fd</code>共享同一文件表项。但是，新文件描述符有它自己的一套文件描述符标志，其<code>FD_CLOEXEC</code>文件描述符标志被清除（这表示该描述符在<code>exec</code>时仍保持有效）。</li>
+<li><code>F_DUPFD_CLOEXEC</code>：复制文件描述符<code>fd</code>，设置与新描述符关联的<code>FD_CLOEXEC</code>文件描述符标志，返回新文件描述符。</li>
+<li><code>F_GETFD</code>：对应于<code>fd</code>的文件描述符标志作为函数值返回。当前只定义了一个文件描述符标志<code>FD_CLOEXEC</code>。</li>
+<li><code>F_SETFD</code>：对<code>fd</code>设置文件描述符标志。新标志值按第3个参数设置。</li>
+</ul>
+<blockquote>
+<p>&emsp;&emsp;要知道，很多现有的与文件描述符标志有关的程序并不使用常量<code>FD_CLOEXEC</code>，而是将此标志设置为0（系统默认，在<code>exec</code>时不关闭）或1（在<code>exec</code>时关闭）。</p>
+</blockquote>
+<ul>
+<li><code>F_GETFL</code>：对应于<code>fd</code>的文件状态标志作为函数值返回。本系列博客在说明<code>open</code>函数时（具体见“<strong><a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" title="UNIX文件IO（一）">UNIX文件IO（一）</a></strong>”），已描述了文件状态标志。如下表所示。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>文件状态标志</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>O_RDONLY</code></td>
+<td>只读打开</td>
+</tr>
+<tr>
+<td><code>O_WRONLY</code></td>
+<td>只写打开</td>
+</tr>
+<tr>
+<td><code>O_RDWR</code></td>
+<td>读、写打开</td>
+</tr>
+<tr>
+<td><code>O_EXEC</code></td>
+<td>只执行打开</td>
+</tr>
+<tr>
+<td><code>O_SEARCH</code></td>
+<td>只搜索打开目录</td>
+</tr>
+<tr>
+<td><code>O_APPEND</code></td>
+<td>追加写</td>
+</tr>
+<tr>
+<td><code>O_NONBLOCK</code></td>
+<td>非阻塞模式</td>
+</tr>
+<tr>
+<td><code>O_SYNC</code></td>
+<td>等待写完成（数据和属性）</td>
+</tr>
+<tr>
+<td><code>O_DSYNC</code></td>
+<td>等待写完成（仅数据）</td>
+</tr>
+<tr>
+<td><code>O_RSYNC</code></td>
+<td>同步读和写</td>
+</tr>
+<tr>
+<td><code>O_FSYNC</code></td>
+<td>等待写完成（仅<code>FreeBSD</code>和<code>Mac OS X</code>）</td>
+</tr>
+<tr>
+<td><code>O_ASYNC</code></td>
+<td>异步<code>I/O</code>（仅<code>FressBSD</code>和<code>Mac OS X</code>）</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;遗憾的是，5个访问方式标志（前5个）并不各占1位（如前所述，由于历史原因，前3个标志的值分别是0、1和2。这5个值互斥，一个文件的访问方式只能取这5个值之一）。因此首先必须用屏蔽字<code>O_ACCMODE</code>取得访问方式位，然后将结果与这5个值中的每一个相比较。</p>
+<ul>
+<li><code>F_SETFL</code>：将文件状态标志设置为第3个参数的值。可以更改的标志为上表的后7个。</li>
+<li><code>F_GETOWN</code>：获取当前接收<code>SIGIO</code>和<code>SIGURG</code>信号的进程<code>ID</code>或进程组<code>ID</code>。</li>
+<li><code>F_SETOWN</code>：设置接收<code>SIGIO</code>和<code>SIGURG</code>信号的进程<code>ID</code>或进程组<code>ID</code>。正的<code>arg</code>指定一个进程<code>ID</code>，负的<code>arg</code>表示等于<code>arg</code>绝对值的一个进程组<code>ID</code>。</li>
+</ul>
+<p>&emsp;&emsp;<code>fcntl</code>的返回值与命令有关。如果出错，所有命令都返回-1，如果成功则返回某个其他值。</p>
+<p>&emsp;&emsp;下列代码所示程序的第1个参数指定文件描述符，并对于该描述符打印其所选择的文件标志说明。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span>(argc != <span class="number">2</span>) &#123;</span><br><span class="line">        ERR_QUIT(<span class="string">"usage: a.out &lt;descriptor#&gt;"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span>((val = fcntl(atoi(argv[<span class="number">1</span>]), F_GETFL, <span class="number">0</span>)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ERR_SYS(<span class="string">"fcntl error for fd %d"</span>, atoi(argv[<span class="number">1</span>]));</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">switch</span>(val &amp; O_ACCMODE) &#123;</span><br><span class="line">    <span class="keyword">case</span> O_RDONLY:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"read only"</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">case</span> O_WRONLY:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"write only"</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">case</span> O_RDWR:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"read write"</span>);</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        ERR_DUMP(<span class="string">"unoknown access mode"</span>);  </span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span>(val &amp; O_APPEND) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">", append"</span>);</span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">if</span>(val &amp; O_NONBLOCK) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">", nonblocking"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(val &amp; O_SYNC) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">", synchronous writes"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="meta">#<span class="meta-keyword">if</span> !<span class="meta-keyword">define</span>(_POSIX_C_SOURCE) &amp;&amp; defined(O_FSYNC) &amp;&amp; (O_FSYNC != O_SYNC)</span></span><br><span class="line">        <span class="keyword">if</span>(val &amp; O_FSYNC)</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">", synchronous writes"</span>);</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  </span><br><span class="line">    <span class="built_in">putchar</span>(<span class="string">'\n'</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;在修改文件描述符标志或文件状态标志时必须谨慎，先要获得现在的标志值，然后按照期望修改它，最后设置新标志值。不能只是执行<code>F_SETFD</code>或<code>F_SETFL</code>命令，这样会关闭以前设置的标志位。</p>
+<p>&emsp;&emsp;下列代码是对于一个文件描述符设置一个或多个文件状态标志的函数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// flags are file statues flags to turn on.</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set_fl</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">int</span> flags)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>((val = fcntl(fd, F_GETFL, <span class="number">0</span>)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ERR_SYS(<span class="string">"fcntl F_GETFL error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// turn on flags.</span></span><br><span class="line">    val |= flags;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span>(fcntl(fd, F_SETFL, val) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ERR_SYS(<span class="string">"fcntl F_SETFL error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;如果将中间的一条语句改为：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// turn off flags.</span></span><br><span class="line">val &amp;= ~flags;</span><br></pre></td></tr></table></figure>
+
+<p>就构成另一个函数，称之为<code>clr_fl</code>（该函数将在之后的例子中用到）。</p>
+<p>&emsp;&emsp;如果在每次<code>write</code>前加上以下代码：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">set_fl(STDOUT_FILENO, O_SYNC);</span><br></pre></td></tr></table></figure>
+
+<p>这就使得每次<code>write</code>都要等待，直至数据已写到磁盘上再返回。在<code>UNIX</code>系统中，通常<code>write</code>只是将数据排入队列，而实际的写磁盘操作则可能在以后的某个时刻进行。数据库系统则需要使用<code>O_SYNC</code>，这样一来，当它从<code>write</code>返回时就知道数据已确实写到了磁盘上，以免在系统异常时产生数据丢失。</p>
+<h1 id="dev-fd"><a href="#dev-fd" class="headerlink" title="/dev/fd"></a>/dev/fd</h1><p>&emsp;&emsp;较新的系统都提供名为<code>/dev/fd</code>的目录，其目录项是名为0、1、2等的文件。打开<code>/dev/fd/n</code>等效于复制描述符<code>n</code>（假定描述符<code>n</code>是打开的）。</p>
+<blockquote>
+<p>&emsp;&emsp;<code>dev/fd</code>这一功能是由<code>Tom Duff</code>开发的，它首先出现在<code>Research UNIX</code>系统的第8版中，本系列博客说明的所有4种系统（<code>FreeBSD 8.0</code>、<code>Linux 3.2.0</code>、<code>Mac OS X 10.6.8</code>和<code>Solaris 10</code>）都支持这一功能。它不是<code>POSIX.1</code>的组成部分。</p>
+</blockquote>
+<p>&emsp;&emsp;在下列函数调用中：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">fd = <span class="built_in">open</span>(<span class="string">"/dev/fd/0"</span>, mode);</span><br></pre></td></tr></table></figure>
+
+<p>大多数系统忽略它所指定的<code>mode</code>，而另一些系统则要求<code>mode</code>必须是所引用的文件（在这里是标准输入）初始打开时所使用的打开模式的一个子集。因为上面的打开等效于：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">fd = dup(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>所以描述符0和<code>fd</code>共享同一文件表项。例如，若描述符0先前被打开为只读，那么我们也只能对<code>fd</code>进行读操作。即使系统忽略打开模式，而且下列调用是成功的：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">fd = <span class="built_in">open</span>(<span class="string">"/dev/fd/0"</span>, O_RDWR);</span><br></pre></td></tr></table></figure>
+
+<p>我们仍然不能对<code>fd</code>进行写操作。</p>
+<blockquote>
+<p>&emsp;&emsp;<code>Linux</code>实现中的<code>/dev/fd</code>是个例外。它把文件描述符映射成指向底层物理文件的符号链接。例如，当打开<code>/dev/fd/0</code>时，事实上正在打开与标准输入关联的文件，因此返回的新文件描述符的模式与<code>/dev/fd</code>文件描述符的模式其实并不相关。</p>
+</blockquote>
+<p>&emsp;&emsp;也可以用<code>/dev/fd</code>作为路径名参数调用<code>create</code>，这与调用<code>open</code>时用<code>O_CREAT</code>作为第2个参数作用相同。例如，若一个程序调用<code>create</code>，并且路径名参数是<code>/dev/fd/1</code>，那么该程序仍能工作。</p>
+<blockquote>
+<p>&emsp;&emsp;注意，在<code>Linux</code>上这么做必须非常小心。因为<code>Linux</code>实现使用指向实际文件的符号链接，在<code>/dev/fd</code>文件上使用<code>create</code>会导致底层文件被截断。</p>
+</blockquote>
+<p>&emsp;&emsp;某些系统提供路径名<code>/dev/stdin</code>、<code>/dev/stdout</code>和<code>/dev/stderr</code>，这些等效于<code>/dev/fd/0</code>、<code>/dev/fd/1</code>和<code>/dev/fd/2</code>。</p>
+<p>&emsp;&emsp;<code>/dev/fd</code>文件主要由<code>shell</code>使用，它允许使用路径名作为调用参数的程序，能用处理其他路径名的相同方式处理标准输入和输出。</p>
+]]></content>
+      <categories>
+        <category>UNIX长篇大论</category>
+      </categories>
+      <tags>
+        <tag>UNIX文件</tag>
+      </tags>
   </entry>
 </search>

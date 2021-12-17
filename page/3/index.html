@@ -202,6 +202,362 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/09/%E5%8A%A1%E5%BF%85%E9%87%8D%E8%A7%86vector%E5%AE%B9%E5%99%A8%E4%B8%AD%E5%85%83%E7%B4%A0%E7%9A%84%E5%88%A0%E9%99%A4%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/04/09/%E5%8A%A1%E5%BF%85%E9%87%8D%E8%A7%86vector%E5%AE%B9%E5%99%A8%E4%B8%AD%E5%85%83%E7%B4%A0%E7%9A%84%E5%88%A0%E9%99%A4%E6%93%8D%E4%BD%9C/" class="post-title-link" itemprop="url">务必重视vector容器中元素的删除操作</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-04-09 14:09:00" itemprop="dateCreated datePublished" datetime="2021-04-09T14:09:00+08:00">2021-04-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-07-06 11:00:30" itemprop="dateModified" datetime="2021-07-06T11:00:30+08:00">2021-07-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">杂记</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/04/09/%E5%8A%A1%E5%BF%85%E9%87%8D%E8%A7%86vector%E5%AE%B9%E5%99%A8%E4%B8%AD%E5%85%83%E7%B4%A0%E7%9A%84%E5%88%A0%E9%99%A4%E6%93%8D%E4%BD%9C/" class="post-meta-item leancloud_visitors" data-flag-title="务必重视vector容器中元素的删除操作" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="vector的小“删除”，大“智慧”"><a href="#vector的小“删除”，大“智慧”" class="headerlink" title="vector的小“删除”，大“智慧”"></a>vector的小“删除”，大“智慧”</h1><p>&emsp;&emsp;在STL中，某些算法（移除型算法），它们本质上只是进行逻辑性的思考。这些算法并不会改变元素的数量，反而是将原本置于后面的“不移除元素”向前移动，以此来覆盖那些应被移除的元素而已。它们都返回新区间的逻辑终点（也就是最后一个“不移除元素”的下一个位置。</p>
+<p>&emsp;&emsp;那么如果要真正地删除我们不需要的元素，到底要如何处理呢？一般的手段虽然会简单粗暴，但正是这些粗暴的手法会将我们的程序带到崩溃的边缘。考虑以下代码：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/04/09/%E5%8A%A1%E5%BF%85%E9%87%8D%E8%A7%86vector%E5%AE%B9%E5%99%A8%E4%B8%AD%E5%85%83%E7%B4%A0%E7%9A%84%E5%88%A0%E9%99%A4%E6%93%8D%E4%BD%9C/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/03/20/0.1+0.2?/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/03/20/0.1+0.2?/" class="post-title-link" itemprop="url">0.1+0.2?</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-03-20 17:50:00 / Modified: 23:02:01" itemprop="dateCreated datePublished" datetime="2021-03-20T17:50:00+08:00">2021-03-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">杂记</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/03/20/0.1+0.2?/" class="post-meta-item leancloud_visitors" data-flag-title="0.1+0.2?" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="0-1-0-2-0-30000000000000004"><a href="#0-1-0-2-0-30000000000000004" class="headerlink" title="0.1+0.2=0.30000000000000004?"></a>0.1+0.2=0.30000000000000004?</h1><p>&emsp;&emsp;$0.1+0.2=0.30000000000000004$?难道不是0.3吗，为什么结果是这样的？你或许会觉得不可思议，但是在计算机的世界里，这是完全正确的。计算机只能存储整数，因此对于小数而言，它需要有别于存储整数的方式来对其进行处理，这也就是为什么上述计算有违我们的常识。</p>
+<p>&emsp;&emsp;那么到底是为什么呢？计算机为何要这样进行这样的操作呢？这其实一直都是一个经典的问题，甚至有一个网站的域名就叫做0.30000000000000004.com，就是为了解释这个问题。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/03/20/0.1+0.2?/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/03/12/%E5%8E%9F%E7%A0%81%E3%80%81%E8%A1%A5%E7%A0%81%E3%80%81%E5%8F%8D%E7%A0%81%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/03/12/%E5%8E%9F%E7%A0%81%E3%80%81%E8%A1%A5%E7%A0%81%E3%80%81%E5%8F%8D%E7%A0%81%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">原码、补码、反码详解</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-03-12 16:34:00" itemprop="dateCreated datePublished" datetime="2021-03-12T16:34:00+08:00">2021-03-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-04-18 13:50:52" itemprop="dateModified" datetime="2021-04-18T13:50:52+08:00">2021-04-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">杂记</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/03/12/%E5%8E%9F%E7%A0%81%E3%80%81%E8%A1%A5%E7%A0%81%E3%80%81%E5%8F%8D%E7%A0%81%E8%AF%A6%E8%A7%A3/" class="post-meta-item leancloud_visitors" data-flag-title="原码、补码、反码详解" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="生活中存在的数学原理"><a href="#生活中存在的数学原理" class="headerlink" title="生活中存在的数学原理"></a>生活中存在的数学原理</h1><p>&emsp;&emsp;如果只给你一个计算机，但只能运算加法，而不能运算减法，那你该咋办？</p>
+<p>&emsp;&emsp;其实原理很简单，日常生活中我们其实一直都有用到，这就是时钟。</p>
+<p>&emsp;&emsp;假设现在是上午7点，那么6小时前是多少呢？没错！我们理所当然的认为是1点。那么6小时又是多少呢？7 + 6 - 12，还是1点！你坚定的说，没错！</p>
+<p>&emsp;&emsp;那么，为什么第二次你减去了12呢？</p>
+<p>&emsp;&emsp;因为时钟总共也就只有12个数啊，那这就是数学中的取模运算了！</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/03/12/%E5%8E%9F%E7%A0%81%E3%80%81%E8%A1%A5%E7%A0%81%E3%80%81%E5%8F%8D%E7%A0%81%E8%AF%A6%E8%A7%A3/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/03/08/linux%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/03/08/linux%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86/" class="post-title-link" itemprop="url">linux软件包安装管理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-03-08 08:50:00" itemprop="dateCreated datePublished" datetime="2021-03-08T08:50:00+08:00">2021-03-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-03-10 21:08:47" itemprop="dateModified" datetime="2021-03-10T21:08:47+08:00">2021-03-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux%E7%BB%86%E6%9E%9D%E6%9C%AB%E8%8A%82/" itemprop="url" rel="index"><span itemprop="name">linux细枝末节</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/03/08/linux%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86/" class="post-meta-item leancloud_visitors" data-flag-title="linux软件包安装管理" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>&emsp;&emsp;软件厂商在他们的系统上面编译好了我们用户需要的软件，然后将这个编译好的并可执行的软件直接发布给用户安装。不同的linux发行版使用不同的打包系统，一般而言，大多数发行版分别属于两大包管理技术阵营：Debian的“*.deb”，和Red Hat的“*.rpm”。也有一些例外，但大多数会使用这两个基本系统中的一个。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/03/08/linux%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/05/CMake%E5%91%BD%E4%BB%A4%E4%B9%8Bconfigure_file/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -739,349 +1095,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/22/template%E5%85%83%E7%BC%96%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/22/template%E5%85%83%E7%BC%96%E7%A8%8B/" class="post-title-link" itemprop="url">template元编程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-11-22 19:01:10 / Modified: 19:39:26" itemprop="dateCreated datePublished" datetime="2020-11-22T19:01:10+08:00">2020-11-22</time>
-            </span>
-
-          
-            <span id="/2020/11/22/template%E5%85%83%E7%BC%96%E7%A8%8B/" class="post-meta-item leancloud_visitors" data-flag-title="template元编程" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="template元编程"><a href="#template元编程" class="headerlink" title="template元编程"></a>template元编程</h1><p>&emsp;&emsp;TMP（template metaprogrammming）模版元编程是编写template-base C++程序并执行于编译期的过程。所谓TMP是以C++写成、执行于C++编译器内的程序。一旦TMP程序结束执行，其输出，也就是从template具现出来的若干C++源码，便会被编译。</p>
-<p>&emsp;&emsp;C++并非是为TMP而设计，TMP是被发现而不是被发明出来的。当template加入C++时TMP底层特性也就被引进了。对某些人而言唯一需要注意的是如何以熟练巧妙的方式使用TMP。</p>
-<p>&emsp;&emsp;TMP有两个强大的作用。第一，它让某些事情变得更加容易。如果没有它，那些事情将是十分困难的，甚至是不可能的。第二，由于template metaprograms执行于C++编译期，因此可将工作从运行期转移至编译期。这将导致一个结果，某些错误原本通常在运行期才能侦测到，现在可在编译期找出来。另一个结果是，使用TMP的C++程序可能在每一方面都更高效：较小的可执行文件、较短的运行期、较少的内存需求，然而将工作从运行期转移至编译期的另一个结果是，编译时间变长了。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/21/traits%20class%E4%B8%8E%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF%E4%B9%8B%E9%97%B4%E7%9A%84%E5%A6%99%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/21/traits%20class%E4%B8%8E%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF%E4%B9%8B%E9%97%B4%E7%9A%84%E5%A6%99%E7%94%A8/" class="post-title-link" itemprop="url">traits class与类型信息之间的妙用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-21 16:17:00" itemprop="dateCreated datePublished" datetime="2020-11-21T16:17:00+08:00">2020-11-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:36:45" itemprop="dateModified" datetime="2021-03-10T20:36:45+08:00">2021-03-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/11/21/traits%20class%E4%B8%8E%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF%E4%B9%8B%E9%97%B4%E7%9A%84%E5%A6%99%E7%94%A8/" class="post-meta-item leancloud_visitors" data-flag-title="traits class与类型信息之间的妙用" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="traits-class与类型信息之间的妙用"><a href="#traits-class与类型信息之间的妙用" class="headerlink" title="traits class与类型信息之间的妙用"></a>traits class与类型信息之间的妙用</h1><p>&emsp;&emsp;STL主要由“用以表现容器、迭代器和算法”的template构成，但也覆盖若干工具性template，其中一个名为advance，用来将某个迭代器移动某个给定距离：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> IterT, <span class="keyword">typename</span> DistT&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">advance</span><span class="params">(IterT&amp; iter, DistT d)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;看起来advance做了iter+=d的动作，但是只有random access（随机访问）迭代器才支持+=操作。面对其他威力不是那么强大的迭代器种类，advance必须反复执行++或–，共d次。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/21/traits%20class%E4%B8%8E%E7%B1%BB%E5%9E%8B%E4%BF%A1%E6%81%AF%E4%B9%8B%E9%97%B4%E7%9A%84%E5%A6%99%E7%94%A8/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/19/%E4%BD%BF%E7%94%A8friend%20non-member%20function%E6%9D%A5%E5%AE%8C%E6%88%90template%E4%B8%AD%E7%9A%84%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%9C%BA%E8%83%BD/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/19/%E4%BD%BF%E7%94%A8friend%20non-member%20function%E6%9D%A5%E5%AE%8C%E6%88%90template%E4%B8%AD%E7%9A%84%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%9C%BA%E8%83%BD/" class="post-title-link" itemprop="url">使用friend non-member function来完成template中的类型转换机能</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-19 19:57:00" itemprop="dateCreated datePublished" datetime="2020-11-19T19:57:00+08:00">2020-11-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:33:30" itemprop="dateModified" datetime="2021-03-10T20:33:30+08:00">2021-03-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/11/19/%E4%BD%BF%E7%94%A8friend%20non-member%20function%E6%9D%A5%E5%AE%8C%E6%88%90template%E4%B8%AD%E7%9A%84%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%9C%BA%E8%83%BD/" class="post-meta-item leancloud_visitors" data-flag-title="使用friend non-member function来完成template中的类型转换机能" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="使用friend-non-member-function来完成template中的类型转换机能"><a href="#使用friend-non-member-function来完成template中的类型转换机能" class="headerlink" title="使用friend non-member function来完成template中的类型转换机能"></a>使用friend non-member function来完成template中的类型转换机能</h1><p>&emsp;&emsp;“<a href="/2020/08/04/%E8%8B%A5%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%86%E9%9C%80%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E8%AF%B7%E4%B8%BA%E6%AD%A4%E9%87%87%E7%94%A8non-member%E5%87%BD%E6%95%B0/" title="若所有参数皆需类型转换，请为此采用non-member函数">若所有参数皆需类型转换，请为此采用non-member函数</a>”这个条款讨论过为什么只有non-member函数才有能力“在所有实参身上实施隐式类型转换”。由于此文也是以它作为基础的延伸，所以强烈建议你先熟稔那个例子，本文将对那个例子进行一系列的改动，对Rational和operator*模版化：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/19/%E4%BD%BF%E7%94%A8friend%20non-member%20function%E6%9D%A5%E5%AE%8C%E6%88%90template%E4%B8%AD%E7%9A%84%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%9C%BA%E8%83%BD/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/" class="post-title-link" itemprop="url">编写有兼容性的成员函数模版</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-18 08:57:00" itemprop="dateCreated datePublished" datetime="2020-11-18T08:57:00+08:00">2020-11-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-10 20:25:14" itemprop="dateModified" datetime="2021-03-10T20:25:14+08:00">2021-03-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/" class="post-meta-item leancloud_visitors" data-flag-title="编写有兼容性的成员函数模版" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="编写有兼容性的成员函数模版"><a href="#编写有兼容性的成员函数模版" class="headerlink" title="编写有兼容性的成员函数模版"></a>编写有兼容性的成员函数模版</h1><p>&emsp;&emsp;STL容器的迭代器几乎总是智能指针，其优点不言而喻：可以在正确的时机自动删除heap-based资源。对于真实指针而言，做的较好的一件事是，支持隐式转换。Derived class指针可以隐式转换为base class指针，“指向non-const对象”的指针可以转换为“指向const对象”等等。以下为三层继承体系中的转换：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Top</span> &#123;</span> ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Middle</span> :</span> <span class="keyword">public</span> Top &#123; ... &#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bottom</span> :</span> <span class="keyword">public</span> Middle &#123; ... &#125;;</span><br><span class="line">Top* pt1 = <span class="keyword">new</span> Middle;</span><br><span class="line">Top* pt2 = <span class="keyword">new</span> Bottom;</span><br><span class="line"><span class="keyword">const</span> Top* cpt = pt1;</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/11/18/%E7%BC%96%E5%86%99%E6%9C%89%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E6%A8%A1%E7%89%88/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1148,7 +1165,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-count">82</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1159,7 +1176,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
