@@ -2839,6 +2839,7 @@
 <li>整合重载技术后，traits class有可能在编译期对类型执行“if…else”测试。</li>
 </ul>
 </blockquote>
+<p>魔兽世界／6年／专精猎人，参与过大秘境竞速，有过名次奖励。<br>天涯明月刀／2年／专精神威，在本服务器第一的工会担任主t。<br>炉石传说／7年／基本每个月传说，本校炉石传说社团的创建人，自发组织过众多的校内比赛，本社团的一名团员参与并拿到黄金公开赛的亚军。<br>风暴英雄／6年／内测排名段位1，本校风暴英雄社团的创建人，组织了校队参加了风暴英雄的第一个比赛——雷锋杯，进入了32强。<br>阴阳师／4年／屯屯鼠，全图鉴，大名士低保人士。<br>神界原罪2/1年／全成就。<br>塞尔达：荒野之息／至今仍在玩。<br>宝可梦全系列／2008年至今，卡带收藏者。<br>守望先锋／2年／刚出那会，士兵76世界前500强。</p>
 ]]></content>
       <categories>
         <category>长篇大论</category>
@@ -3036,65 +3037,6 @@
       </categories>
       <tags>
         <tag>C++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CMake工具教程（一）</title>
-    <url>/2021/01/01/CMake%E5%B7%A5%E5%85%B7%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89/</url>
-    <content><![CDATA[<hr>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>&emsp;&emsp;该教程将逐步讲解CMake工具在构建一个工程项目中的每一个细节与步骤。CMake最终目的是创建出makefile文件，而不是直接构建出一个工程项目。</p>
-<h1 id="初步构建（步骤1）"><a href="#初步构建（步骤1）" class="headerlink" title="初步构建（步骤1）"></a>初步构建（步骤1）</h1><p>&emsp;&emsp;最为简单基本的项目是一个从源代码文件中构建出来的可执行文件。对于简单的项目，只需要一个包含三行命令的CMakeLists.txt文件。这将是所有基于CMake工具的项目的起点。CMakeLists.txt在该情况下的内容如下：</p>
-<a id="more"></a>
-
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># set the project name</span></span><br><span class="line"><span class="keyword">project</span>(Tutorial)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the executable</span></span><br><span class="line"><span class="keyword">add_executable</span>(Tutorial tutorial.cxx)</span><br></pre></td></tr></table></figure>
-
-<h2 id="添加一个版本号和一个配置头文件"><a href="#添加一个版本号和一个配置头文件" class="headerlink" title="添加一个版本号和一个配置头文件"></a>添加一个版本号和一个配置头文件</h2><p>&emsp;&emsp;接下来我们添加的第一个功能是为我们的可执行文件和项目提供版本号。尽管我们也可以仅在源代码中执行此操作，但使用CMakeLists.txt可以提供更大的灵活性。</p>
-<p>&emsp;&emsp;首先，修改CMakeLists.txt文件，使用<code>project()</code>命令设置项目名称和版本号：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># set the project name and version</span></span><br><span class="line"><span class="keyword">project</span>(Tutorial VERSION <span class="number">1.0</span>)</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;然后，配置头文件来将版本号传递给源代码：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">configure_file</span>(TutorialConfig.h.in TutorialConfig.h)</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;由于已配置的文件将被写入二进制树，因此我们必须将该目录添加到路径列表中来搜索包含的文件。将以下命令添加到CMakeLists.txt文件等末尾：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">target_include_directories</span>(Tutorial PUBLIC</span><br><span class="line">                           <span class="string">"$&#123;PROJECT_BINARY_DIR&#125;"</span></span><br><span class="line">                           )</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;使用编辑器，在源目录下创建TutorialConfig.h.in文件，内容如下：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// the configured options and settings for Tutorial</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> Tutorial_VERSION_MAJOR @Tutorial_VERSION_MAJOR@</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> Tutorial_VERSION_MINOR @Tutorial_VERSION_MINOR@</span></span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;当CMake配置TutorialConfig.h头文件时，@Tutorial_VERSION_MAJOR@和@Tutorial_VERSION_MINOR@将被替换（它们的值在CMakeLists.txt中被定义）。接下来，在tutorial.cpp文件中include被配置的TutorialConfig.h头文件。最后，在tutorial.cpp文件中编入下列代码来打印出可执行文件的名称和版本号：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(argc &lt; <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; argv[<span class="number">0</span>] &lt;&lt; <span class="string">" VERSION "</span> &lt;&lt; Tutorial_VERSION_MAJOR &lt;&lt; <span class="string">"."</span></span><br><span class="line">              &lt;&lt; Tutorial_VERSION_MINOR &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Usage: "</span> &lt;&lt; argv[<span class="number">0</span>] &lt;&lt; <span class="string">"number"</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="指定C-标准"><a href="#指定C-标准" class="headerlink" title="指定C++标准"></a>指定C++标准</h2><p>&emsp;&emsp;接下来，给我们的项目添加一些C++11的特性，在tutorial.cpp中将atof替换为std::stod。与此同时，将<code>#include &lt;cstdlib&gt;</code>移除：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> inputValue = <span class="built_in">std</span>::stod(argv[<span class="number">1</span>]);</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;在这种情况下，我们需要在CMAKE中使用<code>CMAKE_CXX_STANDARD</code>变量来启用某种特定的C++标准。对于我们的Tutorial，在CMakeLists.txt中设置<code>CMAKE_CXX_STANDARD</code>变量为11并且设置<code>CMAKE_CXX_STANDARD_REQUIRED</code>为True。确保在<code>add_executable</code>调用之前添加<code>CMAKE_CXX_STANDARD</code>声明：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># set the project name and version</span></span><br><span class="line"><span class="keyword">project</span>(Tutorial VERSION <span class="number">1.0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># specify the C++ standard</span></span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD_REQUIRED <span class="keyword">True</span>)</span><br></pre></td></tr></table></figure>
-
-<h1 id="添加一个库（步骤2）"><a href="#添加一个库（步骤2）" class="headerlink" title="添加一个库（步骤2）"></a>添加一个库（步骤2）</h1><p>&emsp;&emsp;现在我们将为项目添加一个库。这个库包含我们自己的实现，用于计算数字的平方根。然后可执行文件可以使用此库而不是编译器提供的标准平方根函数。</p>
-<p>&emsp;&emsp;我们将库放入名为MathFunctions的子目录中。该目录包含一个头文件MathFunctions.h和一个源文件mysqrt.cxx。源文件具有一个mysqrt函数，该函数有着与编译器所提供的sqrt函数相似的的功能。</p>
-<p>&emsp;&emsp;将具有以下一行代码的CMakeLists.txt文件添加到MathFunctions目录中：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">add_library</span>(MathFunctions mysqrt.cxx)</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;为了使用新库，我们在顶级CMakeLists.txt文件中添加一个<code>add_subdirectory()</code>，以便构建库。将新库添加到可执行文件中，为了使得mysqrt.h头文件可以被找到，需要添加MathFunctions目录作为include directory。最后，我们的顶级CMakeLists.txt最后几行看起来会是这样的：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># add the MathFunctions library</span></span><br><span class="line"><span class="keyword">add_subdirectory</span>(MathFunctions)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the executable</span></span><br><span class="line"><span class="keyword">add_executable</span>(Tutorial tutorial.cxx)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_link_libraries</span>(Tutorial PUBLIC MathFunctions)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the binary tree to the search path for include files</span></span><br><span class="line"><span class="comment"># so that we will find TutorialConfig.h</span></span><br><span class="line"><span class="keyword">target_include_directories</span>(Tutorial PUBLIC</span><br><span class="line">                           <span class="string">"$&#123;PROJECT_BINARY_DIR&#125;"</span></span><br><span class="line">                           <span class="string">"$&#123;PROJECT_SOURCE_DIR&#125;/MathFunctions"</span></span><br><span class="line">                           )</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;现在让我们将MathFunctions库设为可选。虽然对于本文来说确实没有任何必要，但是对于任何大型的项目，这是非常常用的。第一步，我们将在顶层的CMakeLists.txt文件添加一个选项：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># macro USE_MTMATH is provided by cmake command to be used in source file</span></span><br><span class="line"><span class="keyword">option</span>(USE_MYMATH <span class="string">"Use tutorial provided math implementation"</span> <span class="keyword">ON</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># configure a header file to pass some of the CMake settings to source code</span></span><br><span class="line"><span class="keyword">configure_file</span>(TutorialConfig.h.in TutorialConfig.h)</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;option选项中的<code>USE_MYMATH</code>在cmake-gui和ccmake中的将会以默认值ON展示出来，它的值之后也可以被再次修改。这个设置会被保存在缓存里，这样一来在构建目录下运行cmake命令时，用户就不需要每次都设置一遍变量。</p>
-<p>&emsp;&emsp;下一个改进是将构建与链接MathFunctions库变为可选的。为了完成该目的，我们将顶层的CMakeLists.txt文件最后几行修改如下：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(USE_MYMATH)</span><br><span class="line">    <span class="keyword">add_subdirectory</span>(MathFunctions)</span><br><span class="line">    <span class="keyword">list</span>(APPEND EXTRA_LIBS MathFunctions)</span><br><span class="line">    <span class="keyword">list</span>(APPEND EXTRA_INCLUDES <span class="string">"$&#123;PROJECT_SOURCE_DIR&#125;/MathFunctions"</span>)</span><br><span class="line"><span class="keyword">endif</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the executable</span></span><br><span class="line"><span class="keyword">add_executable</span>(Tutorial tutorial.cxx)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_link_libraries</span>(Tutorial PUBLIC MathFunctions)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the library tree to the search path for include files</span></span><br><span class="line"><span class="comment"># so that we will find TutorialConfig.h</span></span><br><span class="line"><span class="keyword">target_include_directories</span>(Tutorial PUBLIC</span><br><span class="line">                           <span class="string">"$&#123;PROJECT_BINARY_DIR&#125;"</span></span><br><span class="line">                           <span class="variable">$&#123;EXTRA_INCLUDES&#125;</span></span><br><span class="line">                           )</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;&emsp;将变量<code>EXTRA_LIBS</code>的值设置为可选的MathFunctions库，并为之后链接可执行文件提供链接库。将变量<code>EXTRA_INCLUDES</code>的值设置为可选的MathFunctions库头文件的路径。这是处理多个可选组件的经典办法，接下来我们将讨论现代化办法。</p>
-<p>&emsp;&emsp;对于源代码的更改是相当直接的。首先，在<code>tutorial.txt</code>中，按照我们的需求来include<code>MathFunctions.h</code>头文件：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> USE_MYMATH</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"MathFunctions.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>cmake工具教程</category>
-      </categories>
-      <tags>
-        <tag>cmake</tag>
       </tags>
   </entry>
   <entry>
@@ -4094,52 +4036,6 @@
       </tags>
   </entry>
   <entry>
-    <title>C++基础（一）</title>
-    <url>/2021/06/18/C++%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%80%EF%BC%89/</url>
-    <content><![CDATA[<hr>
-<p>该系列为C++基础知识简述汇总</p>
-<a id="more"></a>
-
-<h1 id="OOP"><a href="#OOP" class="headerlink" title="OOP"></a>OOP</h1><ol>
-<li><p>基类通常都应该定义一个虚析构函数，即使该函数不执行任何实际操作也是如此。</p>
-</li>
-<li><p>当使用基类的引用（或指针）调用一个虚函数时将发生动态绑定。</p>
-</li>
-<li><p>在派生类对象中含有与其基类对应的组成部分。</p>
-</li>
-<li><p>每个类控制它自己的成员初始化过程。</p>
-</li>
-<li><p>首先初始化基类的部分，然后按照声明的顺序依次初始化派生类的成员。</p>
-</li>
-<li><p>每个类负责定义各自的接口。要想与类的对象交互必须使用该类的接口，即使这个对象是派生类的基类部分也是如此。因此，派生类对象不能直接初始化基类的成员。尽管从语法上来说可以在派生类构造函数体内给它的公有或受保护的基类成员赋值，但是最好不要这样做。和使用基类的其他场合一样，派生类应该遵循基类的接口，并且通过调用基类的构造函数来初始化那些从基类中继承而来的成员。</p>
-</li>
-<li><p>表达式的静态类型在编译时总是已知的，它是变量声明时的类型或表达式生成的类型；动态类型则是变量或表达式表示的内存中的对象的类型。动态类型直到运行时才知。如果表达式既不是引用也不是指针，则它的动态类型与静态类型一致。</p>
-</li>
-<li><p>不存在从基类向派生类的隐式转换；从派生类向基类的类型转换只对指针或引用类型有效。</p>
-</li>
-<li><p>即使一个基类指针或引用绑定在一个派生类对象上，也不能执行从基类向派生类的转换。编译器在编译时无法确定某个特定的转换在运行时是否安全，这是因为编译器只能通过检查指针或引用的静态类型来推断该转换是否合法。如果在基类中含有一个或多个虚函数，可以使用<code>dynamic_cast</code>请求一个类型转换，该转换的安全检查将在运行时执行。同样，如果已知某个基类向派生类的转换是安全的，则可以使用<code>static_cast</code>来强制覆盖掉编译器的检查工作。</p>
-</li>
-<li><p>派生类向基类的自动类型转换只对指针或引用类型有效，在派生类类型和基类类型之间不存在这样的转换。</p>
-</li>
-<li><p>当用一个派生类对象为一个基类对象初始化或赋值时，只有该派生类对象中的基类部分会被拷贝、移动或赋值，它的派生类部分将被忽略掉。</p>
-</li>
-<li><p>基类的引用或指针的静态类型可能与其动态类型不一致。</p>
-</li>
-<li><p>在constexpr声明中如果定义了一个指针，限定符constexpr仅对指针有效，与指针所指的对象无关：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span>* p = <span class="literal">nullptr</span>; <span class="comment">// p is a pointer to const int.</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">int</span>* q = <span class="literal">nullptr</span>; <span class="comment">// q is a const pointer to in.</span></span><br></pre></td></tr></table></figure>
-
-<p>尽管指针和引用都能定义成constexpr，但是一个constexpr指针的初始值必须是nullptr或0，或是存储于某个固定地址中的对象。函数体内定义的变量一般来说并非存放于固定地址之中（除了static变量），因此constexpr指针不能指向这样的变量。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>短篇小论</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>C++的常用标准IO函数</title>
     <url>/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/</url>
     <content><![CDATA[<hr>
@@ -4309,46 +4205,6 @@
 ]]></content>
       <categories>
         <category>cmake命令</category>
-      </categories>
-      <tags>
-        <tag>cmake</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CMake简述</title>
-    <url>/2021/07/01/CMake%E7%AE%80%E8%BF%B0/</url>
-    <content><![CDATA[<hr>
-<h1 id="cmake是什么"><a href="#cmake是什么" class="headerlink" title="cmake是什么"></a>cmake是什么</h1><p>&emsp;&emsp;cmake是跨平台系统构建器CMake的命令行接口工具。若要使用CMake来构建一个项目，生成一个项目构建系统，可以使用cmake来构建项目、安装项目，或者直接运行相应的构建工具（如make）。</p>
-<h1 id="CMake的构建系统（Buildsystems）"><a href="#CMake的构建系统（Buildsystems）" class="headerlink" title="CMake的构建系统（Buildsystems）"></a>CMake的构建系统（Buildsystems）</h1><p>&emsp;&emsp;<strong>构建系统</strong>描述了如何使用构建工具将源代码构建成可执行文件和相关库，这个过程是自动化的。例如，<strong>构建系统</strong>可以是与命令行make工具一起使用的Makefile，也可以是集成开发环境（IDE）的项目文件。为了避免维护多个这样的<strong>构建系统</strong>，一个项目可以使用CMake语言编写的文件来抽象地定义它的<strong>构建系统</strong>。在这些文件中，CMake通过一个称为生成器（generator）的后端在本地为每个用户生成一个首选的<strong>构建系统</strong>。</p>
-<p>&emsp;&emsp;为了生成CMake的构建系统，必须遵循以下几点：</p>
-<a id="more"></a>
-
-<h2 id="Source-Tree"><a href="#Source-Tree" class="headerlink" title="Source Tree"></a>Source Tree</h2><p>&emsp;&emsp;顶级目录包含项目的源文件，该项目使用CMake语言编写的文件来指定其<strong>构建系统</strong>，从顶级文件CMakeLists.txt开始一步步构建出其<strong>构建系统</strong>。这些文件定义了需要构建的目标以及它们的依赖项。</p>
-<h2 id="Build-Tree"><a href="#Build-Tree" class="headerlink" title="Build Tree"></a>Build Tree</h2><p>&emsp;&emsp;顶级目录用于存储<strong>构建系统</strong>文件和构建的输出文件（如可执行文件和库）。CMake编写一个CMakeCache.txt文件来指定该文件所在的目录为<strong>Build Tree</strong>，并且将诸如<strong>构建系统</strong>的相关配置项存储于其中。</p>
-<p>&emsp;&emsp;为了保持源码树（source tree）的“整洁”，可以使用外部编译，也就是使用<strong>Build Tree</strong>来作为编译的工作目录，这会将所有的构建输出文件置于该目录中。虽然内部编译也支持，但是为了源码树的“整洁”，不建议这样做。</p>
-<h2 id="Generator"><a href="#Generator" class="headerlink" title="Generator"></a>Generator</h2><p>&emsp;&emsp;构建器会选择一种<strong>构建系统</strong>来生成。可以使用<code>cmake --help</code>来查看本地支持的一些构建器：</p>
-<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/2021-07-02%20%E4%B8%8A%E5%8D%888.30.28.png" alt="generator"></p>
-<p>可以使用<code>-G</code>来指定一个构建器，或者默认使用CMake为当前平台选择的一个构建器。当使用<strong>命令行构建工具构建器</strong>时，CMake会默认编译工具链所需的环境已经在shell中配置完毕。当使用<strong>IDE构建工具构建器</strong>时，则不需要提供特定的环境。</p>
-<h1 id="生成一个项目的构建系统"><a href="#生成一个项目的构建系统" class="headerlink" title="生成一个项目的构建系统"></a>生成一个项目的构建系统</h1><p>&emsp;&emsp;使用下列命令行之一运行CMake来指定源码树和构建树，并生成一个<strong>构建系统</strong>：</p>
-<ul>
-<li><p><code>cmake [&lt;option&gt;] &lt;path-to-source&gt;</code></p>
-<p>使用当前工作目录作为构建树，<code>&lt;path-to-source&gt;</code>作为源码树。指定的路径可以是绝对路径，也可以是当前工作目录的相对路径。源码树必须包含一个<code>CMakeLists.txt</code>文件，并且不能包含<code>CMakeCache.txt</code>文件，因为后者会将其所在目录标识为构建树。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mkdir build; cd build</span><br><span class="line">cmake ../src</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>cmake [&lt;option&gt;] &lt;path-to-existing-build&gt;</code></p>
-<p>使用<code>&lt;path-to-existion-build&gt;</code>作为构建树，并且从它的<code>CMakeCache.txt</code>文件中加载到源码树的路径，该文件必须已经由之前的CMake运行生成。指定的路径可以是绝对路径，也可以是当前工作目录的相对路径。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd build</span><br><span class="line">cmake .</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>cmake [&lt;option&gt;] -S &lt;path-to-source&gt; -B &lt;path-to-build&gt;</code></p>
-<p>使用<code>&lt;path-to-build&gt;</code>作为构建树，<code>&lt;path-to-source&gt;</code>作为源码树。指定的路径可以是绝对路径，也可以是当前工作目录的相对路径。源码树必须包含一个<code>CMakeLists.txt</code>文件。构建树如果不存在，将会被自动创建出来。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cmake -S src -B build</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<p>构建系统生成后，可以使用相应的本地构建工具来构建项目。比如，在使用了<code>Unix Makefiles</code>构建器后，可以直接使用make命令来完成项目的构建。或者使用<code>cmake --build</code>来调用相应的构建器来完成项目的构建。</p>
-]]></content>
-      <categories>
-        <category>cmake工具教程</category>
       </categories>
       <tags>
         <tag>cmake</tag>
@@ -5362,24 +5218,8 @@
         <category>中国网游发展史</category>
       </categories>
       <tags>
-        <tag>杂谈</tag>
+        <tag>游戏博物馆</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>一个简便的多线程日志开发随笔</title>
-    <url>/2021/11/27/%E4%B8%80%E4%B8%AA%E7%AE%80%E4%BE%BF%E7%9A%84%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%97%A5%E5%BF%97%E5%BC%80%E5%8F%91%E9%9A%8F%E7%AC%94/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;该Log的设计主要用于个人项目“<a href="https://github.com/arzhe/caep" target="_blank" rel="noopener">Caep</a>”的日志系统。仿照了muduo库的设计，但由于Caep并不是一个线程库，Caep是一个访问控制框架，多线程的开发应该有额外的库来辅助开发者进行开发。</p>
-<p>&emsp;&emsp;与Log相关的类包括了<code>FileUtil</code>、<code>LogFile</code>、<code>AsyncLogging</code>、<code>LogStream</code>、<code>Logging</code>。其中前四个类都包含一个<code>append</code>函数，Log的设计也是主要围绕这个<code>append</code>函数展开的。</p>
-<a id="more"></a>
-
-<ul>
-<li>FileUtil是最底层的文件类，封装了Log文件的打开、写入并在类析构的时候关闭文件，底层使用了标准IO，该append函数直接向文件写。</li>
-<li>LogFile进一步封装了FileUtil，并设置了一个循环次数，没过这么多次就flush一次。</li>
-<li>AsyncLogging是核心，它负责启动一个log线程，专门用来将log写入LogFile，应用了“双缓冲技术”，其实有4个以上的缓冲区，但思想是一样的。AsyncLogging负责(定时到或被填满时)将缓冲区中的数据写入LogFile中。</li>
-<li>LogStream主要用来格式化输出，重载了&lt;&lt;运算符，同时也有自己的一块缓冲区，这里缓冲区的存在是为了缓存一行，把多个&lt;&lt;的结果连成一块。</li>
-<li>Logging是对外接口，Logging类内涵一个LogStream对象，主要是为了每次打log的时候在log之前和之后加上固定的格式化的信息，比如打log的行、文件名等信息。</li>
-</ul>
-]]></content>
   </entry>
   <entry>
     <title>UNIX文件IO（一）</title>
@@ -5494,6 +5334,19 @@
 
 <p>&emsp;&emsp;其返回值通常与参数<code>nbytes</code>相同，否则表示出错。<code>write</code>出错的一个常见原因是磁盘已写满，或者超过了一个给定进程的文件长度限制。</p>
 <p>&emsp;&emsp;对于普通文件，写操作从文件的当前偏移量处开始。如果在打开该文件时，指定了<code>O_APPEND</code>选项，则在每次写操作之前，将文件偏移量设置在文件的当前结尾处。在一次成功写之后，该文件偏移量增加实际写的字节数。</p>
+<h1 id="IO效率"><a href="#IO效率" class="headerlink" title="IO效率"></a>IO效率</h1><p>&emsp;&emsp;以下程序只使用<code>read</code>和<code>write</code>函数复制一个文件。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#incldue <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUFFSIZE 4096</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="keyword">char</span> buf[BUFFSIZE];</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">while</span>((n = <span class="built_in">read</span>(STDIN_FILENO, buf, BUFFSIZE)) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">write</span>(STDOUT_FILENO, buf, n) != n) &#123;</span><br><span class="line">            ERR_SYS(<span class="string">"write error"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span>(n &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ERR_SYS(<span class="string">"read error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;关于该程序应注意以下几点。</p>
+<ul>
+<li>它从标准输入读，写至标准输出，这就假定在执行本程序之前，这些标准输入、标准输出已由<code>shell</code>安排好。确实，所有常用的<code>UNIX</code>系统<code>shell</code>都提供一种方法，它在标准输入上打开一个文件用于读，在标准输出上创建（或重写）一个文件。这使得程序不必打开输入和输出文件，并允许用户利用<code>shell</code>的<code>I/O</code>重定向功能。</li>
+<li>考虑到进程终止时，<code>UNIX</code>系统内核会关闭进程的所有打开的文件描述符，所以此程序并不关闭输入和输出文件。</li>
+<li>对<code>UNIX</code>系统内核而言，文本文件和二进制代码文件并无区别，所以本程序对这两种文件都有效。</li>
+</ul>
+<p>&emsp;&emsp;最后的问题就是关于如何选取<code>BUFFSIZE</code>值。在回答此问题之前，先让我们用各种不同的<code>BUFFSIZE</code>值来运行此程序。下图显示了用20种不同的缓冲区长度，读516581760字节的文件所得到的结果。</p>
+<p>&emsp;&emsp;用以上程序读文件，其标准输出被重新定向到<code>/dev/null</code>上。此测试所用的文件系统是<code>Linux ext4</code>文件系统，其磁盘块长度为4096字节（磁盘块长度由<code>st_blksize</code>表示）。这也证明了下图中系统<code>CPU</code>时间的几个最小值差不多出现在<code>BUFFSIZE</code>为4096及以后的位置，继续增加缓冲区长度对此时间几乎没有影响。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E6%96%87%E4%BB%B6IO/Linux%E4%B8%8A%E7%94%A8%E4%B8%8D%E5%90%8C%E7%BC%93%E5%86%B2%E9%95%BF%E5%BA%A6%E8%BF%9B%E8%A1%8C%E8%AF%BB%E6%93%8D%E4%BD%9C%E7%9A%84%E6%97%B6%E9%97%B4%E7%BB%93%E6%9E%9C.png" alt="Linux上用不同缓冲长度进行读操作的时间结果"></p>
+<p>&emsp;&emsp;大多数文件系统为改善性能都采用某种预读技术。当检测到正进行顺序读取时，系统就试图读入比应用所要求的更多数据，并假想应用很快就会读这些数据。预读的效果可以从上图看出，缓冲区长度小至32字节时的时钟时间与拥有较大缓冲区长度的时钟时间几乎一样。</p>
 ]]></content>
       <categories>
         <category>UNIX长篇大论</category>
@@ -5560,7 +5413,7 @@
 </ul>
 <p>&emsp;&emsp;调用<code>pwrite</code>相当于调用<code>lseek</code>后调用<code>write</code>，但也与它们有类似的区别。</p>
 <h2 id="创建一个文件"><a href="#创建一个文件" class="headerlink" title="创建一个文件"></a>创建一个文件</h2><p>&emsp;&emsp;对<code>open</code>函数的<code>O_CREAT</code>和<code>O_EXCL</code>选项进行说明时，我们已见到另一个有关原子操作的例子。当同时指定这两个选项，而该文件又已经存在时，<code>open</code>将失败。前文曾提到检查文件是否存在和创建文件这两个操作是作为一个原子操作执行的。如果没有这样一个原子操作，那么可能会编写下列程序段：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>((fd == <span class="built_in">open</span>(pathname, O_WRONLY)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(errno == ENOENT) &#123;</span><br><span class="line">        <span class="keyword">if</span>((fd = create(path, mode)) &lt; ) &#123;</span><br><span class="line">            ERR_SYS(<span class="string">"create error"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        ERR_SYS(<span class="string">"open error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>((fd == <span class="built_in">open</span>(pathname, O_WRONLY)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(errno == ENOENT) &#123;</span><br><span class="line">        <span class="keyword">if</span>((fd = create(path, mode)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            ERR_SYS(<span class="string">"create error"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        ERR_SYS(<span class="string">"open error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;如果在<code>open</code>和<code>create</code>之间，另一个进程创建了该文件，就会出现问题。若在这两个函数调用之间，另一个进程创建了该文件，并且写入了一些数据，然后，原来进程执行这段程序中的<code>create</code>，这时，刚由另一个进程写入的数据就会被擦去。如若将这两者合并在一个原子操作中，这种问题也就不会出现。</p>
 <p>&emsp;&emsp;一般而言，原子操作指的是由多步组成的一个操作。如果该操作原子地执行，则要么执行完所有步骤，要么一步也不执行，不可能只执行所有步骤的一个子集。</p>
@@ -5619,7 +5472,7 @@
         <category>中国网游发展史</category>
       </categories>
       <tags>
-        <tag>杂谈</tag>
+        <tag>游戏博物馆</tag>
       </tags>
   </entry>
   <entry>
@@ -5768,6 +5621,301 @@
       </categories>
       <tags>
         <tag>UNIX文件</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>UNIX标准IO库之流的操作</title>
+    <url>/2022/01/07/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E6%B5%81%E7%9A%84%E6%93%8D%E4%BD%9C/</url>
+    <content><![CDATA[<hr>
+<h1 id="打开流"><a href="#打开流" class="headerlink" title="打开流"></a>打开流</h1><p>&emsp;&emsp;下列三个函数打开一个标准<code>I/O</code>流。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#inlcude <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//三个函数的返回值：若成功，返回文件指针；若出错，返回NULL。</span></span><br><span class="line"><span class="function">FILE* <span class="title">fopen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">restrict</span> pathname, <span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">restrict</span> type)</span></span>;</span><br><span class="line"><span class="function">FILE* <span class="title">freopen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">restrict</span> pathname, <span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">restrict</span> type, FILE* <span class="keyword">restrict</span> fp)</span></span>;</span><br><span class="line"><span class="function">FILE* <span class="title">fdopen</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">const</span> <span class="keyword">char</span>* type)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p>&emsp;&emsp;这三个函数的区别如下。</p>
+<ol>
+<li><code>fopen</code>函数打开路径名为<code>pathname</code>的一个指定文件。</li>
+<li><code>freopen</code>函数在一个指定的流上打开一个指定的文件，如若该流已经打开，则先关闭该流。若该流已经定向，则使用<code>freopen</code>清除该定向。此函数一般用于将一个指定文件打开为一个预定义的流：标准输入、标准输出或标准错误。</li>
+<li><code>fdopen</code>函数取一个已有的文件描述符（可能从<code>open</code>、<code>dup</code>、<code>dup2</code>、<code>fcntl</code>、<code>pipe</code>、<code>socket</code>、<code>socketpair</code>或<code>accept</code>函数得到此文件描述符），并使一个标准的<code>I/O</code>流与该描述符相结合。此函数常用于由创建管道和网络通信信道函数返回的描述符。因为这些特殊类型的文件不能用标准<code>I/O</code>函数<code>fopen</code>打开，所以我们必须先调用设备专用函数以获得一个文件描述符，然后用<code>fdopen</code>使一个标准<code>I/O</code>流与该描述符相结合。</li>
+</ol>
+<blockquote>
+<p>&emsp;&emsp;<code>fopen</code>和<code>freopen</code>是<code>ISO C</code>的所属部分。而<code>ISO C</code>并不涉及文件描述符，所以仅有<code>POSIX.1</code>具有<code>fdopen</code>。</p>
+</blockquote>
+<p>&emsp;&emsp;<code>type</code>参数指定对该<code>I/O</code>流的读、写方式，<code>ISO C</code>规定<code>type</code>参数可以有15种不同的值，如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th><code>type</code></th>
+<th>说明</th>
+<th><code>open(2)</code>标志</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>r</code>或<code>rb</code></td>
+<td>为读而打开</td>
+<td><code>O_RDONLY</code></td>
+</tr>
+<tr>
+<td><code>w</code>或<code>wb</code></td>
+<td>把文件截断至0长，或为写而创建</td>
+<td>`O_WRONLY</td>
+</tr>
+<tr>
+<td><code>a</code>或<code>ab</code></td>
+<td>追加；为在文件尾写而打开，或为写而创建</td>
+<td>`O_WRONLY</td>
+</tr>
+<tr>
+<td><code>r+</code>或<code>r+b</code>或<code>rb+</code></td>
+<td>为读和写而打开</td>
+<td><code>O_RDWR</code></td>
+</tr>
+<tr>
+<td><code>w+</code>或<code>w+b</code>或<code>wb+</code></td>
+<td>把文件截断至0长，或为读和写而打开</td>
+<td>`O_RDWR</td>
+</tr>
+<tr>
+<td><code>a+</code>或<code>a+b</code>或<code>ab+</code></td>
+<td>为在文件尾读和写而打开或创建</td>
+<td>`O_RDWR</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;使用字符<code>b</code>作为<code>type</code>的一部分，这使得标准<code>I/O</code>系统可以区分文本文件和二进制文件。因为<code>UNIX</code>内核并不对这两种文件进行区分，所以在<code>UNIX</code>系统环境下指定字符<code>b</code>作为<code>type</code>的一部分实际上并无作用。</p>
+<p>&emsp;&emsp;对于<code>fdopen</code>，<code>type</code>参数的意义稍有区别。因为该描述符已被打开，所以<code>fdopen</code>为写而打开并不截断该文件。（例如，若该描述符原来是由<code>open</code>函数创建的，而且该文件已经存在，则其<code>O_TRUNC</code>标志将决定是否截断该文件。<code>fdopen</code>函数不能截断它为写而打开的任一文件。）另外，标准<code>I/O</code>追加写方式也不能用于创建该文件（因为如果一个描述符引用一个文件，则该文件一定已经存在）。</p>
+<p>&emsp;&emsp;当用追加写类型打开一个文件后，每次写都将数据写到文件的当前尾端处。如果有多个进程用标准<code>I/O</code>追加写方式打开同一文件，那么来自每个进程的数据都将正确地写到文件中。</p>
+<p>&emsp;&emsp;当以读和写类型打开一个文件时（<code>type</code>中<code>+</code>号），具有以下限制。</p>
+<ul>
+<li>如果中间没有<code>fflush</code>、<code>fseek</code>、<code>fsetpos</code>或<code>rewind</code>，则在输出的后面不能直接跟随输入。</li>
+<li>如果中间没有<code>fseek</code>、<code>fsetpos</code>或<code>rewind</code>，或者一个输入操作没有到达文件尾端，则在输入操作之后不能直接跟随输出。</li>
+</ul>
+<p>&emsp;&emsp;对应上表，下表列出了打开一个流的6种不同的方式。</p>
+<table>
+<thead>
+<tr>
+<th>限制</th>
+<th><code>r</code></th>
+<th><code>w</code></th>
+<th><code>a</code></th>
+<th><code>r+</code></th>
+<th><code>w+</code></th>
+<th><code>a+</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文件必须已存在</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td>✅</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>放弃文件以前的内容</td>
+<td></td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td>流可以读</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>流可以写</td>
+<td></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>流只可在尾端处写</td>
+<td></td>
+<td></td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td>✅</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;需要注意的是，在指定<code>w</code>或<code>a</code>类型创建一个新文件时，我们无法说明该文件的访问权限位（在“<a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" title="UNIX文件IO（一）">UNIX文件IO（一）</a>”中所述的<code>open</code>和<code>create</code>函数则能做到这一点）。<code>POSIX.1</code>要求实现使用如下的权限位集来创建文件。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>UNIX长篇大论</category>
+      </categories>
+      <tags>
+        <tag>UNIX标准IO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>UNIX标准IO库之缓冲区</title>
+    <url>/2021/12/22/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E7%BC%93%E5%86%B2%E5%8C%BA/</url>
+    <content><![CDATA[<hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;本文讲述标准<code>I/O</code>库。不仅仅是<code>UNIX</code>，很多其他操作系统都实现了标准<code>I/O</code>库，所以这个库由<code>ISO C</code>标准说明。<code>Single UNIX Specification</code>对<code>ISO C</code>标准进行了扩充，定义了另外一些接口。</p>
+<p>&emsp;&emsp;标准<code>I/O</code>库处理很多细节，如缓冲区分配、以及优化的块长度执行<code>I/O</code>等。这些处理使用户不必担心如何选择使用正确的块长度。这使得它便于用户使用，但是如果我们不深入地了解<code>I/O</code>库函数的操作，也会带来一些问题。</p>
+<a id="more"></a>
+
+<blockquote>
+<p>&emsp;&emsp;标准<code>I/O</code>库是由<code>Dennis Ritchie</code>在1975年左右编写的。它是<code>Mike Lesk</code>编写的可移植<code>I/O</code>库的主要修改版本。令人惊讶的是，35年来，几乎没有对标准<code>I/O</code>库进行修改。</p>
+</blockquote>
+<h1 id="流和FILE对象"><a href="#流和FILE对象" class="headerlink" title="流和FILE对象"></a>流和FILE对象</h1><p>&emsp;&emsp;在“<a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" title="UNIX文件IO（一）">UNIX文件IO（一）</a>”等系列博客中，所有<code>I/O</code>函数都是围绕文件描述符的。当打开一个文件时，即返回一个文件描述符，然后该文件描述符就用于后续的<code>I/O</code>操作。而对于标准<code>I/O</code>库，它们的操作时围绕流进行的。当用标准<code>I/O</code>库打开或创建一个文件时，我们已使一个流与一个文件相关联。</p>
+<p>&emsp;&emsp;对于<code>ASCII</code>字符集，一个字符用一个字节表示。对于国际字符集，一个字符可用多个字节表示。标准<code>I/O</code>文件流可用于单字节或多字节（“宽”）字符集。流的定向决定了读、写的字符是单字节还是多字节（“宽”）的。当一个流最初被创建时，它并没有定向。如若在未定向的流上使用一个多字节<code>I/O</code>函数，则将该流的定向设置为宽定向。如若在未定向的流上使用一个单字节<code>I/O</code>函数，则将该流的定向设为字节定向的。只有两个函数可以改变流的定向。<code>freopen</code>函数清除一个流的定向；<code>fwide</code>函数可用于设置流的定向。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;wchar.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若流是宽定向的，返回正值；若流是字节定向的，返回负值；若流是未定向的，返回0。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fwide</span><span class="params">(FILE* fp, <span class="keyword">int</span> mode)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;根据<code>mode</code>参数的不同值，<code>fwide</code>函数执行不同的工作。</p>
+<ul>
+<li>如若<code>mode</code>参数值为负，<code>fwide</code>将试图使指定的流是字节定向的。</li>
+<li>如若<code>mode</code>参数值为正，<code>fwide</code>将试图使指定的流是宽定向的。</li>
+<li>如若<code>mode</code>参数值为0，<code>fwide</code>将不试图设置流的定向，但返回标识该流定向的值。</li>
+</ul>
+<p>&emsp;&emsp;注意，<code>fwide</code>并不改变已定向流的定向。还应注意的是<code>fwide</code>无出错返回。试想，如若流是无效的，那么将发生什么呢？我们唯一可依靠的是，在调用<code>fwide</code>前先清除<code>errno</code>，从<code>fwide</code>返回时检查<code>errno</code>的值。在本文中，只涉及字节定向流。</p>
+<p>&emsp;&emsp;当打开一个流时，标准<code>I/O</code>函数<code>fopen</code>返回一个指向<code>FILE</code>对象的指针。该对象通常是一个结构，它包含了标准<code>I/O</code>库为管理该流所需要的所有信息，包括用于实际<code>I/O</code>的文件描述符、指向用于该流缓冲区的指针、缓冲区的长度、当前在缓冲区中的字符数和出错标志等。</p>
+<p>&emsp;&emsp;应用程序没有必要检验<code>FILE</code>对象。为了引用一个流，需将<code>FILE</code>指针作为参数传递给每个标准<code>I/O</code>函数。在本文中，称指向<code>FILE</code>对象的指针（类型为<code>FILE*</code>）为文件指针。</p>
+<h1 id="标准输入、标准输出和标准错误"><a href="#标准输入、标准输出和标准错误" class="headerlink" title="标准输入、标准输出和标准错误"></a>标准输入、标准输出和标准错误</h1><p>&emsp;&emsp;对一个进程预定义了了3个流，并且这3个流可以自动地被进程使用，它们是：标准输入、标准输出和标准错误。这些流引用的文件与“<a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" title="UNIX文件IO（一）">UNIX文件IO（一）</a>”一文提到的文件描述符<code>STDIN_FILENO</code>、<code>STDOUT_FILENO</code>和<code>STDERR_FILENO</code>所引用的相同。</p>
+<p>&emsp;&emsp;这3个标准<code>I/O</code>流通过预定义文件指针<code>stdin</code>、<code>stdout</code>和<code>stderr</code>加以引用。这3个文件指针定义在头文件<code>&lt;stdio.h&gt;</code>。</p>
+<h1 id="缓冲"><a href="#缓冲" class="headerlink" title="缓冲"></a>缓冲</h1><p>&emsp;&emsp;标准<code>I/O</code>库提供缓冲的目的是尽可能低减少使用<code>read</code>和<code>write</code>调用的次数（见“<a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" title="UNIX文件IO（一）">UNIX文件IO（一）</a>”一文中就讨论了在不同缓冲区长度下，执行<code>I/O</code>所需的<code>CPU</code>时间量）。它也对每个<code>I/O</code>流自动地进行缓冲管理，从而避免了应用程序需要考虑这一点所带来的麻烦。遗憾的是，标准<code>I/O</code>库最令人迷惑的也是它的缓冲。</p>
+<p>&emsp;&emsp;标准<code>I/O</code>提供了以下3种类型的缓冲。</p>
+<ul>
+<li>全缓冲。在这种情况下，在填满标准<code>I/O</code>缓冲区后才进行实际<code>I/O</code>操作。对于驻留在磁盘上的文件通常是由标准<code>I/O</code>库实施全缓冲的。在一个流上执行第一次<code>I/O</code>操作时，相关标准<code>I/O</code>函数通常调用<code>malloc</code>获得需使用的缓冲区。</li>
+</ul>
+<p>&emsp;&emsp;术语冲洗（<code>flush</code>）说明标准<code>I/O</code>缓冲区的写操作。缓冲区可由标准<code>I/O</code>例程自动地冲洗（例如，当填满一个缓冲区时），或者可以调用函数<code>fflush</code>冲洗一个流。值得注意的是，在<code>UNIX</code>环境中，<code>flush</code>有两种意思。在标准<code>I/O</code>库方面，<code>flush</code>意味着将缓冲区中的内容写到磁盘上（该缓冲区可能只是部分填满的）。在终端驱动程序方面，<code>flush</code>表示丢弃已存储在缓冲区中的数据。</p>
+<ul>
+<li>行缓冲。在这种情况下，当在输入和输出中遇到换行符时，标准<code>I/O</code>库执行<code>I/O</code>操作。这允许我们一次输出一个字符（用标准<code>I/O</code>函数<code>fputc</code>），但只有在写一行之后才进行实际<code>I/O</code>操作。当流涉及一个终端时（如标准输入和标准输出），通常使用行缓冲。</li>
+</ul>
+<p>&emsp;&emsp;对于行缓冲有两个限制。第一，因为标准<code>I/O</code>库用来收集每一行的缓冲区的长度是固定的，所以只要填满了缓冲区，那么即使还没有写一个换行符，也进行<code>I/O</code>操作。第二，任何时候只要通过标准<code>I/O</code>库要求从（a）一个不带缓冲的流，或者（b）一个行缓冲的流（它从内核请求需要数据）得到输入数据，那么就会冲洗所有行缓冲输出流。在（b）中带了一个在括号中的说明，其理由是，所需的数据可能已在该缓冲区中，它并不要求一定从内核读数据。很明显，从一个不带缓冲的流中输入（即（a）项）需要从内核获得数据。</p>
+<ul>
+<li>不带缓冲。标准<code>I/O</code>库不对字符进行缓冲存储。例如，若用标准<code>I/O</code>函数<code>fputs</code>写15个字符到不带缓冲的流中，我们就期望这15个字符能立即输出，很可能使用<code>write</code>函数将这些字符写到相关联的打开文件中。</li>
+</ul>
+<p>&emsp;&emsp;标准错误流<code>stderr</code>通常是不带缓冲的，这就使得出错信息可以尽快地显示出来，而不管它们是否含有一个换行符。</p>
+<p>&emsp;&emsp;<code>ISO C</code>要求下列缓冲特征。</p>
+<ul>
+<li>当且仅当标准输入和标准输出并不指向交互设备时，它们才是全缓冲的。</li>
+<li>标准错误绝不会是全缓冲的。</li>
+</ul>
+<p>&emsp;&emsp;但是，这并没有告诉我们如果标准输入和标准输出指向交互设备时，它们是不带缓冲的还是行缓冲的；以及标准错误是不带缓冲的还是行缓冲的。很多系统默认使用下列类型的缓冲：</p>
+<ul>
+<li>标准错误是不带缓冲的。</li>
+<li>若是指向终端设备的流，则是行缓冲的；否则是全缓冲的。</li>
+</ul>
+<p>&emsp;&emsp;对任何一个给定的流，如果我们并不喜欢这些系统默认，则可调用下列两个函数中的一个更改缓冲类型。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，返回0；若出错，返回非0。</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setbuf</span><span class="params">(FILE* <span class="keyword">restrict</span> fp, <span class="keyword">char</span>* <span class="keyword">restrict</span> buf)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">setvbuf</span><span class="params">(FILE* <span class="keyword">restrict</span> fp, <span class="keyword">char</span>* <span class="keyword">restrict</span> buf, <span class="keyword">int</span> mode, <span class="keyword">size_t</span> <span class="built_in">size</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这些函数一定要在流已被打开后调用（这是十分明显，因为每个函数都要求一个有效的文件指针作为它们的第一个参数），而且也应在对该流执行任何一个其他操作之前调用。</p>
+<p>&emsp;&emsp;可以使用<code>setbuf</code>函数打开或关闭缓冲机制。为了带缓冲进行<code>I/O</code>，参数<code>buf</code>必须指向一个长度为<code>BUFSIZE</code>的缓冲区（该常量定义在<code>&lt;stdio.h&gt;</code>中）。通常在此之后该流就是全缓冲的，但是如果该流与一个终端设备相关，那么某些系统也可将其设置为行缓冲的。为了关闭缓冲，将<code>buf</code>设置为<code>NULL</code>。</p>
+<p>&emsp;&emsp;使用<code>setvbuf</code>，我们可以精确地说明所需的缓冲类型。这是用<code>mode</code>参数实现的：</p>
+<ul>
+<li><code>_IOFBF</code>，全缓冲。</li>
+<li><code>_IOLBF</code>，行缓冲。</li>
+<li><code>_IONBF</code>，不带缓冲。</li>
+</ul>
+<p>&emsp;&emsp;如果指定一个不带缓冲的流，则忽略<code>buf</code>和<code>size</code>参数。如果指定全缓冲或行缓冲，则<code>buf</code>和<code>size</code>可选择地指定一个缓冲区及其长度。如果指定全缓冲或行缓冲，则<code>buf</code>和<code>size</code>可选择地指定一个缓冲区及其长度。如果该流是带缓冲的，而<code>buf</code>是<code>NULL</code>，则标准<code>I/O</code>库将自动地为该流分配适当长度的缓冲区。适当的长度指的是由常量<code>BUFFSIZ</code>所指定的值。</p>
+<blockquote>
+<p>&emsp;&emsp;某些<code>C</code>函数库实现使用<code>stat</code>结构中的成员<code>st_blksize</code>所指定的值决定最佳<code>I/O</code>缓冲区长度。<code>GNU C</code>函数库就使用这种办法。</p>
+</blockquote>
+<p>&emsp;&emsp;下表列出了这两个函数的动作，以及它们的各个选项。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th><code>mode</code></th>
+<th><code>buf</code></th>
+<th>缓冲区及长度</th>
+<th>缓冲类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>setbuf</code></td>
+<td></td>
+<td>非空</td>
+<td>长度为<code>BUFSIZ</code>的用户缓冲区<code>buf</code></td>
+<td>全缓冲或行缓冲</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><code>NULL</code></td>
+<td>（无缓冲区）</td>
+<td>不带缓冲</td>
+</tr>
+<tr>
+<td><code>setvbuf</code></td>
+<td><code>_IO_FBF</code></td>
+<td>非空</td>
+<td>长度为<code>size</code>的用户缓冲区<code>buf</code></td>
+<td>全缓冲</td>
+</tr>
+<tr>
+<td></td>
+<td><code>_IO_FBF</code></td>
+<td><code>NULL</code></td>
+<td>适合长度的系统缓冲区<code>buf</code></td>
+<td>全缓冲</td>
+</tr>
+<tr>
+<td></td>
+<td><code>_IO_LBF</code></td>
+<td>非空</td>
+<td>长度为<code>size</code>的用户缓冲区<code>buf</code></td>
+<td>行缓冲</td>
+</tr>
+<tr>
+<td></td>
+<td><code>_IO_LBF</code></td>
+<td><code>NULL</code></td>
+<td>适合长度的系统缓冲区<code>buf</code></td>
+<td>行缓冲</td>
+</tr>
+<tr>
+<td></td>
+<td><code>_IO_NBF</code></td>
+<td>（忽略）</td>
+<td>（无缓冲区）</td>
+<td>不带缓冲</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;需要知道的是，如果在一个函数内分配一个自动类型变量类的标准<code>I/O</code>缓冲区，则从该函数返回之前，必须关闭该流。另外，某些实现将缓冲区的一部分用于存放它自己的管理操作信息，所以可以存放在缓冲区中的实际数据字节数少于<code>size</code>。一般而言，应由系统选择缓冲区的长度，并自动地分配缓冲区。在这种情况下关闭此流时，标准<code>I/O</code>库将自动释放缓冲区。</p>
+<p>&emsp;&emsp;任何时候，我们都可强制冲洗一个流。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，返回0；若出错，返回EOF。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fflush</span><span class="params">(FILE* fp)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;此函数使该流所有未写的数据都被传送至内核。作为一种特殊情形，如若<code>fp</code>是<code>NULL</code>，则此函数将导致所有输出流被冲洗。</p>
+]]></content>
+      <categories>
+        <category>UNIX长篇大论</category>
+      </categories>
+      <tags>
+        <tag>UNIX标准IO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>光栅图像</title>
+    <url>/2022/05/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/</url>
+    <content><![CDATA[<hr>
+<h1 id="什么是光栅图像"><a href="#什么是光栅图像" class="headerlink" title="什么是光栅图像"></a>什么是光栅图像</h1><p>&emsp;&emsp;大多数计算机图形的图像是通过光栅显示器来展现给用户的，光栅显示器以一个由像素（<code>Pixel</code>）组成的矩阵来显示图像，可以将像素看成点块，由众多这样的点块进行排列组合构成一个图像。例如在平板电脑或者电视的显示器中，矩阵中的一小块发光像素，可以被单独设置为三种不同的颜色（红、蓝和绿色），通过组合不同强度的红光、蓝光和绿光可以得到不同的颜色，因此可以以这种方式来创建任意一个图像。大多数打印机，如激光打印机和喷墨打印机，也是光栅设备，它们是基于扫描的：没有像素的物理网格，但是图像是通过在网格上的特定点位沉积墨水来进行排列组合的。</p>
+<a id="more"></a>
+
+<p>&emsp;&emsp;光栅在图像输入设备中也很常见。数码相机包含一个由感光像素组成的图像传感器，每个像素记录落在它上面的光的颜色和强度。桌面扫描器包含一个线性的像素矩阵，它在被扫描的页面上扫过，每秒进行多次测量以产生一个像素网格。</p>
+<p>&emsp;&emsp;各类设备中普遍存在光栅，光栅图像也是存储和处理图像的最常见方式。一个光栅图像可以看作为一个存储每个图像的像素值的2D数组，其通常存储着三个数字，这些数字分别代表着三种基本颜色：红、蓝和绿色。几乎所有的数码照片，从高端相机拍摄的艺术风景到手机拍摄的快照，都以光栅数据（也称为位图数据）表示。</p>
+<p>&emsp;&emsp;但是通常我们并不希望总是以这种方式来显示图像，我们可能会想要改变图像的大小、方向、颜色或者是显示粘贴在一个移动的三维表面上的图像。即使是在电视中，显示器的像素也很少与所显示的图像相同。</p>
+<p>&emsp;&emsp;除了使用像素数组之外，还有其他表现图像的方法，例如矢量数据。矢量图像是通过对存储图形的相关描述来表现的，以直线或曲线为界限的颜色区域，而不参考任何特定的像素网格，其通常用于可以分解成简单线条、曲线和形状的图像。本质上，这相当于存储显示图像的指令，而不是存储显示图像所需的像素。矢量图像的主要优点是它们与分辨率无关，可以在高分辨率设备上很好地显示。相应的缺点是它们必须被栅格化才能显示。矢量图像通常用于文本、图表、机械绘图和其他应用中，在这些应用中，清晰度和精度非常重要，不需要摄影图像和复杂的阴影。</p>
+<p>&emsp;&emsp;我们知道光栅图像是一个较大的矩阵像素点块，每个像素点块都存储着一个数字来表现对应的颜色。对于计算机来说，我们需要将这些像素数据抽象为不依赖于任何设备的实例。当我们评估或生成计算机图像时，需要使用一个类似二极管的光线，任何光线从该设备输入时（或被吸收或被发射），</p>
+]]></content>
+      <categories>
+        <category>计算机图形基础</category>
+      </categories>
+      <tags>
+        <tag>计算机图形</tag>
       </tags>
   </entry>
 </search>

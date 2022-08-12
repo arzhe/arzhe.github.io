@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="前言&amp;emsp;&amp;emsp;本文讲述标准I&#x2F;O库。不仅仅是UNIX，很多其他操作系统都实现了标准I&#x2F;O库，所以这个库由ISO C标准说明。Single UNIX Specification对ISO C标准进行了扩充，定义了另外一些接口。 &amp;emsp;&amp;emsp;标准I&#x2F;O库处理很多细节，如缓冲区分配、以及优化的块长度执行I&#x2F;O等。这些处理使用户不必担心如何选择使用正确的块长度。这使得它便于用户使">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX标准IO库之缓冲区">
+<meta property="og:url" content="http://yoursite.com/2021/12/22/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E7%BC%93%E5%86%B2%E5%8C%BA/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前言&amp;emsp;&amp;emsp;本文讲述标准I&#x2F;O库。不仅仅是UNIX，很多其他操作系统都实现了标准I&#x2F;O库，所以这个库由ISO C标准说明。Single UNIX Specification对ISO C标准进行了扩充，定义了另外一些接口。 &amp;emsp;&amp;emsp;标准I&#x2F;O库处理很多细节，如缓冲区分配、以及优化的块长度执行I&#x2F;O等。这些处理使用户不必担心如何选择使用正确的块长度。这使得它便于用户使">
+<meta property="article:published_time" content="2021-12-22T08:23:00.000Z">
+<meta property="article:modified_time" content="2022-08-12T00:55:02.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="UNIX标准IO">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2021/12/22/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E7%BC%93%E5%86%B2%E5%8C%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>UNIX标准IO库之缓冲区 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/22/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E7%BC%93%E5%86%B2%E5%8C%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          UNIX标准IO库之缓冲区
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-22 16:23:00" itemprop="dateCreated datePublished" datetime="2021-12-22T16:23:00+08:00">2021-12-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-12 08:55:02" itemprop="dateModified" datetime="2022-08-12T08:55:02+08:00">2022-08-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/12/22/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E7%BC%93%E5%86%B2%E5%8C%BA/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX标准IO库之缓冲区" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;本文讲述标准<code>I/O</code>库。不仅仅是<code>UNIX</code>，很多其他操作系统都实现了标准<code>I/O</code>库，所以这个库由<code>ISO C</code>标准说明。<code>Single UNIX Specification</code>对<code>ISO C</code>标准进行了扩充，定义了另外一些接口。</p>
+<p>&emsp;&emsp;标准<code>I/O</code>库处理很多细节，如缓冲区分配、以及优化的块长度执行<code>I/O</code>等。这些处理使用户不必担心如何选择使用正确的块长度。这使得它便于用户使用，但是如果我们不深入地了解<code>I/O</code>库函数的操作，也会带来一些问题。</p>
+<a id="more"></a>
+
+<blockquote>
+<p>&emsp;&emsp;标准<code>I/O</code>库是由<code>Dennis Ritchie</code>在1975年左右编写的。它是<code>Mike Lesk</code>编写的可移植<code>I/O</code>库的主要修改版本。令人惊讶的是，35年来，几乎没有对标准<code>I/O</code>库进行修改。</p>
+</blockquote>
+<h1 id="流和FILE对象"><a href="#流和FILE对象" class="headerlink" title="流和FILE对象"></a>流和FILE对象</h1><p>&emsp;&emsp;在“<a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" title="UNIX文件IO（一）">UNIX文件IO（一）</a>”等系列博客中，所有<code>I/O</code>函数都是围绕文件描述符的。当打开一个文件时，即返回一个文件描述符，然后该文件描述符就用于后续的<code>I/O</code>操作。而对于标准<code>I/O</code>库，它们的操作时围绕流进行的。当用标准<code>I/O</code>库打开或创建一个文件时，我们已使一个流与一个文件相关联。</p>
+<p>&emsp;&emsp;对于<code>ASCII</code>字符集，一个字符用一个字节表示。对于国际字符集，一个字符可用多个字节表示。标准<code>I/O</code>文件流可用于单字节或多字节（“宽”）字符集。流的定向决定了读、写的字符是单字节还是多字节（“宽”）的。当一个流最初被创建时，它并没有定向。如若在未定向的流上使用一个多字节<code>I/O</code>函数，则将该流的定向设置为宽定向。如若在未定向的流上使用一个单字节<code>I/O</code>函数，则将该流的定向设为字节定向的。只有两个函数可以改变流的定向。<code>freopen</code>函数清除一个流的定向；<code>fwide</code>函数可用于设置流的定向。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;wchar.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若流是宽定向的，返回正值；若流是字节定向的，返回负值；若流是未定向的，返回0。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fwide</span><span class="params">(FILE* fp, <span class="keyword">int</span> mode)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;根据<code>mode</code>参数的不同值，<code>fwide</code>函数执行不同的工作。</p>
+<ul>
+<li>如若<code>mode</code>参数值为负，<code>fwide</code>将试图使指定的流是字节定向的。</li>
+<li>如若<code>mode</code>参数值为正，<code>fwide</code>将试图使指定的流是宽定向的。</li>
+<li>如若<code>mode</code>参数值为0，<code>fwide</code>将不试图设置流的定向，但返回标识该流定向的值。</li>
+</ul>
+<p>&emsp;&emsp;注意，<code>fwide</code>并不改变已定向流的定向。还应注意的是<code>fwide</code>无出错返回。试想，如若流是无效的，那么将发生什么呢？我们唯一可依靠的是，在调用<code>fwide</code>前先清除<code>errno</code>，从<code>fwide</code>返回时检查<code>errno</code>的值。在本文中，只涉及字节定向流。</p>
+<p>&emsp;&emsp;当打开一个流时，标准<code>I/O</code>函数<code>fopen</code>返回一个指向<code>FILE</code>对象的指针。该对象通常是一个结构，它包含了标准<code>I/O</code>库为管理该流所需要的所有信息，包括用于实际<code>I/O</code>的文件描述符、指向用于该流缓冲区的指针、缓冲区的长度、当前在缓冲区中的字符数和出错标志等。</p>
+<p>&emsp;&emsp;应用程序没有必要检验<code>FILE</code>对象。为了引用一个流，需将<code>FILE</code>指针作为参数传递给每个标准<code>I/O</code>函数。在本文中，称指向<code>FILE</code>对象的指针（类型为<code>FILE*</code>）为文件指针。</p>
+<h1 id="标准输入、标准输出和标准错误"><a href="#标准输入、标准输出和标准错误" class="headerlink" title="标准输入、标准输出和标准错误"></a>标准输入、标准输出和标准错误</h1><p>&emsp;&emsp;对一个进程预定义了了3个流，并且这3个流可以自动地被进程使用，它们是：标准输入、标准输出和标准错误。这些流引用的文件与“<a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" title="UNIX文件IO（一）">UNIX文件IO（一）</a>”一文提到的文件描述符<code>STDIN_FILENO</code>、<code>STDOUT_FILENO</code>和<code>STDERR_FILENO</code>所引用的相同。</p>
+<p>&emsp;&emsp;这3个标准<code>I/O</code>流通过预定义文件指针<code>stdin</code>、<code>stdout</code>和<code>stderr</code>加以引用。这3个文件指针定义在头文件<code>&lt;stdio.h&gt;</code>。</p>
+<h1 id="缓冲"><a href="#缓冲" class="headerlink" title="缓冲"></a>缓冲</h1><p>&emsp;&emsp;标准<code>I/O</code>库提供缓冲的目的是尽可能低减少使用<code>read</code>和<code>write</code>调用的次数（见“<a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" title="UNIX文件IO（一）">UNIX文件IO（一）</a>”一文中就讨论了在不同缓冲区长度下，执行<code>I/O</code>所需的<code>CPU</code>时间量）。它也对每个<code>I/O</code>流自动地进行缓冲管理，从而避免了应用程序需要考虑这一点所带来的麻烦。遗憾的是，标准<code>I/O</code>库最令人迷惑的也是它的缓冲。</p>
+<p>&emsp;&emsp;标准<code>I/O</code>提供了以下3种类型的缓冲。</p>
+<ul>
+<li>全缓冲。在这种情况下，在填满标准<code>I/O</code>缓冲区后才进行实际<code>I/O</code>操作。对于驻留在磁盘上的文件通常是由标准<code>I/O</code>库实施全缓冲的。在一个流上执行第一次<code>I/O</code>操作时，相关标准<code>I/O</code>函数通常调用<code>malloc</code>获得需使用的缓冲区。</li>
+</ul>
+<p>&emsp;&emsp;术语冲洗（<code>flush</code>）说明标准<code>I/O</code>缓冲区的写操作。缓冲区可由标准<code>I/O</code>例程自动地冲洗（例如，当填满一个缓冲区时），或者可以调用函数<code>fflush</code>冲洗一个流。值得注意的是，在<code>UNIX</code>环境中，<code>flush</code>有两种意思。在标准<code>I/O</code>库方面，<code>flush</code>意味着将缓冲区中的内容写到磁盘上（该缓冲区可能只是部分填满的）。在终端驱动程序方面，<code>flush</code>表示丢弃已存储在缓冲区中的数据。</p>
+<ul>
+<li>行缓冲。在这种情况下，当在输入和输出中遇到换行符时，标准<code>I/O</code>库执行<code>I/O</code>操作。这允许我们一次输出一个字符（用标准<code>I/O</code>函数<code>fputc</code>），但只有在写一行之后才进行实际<code>I/O</code>操作。当流涉及一个终端时（如标准输入和标准输出），通常使用行缓冲。</li>
+</ul>
+<p>&emsp;&emsp;对于行缓冲有两个限制。第一，因为标准<code>I/O</code>库用来收集每一行的缓冲区的长度是固定的，所以只要填满了缓冲区，那么即使还没有写一个换行符，也进行<code>I/O</code>操作。第二，任何时候只要通过标准<code>I/O</code>库要求从（a）一个不带缓冲的流，或者（b）一个行缓冲的流（它从内核请求需要数据）得到输入数据，那么就会冲洗所有行缓冲输出流。在（b）中带了一个在括号中的说明，其理由是，所需的数据可能已在该缓冲区中，它并不要求一定从内核读数据。很明显，从一个不带缓冲的流中输入（即（a）项）需要从内核获得数据。</p>
+<ul>
+<li>不带缓冲。标准<code>I/O</code>库不对字符进行缓冲存储。例如，若用标准<code>I/O</code>函数<code>fputs</code>写15个字符到不带缓冲的流中，我们就期望这15个字符能立即输出，很可能使用<code>write</code>函数将这些字符写到相关联的打开文件中。</li>
+</ul>
+<p>&emsp;&emsp;标准错误流<code>stderr</code>通常是不带缓冲的，这就使得出错信息可以尽快地显示出来，而不管它们是否含有一个换行符。</p>
+<p>&emsp;&emsp;<code>ISO C</code>要求下列缓冲特征。</p>
+<ul>
+<li>当且仅当标准输入和标准输出并不指向交互设备时，它们才是全缓冲的。</li>
+<li>标准错误绝不会是全缓冲的。</li>
+</ul>
+<p>&emsp;&emsp;但是，这并没有告诉我们如果标准输入和标准输出指向交互设备时，它们是不带缓冲的还是行缓冲的；以及标准错误是不带缓冲的还是行缓冲的。很多系统默认使用下列类型的缓冲：</p>
+<ul>
+<li>标准错误是不带缓冲的。</li>
+<li>若是指向终端设备的流，则是行缓冲的；否则是全缓冲的。</li>
+</ul>
+<p>&emsp;&emsp;对任何一个给定的流，如果我们并不喜欢这些系统默认，则可调用下列两个函数中的一个更改缓冲类型。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，返回0；若出错，返回非0。</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setbuf</span><span class="params">(FILE* <span class="keyword">restrict</span> fp, <span class="keyword">char</span>* <span class="keyword">restrict</span> buf)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">setvbuf</span><span class="params">(FILE* <span class="keyword">restrict</span> fp, <span class="keyword">char</span>* <span class="keyword">restrict</span> buf, <span class="keyword">int</span> mode, <span class="keyword">size_t</span> <span class="built_in">size</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这些函数一定要在流已被打开后调用（这是十分明显，因为每个函数都要求一个有效的文件指针作为它们的第一个参数），而且也应在对该流执行任何一个其他操作之前调用。</p>
+<p>&emsp;&emsp;可以使用<code>setbuf</code>函数打开或关闭缓冲机制。为了带缓冲进行<code>I/O</code>，参数<code>buf</code>必须指向一个长度为<code>BUFSIZE</code>的缓冲区（该常量定义在<code>&lt;stdio.h&gt;</code>中）。通常在此之后该流就是全缓冲的，但是如果该流与一个终端设备相关，那么某些系统也可将其设置为行缓冲的。为了关闭缓冲，将<code>buf</code>设置为<code>NULL</code>。</p>
+<p>&emsp;&emsp;使用<code>setvbuf</code>，我们可以精确地说明所需的缓冲类型。这是用<code>mode</code>参数实现的：</p>
+<ul>
+<li><code>_IOFBF</code>，全缓冲。</li>
+<li><code>_IOLBF</code>，行缓冲。</li>
+<li><code>_IONBF</code>，不带缓冲。</li>
+</ul>
+<p>&emsp;&emsp;如果指定一个不带缓冲的流，则忽略<code>buf</code>和<code>size</code>参数。如果指定全缓冲或行缓冲，则<code>buf</code>和<code>size</code>可选择地指定一个缓冲区及其长度。如果指定全缓冲或行缓冲，则<code>buf</code>和<code>size</code>可选择地指定一个缓冲区及其长度。如果该流是带缓冲的，而<code>buf</code>是<code>NULL</code>，则标准<code>I/O</code>库将自动地为该流分配适当长度的缓冲区。适当的长度指的是由常量<code>BUFFSIZ</code>所指定的值。</p>
+<blockquote>
+<p>&emsp;&emsp;某些<code>C</code>函数库实现使用<code>stat</code>结构中的成员<code>st_blksize</code>所指定的值决定最佳<code>I/O</code>缓冲区长度。<code>GNU C</code>函数库就使用这种办法。</p>
+</blockquote>
+<p>&emsp;&emsp;下表列出了这两个函数的动作，以及它们的各个选项。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th><code>mode</code></th>
+<th><code>buf</code></th>
+<th>缓冲区及长度</th>
+<th>缓冲类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>setbuf</code></td>
+<td></td>
+<td>非空</td>
+<td>长度为<code>BUFSIZ</code>的用户缓冲区<code>buf</code></td>
+<td>全缓冲或行缓冲</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><code>NULL</code></td>
+<td>（无缓冲区）</td>
+<td>不带缓冲</td>
+</tr>
+<tr>
+<td><code>setvbuf</code></td>
+<td><code>_IO_FBF</code></td>
+<td>非空</td>
+<td>长度为<code>size</code>的用户缓冲区<code>buf</code></td>
+<td>全缓冲</td>
+</tr>
+<tr>
+<td></td>
+<td><code>_IO_FBF</code></td>
+<td><code>NULL</code></td>
+<td>适合长度的系统缓冲区<code>buf</code></td>
+<td>全缓冲</td>
+</tr>
+<tr>
+<td></td>
+<td><code>_IO_LBF</code></td>
+<td>非空</td>
+<td>长度为<code>size</code>的用户缓冲区<code>buf</code></td>
+<td>行缓冲</td>
+</tr>
+<tr>
+<td></td>
+<td><code>_IO_LBF</code></td>
+<td><code>NULL</code></td>
+<td>适合长度的系统缓冲区<code>buf</code></td>
+<td>行缓冲</td>
+</tr>
+<tr>
+<td></td>
+<td><code>_IO_NBF</code></td>
+<td>（忽略）</td>
+<td>（无缓冲区）</td>
+<td>不带缓冲</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;需要知道的是，如果在一个函数内分配一个自动类型变量类的标准<code>I/O</code>缓冲区，则从该函数返回之前，必须关闭该流。另外，某些实现将缓冲区的一部分用于存放它自己的管理操作信息，所以可以存放在缓冲区中的实际数据字节数少于<code>size</code>。一般而言，应由系统选择缓冲区的长度，并自动地分配缓冲区。在这种情况下关闭此流时，标准<code>I/O</code>库将自动释放缓冲区。</p>
+<p>&emsp;&emsp;任何时候，我们都可强制冲洗一个流。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若成功，返回0；若出错，返回EOF。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fflush</span><span class="params">(FILE* fp)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;此函数使该流所有未写的数据都被传送至内核。作为一种特殊情形，如若<code>fp</code>是<code>NULL</code>，则此函数将导致所有输出流被冲洗。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/UNIX%E6%A0%87%E5%87%86IO/" rel="tag"><i class="fa fa-tag"></i> UNIX标准IO</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/16/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%89%EF%BC%89/" rel="prev" title="UNIX文件IO（三）">
+      <i class="fa fa-chevron-left"></i> UNIX文件IO（三）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/07/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E6%B5%81%E7%9A%84%E6%93%8D%E4%BD%9C/" rel="next" title="UNIX标准IO库之流的操作">
+      UNIX标准IO库之流的操作 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#流和FILE对象"><span class="nav-number">2.</span> <span class="nav-text">流和FILE对象</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#标准输入、标准输出和标准错误"><span class="nav-number">3.</span> <span class="nav-text">标准输入、标准输出和标准错误</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#缓冲"><span class="nav-number">4.</span> <span class="nav-text">缓冲</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">81</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>

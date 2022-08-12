@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E6%96%87%E4%BB%B6IO/%E4%B8%A4%E4%B8%AA%E7%8B%AC%E7%AB%8B%E8%BF%9B%E7%A8%8B%E5%90%84%E8%87%AA%E6%89%93%E5%BC%80%E5%90%8C%E4%B8%80%E6%96%87%E4%BB%B6.png">
 <meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E6%96%87%E4%BB%B6IO/dup%E5%90%8E%E7%9A%84%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.png">
 <meta property="article:published_time" content="2021-12-12T07:40:00.000Z">
-<meta property="article:modified_time" content="2021-12-17T15:36:42.000Z">
+<meta property="article:modified_time" content="2022-01-04T09:18:56.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="UNIX文件">
 <meta name="twitter:card" content="summary">
@@ -240,7 +240,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-12-17 23:36:42" itemprop="dateModified" datetime="2021-12-17T23:36:42+08:00">2021-12-17</time>
+                <time title="Modified: 2022-01-04 17:18:56" itemprop="dateModified" datetime="2022-01-04T17:18:56+08:00">2022-01-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -325,7 +325,7 @@
 </ul>
 <p>&emsp;&emsp;调用<code>pwrite</code>相当于调用<code>lseek</code>后调用<code>write</code>，但也与它们有类似的区别。</p>
 <h2 id="创建一个文件"><a href="#创建一个文件" class="headerlink" title="创建一个文件"></a>创建一个文件</h2><p>&emsp;&emsp;对<code>open</code>函数的<code>O_CREAT</code>和<code>O_EXCL</code>选项进行说明时，我们已见到另一个有关原子操作的例子。当同时指定这两个选项，而该文件又已经存在时，<code>open</code>将失败。前文曾提到检查文件是否存在和创建文件这两个操作是作为一个原子操作执行的。如果没有这样一个原子操作，那么可能会编写下列程序段：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>((fd == <span class="built_in">open</span>(pathname, O_WRONLY)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(errno == ENOENT) &#123;</span><br><span class="line">        <span class="keyword">if</span>((fd = create(path, mode)) &lt; ) &#123;</span><br><span class="line">            ERR_SYS(<span class="string">"create error"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        ERR_SYS(<span class="string">"open error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>((fd == <span class="built_in">open</span>(pathname, O_WRONLY)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(errno == ENOENT) &#123;</span><br><span class="line">        <span class="keyword">if</span>((fd = create(path, mode)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            ERR_SYS(<span class="string">"create error"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        ERR_SYS(<span class="string">"open error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;&emsp;如果在<code>open</code>和<code>create</code>之间，另一个进程创建了该文件，就会出现问题。若在这两个函数调用之间，另一个进程创建了该文件，并且写入了一些数据，然后，原来进程执行这段程序中的<code>create</code>，这时，刚由另一个进程写入的数据就会被擦去。如若将这两者合并在一个原子操作中，这种问题也就不会出现。</p>
 <p>&emsp;&emsp;一般而言，原子操作指的是由多步组成的一个操作。如果该操作原子地执行，则要么执行完所有步骤，要么一步也不执行，不可能只执行所有步骤的一个子集。</p>
@@ -476,7 +476,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">82</span>
+          <span class="site-state-item-count">81</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -487,7 +487,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -519,7 +519,7 @@
 <div class="copyright">
   
   &copy; 2020 – 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
