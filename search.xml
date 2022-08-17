@@ -5918,4 +5918,257 @@
         <tag>C++</tag>
       </tags>
   </entry>
+  <entry>
+    <title>UNIX高级IO之非阻塞IO</title>
+    <url>/2022/08/12/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E9%9D%9E%E9%98%BB%E5%A1%9EIO/</url>
+    <content><![CDATA[<hr>
+<h1 id="系统调用"><a href="#系统调用" class="headerlink" title="系统调用"></a>系统调用</h1><p>&emsp;&emsp;了解非阻塞<code>I/O</code>的根本原因还需追根溯源——系统调用。为什么需要系统调用呢？将所有接口都直接暴露给用户岂不美哉？非也，由于系统的资源有限，为了保护这些计算机资源设备，操作系统不可能让所有的程序都可以轻松地访问到任何一个文件。因此，进程在系统上的运行会分为两个级别：用户态和内核态。而系统内核通过包装这些特定功能的硬件指令和硬件状态（即内核函数），并通过一组称为系统调用的接口呈现给用户。</p>
+<a id="more"></a>
+
+<ul>
+<li>用户态（<code>user mode</code>）：用户态运行的进程可以直接读取用户程序的数据；</li>
+<li>内核态（<code>kernel mode</code>）：内核态运行的程序可以访问计算机的任何资源，不受限制；</li>
+</ul>
+<p>&emsp;&emsp;平时我们的进程几乎都是用户态，读取用户数据，当涉及到系统级别的操作（例如文件管理、进程控制和内存管理等）的时候，就要用到系统调用了。那么操作系统如何分辨出哪些内存区域属于用户态，哪些属于内核态呢？</p>
+<h2 id="操作系统的权限限制"><a href="#操作系统的权限限制" class="headerlink" title="操作系统的权限限制"></a>操作系统的权限限制</h2><p>&emsp;&emsp;操作系统使用<code>CS:IP</code>中<code>CS</code>的最低两位来表示：0是内核态，3是用户态。</p>
+<blockquote>
+<p>&emsp;&emsp;<code>CS:IP</code>是两个寄存器，指示了<code>CPU</code>当前将要读取的指令的地址。<code>Shell</code>将可执行文件加载到内存中后，就会设置<code>CPU</code>中的<code>CS:IP</code>寄存器指向可执行文件的起始地址，此后<code>CPU</code>便从这个起始地址开始读取内存中的指令，并执行。也就是说，当一个可执行文件加载到内存中以后，<code>CS:IP</code>这两个寄存器便指向了这个可执行文件的起始地址。</p>
+<p>&emsp;&emsp;总结一下：</p>
+<ul>
+<li>想让<code>CPU</code>执行哪些指令，就可以让<code>CS:IP</code>指向保存对应指令的那块内存即可；</li>
+<li>任何时候，<code>CS:IP</code>指向的地址中的内容都是<code>CPU</code>当前执行的指令。</li>
+</ul>
+</blockquote>
+<p>&emsp;&emsp;每次访问时，需要满足以下条件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">CPL &lt;&#x3D; DPL</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li><code>CPL</code>（<code>Current Privilege Level</code>）当前进程的权限级别</li>
+<li><code>DPL</code>（<code>Descriptor Privilege Level</code>）规定了访问该段的权限级别</li>
+<li><code>RPL</code>（<code>Request Privilege Level</code>）进程对段访问的请求权限级别</li>
+</ul>
+<p>实际上在请求某特权级别为<code>DPL</code>的资源时，需要满足：<code>CPL &lt;= DPL</code>并且<code>RPL &lt;= DPL</code>。</p>
+</blockquote>
+<p>内核段的<code>DPL</code>都是0（在初始化阶段<code>DPL</code>就都设置为0了），这样内核态就可以访问任何数据，用户态不能访问内核数据，通过这种方式，就实现了用户态和内核态的权限隔离。</p>
+<h2 id="从用户态切换到内核态（系统调用过程）"><a href="#从用户态切换到内核态（系统调用过程）" class="headerlink" title="从用户态切换到内核态（系统调用过程）"></a>从用户态切换到内核态（系统调用过程）</h2><p>&emsp;&emsp;既然我们使用了系统调用，由于系统调用最终还是进入了内核，其中必然涉及到了内核态，那么从用户态到内核态的切换过程又是如何进行的呢？</p>
+<p>&emsp;&emsp;对此，操作系统提供了一个中断指令<code>int 0x80</code>来主动进入内核，这也是用户程序访问内核代码的唯一方式。简单地来说（不做过多的深入，毕竟我们也不是从事汇编工作的）：</p>
+<ul>
+<li>调用系统函数时会通过内联汇编代码插入<code>int 0x80</code>的中断指令，将系统调用编号设置给<code>%eax</code>寄存器；</li>
+<li>内核收到<code>int 0x80</code>中断后，查询<code>IDT</code>表来取出中断处理函数地址（此时<code>int 0x80</code>的<code>IDT</code>表中的<code>DPL</code>被设置成了3，所以才能从用户态直接访问<code>int 0x80</code>中断指令；</li>
+<li>然后<code>CPL</code>变为0，此时也就切换为了内核态，<code>system_call</code>会根据<code>%eax</code>来跳转到对应的处理函数执行。</li>
+</ul>
+<p>&emsp;&emsp;其中涉及到的细节繁琐复杂，要深入下去，怕是要陷入一个技术黑洞，对此点到即止便好，前文所述足以供我们了解UNIX系统调用的大致情况了。</p>
+<h1 id="非阻塞IO"><a href="#非阻塞IO" class="headerlink" title="非阻塞IO"></a>非阻塞IO</h1><p>&emsp;&emsp;有了前文对于系统调用的一个大致概述，这下可以回到主题了：非阻塞<code>IO</code>。</p>
+<p>&emsp;&emsp;系统调用可以分为两类：“低速”系统调用和其他。低速系统调用是可能会使进程永远阻塞的一类系统调用。</p>
+<p>这类系统调用包括：</p>
+<ul>
+<li>如果某些文件类型（如读管道、终端设备和网络设备）的数据并不存在，读操作可能会使调用者永远阻塞；</li>
+<li>如果数据不被相同的文件类型立即接受（如管道中无空间、网络流控制），写操作可能会使调用者永远阻塞；</li>
+<li>对已经加上强制性记录锁的文件进行读写；</li>
+<li>某些进程间通信函数；</li>
+<li>某些<code>ioctl</code>函数；</li>
+<li>等等。</li>
+</ul>
+<p>&emsp;&emsp;虽然，读写磁盘文件会暂时阻塞调用者，但是并不能将与磁盘<code>IO</code>有关的系统调用视为“低速”。非阻塞<code>IO</code>可以使我们发出<code>open</code>、<code>read</code>和<code>write</code>这样的<code>IO</code>操作，并且使这些操作永远不会阻塞。如果这些操作不能完成，则立即出错返回，表示该操作如继续执行将阻塞。对于一个给定的描述符，有两种方式可以为其指定非阻塞<code>IO</code>：</p>
+<ul>
+<li>如果调用<code>open</code>获得描述符，则可指定<code>O_NONBLOCK</code>标志；</li>
+<li>对于已经打开的一个描述符，则可调用<code>fcntl</code>。由该函数打开<code>O_NONBLOCK</code>文件状态标志。</li>
+</ul>
+<p>&emsp;&emsp;我们可以观察如下例子：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 封装了fcntl，更加安全</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set_fl</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">int</span> flags)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    <span class="keyword">if</span>((val = fcntl(fd, F_GETFL, <span class="number">0</span>)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// ERROR_SYS("fcntl F_GETFL error");</span></span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    val |= flags;</span><br><span class="line">    <span class="keyword">if</span>(fcntl(fd, F_SETFL, val) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// ERROR_SYS("fcntl F_SETFL error");</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 封装了fcntl，更加安全</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">clr_fl</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">int</span> flags)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    <span class="keyword">if</span>((val = fcntl(fd, F_GETFL, <span class="number">0</span>)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// ERROR_SYS("fcntl F_GETFL error");</span></span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    val &amp;= ~flags;</span><br><span class="line">    <span class="keyword">if</span>(fcntl(fd, F_SETFL, val) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// ERROR_SYS("fcntl F_SETFL error");</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">char</span> buf[<span class="number">1000</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n_to_write, n_write;</span><br><span class="line">    <span class="keyword">char</span>* ptr_buf;</span><br><span class="line">    </span><br><span class="line">    n_to_write = <span class="built_in">read</span>(STDIN_FILENO, buf, <span class="keyword">sizeof</span>(buf));</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"read %d bytes\n"</span>, n_to_write);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 不能简单地调用fcntl(STDOUT_FILENO, F_SETFL, O_NONBLOCK);</span></span><br><span class="line">    <span class="comment">// 使用上述定义的set_fl和clr_fl。</span></span><br><span class="line">    set_fl(STDOUT_FILENO, O_NONBLOCK);</span><br><span class="line">  </span><br><span class="line">    ptr = buf;</span><br><span class="line">    <span class="keyword">while</span>(n_to_write &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        errno = <span class="number">0</span>;</span><br><span class="line">        n_write = <span class="built_in">write</span>(STDOUT_FILENO, ptr, n_to_write);</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"n_write = %d, errno = %d\n"</span>, n_write, errno);</span><br><span class="line">      </span><br><span class="line">        <span class="keyword">if</span>(n_write &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            ptr += n_write;</span><br><span class="line">            n_to_write -= n_write;</span><br><span class="line">        &#125;</span><br><span class="line">      </span><br><span class="line">        clr_fl(STDOUT_FILENO, O_NONBLOCK);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;对于上述代码中，需要注意的是不能直接调用<code>fcntl</code>，要先获得现在的标志值，然后按照需求来修改标志值，最后再设置新的标志值。如果简单地直接执行<code>F_SETFL</code>或<code>F_SETFD</code>命令，则会关闭以前设置的标志位。</p>
+<p>&emsp;&emsp;在此实例中，程序假如发出了10000个<code>write</code>调用，可能最后就只有<code>5%</code>不到的调用真正输出了数据，其余都返回错误。这种形式的循环称为轮询，在多用户系统上用这种方式会浪费<code>CPU</code>时间。而非阻塞描述符的<code>IO</code>多路转接（之后将会谈到），是进行这种操作的一种比较有效的方法。有时可以将程序设计为使用多线程的，从而避免使用非阻塞<code>IO</code>。如果能在其他线程中继续进行，则可以允许单个线程在<code>IO</code>调用中阻塞。这种方法有时能简化应用程序的设计，但是，线程间同步的开销有时却可能增加复杂性，终归有点得不偿失。</p>
+]]></content>
+      <categories>
+        <category>UNIX长篇大论</category>
+      </categories>
+      <tags>
+        <tag>UNIX高级IO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>UNIX高级IO之各类IO模型</title>
+    <url>/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[<hr>
+<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>&emsp;&emsp;当从一个描述符读，然后又写到另一个描述符时，可以在下列形式的循环中使用阻塞<code>IO</code>：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">while</span>((n = <span class="built_in">read</span>(STDIN_FILENO, buf, BUFFSIZE)) &gt; <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">write</span>(STDOUT_FILENO, buf, n) != <span class="number">0</span>)</span><br><span class="line">        ERR_SYS(<span class="string">"write error"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这种形式的阻塞<code>IO</code>随处可见。但是如果必须从两个描述符读，又该如何呢？在这种情况下，我们不能在任意一个描述符上进行阻塞读，否则可能会因为被阻塞在一个描述符的读操作上而导致另一个描述符即使有数据也无法处理。所以为了应对这种情况就需要另外一种不同的技术了——<code>IO</code>多路转接。</p>
+<a id="more"></a>
+
+<h1 id="IO多路转接"><a href="#IO多路转接" class="headerlink" title="IO多路转接"></a>IO多路转接</h1><p>&emsp;&emsp;在了解<code>IO</code>多路转接之前，我们先从一个实例来一步步地探索。可以以<code>telnet</code>这一命令的结构为例。该程序从终端（标准输入）读，将所得数据写到网络连接上；同时从网络连接读，将所得数据写到终端上（标准输出）。在网络连接的另一端，<code>telnetd</code>守护进程将执行用户键入命令而产生的输出通过<code>telnet</code>命令送回给用户，并显示在用户终端上。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8BIO%E5%A4%9A%E8%B7%AF%E8%BD%AC%E6%8E%A5/telnet%E7%A8%8B%E5%BA%8F%E6%A6%82%E5%86%B5.png" alt="telnet概况"></p>
+<p>&emsp;&emsp;<code>telnet</code>进程有两个输出，两个输入。我们不能对两个输入中的任一个使用阻塞<code>read</code>，因为我们不知道到底哪一个输入会得到数据，万一等待的是“错误的人”，岂不是要“等待一辈子了”？处理这种特殊问题的一种方法是，将一个进程变成两个进程（用<code>fork</code>），每个进程处理一条数据通道。</p>
+<h2 id="使用两个进程"><a href="#使用两个进程" class="headerlink" title="使用两个进程"></a>使用两个进程</h2><p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8BIO%E5%A4%9A%E8%B7%AF%E8%BD%AC%E6%8E%A5/telnet%E7%A8%8B%E5%BA%8F%E6%A6%82%E5%86%B5.png" alt="使用两个进程实现telnet程序"></p>
+<p>&emsp;&emsp;如果使用两个进程，则可使每个进程都执行阻塞<code>read</code>。但是这也产生了问题：操作什么时候终止？如果子进程接收到文件结束符（<code>telnetd</code>守护进程使网络连接断开），那么该子进程终止，然后父进程接收到<code>SIGCHLD</code>信号。但是，如果父进程终止（用户在终端上键入了文件结束符），那么父进程应通知子进程停止。为此可以使用一个信号（如<code>SIGUSR1</code>），但这使程序变得更加复杂。</p>
+<h2 id="使用一个进程中的两个线程"><a href="#使用一个进程中的两个线程" class="headerlink" title="使用一个进程中的两个线程"></a>使用一个进程中的两个线程</h2><p>&emsp;&emsp;我们可以不使用两个进程，而是用一个进程中的两个线程。虽然这避免了终止的复杂性。但却要求处理两个线程之间的同步，在复杂性方面这可能会得不偿失。</p>
+<h2 id="使用一个进程进行非阻塞IO"><a href="#使用一个进程进行非阻塞IO" class="headerlink" title="使用一个进程进行非阻塞IO"></a>使用一个进程进行非阻塞IO</h2><p>&emsp;&emsp;另一个方法仍旧使用一个进程执行该程序，但使用非阻塞<code>IO</code>读取数据。其基本思想是：将两个输入描述符都设置为非阻塞，对第一个描述符发一个<code>read</code>。如果该输入上有数据，则读数据并处理它。如果无数据可读，则该调用立即返回。然后对第二个描述符作同样的处理。在此之后，等待一定的时间（可能是若干秒），然后再尝试从第一个描述符读。这种形式的循环称为轮询。这种方法的不足之处在于浪费了<code>CPU</code>的时间。大多数时间实际上是无数据可读，因此执行<code>read</code>系统调用浪费了时间。在每次循环后要等多长时间再执行下一轮循环也很难确定。虽然轮询技术在支持非阻塞<code>IO</code>的所有系统上都可用，但是在多任务系统中应当避免使用这种方法。</p>
+<h2 id="使用信号驱动IO"><a href="#使用信号驱动IO" class="headerlink" title="使用信号驱动IO"></a>使用信号驱动IO</h2><p>&emsp;&emsp;还有一种技术称为信号驱动<code>IO</code>。我们提前在信号集合中设置好<code>IO</code>信号等待，注册好对应的<code>IO</code>处理函数<code>handler</code>，<code>IO</code>数据准备就绪后，会递交信号（可能是<code>SIGIO</code>，也可能是<code>SIGPOLL</code>），通知应用程序中断然后开始举行对应的<code>IO</code>处理逻辑，但是通知处理<code>IO</code>的时候存在将数据从内核空间拷贝到用户空间的过程，这个过程需要阻塞等待。利用这种技术，进程告诉内核：当描述符准备好可以进行<code>IO</code>时，用一个信号通知它。这种技术有两个问题。首先，尽管一些系统提供了各自的受限形式的异步<code>IO</code>，但<code>POSIX</code>采纳了另外一套标准化接口，所以可移植性成为一个问题。</p>
+<blockquote>
+<p><code>System V</code>提供了<code>SIGPOLL</code>信号来支持受限形式的信号驱动<code>IO</code>，但是仅当描述符引用<code>STREAMS</code>设备时，此信号才起作用。</p>
+<p><code>BSD</code>有一个类似的信号<code>SIGIO</code>，但也有类似的限制：仅当描述符引用终端设备或网络时它才能起作用。</p>
+</blockquote>
+<p>&emsp;&emsp;这种技术的第二个问题是，这种信号对每个进程而言只有一个（<code>SIGPOLL</code>或<code>SIGIO</code>），如果使该信号对两个描述符都起作用（从两个描述符读的例子），那么该进程在接到此信号时将无法判断是哪一个描述符准备好了。尽管<code>POSIX.1</code>异步<code>IO</code>接口允许选择哪个信号作为通知，但能用的信号数量仍远小于潜在的打开文件描述符数量。为了确定是哪一个描述符准备好了，仍需将这两个描述符都设置为非阻塞的，并顺序尝试执行<code>IO</code>。</p>
+<h2 id="使用异步IO"><a href="#使用异步IO" class="headerlink" title="使用异步IO"></a>使用异步IO</h2><p>&emsp;&emsp;与信号驱动<code>IO</code>不同，异步<code>IO</code>是数据拷贝完成后内核再通知应用程序直接开始处理，不需要拷贝数据阻塞等待。也就是说，其完全不存在应用程序的阻塞等待，平时应用程序做自己的事情，当数据完全准备好了（数据完成拷贝），直接通知应用程序回调处理函数即可。</p>
+<blockquote>
+<ul>
+<li>任何<code>IO</code>操作都是存在“等待数据准备完成”和“将数据从内核态拷贝到用户态”两个过程的；</li>
+<li>两个过程中等待数据消耗的时间一般远超于拷贝数据所花费的时间，所以一般我们进行<code>IO</code>优化，都是尽可能降低等待时间；</li>
+<li>上述<code>IO</code>模型中非阻塞<code>IO</code>仅仅只是在数据准备阶段上来说是阻塞的（数据没有准备完毕，则立马返回），但是数据拷贝阶段还是阻塞的，所以本质上还是同步<code>IO</code>，只有异步<code>IO</code>是完全做到了整个过程非阻塞的，当进程发起<code>IO</code>操作之后，就可以直接返回再也不用理睬，直到内核发送一个信号，通知进程<code>IO</code>完成（包括数据拷贝）。</li>
+</ul>
+</blockquote>
+<h2 id="使用IO多路转接"><a href="#使用IO多路转接" class="headerlink" title="使用IO多路转接"></a>使用IO多路转接</h2><p>&emsp;&emsp;一种较好的技术是使用<code>IO</code>多路转接（<code>IO multiplexing</code>）。为了使用这种技术，先构造我们感兴趣的描述符的列表，然后调用一个函数，直到这些描述符中的一个已准备好进行<code>IO</code>时，该函数才返回。<code>poll</code>、<code>pselect</code>和<code>select</code>这三个函数使我们能够执行<code>IO</code>多路转接。在从这些函数返回时，进程会被告知哪些描述符已准备好可以进行<code>IO</code>。这里了解其中的<code>poll</code>和<code>select</code>即可。</p>
+<h3 id="select"><a href="#select" class="headerlink" title="select"></a>select</h3><p>&emsp;&emsp;在所有兼容<code>POSIX</code>的平台上，<code>select</code>函数使我们可以执行<code>IO</code>多路转接。传给<code>select</code>的参数告诉内核：</p>
+<ul>
+<li>我们所关心的描述符；</li>
+<li>对于每个描述符我们所关心的条件（是否想从一个给定的描述符读或写一个给定的描述符，是否关心一个给定描述符的异常条件）；</li>
+<li>愿意等待多久（可以永远等待、等待一个固定时间或者根本不等待）。</li>
+</ul>
+<p>&emsp;&emsp;从<code>select</code>返回时，内核告诉我们：</p>
+<ul>
+<li>已准备好的描述符的总数；</li>
+<li>对于读、写或异常这三个条件中的每一个，哪些描述符已准备好。</li>
+</ul>
+<p>&emsp;&emsp;使用这种返回信息，就可以调用相应的<code>IO</code>函数（一般是<code>read</code>或<code>write</code>），并且明确知道该函数不会阻塞。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：准备就绪的描述符总数；若超时，返回0；否出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> maxfdpl, fd_set* readfds,</span></span></span><br><span class="line"><span class="function"><span class="params">                        fd_set* writefds,</span></span></span><br><span class="line"><span class="function"><span class="params">                        fd_set* exceptfds,</span></span></span><br><span class="line"><span class="function"><span class="params">           struct timeval* tvptr)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;首先说明一下最后一个参数，它指定愿意等待的时间长度，单位为秒和微秒，有以下三种情况：</p>
+<ul>
+<li><code>tvptr == NULL</code>：永远等待。如果捕捉到一个信号则中断此无限等待。当所指定的描述符中的一个已准备好或捕捉到一个信号则返回。如果捕捉到一个信号，则<code>select</code>返回-1，<code>errno</code>设置为<code>EINTR</code>。</li>
+<li><code>tvptr-&gt;tv_sec == 0 &amp;&amp; tvptr-&gt;tv_usec == 0</code>：不等待。测试所有指定的描述符并立即返回。这是轮询系统找到多个描述符状态而不阻塞<code>select</code>函数的方法。</li>
+<li><code>tvptr-&gt;tv_sec != 0 || tvptr-&gt;tv_usec != 0</code>：等待指定的时间。当指定的描述符之一已准备好，或当指定的时间值已超时，则立即返回。如果在超时后还没有一个描述符准备好，则返回值为0。这种等待可被捕捉到的信号中断。</li>
+</ul>
+<p>&emsp;&emsp;中间三个参数<code>readfds</code>、<code>writefds</code>和<code>exceptfds</code>是指向描述符集的指针。这三个描述符集说明了我们关心的可读、可写或处于异常条件的描述符集合。每个描述符集存储在一个<code>fd_set</code>数据类型中。这个数据类型是由实现选择的，它可以为每一个可能的描述符保持一位，可以认为其是一个很大的字节数组。</p>
+<p>&emsp;&emsp;对于<code>fd_set</code>数据类型，唯一可以进行的处理是：分配一个这种类型的变量，将这种类型的一个变量赋给同类型的另一个变量，或对这种类型的变量使用下列4个函数中的一个：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若fd在描述符集中，返回非0值；否则，返回0</span></span><br><span class="line"><span class="comment">// 可以测试描述符集中的一个指定位是否已打开</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">FD_ISSET</span><span class="params">(<span class="keyword">int</span> fd, fd_set* fdset)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 清除一位描述符</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FD_CLR</span><span class="params">(<span class="keyword">int</span> fd, fd_set* fdset)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 开启描述符集中的一位</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FD_SET</span><span class="params">(<span class="keyword">int</span> fd, fd_set* fdset)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将一个fd_set变量的所有位设置为0</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FD_ZERO</span><span class="params">(fd_set* fdset)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这些借口可以实现为宏或函数。需要注意的是，在声明了一个描述符集之后，必须用<code>FD_ZERO</code>将这个描述符集置为0，然后在其中设置我们关心的各个描述符的位。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">fd_set rset;</span><br><span class="line"><span class="keyword">int</span> fd;</span><br><span class="line">FD_ZERO(&amp;rset);</span><br><span class="line">FD_SET(fd, &amp;rset);</span><br><span class="line">FD_SET(STDIN_FILENO, &amp;rset);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;从<code>select</code>返回时，可以用<code>FD_ISSET</code>测试该集中的一个给定位是否仍处于打开状态：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(FD_ISSET(fd, &amp;rset)) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这三个参数任意一个（或全部）可以是空指针，这表示对相应条件并不关心。如果所有三个指针都是<code>NULL</code>，则<code>select</code>提供了比<code>sleep</code>更为精确的定时器（<code>sleep</code>等待整数秒，而<code>select</code>等待时间则可以小于1秒）。</p>
+<p>&emsp;&emsp;<code>select</code>的第一个参数<code>maxfdpl</code>的意思是“最大文件描述符编号值加一”。考虑所有三个描述符集，在这些描述符集中找出最大描述符编号值，然后加一，这就是第一个参数值。至于为什么要加一，这是因为，描述符的编号是从0开始的，所以要在最大描述符编号值上加一，这样结果才是描述符的最大数量。亦可以将其值设置为<code>FD_SETSIZE</code>，指定了最大描述符数（通常是1024），但是对于大多数应用程序而言，这样的值过于大了。通过指定我们所关注的最大描述符，内核只需在此范围内寻找打开的位，而不必在3个描述符集中的数百个没有使用的位内搜索。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8BIO%E5%A4%9A%E8%B7%AF%E8%BD%AC%E6%8E%A5/%E6%8F%8F%E8%BF%B0%E7%AC%A6%E9%9B%86.png" alt="描述符集"></p>
+<p>&emsp;&emsp;<code>select</code>的返回值有三种：</p>
+<ul>
+<li>返回-1。表示出错，例如，在指定的描述符一个都没有准备好时就捕捉到一个信号；</li>
+<li>返回0。表示没有描述符准备好。若指定的描述符一个都没有准备好，并且指定的等待时间超时了，就会发生这种情况。此时，所有描述符集都会置为0；</li>
+<li>正返回值。说明了已经准备好的描述符数。该值是三个描述符集中已准备好的描述符之和，所以如果同一个描述符已准备好读和写，那么在返回值中会对其计两次数。</li>
+</ul>
+<p>&emsp;&emsp;这里的“准备好”的含义需要做进一步的说明：</p>
+<ul>
+<li>若对读写集中的一个描述符进行<code>read</code>，<code>write</code>操作不会阻塞，则认为此描述符是准备好的；</li>
+<li>对于读、写和异常条件，普通文件的文件描述符总是返回准备好。</li>
+</ul>
+<p>&emsp;&emsp;需要注意的是一个描述符阻塞与否并不影响<code>select</code>是否阻塞，也就是说，如果希望读一个非阻塞描述符，并且以超时值为5秒调用<code>select</code>，则<code>select</code>最多阻塞5s，而不会受到描述符本身是否阻塞的影响。</p>
+<h3 id="poll"><a href="#poll" class="headerlink" title="poll"></a>poll</h3><p>&emsp;&emsp;<code>poll</code>函数类似于<code>select</code>，但是接口有所不同。虽然<code>poll</code>函数是<code>System V</code>引入来支持<code>STREAMS</code>子系统的，但是<code>poll</code>函数可用于任何类型的文件描述符。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;poll.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：准备就绪的描述符数目；若超时，返回0；若出错，返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(struct pollfd fdarray[], <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;与<code>select</code>不同，<code>poll</code>不是为每个条件（可读、可写和异常条件）构造一个描述符集，而是构造一个<code>pollfd</code>结构的数组，每个数组元素指定一个描述符编号以及我们对该描述符感兴趣的条件。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    short events;</span><br><span class="line">    short revents;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;<code>fdarray</code>数组中的元素数由<code>nfds</code>指定，对于<code>events</code>成员有对应的参数表来设置其数值，通过这些值告诉内核我们关心的是每个描述符的哪些事件。返回时，<code>revents</code>成员由内核设置，用于说明每个描述符发生了哪些事件。需要注意的是<code>poll</code>并没有更改<code>events</code>成员，这点与<code>select</code>不同，<code>select</code>修改其参数以指示哪一个描述符已准备好了。</p>
+<p>&emsp;&emsp;最后一个参数指定的是我们愿意等待多久，同<code>select</code>一样，不同的是当其值为-1时，为永远等待。</p>
+]]></content>
+      <categories>
+        <category>UNIX长篇大论</category>
+      </categories>
+      <tags>
+        <tag>UNIX高级IO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装编译Sonic</title>
+    <url>/2022/08/16/%E5%AE%89%E8%A3%85%E7%BC%96%E8%AF%91Sonic/</url>
+    <content><![CDATA[<hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;本系列用于记录在<code>Sonic</code>的<code>gdNOS-v2</code>分支下安装编译的过程，以及其中所遇到的问题和尝试的解决方案。</p>
+<a id="more"></a>
+
+<h1 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h1><p>&emsp;&emsp;需要在大小至少200G的磁盘空间的<code>Ubuntu</code>系统上进行编译，实例环境是在<code>VBox</code>上面进行安装的20.04.3服务器版<code>Ubuntu</code>系统，在安装过程中，一同安装<code>docker</code>，后续编译需要使用（也可以不安装，后续手动安装更好）。安装完毕后，需要配置<code>git</code>的密钥。</p>
+<h2 id="准备GitLab的账号"><a href="#准备GitLab的账号" class="headerlink" title="准备GitLab的账号"></a>准备GitLab的账号</h2><p>&emsp;&emsp;在<code>http://git.gdcni.cn/</code>上注册一个账号，用自己的工作邮箱注册，例如：<code>zhangsan@gdcni.cn</code>，然后应该是需要管理人赋予该账号权限，再可以进行后续的项目下拉和上传。注册完毕后，进入虚拟机的<code>Ubuntu</code>环境下，用户权限下执行：<code>cd ~</code>进入当前用户目录下，执行<code>ll</code>后，应该会看到一个<code>.ssh</code>的目录（Ubuntu一般都会默认安装了<code>git</code>），进入该目录下，输入命令：<code>ssh-keygen -t rsa -C &quot;注册时的邮箱&quot;</code>，此后一直按回车即可，该目录下会生成2个文件<code>id_rsa</code>和<code>id_rsa.pub</code>，进入后者，复制其内容，随后找到<code>gitlab</code>设置中的<code>SSH KEYS</code>一项，将前述文件内容复制到里面。</p>
+<blockquote>
+<p>如果安装的<code>Ubuntu</code>不支持在宿主机与虚拟机之间复制粘贴，则可以在<code>VBox</code>内设置共享文件夹，将<code>id_rsa.pub</code>文件复制到该共享文件夹中，随后，宿主机便可以间接地从虚拟机中复制粘贴。</p>
+</blockquote>
+<h2 id="下拉代码"><a href="#下拉代码" class="headerlink" title="下拉代码"></a>下拉代码</h2><p>&emsp;&emsp;在完成上述准备工作后，在用户目录的代码仓库下执行：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git clone http://git.gdcni.cn/switch/sonic-buildimage.git</span><br></pre></td></tr></table></figure>
+
+<p>成功下拉代码后，需要切换分支<code>gdNOS-v2</code>，顺序执行命令<code>cd sonic-buildimage</code>，<code>git checkout gdNOS-v2</code>。</p>
+<h2 id="安装C／C-编译环境"><a href="#安装C／C-编译环境" class="headerlink" title="安装C／C++编译环境"></a>安装C／C++编译环境</h2><p>&emsp;&emsp;在编译该项目前，需要安装配置编译环境：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get install build-essential</span><br></pre></td></tr></table></figure>
+
+<p>然后查看是否安装成功：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">gcc -v</span><br><span class="line">g++ -v</span><br><span class="line">make -v</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装Sonic编译环境"><a href="#安装Sonic编译环境" class="headerlink" title="安装Sonic编译环境"></a>安装Sonic编译环境</h2><p>&emsp;&emsp;按照官方的编译文档，在编译前需安装额外工具：</p>
+<ol>
+<li>安装<code>python</code>的包工具<code>pip</code></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get install -y python-pip</span><br></pre></td></tr></table></figure>
+
+<p>运行该命令后，提示该安装包不可用，并且有另外的<code>python3-pip</code>包可用，考虑到应该是<code>ubuntu</code>的<code>/etc/apt/source.list</code>中的源比较旧了，需要更新一下：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get -y update</span><br></pre></td></tr></table></figure>
+
+<p>更新完毕后，继续安装<code>python-pip</code>，发现仍然找不到安装包，则考虑添加国内的源，例如阿里源。<code>Ubuntu</code>的源位于<code>/etc/apt/source.list</code>文件中，仍然使用前述建立的共享文件夹来导入阿里源到该该源文件中，在宿主机的共享文件中建立一个文本文件，将阿里源拷贝到其中（例如<code>aliyun_source_list</code>文件），随后在<code>Ubuntu</code>中的共享文件夹中（例如<code>~/share</code>中找到该文件，执行以下命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo su</span><br><span class="line">cat /home/gd/share/aliyun_source_list &gt;&gt; /etc/apt/source.list</span><br><span class="line">apt-get install update</span><br></pre></td></tr></table></figure>
+
+<p>这样便将源更新到<code>Ubuntu</code>中了，最后再次执行安装命令时，提示缺少依赖：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">python-pip : Depends: python-pip-wh1 (=9.0.1-2.3~ubuntu1.18.04.5) but 20.0.2-5ubuntu1.6 is to be installed</span><br></pre></td></tr></table></figure>
+
+<p>也就是如果在<code>Ubuntu20.04</code>以下版本的系统下，该安装命令会成功运行。其实从<code>Ubuntu20.04</code>开始，<code>python3</code>就被包括在系统安装之中了，<code>python2</code>在通用源仓库中可用，官方鼓励用户切换到<code>pyhon3</code>。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get install python3-pip</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>安装pip-9.0.3</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo python3 -m pip install -U pip=9.0.3</span><br></pre></td></tr></table></figure>
+
+<p>出现<code>successfully installed pip-9.0.3</code>，则安装成功。</p>
+<ol start="3">
+<li>安装jinja</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo pip install --force-reinstall --upgrade jinja</span><br></pre></td></tr></table></figure>
+
+<p>执行该命令后，提示：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">You are using pip version 9.0.3, however version 22.2.2 is available.</span><br><span class="line">You should consider upgrading via the 'pip install --upgrade pip' command.</span><br></pre></td></tr></table></figure>
+
+<p>原因是我们安装的<code>pip</code>版本有点落后，需要更新：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo pip install --upgrade pip</span><br></pre></td></tr></table></figure>
+
+<p>更新完毕后，再次执行安装<code>jinja</code>的命令，提示成功。</p>
+<ol start="4">
+<li>安装j2cli</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo pip install j2cli</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置docker"><a href="#配置docker" class="headerlink" title="配置docker"></a>配置docker</h2><p>&emsp;&emsp;由于<code>sonic</code>的编译都是位于用户权限下，并且是在一个隔离的容器环境中进行的。也就是说需要在不运行<code>sudo</code>的前提下来运行<code>docker</code>，进行如下操作：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 创建docker用户组</span></span><br><span class="line">sudo groupadd docker</span><br><span class="line">sudo gpasswd -a $&#123;USER&#125; docker</span><br></pre></td></tr></table></figure>
+
+<p>默认情况下，<code>docker</code>命令会使用<code>Unix socket</code>与<code>Docker</code>引擎通讯。而只有<code>root</code>用户和<code>docker</code>组的用户才可以访问<code>Docker</code>引擎的<code>Unix socket</code>。出于安全考虑，一般<code>Linux</code>系统上不会直接使用<code>root</code>用户。因此，更好地做法就是将需要使用<code>docker</code>的用户加入<code>docker</code>用户组。</p>
+<p>&emsp;&emsp;由于运行<code>docker</code>时，提示报错：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Failed to restart docker.service: Unit docker.service not found</span><br></pre></td></tr></table></figure>
+
+<h3 id="卸载docker"><a href="#卸载docker" class="headerlink" title="卸载docker"></a>卸载docker</h3><p>这是因为安装<code>docker</code>时，没有使用官方安装包，也没有使用<code>apt</code>，而是安装<code>Ubuntu</code>的时候选择了一同安装<code>docker</code>，所以是使用<code>snap</code>安装的。解决方式：<code>sudo snap restart docker</code>或者卸载并重新安装<code>docker</code>。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo snap list</span><br><span class="line">sudo snap remove &lt;snap name&gt;</span><br><span class="line">sudo snap remove --purge docker</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用apt安装docker"><a href="#使用apt安装docker" class="headerlink" title="使用apt安装docker"></a>使用apt安装docker</h3><p>&emsp;&emsp;添加最新的官方<code>Docker</code>源：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get install apt-transport-https</span><br><span class="line">sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9</span><br><span class="line">sudo bash -c "echo deb https://get.docker.io/ubuntu docker main &gt; /ect/apt/sources.list.d/docker.list"</span><br><span class="line">sudo apt-get update</span><br></pre></td></tr></table></figure>
+
+<p>安装最新版本的<code>Docker</code>：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get install -y lxc-docker</span><br></pre></td></tr></table></figure>
+
+<p>更新<code>Docker</code>：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get update -y lxc-docker</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Sonic</category>
+      </categories>
+      <tags>
+        <tag>Sonic编译</tag>
+      </tags>
+  </entry>
 </search>

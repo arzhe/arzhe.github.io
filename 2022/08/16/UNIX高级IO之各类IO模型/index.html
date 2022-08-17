@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="引言&amp;emsp;&amp;emsp;当从一个描述符读，然后又写到另一个描述符时，可以在下列形式的循环中使用阻塞IO： 123while((n &#x3D; read(STDIN_FILENO, buf, BUFFSIZE)) &gt; 0)    if(write(STDOUT_FILENO, buf, n) !&#x3D; 0)        ERR_SYS(&quot;write error&quot;);  &amp;emsp;&amp;emsp;这种">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX高级IO之各类IO模型">
+<meta property="og:url" content="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="引言&amp;emsp;&amp;emsp;当从一个描述符读，然后又写到另一个描述符时，可以在下列形式的循环中使用阻塞IO： 123while((n &#x3D; read(STDIN_FILENO, buf, BUFFSIZE)) &gt; 0)    if(write(STDOUT_FILENO, buf, n) !&#x3D; 0)        ERR_SYS(&quot;write error&quot;);  &amp;emsp;&amp;emsp;这种">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8BIO%E5%A4%9A%E8%B7%AF%E8%BD%AC%E6%8E%A5/telnet%E7%A8%8B%E5%BA%8F%E6%A6%82%E5%86%B5.png">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8BIO%E5%A4%9A%E8%B7%AF%E8%BD%AC%E6%8E%A5/telnet%E7%A8%8B%E5%BA%8F%E6%A6%82%E5%86%B5.png">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8BIO%E5%A4%9A%E8%B7%AF%E8%BD%AC%E6%8E%A5/%E6%8F%8F%E8%BF%B0%E7%AC%A6%E9%9B%86.png">
+<meta property="article:published_time" content="2022-08-16T03:15:00.000Z">
+<meta property="article:modified_time" content="2022-08-17T02:48:40.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="UNIX高级IO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8BIO%E5%A4%9A%E8%B7%AF%E8%BD%AC%E6%8E%A5/telnet%E7%A8%8B%E5%BA%8F%E6%A6%82%E5%86%B5.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>UNIX高级IO之各类IO模型 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          UNIX高级IO之各类IO模型
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-08-16 11:15:00" itemprop="dateCreated datePublished" datetime="2022-08-16T11:15:00+08:00">2022-08-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-17 10:48:40" itemprop="dateModified" datetime="2022-08-17T10:48:40+08:00">2022-08-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之各类IO模型" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>&emsp;&emsp;当从一个描述符读，然后又写到另一个描述符时，可以在下列形式的循环中使用阻塞<code>IO</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>((n = <span class="built_in">read</span>(STDIN_FILENO, buf, BUFFSIZE)) &gt; <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">write</span>(STDOUT_FILENO, buf, n) != <span class="number">0</span>)</span><br><span class="line">        ERR_SYS(<span class="string">"write error"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这种形式的阻塞<code>IO</code>随处可见。但是如果必须从两个描述符读，又该如何呢？在这种情况下，我们不能在任意一个描述符上进行阻塞读，否则可能会因为被阻塞在一个描述符的读操作上而导致另一个描述符即使有数据也无法处理。所以为了应对这种情况就需要另外一种不同的技术了——<code>IO</code>多路转接。</p>
+<a id="more"></a>
+
+<h1 id="IO多路转接"><a href="#IO多路转接" class="headerlink" title="IO多路转接"></a>IO多路转接</h1><p>&emsp;&emsp;在了解<code>IO</code>多路转接之前，我们先从一个实例来一步步地探索。可以以<code>telnet</code>这一命令的结构为例。该程序从终端（标准输入）读，将所得数据写到网络连接上；同时从网络连接读，将所得数据写到终端上（标准输出）。在网络连接的另一端，<code>telnetd</code>守护进程将执行用户键入命令而产生的输出通过<code>telnet</code>命令送回给用户，并显示在用户终端上。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8BIO%E5%A4%9A%E8%B7%AF%E8%BD%AC%E6%8E%A5/telnet%E7%A8%8B%E5%BA%8F%E6%A6%82%E5%86%B5.png" alt="telnet概况"></p>
+<p>&emsp;&emsp;<code>telnet</code>进程有两个输出，两个输入。我们不能对两个输入中的任一个使用阻塞<code>read</code>，因为我们不知道到底哪一个输入会得到数据，万一等待的是“错误的人”，岂不是要“等待一辈子了”？处理这种特殊问题的一种方法是，将一个进程变成两个进程（用<code>fork</code>），每个进程处理一条数据通道。</p>
+<h2 id="使用两个进程"><a href="#使用两个进程" class="headerlink" title="使用两个进程"></a>使用两个进程</h2><p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8BIO%E5%A4%9A%E8%B7%AF%E8%BD%AC%E6%8E%A5/telnet%E7%A8%8B%E5%BA%8F%E6%A6%82%E5%86%B5.png" alt="使用两个进程实现telnet程序"></p>
+<p>&emsp;&emsp;如果使用两个进程，则可使每个进程都执行阻塞<code>read</code>。但是这也产生了问题：操作什么时候终止？如果子进程接收到文件结束符（<code>telnetd</code>守护进程使网络连接断开），那么该子进程终止，然后父进程接收到<code>SIGCHLD</code>信号。但是，如果父进程终止（用户在终端上键入了文件结束符），那么父进程应通知子进程停止。为此可以使用一个信号（如<code>SIGUSR1</code>），但这使程序变得更加复杂。</p>
+<h2 id="使用一个进程中的两个线程"><a href="#使用一个进程中的两个线程" class="headerlink" title="使用一个进程中的两个线程"></a>使用一个进程中的两个线程</h2><p>&emsp;&emsp;我们可以不使用两个进程，而是用一个进程中的两个线程。虽然这避免了终止的复杂性。但却要求处理两个线程之间的同步，在复杂性方面这可能会得不偿失。</p>
+<h2 id="使用一个进程进行非阻塞IO"><a href="#使用一个进程进行非阻塞IO" class="headerlink" title="使用一个进程进行非阻塞IO"></a>使用一个进程进行非阻塞IO</h2><p>&emsp;&emsp;另一个方法仍旧使用一个进程执行该程序，但使用非阻塞<code>IO</code>读取数据。其基本思想是：将两个输入描述符都设置为非阻塞，对第一个描述符发一个<code>read</code>。如果该输入上有数据，则读数据并处理它。如果无数据可读，则该调用立即返回。然后对第二个描述符作同样的处理。在此之后，等待一定的时间（可能是若干秒），然后再尝试从第一个描述符读。这种形式的循环称为轮询。这种方法的不足之处在于浪费了<code>CPU</code>的时间。大多数时间实际上是无数据可读，因此执行<code>read</code>系统调用浪费了时间。在每次循环后要等多长时间再执行下一轮循环也很难确定。虽然轮询技术在支持非阻塞<code>IO</code>的所有系统上都可用，但是在多任务系统中应当避免使用这种方法。</p>
+<h2 id="使用信号驱动IO"><a href="#使用信号驱动IO" class="headerlink" title="使用信号驱动IO"></a>使用信号驱动IO</h2><p>&emsp;&emsp;还有一种技术称为信号驱动<code>IO</code>。我们提前在信号集合中设置好<code>IO</code>信号等待，注册好对应的<code>IO</code>处理函数<code>handler</code>，<code>IO</code>数据准备就绪后，会递交信号（可能是<code>SIGIO</code>，也可能是<code>SIGPOLL</code>），通知应用程序中断然后开始举行对应的<code>IO</code>处理逻辑，但是通知处理<code>IO</code>的时候存在将数据从内核空间拷贝到用户空间的过程，这个过程需要阻塞等待。利用这种技术，进程告诉内核：当描述符准备好可以进行<code>IO</code>时，用一个信号通知它。这种技术有两个问题。首先，尽管一些系统提供了各自的受限形式的异步<code>IO</code>，但<code>POSIX</code>采纳了另外一套标准化接口，所以可移植性成为一个问题。</p>
+<blockquote>
+<p><code>System V</code>提供了<code>SIGPOLL</code>信号来支持受限形式的信号驱动<code>IO</code>，但是仅当描述符引用<code>STREAMS</code>设备时，此信号才起作用。</p>
+<p><code>BSD</code>有一个类似的信号<code>SIGIO</code>，但也有类似的限制：仅当描述符引用终端设备或网络时它才能起作用。</p>
+</blockquote>
+<p>&emsp;&emsp;这种技术的第二个问题是，这种信号对每个进程而言只有一个（<code>SIGPOLL</code>或<code>SIGIO</code>），如果使该信号对两个描述符都起作用（从两个描述符读的例子），那么该进程在接到此信号时将无法判断是哪一个描述符准备好了。尽管<code>POSIX.1</code>异步<code>IO</code>接口允许选择哪个信号作为通知，但能用的信号数量仍远小于潜在的打开文件描述符数量。为了确定是哪一个描述符准备好了，仍需将这两个描述符都设置为非阻塞的，并顺序尝试执行<code>IO</code>。</p>
+<h2 id="使用异步IO"><a href="#使用异步IO" class="headerlink" title="使用异步IO"></a>使用异步IO</h2><p>&emsp;&emsp;与信号驱动<code>IO</code>不同，异步<code>IO</code>是数据拷贝完成后内核再通知应用程序直接开始处理，不需要拷贝数据阻塞等待。也就是说，其完全不存在应用程序的阻塞等待，平时应用程序做自己的事情，当数据完全准备好了（数据完成拷贝），直接通知应用程序回调处理函数即可。</p>
+<blockquote>
+<ul>
+<li>任何<code>IO</code>操作都是存在“等待数据准备完成”和“将数据从内核态拷贝到用户态”两个过程的；</li>
+<li>两个过程中等待数据消耗的时间一般远超于拷贝数据所花费的时间，所以一般我们进行<code>IO</code>优化，都是尽可能降低等待时间；</li>
+<li>上述<code>IO</code>模型中非阻塞<code>IO</code>仅仅只是在数据准备阶段上来说是阻塞的（数据没有准备完毕，则立马返回），但是数据拷贝阶段还是阻塞的，所以本质上还是同步<code>IO</code>，只有异步<code>IO</code>是完全做到了整个过程非阻塞的，当进程发起<code>IO</code>操作之后，就可以直接返回再也不用理睬，直到内核发送一个信号，通知进程<code>IO</code>完成（包括数据拷贝）。</li>
+</ul>
+</blockquote>
+<h2 id="使用IO多路转接"><a href="#使用IO多路转接" class="headerlink" title="使用IO多路转接"></a>使用IO多路转接</h2><p>&emsp;&emsp;一种较好的技术是使用<code>IO</code>多路转接（<code>IO multiplexing</code>）。为了使用这种技术，先构造我们感兴趣的描述符的列表，然后调用一个函数，直到这些描述符中的一个已准备好进行<code>IO</code>时，该函数才返回。<code>poll</code>、<code>pselect</code>和<code>select</code>这三个函数使我们能够执行<code>IO</code>多路转接。在从这些函数返回时，进程会被告知哪些描述符已准备好可以进行<code>IO</code>。这里了解其中的<code>poll</code>和<code>select</code>即可。</p>
+<h3 id="select"><a href="#select" class="headerlink" title="select"></a>select</h3><p>&emsp;&emsp;在所有兼容<code>POSIX</code>的平台上，<code>select</code>函数使我们可以执行<code>IO</code>多路转接。传给<code>select</code>的参数告诉内核：</p>
+<ul>
+<li>我们所关心的描述符；</li>
+<li>对于每个描述符我们所关心的条件（是否想从一个给定的描述符读或写一个给定的描述符，是否关心一个给定描述符的异常条件）；</li>
+<li>愿意等待多久（可以永远等待、等待一个固定时间或者根本不等待）。</li>
+</ul>
+<p>&emsp;&emsp;从<code>select</code>返回时，内核告诉我们：</p>
+<ul>
+<li>已准备好的描述符的总数；</li>
+<li>对于读、写或异常这三个条件中的每一个，哪些描述符已准备好。</li>
+</ul>
+<p>&emsp;&emsp;使用这种返回信息，就可以调用相应的<code>IO</code>函数（一般是<code>read</code>或<code>write</code>），并且明确知道该函数不会阻塞。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：准备就绪的描述符总数；若超时，返回0；否出错，返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> maxfdpl, fd_set* readfds,</span></span></span><br><span class="line"><span class="function"><span class="params">                        fd_set* writefds,</span></span></span><br><span class="line"><span class="function"><span class="params">                        fd_set* exceptfds,</span></span></span><br><span class="line"><span class="function"><span class="params">           struct timeval* tvptr)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;首先说明一下最后一个参数，它指定愿意等待的时间长度，单位为秒和微秒，有以下三种情况：</p>
+<ul>
+<li><code>tvptr == NULL</code>：永远等待。如果捕捉到一个信号则中断此无限等待。当所指定的描述符中的一个已准备好或捕捉到一个信号则返回。如果捕捉到一个信号，则<code>select</code>返回-1，<code>errno</code>设置为<code>EINTR</code>。</li>
+<li><code>tvptr-&gt;tv_sec == 0 &amp;&amp; tvptr-&gt;tv_usec == 0</code>：不等待。测试所有指定的描述符并立即返回。这是轮询系统找到多个描述符状态而不阻塞<code>select</code>函数的方法。</li>
+<li><code>tvptr-&gt;tv_sec != 0 || tvptr-&gt;tv_usec != 0</code>：等待指定的时间。当指定的描述符之一已准备好，或当指定的时间值已超时，则立即返回。如果在超时后还没有一个描述符准备好，则返回值为0。这种等待可被捕捉到的信号中断。</li>
+</ul>
+<p>&emsp;&emsp;中间三个参数<code>readfds</code>、<code>writefds</code>和<code>exceptfds</code>是指向描述符集的指针。这三个描述符集说明了我们关心的可读、可写或处于异常条件的描述符集合。每个描述符集存储在一个<code>fd_set</code>数据类型中。这个数据类型是由实现选择的，它可以为每一个可能的描述符保持一位，可以认为其是一个很大的字节数组。</p>
+<p>&emsp;&emsp;对于<code>fd_set</code>数据类型，唯一可以进行的处理是：分配一个这种类型的变量，将这种类型的一个变量赋给同类型的另一个变量，或对这种类型的变量使用下列4个函数中的一个：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：若fd在描述符集中，返回非0值；否则，返回0</span></span><br><span class="line"><span class="comment">// 可以测试描述符集中的一个指定位是否已打开</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">FD_ISSET</span><span class="params">(<span class="keyword">int</span> fd, fd_set* fdset)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 清除一位描述符</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FD_CLR</span><span class="params">(<span class="keyword">int</span> fd, fd_set* fdset)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 开启描述符集中的一位</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FD_SET</span><span class="params">(<span class="keyword">int</span> fd, fd_set* fdset)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将一个fd_set变量的所有位设置为0</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FD_ZERO</span><span class="params">(fd_set* fdset)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这些借口可以实现为宏或函数。需要注意的是，在声明了一个描述符集之后，必须用<code>FD_ZERO</code>将这个描述符集置为0，然后在其中设置我们关心的各个描述符的位。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">fd_set rset;</span><br><span class="line"><span class="keyword">int</span> fd;</span><br><span class="line">FD_ZERO(&amp;rset);</span><br><span class="line">FD_SET(fd, &amp;rset);</span><br><span class="line">FD_SET(STDIN_FILENO, &amp;rset);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;从<code>select</code>返回时，可以用<code>FD_ISSET</code>测试该集中的一个给定位是否仍处于打开状态：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(FD_ISSET(fd, &amp;rset)) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;这三个参数任意一个（或全部）可以是空指针，这表示对相应条件并不关心。如果所有三个指针都是<code>NULL</code>，则<code>select</code>提供了比<code>sleep</code>更为精确的定时器（<code>sleep</code>等待整数秒，而<code>select</code>等待时间则可以小于1秒）。</p>
+<p>&emsp;&emsp;<code>select</code>的第一个参数<code>maxfdpl</code>的意思是“最大文件描述符编号值加一”。考虑所有三个描述符集，在这些描述符集中找出最大描述符编号值，然后加一，这就是第一个参数值。至于为什么要加一，这是因为，描述符的编号是从0开始的，所以要在最大描述符编号值上加一，这样结果才是描述符的最大数量。亦可以将其值设置为<code>FD_SETSIZE</code>，指定了最大描述符数（通常是1024），但是对于大多数应用程序而言，这样的值过于大了。通过指定我们所关注的最大描述符，内核只需在此范围内寻找打开的位，而不必在3个描述符集中的数百个没有使用的位内搜索。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8BIO%E5%A4%9A%E8%B7%AF%E8%BD%AC%E6%8E%A5/%E6%8F%8F%E8%BF%B0%E7%AC%A6%E9%9B%86.png" alt="描述符集"></p>
+<p>&emsp;&emsp;<code>select</code>的返回值有三种：</p>
+<ul>
+<li>返回-1。表示出错，例如，在指定的描述符一个都没有准备好时就捕捉到一个信号；</li>
+<li>返回0。表示没有描述符准备好。若指定的描述符一个都没有准备好，并且指定的等待时间超时了，就会发生这种情况。此时，所有描述符集都会置为0；</li>
+<li>正返回值。说明了已经准备好的描述符数。该值是三个描述符集中已准备好的描述符之和，所以如果同一个描述符已准备好读和写，那么在返回值中会对其计两次数。</li>
+</ul>
+<p>&emsp;&emsp;这里的“准备好”的含义需要做进一步的说明：</p>
+<ul>
+<li>若对读写集中的一个描述符进行<code>read</code>，<code>write</code>操作不会阻塞，则认为此描述符是准备好的；</li>
+<li>对于读、写和异常条件，普通文件的文件描述符总是返回准备好。</li>
+</ul>
+<p>&emsp;&emsp;需要注意的是一个描述符阻塞与否并不影响<code>select</code>是否阻塞，也就是说，如果希望读一个非阻塞描述符，并且以超时值为5秒调用<code>select</code>，则<code>select</code>最多阻塞5s，而不会受到描述符本身是否阻塞的影响。</p>
+<h3 id="poll"><a href="#poll" class="headerlink" title="poll"></a>poll</h3><p>&emsp;&emsp;<code>poll</code>函数类似于<code>select</code>，但是接口有所不同。虽然<code>poll</code>函数是<code>System V</code>引入来支持<code>STREAMS</code>子系统的，但是<code>poll</code>函数可用于任何类型的文件描述符。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;poll.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回值：准备就绪的描述符数目；若超时，返回0；若出错，返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">poll</span><span class="params">(struct pollfd fdarray[], <span class="keyword">nfds_t</span> nfds, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;与<code>select</code>不同，<code>poll</code>不是为每个条件（可读、可写和异常条件）构造一个描述符集，而是构造一个<code>pollfd</code>结构的数组，每个数组元素指定一个描述符编号以及我们对该描述符感兴趣的条件。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    short events;</span><br><span class="line">    short revents;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;<code>fdarray</code>数组中的元素数由<code>nfds</code>指定，对于<code>events</code>成员有对应的参数表来设置其数值，通过这些值告诉内核我们关心的是每个描述符的哪些事件。返回时，<code>revents</code>成员由内核设置，用于说明每个描述符发生了哪些事件。需要注意的是<code>poll</code>并没有更改<code>events</code>成员，这点与<code>select</code>不同，<code>select</code>修改其参数以指示哪一个描述符已准备好了。</p>
+<p>&emsp;&emsp;最后一个参数指定的是我们愿意等待多久，同<code>select</code>一样，不同的是当其值为-1时，为永远等待。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/UNIX%E9%AB%98%E7%BA%A7IO/" rel="tag"><i class="fa fa-tag"></i> UNIX高级IO</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/08/12/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E9%9D%9E%E9%98%BB%E5%A1%9EIO/" rel="prev" title="UNIX高级IO之非阻塞IO">
+      <i class="fa fa-chevron-left"></i> UNIX高级IO之非阻塞IO
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/08/16/%E5%AE%89%E8%A3%85%E7%BC%96%E8%AF%91Sonic/" rel="next" title="安装编译Sonic">
+      安装编译Sonic <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IO多路转接"><span class="nav-number">2.</span> <span class="nav-text">IO多路转接</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用两个进程"><span class="nav-number">2.1.</span> <span class="nav-text">使用两个进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用一个进程中的两个线程"><span class="nav-number">2.2.</span> <span class="nav-text">使用一个进程中的两个线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用一个进程进行非阻塞IO"><span class="nav-number">2.3.</span> <span class="nav-text">使用一个进程进行非阻塞IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用信号驱动IO"><span class="nav-number">2.4.</span> <span class="nav-text">使用信号驱动IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用异步IO"><span class="nav-number">2.5.</span> <span class="nav-text">使用异步IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用IO多路转接"><span class="nav-number">2.6.</span> <span class="nav-text">使用IO多路转接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#select"><span class="nav-number">2.6.1.</span> <span class="nav-text">select</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#poll"><span class="nav-number">2.6.2.</span> <span class="nav-text">poll</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>

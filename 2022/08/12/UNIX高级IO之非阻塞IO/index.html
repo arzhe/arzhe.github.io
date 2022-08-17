@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="系统调用&amp;emsp;&amp;emsp;了解非阻塞I&#x2F;O的根本原因还需追根溯源——系统调用。为什么需要系统调用呢？将所有接口都直接暴露给用户岂不美哉？非也，由于系统的资源有限，为了保护这些计算机资源设备，操作系统不可能让所有的程序都可以轻松地访问到任何一个文件。因此，进程在系统上的运行会分为两个级别：用户态和内核态。而系统内核通过包装这些特定功能的硬件指令和硬件状态（即内核函数），并通过一组称为系统调用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX高级IO之非阻塞IO">
+<meta property="og:url" content="http://yoursite.com/2022/08/12/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E9%9D%9E%E9%98%BB%E5%A1%9EIO/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="系统调用&amp;emsp;&amp;emsp;了解非阻塞I&#x2F;O的根本原因还需追根溯源——系统调用。为什么需要系统调用呢？将所有接口都直接暴露给用户岂不美哉？非也，由于系统的资源有限，为了保护这些计算机资源设备，操作系统不可能让所有的程序都可以轻松地访问到任何一个文件。因此，进程在系统上的运行会分为两个级别：用户态和内核态。而系统内核通过包装这些特定功能的硬件指令和硬件状态（即内核函数），并通过一组称为系统调用">
+<meta property="article:published_time" content="2022-08-12T03:53:00.000Z">
+<meta property="article:modified_time" content="2022-08-17T02:48:03.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="UNIX高级IO">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2022/08/12/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E9%9D%9E%E9%98%BB%E5%A1%9EIO/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>UNIX高级IO之非阻塞IO | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/12/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E9%9D%9E%E9%98%BB%E5%A1%9EIO/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          UNIX高级IO之非阻塞IO
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-08-12 11:53:00" itemprop="dateCreated datePublished" datetime="2022-08-12T11:53:00+08:00">2022-08-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-17 10:48:03" itemprop="dateModified" datetime="2022-08-17T10:48:03+08:00">2022-08-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/08/12/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E9%9D%9E%E9%98%BB%E5%A1%9EIO/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之非阻塞IO" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="系统调用"><a href="#系统调用" class="headerlink" title="系统调用"></a>系统调用</h1><p>&emsp;&emsp;了解非阻塞<code>I/O</code>的根本原因还需追根溯源——系统调用。为什么需要系统调用呢？将所有接口都直接暴露给用户岂不美哉？非也，由于系统的资源有限，为了保护这些计算机资源设备，操作系统不可能让所有的程序都可以轻松地访问到任何一个文件。因此，进程在系统上的运行会分为两个级别：用户态和内核态。而系统内核通过包装这些特定功能的硬件指令和硬件状态（即内核函数），并通过一组称为系统调用的接口呈现给用户。</p>
+<a id="more"></a>
+
+<ul>
+<li>用户态（<code>user mode</code>）：用户态运行的进程可以直接读取用户程序的数据；</li>
+<li>内核态（<code>kernel mode</code>）：内核态运行的程序可以访问计算机的任何资源，不受限制；</li>
+</ul>
+<p>&emsp;&emsp;平时我们的进程几乎都是用户态，读取用户数据，当涉及到系统级别的操作（例如文件管理、进程控制和内存管理等）的时候，就要用到系统调用了。那么操作系统如何分辨出哪些内存区域属于用户态，哪些属于内核态呢？</p>
+<h2 id="操作系统的权限限制"><a href="#操作系统的权限限制" class="headerlink" title="操作系统的权限限制"></a>操作系统的权限限制</h2><p>&emsp;&emsp;操作系统使用<code>CS:IP</code>中<code>CS</code>的最低两位来表示：0是内核态，3是用户态。</p>
+<blockquote>
+<p>&emsp;&emsp;<code>CS:IP</code>是两个寄存器，指示了<code>CPU</code>当前将要读取的指令的地址。<code>Shell</code>将可执行文件加载到内存中后，就会设置<code>CPU</code>中的<code>CS:IP</code>寄存器指向可执行文件的起始地址，此后<code>CPU</code>便从这个起始地址开始读取内存中的指令，并执行。也就是说，当一个可执行文件加载到内存中以后，<code>CS:IP</code>这两个寄存器便指向了这个可执行文件的起始地址。</p>
+<p>&emsp;&emsp;总结一下：</p>
+<ul>
+<li>想让<code>CPU</code>执行哪些指令，就可以让<code>CS:IP</code>指向保存对应指令的那块内存即可；</li>
+<li>任何时候，<code>CS:IP</code>指向的地址中的内容都是<code>CPU</code>当前执行的指令。</li>
+</ul>
+</blockquote>
+<p>&emsp;&emsp;每次访问时，需要满足以下条件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CPL &lt;&#x3D; DPL</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li><code>CPL</code>（<code>Current Privilege Level</code>）当前进程的权限级别</li>
+<li><code>DPL</code>（<code>Descriptor Privilege Level</code>）规定了访问该段的权限级别</li>
+<li><code>RPL</code>（<code>Request Privilege Level</code>）进程对段访问的请求权限级别</li>
+</ul>
+<p>实际上在请求某特权级别为<code>DPL</code>的资源时，需要满足：<code>CPL &lt;= DPL</code>并且<code>RPL &lt;= DPL</code>。</p>
+</blockquote>
+<p>内核段的<code>DPL</code>都是0（在初始化阶段<code>DPL</code>就都设置为0了），这样内核态就可以访问任何数据，用户态不能访问内核数据，通过这种方式，就实现了用户态和内核态的权限隔离。</p>
+<h2 id="从用户态切换到内核态（系统调用过程）"><a href="#从用户态切换到内核态（系统调用过程）" class="headerlink" title="从用户态切换到内核态（系统调用过程）"></a>从用户态切换到内核态（系统调用过程）</h2><p>&emsp;&emsp;既然我们使用了系统调用，由于系统调用最终还是进入了内核，其中必然涉及到了内核态，那么从用户态到内核态的切换过程又是如何进行的呢？</p>
+<p>&emsp;&emsp;对此，操作系统提供了一个中断指令<code>int 0x80</code>来主动进入内核，这也是用户程序访问内核代码的唯一方式。简单地来说（不做过多的深入，毕竟我们也不是从事汇编工作的）：</p>
+<ul>
+<li>调用系统函数时会通过内联汇编代码插入<code>int 0x80</code>的中断指令，将系统调用编号设置给<code>%eax</code>寄存器；</li>
+<li>内核收到<code>int 0x80</code>中断后，查询<code>IDT</code>表来取出中断处理函数地址（此时<code>int 0x80</code>的<code>IDT</code>表中的<code>DPL</code>被设置成了3，所以才能从用户态直接访问<code>int 0x80</code>中断指令；</li>
+<li>然后<code>CPL</code>变为0，此时也就切换为了内核态，<code>system_call</code>会根据<code>%eax</code>来跳转到对应的处理函数执行。</li>
+</ul>
+<p>&emsp;&emsp;其中涉及到的细节繁琐复杂，要深入下去，怕是要陷入一个技术黑洞，对此点到即止便好，前文所述足以供我们了解UNIX系统调用的大致情况了。</p>
+<h1 id="非阻塞IO"><a href="#非阻塞IO" class="headerlink" title="非阻塞IO"></a>非阻塞IO</h1><p>&emsp;&emsp;有了前文对于系统调用的一个大致概述，这下可以回到主题了：非阻塞<code>IO</code>。</p>
+<p>&emsp;&emsp;系统调用可以分为两类：“低速”系统调用和其他。低速系统调用是可能会使进程永远阻塞的一类系统调用。</p>
+<p>这类系统调用包括：</p>
+<ul>
+<li>如果某些文件类型（如读管道、终端设备和网络设备）的数据并不存在，读操作可能会使调用者永远阻塞；</li>
+<li>如果数据不被相同的文件类型立即接受（如管道中无空间、网络流控制），写操作可能会使调用者永远阻塞；</li>
+<li>对已经加上强制性记录锁的文件进行读写；</li>
+<li>某些进程间通信函数；</li>
+<li>某些<code>ioctl</code>函数；</li>
+<li>等等。</li>
+</ul>
+<p>&emsp;&emsp;虽然，读写磁盘文件会暂时阻塞调用者，但是并不能将与磁盘<code>IO</code>有关的系统调用视为“低速”。非阻塞<code>IO</code>可以使我们发出<code>open</code>、<code>read</code>和<code>write</code>这样的<code>IO</code>操作，并且使这些操作永远不会阻塞。如果这些操作不能完成，则立即出错返回，表示该操作如继续执行将阻塞。对于一个给定的描述符，有两种方式可以为其指定非阻塞<code>IO</code>：</p>
+<ul>
+<li>如果调用<code>open</code>获得描述符，则可指定<code>O_NONBLOCK</code>标志；</li>
+<li>对于已经打开的一个描述符，则可调用<code>fcntl</code>。由该函数打开<code>O_NONBLOCK</code>文件状态标志。</li>
+</ul>
+<p>&emsp;&emsp;我们可以观察如下例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 封装了fcntl，更加安全</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">set_fl</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">int</span> flags)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    <span class="keyword">if</span>((val = fcntl(fd, F_GETFL, <span class="number">0</span>)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// ERROR_SYS("fcntl F_GETFL error");</span></span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    val |= flags;</span><br><span class="line">    <span class="keyword">if</span>(fcntl(fd, F_SETFL, val) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// ERROR_SYS("fcntl F_SETFL error");</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 封装了fcntl，更加安全</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">clr_fl</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">int</span> flags)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    <span class="keyword">if</span>((val = fcntl(fd, F_GETFL, <span class="number">0</span>)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// ERROR_SYS("fcntl F_GETFL error");</span></span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    val &amp;= ~flags;</span><br><span class="line">    <span class="keyword">if</span>(fcntl(fd, F_SETFL, val) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// ERROR_SYS("fcntl F_SETFL error");</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">char</span> buf[<span class="number">1000</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n_to_write, n_write;</span><br><span class="line">    <span class="keyword">char</span>* ptr_buf;</span><br><span class="line">    </span><br><span class="line">    n_to_write = <span class="built_in">read</span>(STDIN_FILENO, buf, <span class="keyword">sizeof</span>(buf));</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"read %d bytes\n"</span>, n_to_write);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 不能简单地调用fcntl(STDOUT_FILENO, F_SETFL, O_NONBLOCK);</span></span><br><span class="line">    <span class="comment">// 使用上述定义的set_fl和clr_fl。</span></span><br><span class="line">    set_fl(STDOUT_FILENO, O_NONBLOCK);</span><br><span class="line">  </span><br><span class="line">    ptr = buf;</span><br><span class="line">    <span class="keyword">while</span>(n_to_write &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        errno = <span class="number">0</span>;</span><br><span class="line">        n_write = <span class="built_in">write</span>(STDOUT_FILENO, ptr, n_to_write);</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"n_write = %d, errno = %d\n"</span>, n_write, errno);</span><br><span class="line">      </span><br><span class="line">        <span class="keyword">if</span>(n_write &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            ptr += n_write;</span><br><span class="line">            n_to_write -= n_write;</span><br><span class="line">        &#125;</span><br><span class="line">      </span><br><span class="line">        clr_fl(STDOUT_FILENO, O_NONBLOCK);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;对于上述代码中，需要注意的是不能直接调用<code>fcntl</code>，要先获得现在的标志值，然后按照需求来修改标志值，最后再设置新的标志值。如果简单地直接执行<code>F_SETFL</code>或<code>F_SETFD</code>命令，则会关闭以前设置的标志位。</p>
+<p>&emsp;&emsp;在此实例中，程序假如发出了10000个<code>write</code>调用，可能最后就只有<code>5%</code>不到的调用真正输出了数据，其余都返回错误。这种形式的循环称为轮询，在多用户系统上用这种方式会浪费<code>CPU</code>时间。而非阻塞描述符的<code>IO</code>多路转接（之后将会谈到），是进行这种操作的一种比较有效的方法。有时可以将程序设计为使用多线程的，从而避免使用非阻塞<code>IO</code>。如果能在其他线程中继续进行，则可以允许单个线程在<code>IO</code>调用中阻塞。这种方法有时能简化应用程序的设计，但是，线程间同步的开销有时却可能增加复杂性，终归有点得不偿失。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/UNIX%E9%AB%98%E7%BA%A7IO/" rel="tag"><i class="fa fa-tag"></i> UNIX高级IO</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/" rel="prev" title="光栅图像">
+      <i class="fa fa-chevron-left"></i> 光栅图像
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/" rel="next" title="UNIX高级IO之各类IO模型">
+      UNIX高级IO之各类IO模型 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#系统调用"><span class="nav-number">1.</span> <span class="nav-text">系统调用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#操作系统的权限限制"><span class="nav-number">1.1.</span> <span class="nav-text">操作系统的权限限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从用户态切换到内核态（系统调用过程）"><span class="nav-number">1.2.</span> <span class="nav-text">从用户态切换到内核态（系统调用过程）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#非阻塞IO"><span class="nav-number">2.</span> <span class="nav-text">非阻塞IO</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>
