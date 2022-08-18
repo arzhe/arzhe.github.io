@@ -28,11 +28,20 @@
 <meta property="og:url" content="http://yoursite.com/2022/08/16/%E5%AE%89%E8%A3%85%E7%BC%96%E8%AF%91Sonic/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="前言&amp;emsp;&amp;emsp;本系列用于记录在Sonic的gdNOS-v2分支下安装编译的过程，以及其中所遇到的问题和尝试的解决方案。">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E6%8A%A5%E9%94%99%E4%B8%80.jpeg">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E6%8A%A5%E9%94%99%E4%BA%8C.jpeg">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/lookuplog.jpeg">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/Dockerfilej2.jpeg">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/pip-install.jpeg">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E6%8A%A5%E9%94%99%E4%B8%89.jpeg">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E8%BD%AC%E5%8F%91%E9%9D%A2%E4%BB%A3%E7%A0%81%E5%8C%85.jpeg">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E4%BE%8B%E5%AD%90.jpeg">
 <meta property="article:published_time" content="2022-08-16T05:56:00.000Z">
-<meta property="article:modified_time" content="2022-08-17T02:59:11.000Z">
+<meta property="article:modified_time" content="2022-08-18T06:19:03.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="Sonic编译">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E6%8A%A5%E9%94%99%E4%B8%80.jpeg">
 
 <link rel="canonical" href="http://yoursite.com/2022/08/16/%E5%AE%89%E8%A3%85%E7%BC%96%E8%AF%91Sonic/">
 
@@ -236,7 +245,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-17 10:59:11" itemprop="dateModified" datetime="2022-08-17T10:59:11+08:00">2022-08-17</time>
+                <time title="Modified: 2022-08-18 14:19:03" itemprop="dateModified" datetime="2022-08-18T14:19:03+08:00">2022-08-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -345,6 +354,30 @@
 <p>更新<code>Docker</code>：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update -y lxc-docker</span><br></pre></td></tr></table></figure>
 
+<h1 id="执行make-target-sonic-barefoot-bin"><a href="#执行make-target-sonic-barefoot-bin" class="headerlink" title="执行make target/sonic-barefoot.bin"></a>执行make target/sonic-barefoot.bin</h1><p>&emsp;&emsp;执行报错：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E6%8A%A5%E9%94%99%E4%B8%80.jpeg" alt="缺失protobuf"></p>
+<p>&emsp;&emsp;考虑是需要安装指定版本的依赖项<code>protobuf</code>。然后定位到安装报错的包的日志输出位置：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E6%8A%A5%E9%94%99%E4%BA%8C.jpeg" alt="mgmt-framework error"></p>
+<p>&emsp;&emsp;发现在安装编译<code>docker-sonic-mgmt-framework.gz</code>包时出现错误，接下来找到该包编译安装的日志文件，查看具体的编译日志，即<code>sonic-buildimage</code>编译目录下的<code>target/docker-sonic-mgmt-framework.gz.log</code>文件：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/lookuplog.jpeg" alt="查看log"></p>
+<p>也可以在编译的过程中，另外打开一个终端在日志文件的目录下运行该命令：<code>tail -f 日志文件</code>，用于查阅正在改变的日志文件。例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -f docker-sonic-mgmt-framework.gz.log</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;又由于<code>grpcio</code>依赖于<code>protobuf</code>，而在<code>docker-sonic-mgmt-framework.gz</code>包的对应安装运行编译文件中（该文件位于编译目录下的<code>docker/docker-sonic-mgmt-framework/</code>中，名为<code>Dockerfile.j2</code>），如下图所示：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/Dockerfilej2.jpeg" alt="dockerfle.j2"></p>
+<p>&emsp;&emsp;查看该文件中的安装依赖包的条目，发现缺失明确指定的<code>protobuf</code>以及<code>grpcio</code>的版本，通过查看刘哥已经编译好的对应文件中的指定安装版本，来手动添加（其中红色部分为原本缺失的）：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/pip-install.jpeg" alt="pip-install"></p>
+<p>&emsp;&emsp;修改完毕后，重新运行编译：<code>make target/sonic-barefoot.bin</code>。发现报错：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E6%8A%A5%E9%94%99%E4%B8%89.jpeg" alt="报错"></p>
+<p>原因为缺少转发面的代码包，需要从其他地方拷贝到编译目录下（这里是在刘哥已经编译好的v2分支下拷贝过来的文件），拷贝文件如下：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E8%BD%AC%E5%8F%91%E9%9D%A2%E4%BB%A3%E7%A0%81%E5%8C%85.jpeg" alt="转发面代码包"></p>
+<p>随后再次运行编译：<code>make target/sonic-barefoot.bin</code>。</p>
+<blockquote>
+<p>&emsp;&emsp;解决包依赖安装包缺失、指定版本或是其他问题的办法途径：在定位到安装报错的包的终端输出位置时，例如：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E4%BE%8B%E5%AD%90.jpeg" alt="例子"></p>
+<p>&emsp;&emsp;需要知道的是该包的对应安装文件为<code>docker/docker-config-engine-stretch/Dockerfile.j2</code>，可以通过查看该文件内所需安装的包是否缺失来选择地添加或更改。其次就是该包的安装日志文件为：<code>target/docker-config-engine-stretch.gz.log</code>，通过命令<code>tail -f xxxx.log</code>来查阅正在改变的日志。</p>
+<p>&emsp;&emsp;也就是说查看报错所对应的日志，需要进入<code>target</code>目录下去寻找对应包名字的日志文件，而解决依赖包安装的问题则需要进入到<code>docker</code>目录下，寻找对应包名字目录下的<code>Dockerfile.j2</code>文件来进行编辑。</p>
+</blockquote>
 
     </div>
 
@@ -384,8 +417,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/" rel="prev" title="UNIX高级IO之各类IO模型">
-      <i class="fa fa-chevron-left"></i> UNIX高级IO之各类IO模型
+    <a href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/" rel="prev" title="UNIX高级IO之epoll">
+      <i class="fa fa-chevron-left"></i> UNIX高级IO之epoll
     </a></div>
       <div class="post-nav-item"></div>
     </div>
@@ -446,7 +479,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#准备"><span class="nav-number">2.</span> <span class="nav-text">准备</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#准备GitLab的账号"><span class="nav-number">2.1.</span> <span class="nav-text">准备GitLab的账号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下拉代码"><span class="nav-number">2.2.</span> <span class="nav-text">下拉代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装C／C-编译环境"><span class="nav-number">2.3.</span> <span class="nav-text">安装C／C++编译环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Sonic编译环境"><span class="nav-number">2.4.</span> <span class="nav-text">安装Sonic编译环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置docker"><span class="nav-number">2.5.</span> <span class="nav-text">配置docker</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#卸载docker"><span class="nav-number">2.5.1.</span> <span class="nav-text">卸载docker</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用apt安装docker"><span class="nav-number">2.5.2.</span> <span class="nav-text">使用apt安装docker</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#准备"><span class="nav-number">2.</span> <span class="nav-text">准备</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#准备GitLab的账号"><span class="nav-number">2.1.</span> <span class="nav-text">准备GitLab的账号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下拉代码"><span class="nav-number">2.2.</span> <span class="nav-text">下拉代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装C／C-编译环境"><span class="nav-number">2.3.</span> <span class="nav-text">安装C／C++编译环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Sonic编译环境"><span class="nav-number">2.4.</span> <span class="nav-text">安装Sonic编译环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置docker"><span class="nav-number">2.5.</span> <span class="nav-text">配置docker</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#卸载docker"><span class="nav-number">2.5.1.</span> <span class="nav-text">卸载docker</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用apt安装docker"><span class="nav-number">2.5.2.</span> <span class="nav-text">使用apt安装docker</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#执行make-target-sonic-barefoot-bin"><span class="nav-number">3.</span> <span class="nav-text">执行make target&#x2F;sonic-barefoot.bin</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -461,18 +494,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-count">86</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

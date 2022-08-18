@@ -2578,7 +2578,7 @@
   </entry>
   <entry>
     <title>光栅图像</title>
-    <url>/2022/05/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/</url>
+    <url>/2022/01/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/</url>
     <content><![CDATA[<hr>
 <h1 id="什么是光栅图像"><a href="#什么是光栅图像" class="headerlink" title="什么是光栅图像"></a>什么是光栅图像</h1><p>&emsp;&emsp;大多数计算机图形的图像是通过光栅显示器来展现给用户的，光栅显示器以一个由像素（<code>Pixel</code>）组成的矩阵来显示图像，可以将像素看成点块，由众多这样的点块进行排列组合构成一个图像。例如在平板电脑或者电视的显示器中，矩阵中的一小块发光像素，可以被单独设置为三种不同的颜色（红、蓝和绿色），通过组合不同强度的红光、蓝光和绿光可以得到不同的颜色，因此可以以这种方式来创建任意一个图像。大多数打印机，如激光打印机和喷墨打印机，也是光栅设备，它们是基于扫描的：没有像素的物理网格，但是图像是通过在网格上的特定点位沉积墨水来进行排列组合的。</p>
 <a id="more"></a>
@@ -5990,7 +5990,7 @@
   </entry>
   <entry>
     <title>UNIX高级IO之各类IO模型</title>
-    <url>/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/</url>
+    <url>/2022/08/15/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/</url>
     <content><![CDATA[<hr>
 <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>&emsp;&emsp;当从一个描述符读，然后又写到另一个描述符时，可以在下列形式的循环中使用阻塞<code>IO</code>：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">while</span>((n = <span class="built_in">read</span>(STDIN_FILENO, buf, BUFFSIZE)) &gt; <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">write</span>(STDOUT_FILENO, buf, n) != <span class="number">0</span>)</span><br><span class="line">        ERR_SYS(<span class="string">"write error"</span>);</span><br></pre></td></tr></table></figure>
@@ -6163,12 +6163,152 @@
 <p>更新<code>Docker</code>：</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get update -y lxc-docker</span><br></pre></td></tr></table></figure>
 
+<h1 id="执行make-target-sonic-barefoot-bin"><a href="#执行make-target-sonic-barefoot-bin" class="headerlink" title="执行make target/sonic-barefoot.bin"></a>执行make target/sonic-barefoot.bin</h1><p>&emsp;&emsp;执行报错：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E6%8A%A5%E9%94%99%E4%B8%80.jpeg" alt="缺失protobuf"></p>
+<p>&emsp;&emsp;考虑是需要安装指定版本的依赖项<code>protobuf</code>。然后定位到安装报错的包的日志输出位置：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E6%8A%A5%E9%94%99%E4%BA%8C.jpeg" alt="mgmt-framework error"></p>
+<p>&emsp;&emsp;发现在安装编译<code>docker-sonic-mgmt-framework.gz</code>包时出现错误，接下来找到该包编译安装的日志文件，查看具体的编译日志，即<code>sonic-buildimage</code>编译目录下的<code>target/docker-sonic-mgmt-framework.gz.log</code>文件：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/lookuplog.jpeg" alt="查看log"></p>
+<p>也可以在编译的过程中，另外打开一个终端在日志文件的目录下运行该命令：<code>tail -f 日志文件</code>，用于查阅正在改变的日志文件。例如：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">tail -f docker-sonic-mgmt-framework.gz.log</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;又由于<code>grpcio</code>依赖于<code>protobuf</code>，而在<code>docker-sonic-mgmt-framework.gz</code>包的对应安装运行编译文件中（该文件位于编译目录下的<code>docker/docker-sonic-mgmt-framework/</code>中，名为<code>Dockerfile.j2</code>），如下图所示：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/Dockerfilej2.jpeg" alt="dockerfle.j2"></p>
+<p>&emsp;&emsp;查看该文件中的安装依赖包的条目，发现缺失明确指定的<code>protobuf</code>以及<code>grpcio</code>的版本，通过查看刘哥已经编译好的对应文件中的指定安装版本，来手动添加（其中红色部分为原本缺失的）：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/pip-install.jpeg" alt="pip-install"></p>
+<p>&emsp;&emsp;修改完毕后，重新运行编译：<code>make target/sonic-barefoot.bin</code>。发现报错：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E6%8A%A5%E9%94%99%E4%B8%89.jpeg" alt="报错"></p>
+<p>原因为缺少转发面的代码包，需要从其他地方拷贝到编译目录下（这里是在刘哥已经编译好的v2分支下拷贝过来的文件），拷贝文件如下：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E8%BD%AC%E5%8F%91%E9%9D%A2%E4%BB%A3%E7%A0%81%E5%8C%85.jpeg" alt="转发面代码包"></p>
+<p>随后再次运行编译：<code>make target/sonic-barefoot.bin</code>。</p>
+<blockquote>
+<p>&emsp;&emsp;解决包依赖安装包缺失、指定版本或是其他问题的办法途径：在定位到安装报错的包的终端输出位置时，例如：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E7%BC%96%E8%AF%91Sonic/%E4%BE%8B%E5%AD%90.jpeg" alt="例子"></p>
+<p>&emsp;&emsp;需要知道的是该包的对应安装文件为<code>docker/docker-config-engine-stretch/Dockerfile.j2</code>，可以通过查看该文件内所需安装的包是否缺失来选择地添加或更改。其次就是该包的安装日志文件为：<code>target/docker-config-engine-stretch.gz.log</code>，通过命令<code>tail -f xxxx.log</code>来查阅正在改变的日志。</p>
+<p>&emsp;&emsp;也就是说查看报错所对应的日志，需要进入<code>target</code>目录下去寻找对应包名字的日志文件，而解决依赖包安装的问题则需要进入到<code>docker</code>目录下，寻找对应包名字目录下的<code>Dockerfile.j2</code>文件来进行编辑。</p>
+</blockquote>
 ]]></content>
       <categories>
         <category>Sonic</category>
       </categories>
       <tags>
         <tag>Sonic编译</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>UNIX高级IO之epoll</title>
+    <url>/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/</url>
+    <content><![CDATA[<hr>
+<h1 id="epoll模型"><a href="#epoll模型" class="headerlink" title="epoll模型"></a>epoll模型</h1><p>&emsp;&emsp;<code>epoll</code>是什么？按照<code>man</code>手册的说法：是为了处理大批量句柄而作了改进的<code>poll</code>。要使用<code>epoll</code>，只需要以下三个系统调用：<code>epoll_create</code>、<code>epoll_ctl</code>和<code>epoll_wait</code>。<code>epoll</code>也是2.6内核才有的（准确的来说应该是2.5.44内核中被引入的）。从理论上来说<code>AIO</code>（异步<code>IO</code>）似乎是最高效的，<code>IO</code>操作可以立即返回，然后等待<code>OS</code>告诉我们<code>IO</code>操作完成。但是一直以来，如何实现似乎没有一个完美的方案。</p>
+<a id="more"></a>
+
+<h2 id="select缺陷"><a href="#select缺陷" class="headerlink" title="select缺陷"></a>select缺陷</h2><p>&emsp;&emsp;首先，在<code>Linux</code>内核中，<code>select</code>所用到的<code>FD_SET</code>是有限的，即内核中有个参数<code>__FD_SIZE</code>定义了每个<code>FD_SET</code>的句柄个数（假如这里是1024）。也就是说，如果想要同时检测1025个句柄的可读状态是不可能用<code>select</code>实现的。或者同时检测1025个句柄的可写状态也是不可能的。其次，内核中实现<code>select</code>使用轮询方法，即每次检测都会遍历所有<code>FD_SET</code>中的句柄，显然，<code>select</code>函数执行时间与<code>FD_SET</code>中的句柄个数有一个比例关系，即<code>select</code>要检测的句柄数越多就会越费时，当然这里没有提及<code>poll</code>，是因为我觉得<code>poll</code>和<code>select</code>大同小异，就一并讨论了。</p>
+<h2 id="epoll优点"><a href="#epoll优点" class="headerlink" title="epoll优点"></a>epoll优点</h2><h3 id="支持一个进程打开几乎无限制数目的socket描述符"><a href="#支持一个进程打开几乎无限制数目的socket描述符" class="headerlink" title="支持一个进程打开几乎无限制数目的socket描述符"></a>支持一个进程打开几乎无限制数目的socket描述符</h3><p>&emsp;&emsp;<code>select</code>最不能忍受的是一个进程所打开的<code>FD</code>是有一定限制的，由<code>FD_SETSIZE</code>设置。这样的值对于要支持的上万连接数目的服务器来说显然太少了。这个时候可以考虑以下几个方案：</p>
+<ul>
+<li>修改这个宏，然后重新编译内核，不过资料也同时指出这样会带来网络效率的下降；</li>
+<li>选择多进程的解决方案（传统的<code>Apache</code>方案），不过虽然<code>Linux</code>上面创建进程的代价比较小，但仍旧是不可忽视的，加上进程间数据同步远比不上线程间同步的高效，所以也不是一种完美的方案。</li>
+</ul>
+<p>&emsp;&emsp;<code>epoll</code>则没有这样限制，它所支持的<code>FD</code>上限是最大考可以打开的文件的数目，这个数字一般远大于1024，举个例子，在<code>1GB</code>内存的机器上大约是10万左右，具体数目可以<code>cat /proc/sys/fs/file-max</code>来查看（本人机器上面是19位数量级的数字，闲的无聊数了下，可以说是几乎无限制），一般来说这个数目和系统内存关系很大。</p>
+<h3 id="IO效率不随FD数目增加而线性下降"><a href="#IO效率不随FD数目增加而线性下降" class="headerlink" title="IO效率不随FD数目增加而线性下降"></a>IO效率不随FD数目增加而线性下降</h3><p>&emsp;&emsp;传统的<code>select/poll</code>另一个致命弱点就是当你拥有一个很大的<code>socket</code>集合时，由于网络延迟的原因，任一时间只有部分的<code>socket</code>是“活跃”的，但是<code>select/poll</code>每次调用都会线性扫描全部的集合，这就会导致效率呈线性下降。但是<code>epoll</code>不存在这个问题，它只会对”活跃”的<code>socket</code>进行 操作——这是因为在内核实现中<code>epoll</code>是根据每个<code>fd</code>上面的<code>callback</code>函数实现的。那么，只有”活跃”的<code>socket</code>才会主动的去调用<code>callback</code>函数，其他<code>idle</code>状态<code>socket</code>则不会，在这点上，<code>epoll</code>实现了一个”伪”<code>AIO</code>，因为这时候推动力在<code>os</code>内核。在一些 <code>benchmark</code>中，如果所有的<code>socket</code>基本上都是活跃的——比如一个高速<code>LAN</code>环境，<code>epoll</code>并不比<code>select/poll</code>有什么效率，相反，如果过多使用<code>epoll_ctl</code>,效率相比还有稍微的下降。但是一旦使用<code>idle connections</code>模拟<code>WAN</code>环境,<code>epoll</code>的效率就远在<code>select/poll</code>之上了。</p>
+<h3 id="使用mmap加速内核与用户空间的消息传递"><a href="#使用mmap加速内核与用户空间的消息传递" class="headerlink" title="使用mmap加速内核与用户空间的消息传递"></a>使用mmap加速内核与用户空间的消息传递</h3><p>&emsp;&emsp;这点实际上涉及到<code>epoll</code>的具体实现了。无论是<code>select</code>，<code>poll</code>还是<code>epoll</code>都需要内核把<code>FD</code>消息通知给用户空间，如何避免不必要的内存拷贝就很重要了，在这点上，<code>epoll</code>是通过内核与用户空间<code>mmap</code>同一块内存来实现的。</p>
+<h3 id="内核调优"><a href="#内核调优" class="headerlink" title="内核调优"></a>内核调优</h3><p>&emsp;&emsp;这一点严格来说其实不算<code>epoll</code>的优点，而是整个<code>Linux</code>平台的优点。也许你可以怀疑<code>Linux</code>平台，但是你无法回避<code>Linux</code>平台赋予你微调内核的能力。比如，内核<code>TCP/IP</code>协议栈使用内存池管理<code>sk_buff</code>结构，那么可以在运行时期动态调整这个内存<code>pool(skb_head_pool)</code>的大小——通过<code>echo XXXX &gt; /proc/sys/net/core/hot_list_length</code>完成。再比如<code>listen</code>函数的第2个参数(<code>TCP</code>完成3次握手的数据包队列长度)，也可以根据平台内存大小动态调整。</p>
+<h2 id="epoll工作模式"><a href="#epoll工作模式" class="headerlink" title="epoll工作模式"></a>epoll工作模式</h2><p>&emsp;&emsp;强大的东西往往是简单的，对于<code>epoll</code>唯一有点麻烦的是，它有两种工作模式：<code>LT</code>和<code>ET</code>：</p>
+<h3 id="LT"><a href="#LT" class="headerlink" title="LT"></a>LT</h3><p>&emsp;&emsp;<code>LT</code>（<code>Level Triggered</code>）是缺省的工作模式，并且同时支持<code>block</code>和<code>no-block socket</code>。在这种做法中，内核告诉我们一个文件描述符是否就绪了，然后我们可以对这个就绪的<code>fd</code>进行<code>IO</code>操作。即使我们不作任何操作，内核还是会继续通知我们的（一直“骚扰”我们），所以，这种模式编程出错误的可能性要小一点。传统的<code>select/poll</code>都是这种模型的代表。</p>
+<h3 id="ET"><a href="#ET" class="headerlink" title="ET"></a>ET</h3><p>&emsp;&emsp;<code>ET</code>（<code>Edge Triggered</code>）是高速工作模式，只支持<code>no-block socket</code>。在这种模式下，当描述符从未就绪变为就绪时，内核通过<code>epoll</code>告诉你。然后它会假设你知道文件描述符已经就绪，并且不会再为那个文件描述符发送更多的就绪通知，直到你做了某些操作导致那个文件描述符不再为就绪状态了。</p>
+<h2 id="epoll的使用方法"><a href="#epoll的使用方法" class="headerlink" title="epoll的使用方法"></a>epoll的使用方法</h2><p>&emsp;&emsp;<code>epoll</code>的接口“非常简单”，一共就3个函数：<code>epoll_create</code>、<code>epoll_ctl</code>和<code>epoll_wait</code>。</p>
+<h3 id="epoll-create"><a href="#epoll-create" class="headerlink" title="epoll_create"></a>epoll_create</h3><p>&emsp;&emsp;该函数声明如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_create</span><span class="params">(<span class="keyword">int</span> <span class="built_in">size</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>用于创建一个<code>epoll</code>句柄，<code>size</code>用来告诉内核这个监听的数目一共多大。这个参数不同于<code>select</code>中的第一个参数，给出最大监听的<code>fd+1</code>的值。需要注意的是，当创建好<code>epoll</code>句柄后，它就会占用一个<code>fd</code>值，在<code>Linux</code>下如果查看<code>/proc/进程id/fd/</code>，是能够看到这个<code>fd</code>的，所以在使用完<code>epoll</code>后，必须调用<code>close</code>关闭，否则可能导致<code>fd</code>被耗尽。</p>
+<h3 id="epoll-ctl"><a href="#epoll-ctl" class="headerlink" title="epoll_ctl"></a>epoll_ctl</h3><p>&emsp;&emsp;函数声明如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_ctl</span><span class="params">(<span class="keyword">int</span> epfd, <span class="keyword">int</span> op, <span class="keyword">int</span> fd, struct epoll_event* event)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>epoll</code>的事件注册函数，它不同于<code>select</code>是在监听事件时（<code>epoll</code>使用<code>epoll_wait</code>监听）告诉内核要监听什么类型的事件，而是在这里先注册要监听的事件类型。第一个参数是<code>epoll_create</code>的返回值，第二个参数表示动作，用三个宏来表示：</p>
+<ul>
+<li><p><code>EPOLL_CTL_ADD</code>：注册新的<code>fd</code>到<code>epfd</code>中；</p>
+</li>
+<li><p><code>EPOLL_CTL_MOD</code>：修改已经注册的<code>fd</code>的监听事件；</p>
+</li>
+<li><p><code>EPOLL_CTL_DEL</code>：从<code>epfd</code>中删除一个<code>fd</code>。</p>
+</li>
+</ul>
+<p>&emsp;&emsp;第三个参数是需要监听的<code>fd</code>，第四个参数是告诉内核需要监听什么事，<code>struct epoll_event</code>结构如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> epoll_data &#123;</span><br><span class="line">    <span class="keyword">void</span>* ptr;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">__unit32_t</span> u32;</span><br><span class="line">    <span class="keyword">__unit64_t</span> u64;</span><br><span class="line">&#125; <span class="keyword">epoll_data_t</span>;</span><br><span class="line"></span><br><span class="line">truct epoll_event &#123;</span><br><span class="line">    <span class="keyword">__unit32_t</span> events;</span><br><span class="line">    <span class="keyword">epoll_data_t</span> data;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>events</code>可以是以下宏的集合：</p>
+<ul>
+<li><code>EPOLLIN</code> ：表示对应的文件描述符可以读（包括对端<code>socket</code>正常关闭）；</li>
+<li><code>EPOLLOUT</code>：表示对应的文件描述符可以写；</li>
+<li><code>EPOLLPRI</code>：表示对应的文件描述符有紧急的数据可读；</li>
+<li><code>EPOLLERR</code>：表示对应的文件描述符发生错误；</li>
+<li><code>EPOLLHUP</code>：表示对应的文件描述符被挂断；</li>
+<li><code>EPOLLET</code>： 将<code>epoll</code>设为边缘触发（<code>Edge Triggered</code>）模式，这是相对于水平触发（<code>Level Triggered</code>）来说的。</li>
+<li><code>EPOLLONESHOT</code>：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个<code>socket</code>的话，需要再次把这个<code>socket</code>加入到<code>epoll</code>队列里。</li>
+</ul>
+<h3 id="epoll-wait"><a href="#epoll-wait" class="headerlink" title="epoll_wait"></a>epoll_wait</h3><p>&emsp;&emsp;该函数声明如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_wait</span><span class="params">(<span class="keyword">int</span> epfd, struct epoll_event* events, <span class="keyword">int</span> max_events, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>等待事件的产生，类似于<code>select</code>调用。参数<code>events</code>用来从内核中得到事件的集合，<code>max_events</code>告知内核这个<code>events</code>有多大，这个 <code>max_events</code>的值不能大于创建<code>epoll_create</code>时的<code>size</code>，参数<code>timeout</code>是超时时间（毫秒，0会立即返回，-1是永久阻塞）。该函数返回需要处理的事件数目，如返回0表示已超时。</p>
+]]></content>
+      <categories>
+        <category>UNIX</category>
+      </categories>
+      <tags>
+        <tag>UNIX高级IO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>虚拟机记录（一）</title>
+    <url>/2022/08/15/%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/</url>
+    <content><![CDATA[<hr>
+<h1 id="使用mobaxterm来ssh连接本机的Vbox的Ubuntu20系统"><a href="#使用mobaxterm来ssh连接本机的Vbox的Ubuntu20系统" class="headerlink" title="使用mobaxterm来ssh连接本机的Vbox的Ubuntu20系统"></a>使用mobaxterm来ssh连接本机的Vbox的Ubuntu20系统</h1><p>&emsp;&emsp;在<code>Vbox</code>上创建的是<code>Ubuntu20.04.3</code>服务器版本的系统，目前意图在本宿主机上面通过<code>mobaxterm</code>来<code>ssh</code>连接该虚拟机，既然涉及到了<code>ssh</code>，那么首先要在虚拟机里打开<code>ssh</code>服务。</p>
+<h2 id="关于虚拟机的ssh服务"><a href="#关于虚拟机的ssh服务" class="headerlink" title="关于虚拟机的ssh服务"></a>关于虚拟机的ssh服务</h2><p>&emsp;&emsp;进入虚拟机后，很显然本人的虚拟机是没有安装该服务的，需要运行以下命令来安装<code>ssh</code>服务：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get install openssh-server</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p>安装成功后，启用该服务：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo /etc/init.d/ssh start</span><br></pre></td></tr></table></figure>
+
+<p>查看<code>ssh</code>是否启动了：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ps -e | grep ssh</span><br></pre></td></tr></table></figure>
+
+<p>编辑配置文件：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/ssh/sshd_config</span><br></pre></td></tr></table></figure>
+
+<p>添加一行：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PermitRootLogin yes</span><br></pre></td></tr></table></figure>
+
+<p>然后重启该服务：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo /etc/init.d/ssh restart</span><br></pre></td></tr></table></figure>
+
+<p>需要额外注意的是虚拟机的时区问题，由于本机在安装时并没有设置时区这一选项，因此需要先查看虚拟机的时区，如果不是上海时区，则进行修改：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">date</span><br><span class="line"></span><br><span class="line">timedatectl set-timezone Asia/Shanghai</span><br><span class="line"></span><br><span class="line">date</span><br></pre></td></tr></table></figure>
+
+<p>再次查看时区时，发现时间已经改变了！</p>
+<h2 id="在Vbox中的网络设置"><a href="#在Vbox中的网络设置" class="headerlink" title="在Vbox中的网络设置"></a>在Vbox中的网络设置</h2><p>&emsp;&emsp;首先在<code>virtualbox</code>网络设置中将网络设置为“网络地址转换（NAT）”（一般默认为此），然后设置端口转发：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>协议</th>
+<th>主机端口</th>
+<th>子系统端口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ssh</td>
+<td>TCP</td>
+<td>22</td>
+<td>22</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;主机端口可以随意设置，这里为了方便起见设置为22，因为<code>ssh</code>默认端口为22，后续<code>ssh</code>的访问就不需要加<code>-p</code>参数了。</p>
+<h2 id="ssh连接建立"><a href="#ssh连接建立" class="headerlink" title="ssh连接建立"></a>ssh连接建立</h2><p>&emsp;&emsp;打开宿主机的搜索栏，搜索“网络连接”，出现本机的网卡，其中<code>VirtualBox Host-Only Network</code>为虚拟机的网卡配置，查看其属性，找到它的<code>ipv4</code>地址，例如<code>192.168.56.1</code>，那么后续<code>ssh</code>会话的建立地址即为该地址。</p>
+<p>&emsp;&emsp;然后打开<code>mobaxterm</code>，新建<code>ssh</code>会话，输入地址跟用户名，即可创建<code>ssh</code>会话，最后输入虚拟机的登陆密码即可。</p>
+]]></content>
+      <tags>
+        <tag>踩坑</tag>
       </tags>
   </entry>
 </search>

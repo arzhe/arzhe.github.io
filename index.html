@@ -233,7 +233,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-17 10:59:11" itemprop="dateModified" datetime="2022-08-17T10:59:11+08:00">2022-08-17</time>
+                <time title="Modified: 2022-08-18 14:19:03" itemprop="dateModified" datetime="2022-08-18T14:19:03+08:00">2022-08-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -291,7 +291,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
@@ -305,7 +305,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">UNIX高级IO之各类IO模型</a>
+            <a href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/" class="post-title-link" itemprop="url">UNIX高级IO之epoll</a>
         </h2>
 
         <div class="post-meta">
@@ -315,14 +315,103 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2022-08-16 11:15:00" itemprop="dateCreated datePublished" datetime="2022-08-16T11:15:00+08:00">2022-08-16</time>
+              <time title="Created: 2022-08-16 10:26:00" itemprop="dateCreated datePublished" datetime="2022-08-16T10:26:00+08:00">2022-08-16</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-17 10:48:40" itemprop="dateModified" datetime="2022-08-17T10:48:40+08:00">2022-08-17</time>
+                <time title="Modified: 2022-08-18 15:18:15" itemprop="dateModified" datetime="2022-08-18T15:18:15+08:00">2022-08-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX/" itemprop="url" rel="index"><span itemprop="name">UNIX</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="epoll模型"><a href="#epoll模型" class="headerlink" title="epoll模型"></a>epoll模型</h1><p>&emsp;&emsp;<code>epoll</code>是什么？按照<code>man</code>手册的说法：是为了处理大批量句柄而作了改进的<code>poll</code>。要使用<code>epoll</code>，只需要以下三个系统调用：<code>epoll_create</code>、<code>epoll_ctl</code>和<code>epoll_wait</code>。<code>epoll</code>也是2.6内核才有的（准确的来说应该是2.5.44内核中被引入的）。从理论上来说<code>AIO</code>（异步<code>IO</code>）似乎是最高效的，<code>IO</code>操作可以立即返回，然后等待<code>OS</code>告诉我们<code>IO</code>操作完成。但是一直以来，如何实现似乎没有一个完美的方案。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/15/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/08/15/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">UNIX高级IO之各类IO模型</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-08-15 21:15:00" itemprop="dateCreated datePublished" datetime="2022-08-15T21:15:00+08:00">2022-08-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-18 15:18:30" itemprop="dateModified" datetime="2022-08-18T15:18:30+08:00">2022-08-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -335,7 +424,7 @@
             </span>
 
           
-            <span id="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之各类IO模型" title="Views">
+            <span id="/2022/08/15/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之各类IO模型" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -359,7 +448,89 @@
 <p>&emsp;&emsp;这种形式的阻塞<code>IO</code>随处可见。但是如果必须从两个描述符读，又该如何呢？在这种情况下，我们不能在任意一个描述符上进行阻塞读，否则可能会因为被阻塞在一个描述符的读操作上而导致另一个描述符即使有数据也无法处理。所以为了应对这种情况就需要另外一种不同的技术了——<code>IO</code>多路转接。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/#more" rel="contents">
+              <a class="btn" href="/2022/08/15/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/15/%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/08/15/%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">虚拟机记录（一）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-08-15 14:51:00" itemprop="dateCreated datePublished" datetime="2022-08-15T14:51:00+08:00">2022-08-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-18 15:17:44" itemprop="dateModified" datetime="2022-08-18T15:17:44+08:00">2022-08-18</time>
+              </span>
+
+          
+            <span id="/2022/08/15/%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="虚拟机记录（一）" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="使用mobaxterm来ssh连接本机的Vbox的Ubuntu20系统"><a href="#使用mobaxterm来ssh连接本机的Vbox的Ubuntu20系统" class="headerlink" title="使用mobaxterm来ssh连接本机的Vbox的Ubuntu20系统"></a>使用mobaxterm来ssh连接本机的Vbox的Ubuntu20系统</h1><p>&emsp;&emsp;在<code>Vbox</code>上创建的是<code>Ubuntu20.04.3</code>服务器版本的系统，目前意图在本宿主机上面通过<code>mobaxterm</code>来<code>ssh</code>连接该虚拟机，既然涉及到了<code>ssh</code>，那么首先要在虚拟机里打开<code>ssh</code>服务。</p>
+<h2 id="关于虚拟机的ssh服务"><a href="#关于虚拟机的ssh服务" class="headerlink" title="关于虚拟机的ssh服务"></a>关于虚拟机的ssh服务</h2><p>&emsp;&emsp;进入虚拟机后，很显然本人的虚拟机是没有安装该服务的，需要运行以下命令来安装<code>ssh</code>服务：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install openssh-server</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/08/15/%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -472,95 +643,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/" class="post-title-link" itemprop="url">光栅图像</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-05-01 10:46:00" itemprop="dateCreated datePublished" datetime="2022-05-01T10:46:00+08:00">2022-05-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-12 08:56:16" itemprop="dateModified" datetime="2022-08-12T08:56:16+08:00">2022-08-12</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">计算机图形基础</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2022/05/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/" class="post-meta-item leancloud_visitors" data-flag-title="光栅图像" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="什么是光栅图像"><a href="#什么是光栅图像" class="headerlink" title="什么是光栅图像"></a>什么是光栅图像</h1><p>&emsp;&emsp;大多数计算机图形的图像是通过光栅显示器来展现给用户的，光栅显示器以一个由像素（<code>Pixel</code>）组成的矩阵来显示图像，可以将像素看成点块，由众多这样的点块进行排列组合构成一个图像。例如在平板电脑或者电视的显示器中，矩阵中的一小块发光像素，可以被单独设置为三种不同的颜色（红、蓝和绿色），通过组合不同强度的红光、蓝光和绿光可以得到不同的颜色，因此可以以这种方式来创建任意一个图像。大多数打印机，如激光打印机和喷墨打印机，也是光栅设备，它们是基于扫描的：没有像素的物理网格，但是图像是通过在网格上的特定点位沉积墨水来进行排列组合的。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/05/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/01/07/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E6%B5%81%E7%9A%84%E6%93%8D%E4%BD%9C/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -628,6 +710,95 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2022/01/07/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E6%B5%81%E7%9A%84%E6%93%8D%E4%BD%9C/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/01/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/" class="post-title-link" itemprop="url">光栅图像</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-01-01 10:46:00" itemprop="dateCreated datePublished" datetime="2022-01-01T10:46:00+08:00">2022-01-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-18 15:16:10" itemprop="dateModified" datetime="2022-08-18T15:16:10+08:00">2022-08-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">计算机图形基础</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/01/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/" class="post-meta-item leancloud_visitors" data-flag-title="光栅图像" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="什么是光栅图像"><a href="#什么是光栅图像" class="headerlink" title="什么是光栅图像"></a>什么是光栅图像</h1><p>&emsp;&emsp;大多数计算机图形的图像是通过光栅显示器来展现给用户的，光栅显示器以一个由像素（<code>Pixel</code>）组成的矩阵来显示图像，可以将像素看成点块，由众多这样的点块进行排列组合构成一个图像。例如在平板电脑或者电视的显示器中，矩阵中的一小块发光像素，可以被单独设置为三种不同的颜色（红、蓝和绿色），通过组合不同强度的红光、蓝光和绿光可以得到不同的颜色，因此可以以这种方式来创建任意一个图像。大多数打印机，如激光打印机和喷墨打印机，也是光栅设备，它们是基于扫描的：没有像素的物理网格，但是图像是通过在网格上的特定点位沉积墨水来进行排列组合的。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -917,185 +1088,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">UNIX文件IO（一）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-12-08 16:12:00" itemprop="dateCreated datePublished" datetime="2021-12-08T16:12:00+08:00">2021-12-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-12-23 10:30:05" itemprop="dateModified" datetime="2021-12-23T10:30:05+08:00">2021-12-23</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX文件IO（一）" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;UNIX系统中大多数文件IO只需用到5个函数：<code>open</code>、<code>read</code>、<code>write</code>、<code>lseek</code>以及<code>close</code>。本文将分别讨论以上函数的作用以及不同缓冲长度对<code>read</code>和<code>write</code>函数的影响。</p>
-<p>&emsp;&emsp;本文描述的函数经常被称为不带缓冲的IO，也就是每个<code>read</code>和<code>write</code>都调用内核中的一个系统调用。这些不带缓冲的IO函数不是<code>ISO C</code>的组成部分，但是，它们是<code>POSIX.1</code>和<code>Single UNIX Specification</code>的组成部分。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/" class="post-title-link" itemprop="url">中国网游发展史之腾讯进军网游产业</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-12-06 09:38:00" itemprop="dateCreated datePublished" datetime="2021-12-06T09:38:00+08:00">2021-12-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-12 08:53:54" itemprop="dateModified" datetime="2022-08-12T08:53:54+08:00">2022-08-12</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2/" itemprop="url" rel="index"><span itemprop="name">中国网游发展史</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/" class="post-meta-item leancloud_visitors" data-flag-title="中国网游发展史之腾讯进军网游产业" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="曲折坎坷的2003年"><a href="#曲折坎坷的2003年" class="headerlink" title="曲折坎坷的2003年"></a>曲折坎坷的2003年</h1><p>&emsp;&emsp;2003年1月，骑士online正式公测，由搜狐代理运营。这是一款大型3D角色扮演类游戏，自公测以来一直深受众多玩家们的喜爱，但在那个网游飞速发展的年代，骑士online也不可避免的走向了衰竭。为了留住玩家，搜狐在2006年改变了运营策略，将游戏转为道具收费的模式。这样的转变也起到了良好的效果，大量老玩家纷纷回到了骑士online的怀抱。值得一提的是搜狐就骑士online这款游戏与韩方签订了4年合约，但转为免费模式的经济效益并没有达到搜狐预期的效果，所以续约这事也就自然而然的谈崩了。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1166,18 +1158,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-count">86</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

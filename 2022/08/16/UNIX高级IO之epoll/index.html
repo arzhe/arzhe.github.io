@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="epoll模型&amp;emsp;&amp;emsp;epoll是什么？按照man手册的说法：是为了处理大批量句柄而作了改进的poll。要使用epoll，只需要以下三个系统调用：epoll_create、epoll_ctl和epoll_wait。epoll也是2.6内核才有的（准确的来说应该是2.5.44内核中被引入的）。从理论上来说AIO（异步IO）似乎是最高效的，IO操作可以立即返回，然后等待OS告诉我们I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX高级IO之epoll">
+<meta property="og:url" content="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="epoll模型&amp;emsp;&amp;emsp;epoll是什么？按照man手册的说法：是为了处理大批量句柄而作了改进的poll。要使用epoll，只需要以下三个系统调用：epoll_create、epoll_ctl和epoll_wait。epoll也是2.6内核才有的（准确的来说应该是2.5.44内核中被引入的）。从理论上来说AIO（异步IO）似乎是最高效的，IO操作可以立即返回，然后等待OS告诉我们I">
+<meta property="article:published_time" content="2022-08-16T02:26:00.000Z">
+<meta property="article:modified_time" content="2022-08-18T07:18:15.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="UNIX高级IO">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>UNIX高级IO之epoll | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          UNIX高级IO之epoll
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-08-16 10:26:00" itemprop="dateCreated datePublished" datetime="2022-08-16T10:26:00+08:00">2022-08-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-18 15:18:15" itemprop="dateModified" datetime="2022-08-18T15:18:15+08:00">2022-08-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX/" itemprop="url" rel="index"><span itemprop="name">UNIX</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="epoll模型"><a href="#epoll模型" class="headerlink" title="epoll模型"></a>epoll模型</h1><p>&emsp;&emsp;<code>epoll</code>是什么？按照<code>man</code>手册的说法：是为了处理大批量句柄而作了改进的<code>poll</code>。要使用<code>epoll</code>，只需要以下三个系统调用：<code>epoll_create</code>、<code>epoll_ctl</code>和<code>epoll_wait</code>。<code>epoll</code>也是2.6内核才有的（准确的来说应该是2.5.44内核中被引入的）。从理论上来说<code>AIO</code>（异步<code>IO</code>）似乎是最高效的，<code>IO</code>操作可以立即返回，然后等待<code>OS</code>告诉我们<code>IO</code>操作完成。但是一直以来，如何实现似乎没有一个完美的方案。</p>
+<a id="more"></a>
+
+<h2 id="select缺陷"><a href="#select缺陷" class="headerlink" title="select缺陷"></a>select缺陷</h2><p>&emsp;&emsp;首先，在<code>Linux</code>内核中，<code>select</code>所用到的<code>FD_SET</code>是有限的，即内核中有个参数<code>__FD_SIZE</code>定义了每个<code>FD_SET</code>的句柄个数（假如这里是1024）。也就是说，如果想要同时检测1025个句柄的可读状态是不可能用<code>select</code>实现的。或者同时检测1025个句柄的可写状态也是不可能的。其次，内核中实现<code>select</code>使用轮询方法，即每次检测都会遍历所有<code>FD_SET</code>中的句柄，显然，<code>select</code>函数执行时间与<code>FD_SET</code>中的句柄个数有一个比例关系，即<code>select</code>要检测的句柄数越多就会越费时，当然这里没有提及<code>poll</code>，是因为我觉得<code>poll</code>和<code>select</code>大同小异，就一并讨论了。</p>
+<h2 id="epoll优点"><a href="#epoll优点" class="headerlink" title="epoll优点"></a>epoll优点</h2><h3 id="支持一个进程打开几乎无限制数目的socket描述符"><a href="#支持一个进程打开几乎无限制数目的socket描述符" class="headerlink" title="支持一个进程打开几乎无限制数目的socket描述符"></a>支持一个进程打开几乎无限制数目的socket描述符</h3><p>&emsp;&emsp;<code>select</code>最不能忍受的是一个进程所打开的<code>FD</code>是有一定限制的，由<code>FD_SETSIZE</code>设置。这样的值对于要支持的上万连接数目的服务器来说显然太少了。这个时候可以考虑以下几个方案：</p>
+<ul>
+<li>修改这个宏，然后重新编译内核，不过资料也同时指出这样会带来网络效率的下降；</li>
+<li>选择多进程的解决方案（传统的<code>Apache</code>方案），不过虽然<code>Linux</code>上面创建进程的代价比较小，但仍旧是不可忽视的，加上进程间数据同步远比不上线程间同步的高效，所以也不是一种完美的方案。</li>
+</ul>
+<p>&emsp;&emsp;<code>epoll</code>则没有这样限制，它所支持的<code>FD</code>上限是最大考可以打开的文件的数目，这个数字一般远大于1024，举个例子，在<code>1GB</code>内存的机器上大约是10万左右，具体数目可以<code>cat /proc/sys/fs/file-max</code>来查看（本人机器上面是19位数量级的数字，闲的无聊数了下，可以说是几乎无限制），一般来说这个数目和系统内存关系很大。</p>
+<h3 id="IO效率不随FD数目增加而线性下降"><a href="#IO效率不随FD数目增加而线性下降" class="headerlink" title="IO效率不随FD数目增加而线性下降"></a>IO效率不随FD数目增加而线性下降</h3><p>&emsp;&emsp;传统的<code>select/poll</code>另一个致命弱点就是当你拥有一个很大的<code>socket</code>集合时，由于网络延迟的原因，任一时间只有部分的<code>socket</code>是“活跃”的，但是<code>select/poll</code>每次调用都会线性扫描全部的集合，这就会导致效率呈线性下降。但是<code>epoll</code>不存在这个问题，它只会对”活跃”的<code>socket</code>进行 操作——这是因为在内核实现中<code>epoll</code>是根据每个<code>fd</code>上面的<code>callback</code>函数实现的。那么，只有”活跃”的<code>socket</code>才会主动的去调用<code>callback</code>函数，其他<code>idle</code>状态<code>socket</code>则不会，在这点上，<code>epoll</code>实现了一个”伪”<code>AIO</code>，因为这时候推动力在<code>os</code>内核。在一些 <code>benchmark</code>中，如果所有的<code>socket</code>基本上都是活跃的——比如一个高速<code>LAN</code>环境，<code>epoll</code>并不比<code>select/poll</code>有什么效率，相反，如果过多使用<code>epoll_ctl</code>,效率相比还有稍微的下降。但是一旦使用<code>idle connections</code>模拟<code>WAN</code>环境,<code>epoll</code>的效率就远在<code>select/poll</code>之上了。</p>
+<h3 id="使用mmap加速内核与用户空间的消息传递"><a href="#使用mmap加速内核与用户空间的消息传递" class="headerlink" title="使用mmap加速内核与用户空间的消息传递"></a>使用mmap加速内核与用户空间的消息传递</h3><p>&emsp;&emsp;这点实际上涉及到<code>epoll</code>的具体实现了。无论是<code>select</code>，<code>poll</code>还是<code>epoll</code>都需要内核把<code>FD</code>消息通知给用户空间，如何避免不必要的内存拷贝就很重要了，在这点上，<code>epoll</code>是通过内核与用户空间<code>mmap</code>同一块内存来实现的。</p>
+<h3 id="内核调优"><a href="#内核调优" class="headerlink" title="内核调优"></a>内核调优</h3><p>&emsp;&emsp;这一点严格来说其实不算<code>epoll</code>的优点，而是整个<code>Linux</code>平台的优点。也许你可以怀疑<code>Linux</code>平台，但是你无法回避<code>Linux</code>平台赋予你微调内核的能力。比如，内核<code>TCP/IP</code>协议栈使用内存池管理<code>sk_buff</code>结构，那么可以在运行时期动态调整这个内存<code>pool(skb_head_pool)</code>的大小——通过<code>echo XXXX &gt; /proc/sys/net/core/hot_list_length</code>完成。再比如<code>listen</code>函数的第2个参数(<code>TCP</code>完成3次握手的数据包队列长度)，也可以根据平台内存大小动态调整。</p>
+<h2 id="epoll工作模式"><a href="#epoll工作模式" class="headerlink" title="epoll工作模式"></a>epoll工作模式</h2><p>&emsp;&emsp;强大的东西往往是简单的，对于<code>epoll</code>唯一有点麻烦的是，它有两种工作模式：<code>LT</code>和<code>ET</code>：</p>
+<h3 id="LT"><a href="#LT" class="headerlink" title="LT"></a>LT</h3><p>&emsp;&emsp;<code>LT</code>（<code>Level Triggered</code>）是缺省的工作模式，并且同时支持<code>block</code>和<code>no-block socket</code>。在这种做法中，内核告诉我们一个文件描述符是否就绪了，然后我们可以对这个就绪的<code>fd</code>进行<code>IO</code>操作。即使我们不作任何操作，内核还是会继续通知我们的（一直“骚扰”我们），所以，这种模式编程出错误的可能性要小一点。传统的<code>select/poll</code>都是这种模型的代表。</p>
+<h3 id="ET"><a href="#ET" class="headerlink" title="ET"></a>ET</h3><p>&emsp;&emsp;<code>ET</code>（<code>Edge Triggered</code>）是高速工作模式，只支持<code>no-block socket</code>。在这种模式下，当描述符从未就绪变为就绪时，内核通过<code>epoll</code>告诉你。然后它会假设你知道文件描述符已经就绪，并且不会再为那个文件描述符发送更多的就绪通知，直到你做了某些操作导致那个文件描述符不再为就绪状态了。</p>
+<h2 id="epoll的使用方法"><a href="#epoll的使用方法" class="headerlink" title="epoll的使用方法"></a>epoll的使用方法</h2><p>&emsp;&emsp;<code>epoll</code>的接口“非常简单”，一共就3个函数：<code>epoll_create</code>、<code>epoll_ctl</code>和<code>epoll_wait</code>。</p>
+<h3 id="epoll-create"><a href="#epoll-create" class="headerlink" title="epoll_create"></a>epoll_create</h3><p>&emsp;&emsp;该函数声明如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_create</span><span class="params">(<span class="keyword">int</span> <span class="built_in">size</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>用于创建一个<code>epoll</code>句柄，<code>size</code>用来告诉内核这个监听的数目一共多大。这个参数不同于<code>select</code>中的第一个参数，给出最大监听的<code>fd+1</code>的值。需要注意的是，当创建好<code>epoll</code>句柄后，它就会占用一个<code>fd</code>值，在<code>Linux</code>下如果查看<code>/proc/进程id/fd/</code>，是能够看到这个<code>fd</code>的，所以在使用完<code>epoll</code>后，必须调用<code>close</code>关闭，否则可能导致<code>fd</code>被耗尽。</p>
+<h3 id="epoll-ctl"><a href="#epoll-ctl" class="headerlink" title="epoll_ctl"></a>epoll_ctl</h3><p>&emsp;&emsp;函数声明如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_ctl</span><span class="params">(<span class="keyword">int</span> epfd, <span class="keyword">int</span> op, <span class="keyword">int</span> fd, struct epoll_event* event)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>epoll</code>的事件注册函数，它不同于<code>select</code>是在监听事件时（<code>epoll</code>使用<code>epoll_wait</code>监听）告诉内核要监听什么类型的事件，而是在这里先注册要监听的事件类型。第一个参数是<code>epoll_create</code>的返回值，第二个参数表示动作，用三个宏来表示：</p>
+<ul>
+<li><p><code>EPOLL_CTL_ADD</code>：注册新的<code>fd</code>到<code>epfd</code>中；</p>
+</li>
+<li><p><code>EPOLL_CTL_MOD</code>：修改已经注册的<code>fd</code>的监听事件；</p>
+</li>
+<li><p><code>EPOLL_CTL_DEL</code>：从<code>epfd</code>中删除一个<code>fd</code>。</p>
+</li>
+</ul>
+<p>&emsp;&emsp;第三个参数是需要监听的<code>fd</code>，第四个参数是告诉内核需要监听什么事，<code>struct epoll_event</code>结构如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> epoll_data &#123;</span><br><span class="line">    <span class="keyword">void</span>* ptr;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">__unit32_t</span> u32;</span><br><span class="line">    <span class="keyword">__unit64_t</span> u64;</span><br><span class="line">&#125; <span class="keyword">epoll_data_t</span>;</span><br><span class="line"></span><br><span class="line">truct epoll_event &#123;</span><br><span class="line">    <span class="keyword">__unit32_t</span> events;</span><br><span class="line">    <span class="keyword">epoll_data_t</span> data;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>events</code>可以是以下宏的集合：</p>
+<ul>
+<li><code>EPOLLIN</code> ：表示对应的文件描述符可以读（包括对端<code>socket</code>正常关闭）；</li>
+<li><code>EPOLLOUT</code>：表示对应的文件描述符可以写；</li>
+<li><code>EPOLLPRI</code>：表示对应的文件描述符有紧急的数据可读；</li>
+<li><code>EPOLLERR</code>：表示对应的文件描述符发生错误；</li>
+<li><code>EPOLLHUP</code>：表示对应的文件描述符被挂断；</li>
+<li><code>EPOLLET</code>： 将<code>epoll</code>设为边缘触发（<code>Edge Triggered</code>）模式，这是相对于水平触发（<code>Level Triggered</code>）来说的。</li>
+<li><code>EPOLLONESHOT</code>：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个<code>socket</code>的话，需要再次把这个<code>socket</code>加入到<code>epoll</code>队列里。</li>
+</ul>
+<h3 id="epoll-wait"><a href="#epoll-wait" class="headerlink" title="epoll_wait"></a>epoll_wait</h3><p>&emsp;&emsp;该函数声明如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_wait</span><span class="params">(<span class="keyword">int</span> epfd, struct epoll_event* events, <span class="keyword">int</span> max_events, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>等待事件的产生，类似于<code>select</code>调用。参数<code>events</code>用来从内核中得到事件的集合，<code>max_events</code>告知内核这个<code>events</code>有多大，这个 <code>max_events</code>的值不能大于创建<code>epoll_create</code>时的<code>size</code>，参数<code>timeout</code>是超时时间（毫秒，0会立即返回，-1是永久阻塞）。该函数返回需要处理的事件数目，如返回0表示已超时。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/UNIX%E9%AB%98%E7%BA%A7IO/" rel="tag"><i class="fa fa-tag"></i> UNIX高级IO</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/08/15/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E5%90%84%E7%B1%BBIO%E6%A8%A1%E5%9E%8B/" rel="prev" title="UNIX高级IO之各类IO模型">
+      <i class="fa fa-chevron-left"></i> UNIX高级IO之各类IO模型
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/08/16/%E5%AE%89%E8%A3%85%E7%BC%96%E8%AF%91Sonic/" rel="next" title="安装编译Sonic">
+      安装编译Sonic <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#epoll模型"><span class="nav-number">1.</span> <span class="nav-text">epoll模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#select缺陷"><span class="nav-number">1.1.</span> <span class="nav-text">select缺陷</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#epoll优点"><span class="nav-number">1.2.</span> <span class="nav-text">epoll优点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#支持一个进程打开几乎无限制数目的socket描述符"><span class="nav-number">1.2.1.</span> <span class="nav-text">支持一个进程打开几乎无限制数目的socket描述符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IO效率不随FD数目增加而线性下降"><span class="nav-number">1.2.2.</span> <span class="nav-text">IO效率不随FD数目增加而线性下降</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用mmap加速内核与用户空间的消息传递"><span class="nav-number">1.2.3.</span> <span class="nav-text">使用mmap加速内核与用户空间的消息传递</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内核调优"><span class="nav-number">1.2.4.</span> <span class="nav-text">内核调优</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#epoll工作模式"><span class="nav-number">1.3.</span> <span class="nav-text">epoll工作模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LT"><span class="nav-number">1.3.1.</span> <span class="nav-text">LT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ET"><span class="nav-number">1.3.2.</span> <span class="nav-text">ET</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#epoll的使用方法"><span class="nav-number">1.4.</span> <span class="nav-text">epoll的使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#epoll-create"><span class="nav-number">1.4.1.</span> <span class="nav-text">epoll_create</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#epoll-ctl"><span class="nav-number">1.4.2.</span> <span class="nav-text">epoll_ctl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#epoll-wait"><span class="nav-number">1.4.3.</span> <span class="nav-text">epoll_wait</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">86</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>

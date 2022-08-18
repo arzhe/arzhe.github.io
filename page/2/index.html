@@ -202,6 +202,185 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">UNIX文件IO（一）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-08 16:12:00" itemprop="dateCreated datePublished" datetime="2021-12-08T16:12:00+08:00">2021-12-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-12-23 10:30:05" itemprop="dateModified" datetime="2021-12-23T10:30:05+08:00">2021-12-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX文件IO（一）" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;UNIX系统中大多数文件IO只需用到5个函数：<code>open</code>、<code>read</code>、<code>write</code>、<code>lseek</code>以及<code>close</code>。本文将分别讨论以上函数的作用以及不同缓冲长度对<code>read</code>和<code>write</code>函数的影响。</p>
+<p>&emsp;&emsp;本文描述的函数经常被称为不带缓冲的IO，也就是每个<code>read</code>和<code>write</code>都调用内核中的一个系统调用。这些不带缓冲的IO函数不是<code>ISO C</code>的组成部分，但是，它们是<code>POSIX.1</code>和<code>Single UNIX Specification</code>的组成部分。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/12/08/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/" class="post-title-link" itemprop="url">中国网游发展史之腾讯进军网游产业</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-06 09:38:00" itemprop="dateCreated datePublished" datetime="2021-12-06T09:38:00+08:00">2021-12-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-12 08:53:54" itemprop="dateModified" datetime="2022-08-12T08:53:54+08:00">2022-08-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2/" itemprop="url" rel="index"><span itemprop="name">中国网游发展史</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/" class="post-meta-item leancloud_visitors" data-flag-title="中国网游发展史之腾讯进军网游产业" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="曲折坎坷的2003年"><a href="#曲折坎坷的2003年" class="headerlink" title="曲折坎坷的2003年"></a>曲折坎坷的2003年</h1><p>&emsp;&emsp;2003年1月，骑士online正式公测，由搜狐代理运营。这是一款大型3D角色扮演类游戏，自公测以来一直深受众多玩家们的喜爱，但在那个网游飞速发展的年代，骑士online也不可避免的走向了衰竭。为了留住玩家，搜狐在2006年改变了运营策略，将游戏转为道具收费的模式。这样的转变也起到了良好的效果，大量老玩家纷纷回到了骑士online的怀抱。值得一提的是搜狐就骑士online这款游戏与韩方签订了4年合约，但转为免费模式的经济效益并没有达到搜狐预期的效果，所以续约这事也就自然而然的谈崩了。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/12/06/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E8%85%BE%E8%AE%AF%E8%BF%9B%E5%86%9B%E7%BD%91%E6%B8%B8%E4%BA%A7%E4%B8%9A/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/01/%E4%B8%AD%E5%9B%BD%E7%BD%91%E6%B8%B8%E5%8F%91%E5%B1%95%E5%8F%B2%E4%B9%8B%E5%8D%83%E7%A6%A7%E5%B9%B4%E5%88%9D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -917,190 +1096,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">C++的常用标准IO函数</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-06-25 08:35:00" itemprop="dateCreated datePublished" datetime="2021-06-25T08:35:00+08:00">2021-06-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-10-28 16:40:56" itemprop="dateModified" datetime="2021-10-28T16:40:56+08:00">2021-10-28</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%9D%82%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">杂记</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/" class="post-meta-item leancloud_visitors" data-flag-title="C++的常用标准IO函数" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="I-O-Stream的共通基础"><a href="#I-O-Stream的共通基础" class="headerlink" title="I/O Stream的共通基础"></a>I/O Stream的共通基础</h1><p>&emsp;&emsp;C++不直接处理输入输出，而是通过一组定义在标准库中的类型来处理IO。这些类型支持从设备中读取数据、向设备中写入数据的IO操作，设备可以是文件、控制台窗口等。还有一些类型允许内存IO，即从string读取数据，向string写入数据。</p>
-<h2 id="Stream对象"><a href="#Stream对象" class="headerlink" title="Stream对象"></a>Stream对象</h2><p>&emsp;&emsp;C++ I/O由stream完成。所谓stream就是一条数据流，字符序列在其中“川流不息”。按照面向对象原则，stream是由某个class定义出来具有特定性质的对象。输出动作被解释为“数据流进stream”，输入动作则是“数据流出stream”。另外，还有一些全局对象，是为标准I/O通道而定义的。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/06/25/C++%E7%9A%84%E5%B8%B8%E7%94%A8%E6%A0%87%E5%87%86IO%E5%87%BD%E6%95%B0/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/05/11/wait%E5%87%BD%E6%95%B0%E7%B0%87/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/05/11/wait%E5%87%BD%E6%95%B0%E7%B0%87/" class="post-title-link" itemprop="url">wait函数簇</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-05-11 12:54:00" itemprop="dateCreated datePublished" datetime="2021-05-11T12:54:00+08:00">2021-05-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-06-10 07:55:33" itemprop="dateModified" datetime="2021-06-10T07:55:33+08:00">2021-06-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/05/11/wait%E5%87%BD%E6%95%B0%E7%B0%87/" class="post-meta-item leancloud_visitors" data-flag-title="wait函数簇" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="函数wait和waitpid"><a href="#函数wait和waitpid" class="headerlink" title="函数wait和waitpid"></a>函数wait和waitpid</h1><p>&emsp;&emsp;当一个进程正常或异常终止时，内核就向其父进程发送SIGCHLD信号。因为子进程终止是个异步事件（这可以在父进程运行的任何时候发生），所以这种信号也是内核向父进程发的异步通知。父进程可以选择忽略该信号，或者提供一个该信号发生时即被调用执行的函数（信号处理程序）。对于这种信号的系统默认动作是忽略它。当进程调用wait或waitpid时，会发生什么？</p>
-<ul>
-<li>如果所有子进程都还在运行，则阻塞。</li>
-<li>如果一个子进程已终止，正等待父进程获取其终止状态，则取得该子进程的终止状态立即返回。</li>
-<li>如果它没有任何子进程，则立即出错返回。</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/05/11/wait%E5%87%BD%E6%95%B0%E7%B0%87/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1171,18 +1166,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-count">86</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
