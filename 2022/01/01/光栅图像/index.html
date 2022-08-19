@@ -28,11 +28,17 @@
 <meta property="og:url" content="http://yoursite.com/2022/01/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="什么是光栅图像&amp;emsp;&amp;emsp;大多数计算机图形的图像是通过光栅显示器来展现给用户的，光栅显示器以一个由像素（Pixel）组成的矩阵来显示图像，可以将像素看成点块，由众多这样的点块进行排列组合构成一个图像。例如在平板电脑或者电视的显示器中，矩阵中的一小块发光像素，可以被单独设置为三种不同的颜色（红、蓝和绿色），通过组合不同强度的红光、蓝光和绿光可以得到不同的颜色，因此可以以这种方式来创建任">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E5%B1%8F%E5%B9%95.png">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E5%AF%BB%E6%B1%82%E5%B9%B3%E8%A1%A1%E7%82%B9.png">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E5%8A%A0%E8%89%B2%E6%B7%B7%E5%90%88.png">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E9%A2%9C%E8%89%B2%E7%AB%8B%E6%96%B9%E4%BD%93.png">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E5%90%88%E6%88%90%E5%9B%BE%E5%83%8F.png">
 <meta property="article:published_time" content="2022-01-01T02:46:00.000Z">
-<meta property="article:modified_time" content="2022-08-18T07:16:10.000Z">
+<meta property="article:modified_time" content="2022-08-19T08:07:49.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="计算机图形">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E5%B1%8F%E5%B9%95.png">
 
 <link rel="canonical" href="http://yoursite.com/2022/01/01/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/">
 
@@ -236,7 +242,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-18 15:16:10" itemprop="dateModified" datetime="2022-08-18T15:16:10+08:00">2022-08-18</time>
+                <time title="Modified: 2022-08-19 16:07:49" itemprop="dateModified" datetime="2022-08-19T16:07:49+08:00">2022-08-19</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -274,7 +280,79 @@
 <p>&emsp;&emsp;各类设备中普遍存在光栅，光栅图像也是存储和处理图像的最常见方式。一个光栅图像可以看作为一个存储每个图像的像素值的2D数组，其通常存储着三个数字，这些数字分别代表着三种基本颜色：红、蓝和绿色。几乎所有的数码照片，从高端相机拍摄的艺术风景到手机拍摄的快照，都以光栅数据（也称为位图数据）表示。</p>
 <p>&emsp;&emsp;但是通常我们并不希望总是以这种方式来显示图像，我们可能会想要改变图像的大小、方向、颜色或者是显示粘贴在一个移动的三维表面上的图像。即使是在电视中，显示器的像素也很少与所显示的图像相同。</p>
 <p>&emsp;&emsp;除了使用像素数组之外，还有其他表现图像的方法，例如矢量数据。矢量图像是通过对存储图形的相关描述来表现的，以直线或曲线为界限的颜色区域，而不参考任何特定的像素网格，其通常用于可以分解成简单线条、曲线和形状的图像。本质上，这相当于存储显示图像的指令，而不是存储显示图像所需的像素。矢量图像的主要优点是它们与分辨率无关，可以在高分辨率设备上很好地显示。相应的缺点是它们必须被栅格化才能显示。矢量图像通常用于文本、图表、机械绘图和其他应用中，在这些应用中，清晰度和精度非常重要，不需要摄影图像和复杂的阴影。</p>
-<p>&emsp;&emsp;我们知道光栅图像是一个较大的矩阵像素点块，每个像素点块都存储着一个数字来表现对应的颜色。对于计算机来说，我们需要将这些像素数据抽象为不依赖于任何设备的实例。当我们评估或生成计算机图像时，需要使用一个类似二极管的光线，任何光线从该设备输入时（或被吸收或被发射），</p>
+<h1 id="图像，像素和几何"><a href="#图像，像素和几何" class="headerlink" title="图像，像素和几何"></a>图像，像素和几何</h1><p>&emsp;&emsp;我们知道光栅图像是一个较大的矩阵像素点块，每个像素点块都存储着一个数字来表现对应的颜色。对于计算机来说，我们需要将这些像素数据抽象为不依赖于任何设备的实例，并且可以借此来推理如何生成或解释存储在图像中的值。当我们测量或重现图像时，它们采用光的二维分布的形式：</p>
+<ul>
+<li>显示器发出的光是显示器表面上位置的函数； </li>
+<li>落在相机图像传感器上的光线是传感器平面上位置的函数； </li>
+<li>在一个纸张平面上的反射率是该平面上对应位置的函数。</li>
+</ul>
+<p>因此，在物理世界中，图像是在二维区域（几乎总是矩形）上定义的函数。 所以我们可以将图像抽象为一个函数：<br>$$<br>I(x,\ y):R \rightarrow V<br>$$<br>其中$R \subset\mathbb{R}^{2} $ 是矩形区域，$V$是像素点的集合。最简单的情况是</p>
+<ul>
+<li>一个理想化的灰度图像，其矩阵中的每个点都只有一个亮度值（没有颜色），也就是说$V = \mathbb{R}^{+}$（一个非负实数）。</li>
+<li>一个理想的彩色图像，其矩阵中的每个点都有红绿蓝三种值，也就是说$V= \mathbb{R}^{3}$。</li>
+</ul>
+<p>其他复杂的情况的讨论或许脱离了本文的范围，权且留在后问讨论。</p>
+<p>&emsp;&emsp;栅格图像又是如何与这种连续图像的抽象概念联系在一起的呢？让我们来看一下两个具体的例子：</p>
+<ul>
+<li>来自相机或扫描仪的像素是对像素周围某个小区域上图像的平均颜色的测量；</li>
+<li>显示像素（包括其红色、绿色和蓝色子像素，每个像素上的每种颜色叫做子像素）的设计使该像素表面上图像的平均颜色由光栅图像中相应的像素值控制。</li>
+</ul>
+<p>在这两种情况下，像素值都是图像颜色的局部平均值，它被称为图像的点样本。换句话说，当我们在一个像素中找到<code>x</code>值时，这意味着“在这个网格点附近的图像的值是<code>x</code>”。如何定位像素在<code>2D</code>空间中的位置？虽然这个问题看似普通，但是却极为重要，目前已经建立了一个惯例，用来规范像素在<code>2D</code>空间中的位置。光栅图像是由表示像素的列（<code>i</code>）和行（<code>j</code>）的对$(i,\ j)$来索引的，从左下角开始计数。如果图像有$n_{x}$列和列和$n_{y}$行像素，则左下角像素为$(0,\ 0)$，右上角像素为$（n_{x-1},\ n_{y-1}）$。我们需要<code>2D</code>真实屏幕坐标来指定像素位置。我们将像素的采样点放置在整数坐标上，如下图中的$4 \times 3$屏幕所示：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E5%B1%8F%E5%B9%95.png" alt="屏幕"></p>
+<p>&emsp;&emsp;图形的矩形域的宽度为$n_{x}$，高度为$n_{y}$，并且以网格为中心，这意味着它在每条边的最后一个采样点之外扩展了半个像素，所以$n_{x} \times n_{y}$的矩形域是：<br>$$<br>R=[-0.5,\ n_{x}-0.5] \times [-0.5,\ n_{y}-0.5]<br>$$<br>&emsp;&emsp;这些坐标只是约定这样表示的，并不是一个定理或是其他推理出来的一个表示方法。但是这样的惯例在以后实现摄像机和视图转换时十分的重要。</p>
+<h1 id="像素值"><a href="#像素值" class="headerlink" title="像素值"></a>像素值</h1><p>&emsp;&emsp;图像应该是浮点数组，每个像素存储一个（用于灰度或黑白图像）或三个（用于<code>RGB</code>彩色图像）32位浮点数。当需要它的精度和值的范围时，有时会使用这种格式，但是一般来说图像有很多像素，存储和传输图像的内存和带宽总是很少的。在这种格式下，一张一千万像素的照片就需要115<code>MB</code>的内存。</p>
+<p>&emsp;&emsp;对于直接显示的图像，则需要更小的范围。虽然光强度范围在原则上是无界的，但任何给定的设备都存在一个有限的最大强度值，所以在许多情况下，像素有一个有界的范围是完全合理。通常为了简单起见，取为$[0,\ 1]$。例如，在一个8位图像的像素值可以是$0,\ \frac{1}{255},\ \frac{2}{255},\ …,\ \frac{254}{255},\ 1$。使用浮点数存储的图像允许使用较大范围的值，通常称为高动态范围（<code>HDR</code>）图像，以区别使用整数存储的固定范围或低动态范围（<code>LDR</code>）图像。</p>
+<p>&emsp;&emsp;以下是一些典型应用中的像素格式：</p>
+<ul>
+<li>1位灰度：不需要中间灰度的文本和其他图像（要求高分辨率）；</li>
+<li>8位<code>RGB</code>固定范围颜色（每个像素总共有24位，每个子像素占据8位）：网页和电子邮件应用程序还有照片；</li>
+<li>8位或10位固定范围<code>RGB</code>（24-30位／像素）：计算机显示器的数字接口；</li>
+<li>12-14位固定范围<code>RGB</code>（36-42位／像素）：用于专业摄影的<code>raw</code>相机图像；</li>
+<li>16位固定范围<code>RGB</code>（48位／像素）：专业摄影印刷；</li>
+<li>16位固定范围灰度（16位／像素）：放射学和医学成像；</li>
+<li>16位“半精确”浮点<code>RGB</code>：<code>HDR</code>图像，实时渲染的中间格式；</li>
+<li>32位浮点<code>RGB</code>：用于软件绘制和处理<code>HDR</code>图像的通用中间格式。</li>
+</ul>
+<p>&emsp;&emsp;减少用于存储每个像素的比特数会导致图像中出现两种不同类型的伪影（<code>artifacts</code>），或人为地引入缺陷。首先，用固定范围值编码的图像，当将亮度高于最大值的像素设置为最大可表示值时，会产生剪切，例如，阳光场景的照片可能包含比白色表面更亮的反射；当图像被转换到要显示的固定范围时，这些额外的亮度将被剪切掉（即使它们是由相机测量的）。其次，当需要将像素值四舍五入到最接近的可表示值时，编码精度有限的图像会导致量化伪影（<code>quantization artifacts</code>）或条带（<code>banding</code>），从而在强度或颜色上引入明显的跳跃。在动画和视频中，条带可能是十分“隐蔽的”，因为在静态图像中，条带可能不那么明显，但当它们来回移动时，就变得非常的“引人注目”。</p>
+<h1 id="伽马值"><a href="#伽马值" class="headerlink" title="伽马值"></a>伽马值</h1><p>&emsp;&emsp;人类对于光线强度的感知是非线性的。</p>
+<p>&emsp;&emsp;要想在显示器上生成正确（人眼认知）的图像，必须了解两个关键问题。</p>
+<h2 id="显示器对于输入是非线性的"><a href="#显示器对于输入是非线性的" class="headerlink" title="显示器对于输入是非线性的"></a>显示器对于输入是非线性的</h2><p>&emsp;&emsp;例如，如果给定一个显示器0、0.5和1.0作为三个像素的输入，显示的强度（对于我们人眼来说）可能是0、0.25和1.0。为了表示这种非线性特征，显示器通常使用$\gamma$（伽马“<code>gamma</code>”）值。这个值就是下列公式的自由度：<br>$$<br>显示强度=（最大强度）\alpha^{\gamma}<br>$$<br>其中$\alpha$为0到1之间的输入像素值。比如，显示器的$\gamma$值为2.0，我们输入值$\alpha$为0.5，显示强度则为0.25（是最大强度的四分之一）。衡量非线性的一个很好的视觉方法是找到$\alpha$的值使得其显示强度介于黑色和白色之间：<br>$$<br>0.5=\alpha^{\gamma}<br>$$<br>如果可以找到满足的$\alpha$，我们可以通过两边取对数求导的方式来推导$\gamma$：<br>$$<br>\gamma=\frac{\ln0.5}{\ln\alpha}<br>$$<br>我们可以通过一种标准技术找到这个$\alpha$，即在输入$\alpha$的灰色像素的正方形旁边显示一个黑白像素的棋盘图案，然后要求用户调整（比如用滑块），直到两边的平均亮度匹配。当你从远处看这张照片（如果你是近视，也可以不戴眼镜），当$\alpha$产生介于黑白之间的强度时，图像的两边则会看起来差不多。这是因为模糊的棋盘混合了偶数个白色和黑色像素，所以整体效果是一个统一的颜色，介于白色和黑色之间。这种技术目前已经广泛应用于许多商业游戏当中了。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E5%AF%BB%E6%B1%82%E5%B9%B3%E8%A1%A1%E7%82%B9.png" alt="寻求平衡点"></p>
+<p>&emsp;&emsp;一旦找到了这个$\alpha$，便可以求出$\gamma$，后续我们便可以校正输出来满足我们人眼对于颜色强度的非线性认知。例如，当我们在游戏设置中设置强度为0.5时，实际上计算机会通过$\gamma$来计算实际的输入是多少，最后得出结果为$\sqrt[\gamma]{0.5}$。</p>
+<h2 id="显示器接受量化的输入值"><a href="#显示器接受量化的输入值" class="headerlink" title="显示器接受量化的输入值"></a>显示器接受量化的输入值</h2><p>&emsp;&emsp;虽然我们可以在浮点数范围$[0,\ 1]$内操纵颜色强度，但对于显示器来说，其输入是一个固定大小的整数。这个整数最常见的范围是0-255，可以保存在8位存储单元中。这意味着$\alpha$的值不能是$[0,\ 1]$中的任何一个数字，而是{$\frac{0}{255},\frac{1}{255},\frac{2}{255},…,\frac{254}{255},\frac{255}{255}$}这个集合中的一个值，这同时也意味着其显示的强度近似值也处于{$M(\frac{0}{255})^{\gamma},M(\frac{1}{255})^{\gamma},M(\frac{2}{255})^{\gamma},…,M(\frac{254}{255})^{\gamma},M(\frac{255}{255})^{\gamma}$}这个集合之中。其中$M$是最大强度。</p>
+<p>&emsp;&emsp;在需要控制精确强度的应用中，我们必须测量256种可能的强度，而这些强度在屏幕上的不同位置可能是不同的。尤其是<code>CRT</code>。它们也可能随观察角度而变化。幸运的是，很少有应用需要如此精确的校准。</p>
+<h1 id="RGB颜色"><a href="#RGB颜色" class="headerlink" title="RGB颜色"></a>RGB颜色</h1><p>&emsp;&emsp;在小学时候，我们可能知道三原色是红色、黄色和蓝色，例如，黄色+蓝色=绿色。这就是减法混色，它与我们在显示器中看到的加色混色从根本上不同。</p>
+<p>&emsp;&emsp;大多数计算机图形图像是用红绿蓝（<code>RGB</code>）颜色定义的。本文从用户角度讨论<code>RGB</code>颜色，这样操作起来也更加方便，由于本文篇幅原因，关于颜色的深入探讨将在另外一文中进行。<code>RGB</code>颜色空间的机制允许我们编写大多数图形程序。<code>RGB</code>颜色空间的基本思想是，颜色由三种原光混合显示：红、绿和蓝。灯光以一种附加的形式混合在一起。</p>
+<p>&emsp;&emsp;在<code>RGB</code>加色混合中：</p>
+<ul>
+<li>红+黄=绿；</li>
+<li>绿+蓝=青；</li>
+<li>蓝+红=品红；</li>
+<li>红+绿+蓝=白。</li>
+</ul>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E5%8A%A0%E8%89%B2%E6%B7%B7%E5%90%88.png" alt="加色混合"></p>
+<p>&emsp;&emsp;如果允许将主光源从完全关闭（用像素值0表示）调暗到完全打开（用像素值1表示），我们就可以创建所有可以在<code>RGB</code>显示器上显示的颜色。使用红色、绿色和蓝色像素值创建一个具有红色、绿色和蓝色轴的三维<code>RGB</code>颜色立方体。坐标轴的允许坐标范围从0到1。颜色立方体如下图所示：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E9%A2%9C%E8%89%B2%E7%AB%8B%E6%96%B9%E4%BD%93.png" alt="颜色立方体"></p>
+<p>&emsp;&emsp;立方体四个角的颜色是：</p>
+<ul>
+<li><p>黑 = $(0,\ 0\ ,\ 0)$ ，红 = $(1,\ 0,\ 0)$，绿 = $(0,\ 1,\ 0)$，蓝 = $(0,\ 0,\ 1)$</p>
+</li>
+<li><p>黄 = $(1,\ 1,\ 0)$，品红 = $(1,\ 0,\ 1)$，青 = $(0,\ 1,\ 1)$，白 = $(1,\ 1,\ 1)$</p>
+</li>
+</ul>
+<p>&emsp;&emsp;实际的<code>RGB</code>等级通常是以量化的形式给出的，就像之前所讨论的灰度一样，每个分量都用一个整数指定。这些整数最常见的大小是每个都是1字节（8<code>bit</code>），所以三个<code>RGB</code>分量都是0到255之间的整数。这三个整数总共占用三个字节（24<code>bit</code>）。因此，拥有“24位颜色”的系统对于三种基本颜色中的每一种都有256种可能的级别。之前讨论的<code>gamma</code>校正问题也分别适用于每个<code>RGB</code>分量。</p>
+<h1 id="Alpha混合"><a href="#Alpha混合" class="headerlink" title="Alpha混合"></a>Alpha混合</h1><p>&emsp;&emsp;通常我们只希望部分覆盖像素的内容。例如，在合成中图像中，我们有一个背景，想要在它上面插入一个前景图像。对于前景中的不透明像素，我们只需替换背景像素。对于完全透明的前景像素，我们不改变背景像素。对于部分透明的像素，必须小心一些。当前景对象具有部分透明区域（如玻璃）时，就会出现部分透明像素。但是，最常见的前景和背景必须混合的情况是，当前景对象仅部分覆盖像素时，要么是在前景对象的边缘，要么是在遥远的树的叶子之间存在子像素洞。</p>
+<p>&emsp;&emsp;将前景对象与背景对象混合所需的最重要的信息是像素覆盖率，它告诉前景层覆盖的像素的比例，我们称这个分数为$\alpha$。如果我们想要混合前景颜色$\boldsymbol{c}<em>{f}$和背景颜色$\boldsymbol{c}</em>{b}$，而前景所覆盖的像素的比例为$\alpha$，则可以使用以下公式来得到混合后的颜色：<br>$$<br>\boldsymbol{c}=\alpha\boldsymbol{c}<em>{f}\ +\ (1\ -\ \alpha)\boldsymbol{c}</em>{b}<br>$$<br>&emsp;&emsp;对于不透明的前景层，前景覆盖矩形的区域为$\alpha$，背景覆盖的剩余区域为$(1\ -\ \alpha)$。对于透明层（想象一个使用半透明颜料在玻璃上画的图），前景层阻挡了从背景中透进来的部分$(1\ -\ \alpha)$，并贡献其自身颜色的一部分$\alpha$来取代被移走的部分，如下图所示：</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/%E5%85%89%E6%A0%85%E5%9B%BE%E5%83%8F/%E5%90%88%E6%88%90%E5%9B%BE%E5%83%8F.png" alt="合成图像"></p>
+<p>&emsp;&emsp;一个图像中所有像素的$\alpha$值可以存储在一个单独的灰度图像中，这被称为$\alpha$掩码或透明掩码。或者该信息可以存储为<code>RGB</code>图像中的第四个通道，在这种情况下称为$\alpha$通道，图像可以称为<code>RGBA</code>图像。对于8位图像，每个像素占用32位，这在许多计算机体系结构中是一个便于度量的方块。虽然通常使用的是上述方程式，但在许多情况下，$\alpha$的使用是不同的。</p>
+<h1 id="图像存储"><a href="#图像存储" class="headerlink" title="图像存储"></a>图像存储</h1><p>&emsp;&emsp;大多数<code>RGB</code>图像格式使用红、绿、蓝通道各8位。这将为一个百万像素的图像生成大约3兆字节的原始信息。为了减少存储需求，大多数图像格式都允许某种形式的压缩。在高标准下，这种压缩要么是无损的，要么是有损的。在无损压缩中没有信息被丢弃，而在有损系统中有些信息会不可恢复地丢失。流行的图像存储格式包括:</p>
+<ul>
+<li><code>jpeg</code>： 这种有损格式基于人眼视觉系统中的阈值对图像块进行压缩。这种格式适用于自然图像；</li>
+<li><code>tiff</code>：这种格式最常用来保存二进制图像或无损压缩的8位或16位<code>RGB</code>，尽管还有许多其他选项；</li>
+<li><code>ppm</code>：这种非常简单的无损、未压缩格式最常用于8位<code>RGB</code>图像，尽管存在许多选项；</li>
+<li><code>png</code>：这是带有一组好的开源管理工具的无损格式。</li>
+</ul>
+<p>&emsp;&emsp;由于压缩和变体，可能会涉及到为图像编写输入或输出例程。幸运的是，人们通常可以依靠库例程来读写标准文件格式。对于简单性高于效率的快速应用程序，一个简单的选择是使用原始<code>ppm</code>文件，通常可以简单地通过将存储在内存中的映像的数组转储到一个文件中，并在适当的头文件之前进行编写。</p>
 
     </div>
 
@@ -379,7 +457,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是光栅图像"><span class="nav-number">1.</span> <span class="nav-text">什么是光栅图像</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是光栅图像"><span class="nav-number">1.</span> <span class="nav-text">什么是光栅图像</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#图像，像素和几何"><span class="nav-number">2.</span> <span class="nav-text">图像，像素和几何</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#像素值"><span class="nav-number">3.</span> <span class="nav-text">像素值</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#伽马值"><span class="nav-number">4.</span> <span class="nav-text">伽马值</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#显示器对于输入是非线性的"><span class="nav-number">4.1.</span> <span class="nav-text">显示器对于输入是非线性的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#显示器接受量化的输入值"><span class="nav-number">4.2.</span> <span class="nav-text">显示器接受量化的输入值</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RGB颜色"><span class="nav-number">5.</span> <span class="nav-text">RGB颜色</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Alpha混合"><span class="nav-number">6.</span> <span class="nav-text">Alpha混合</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#图像存储"><span class="nav-number">7.</span> <span class="nav-text">图像存储</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -394,7 +472,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">86</span>
+          <span class="site-state-item-count">87</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
