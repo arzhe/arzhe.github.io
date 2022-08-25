@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="多路复用&amp;emsp;&amp;emsp;多路是指？多个业务方（句柄）并发下来的IO。 &amp;emsp;&amp;emsp;复用是指？复用一个后台处理程序。 &amp;emsp;&amp;emsp;站在IO系统开发人员的角度，业务方咱们没办法提要求。因为业务是上帝，只有我们服从的份，他们要创建多个fd，那么我们就必须要负责对这些fd进行处理，并且最好还要并发起来。既然没办法对业务方提要求，那么就只能要求后台loop程序了。 &amp;ems">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX高级IO之epoll机制和原理">
+<meta property="og:url" content="http://yoursite.com/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="多路复用&amp;emsp;&amp;emsp;多路是指？多个业务方（句柄）并发下来的IO。 &amp;emsp;&amp;emsp;复用是指？复用一个后台处理程序。 &amp;emsp;&amp;emsp;站在IO系统开发人员的角度，业务方咱们没办法提要求。因为业务是上帝，只有我们服从的份，他们要创建多个fd，那么我们就必须要负责对这些fd进行处理，并且最好还要并发起来。既然没办法对业务方提要求，那么就只能要求后台loop程序了。 &amp;ems">
+<meta property="og:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/epoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/%E7%9B%91%E5%90%AC%E6%9C%BA%E5%88%B6.png">
+<meta property="article:published_time" content="2022-08-24T00:45:00.000Z">
+<meta property="article:modified_time" content="2022-08-25T07:07:12.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="UNIX高级IO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/epoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/%E7%9B%91%E5%90%AC%E6%9C%BA%E5%88%B6.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>UNIX高级IO之epoll机制和原理 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          UNIX高级IO之epoll机制和原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-08-24 08:45:00" itemprop="dateCreated datePublished" datetime="2022-08-24T08:45:00+08:00">2022-08-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-25 15:07:12" itemprop="dateModified" datetime="2022-08-25T15:07:12+08:00">2022-08-25</time>
+              </span>
+
+          
+            <span id="/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll机制和原理" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h1><p>&emsp;&emsp;多路是指？多个业务方（句柄）并发下来的<code>IO</code>。</p>
+<p>&emsp;&emsp;复用是指？复用一个后台处理程序。</p>
+<p>&emsp;&emsp;站在<code>IO</code>系统开发人员的角度，业务方咱们没办法提要求。因为业务是上帝，只有我们服从的份，他们要创建多个<code>fd</code>，那么我们就必须要负责对这些<code>fd</code>进行处理，并且最好还要并发起来。既然没办法对业务方提要求，那么就只能要求后台<code>loop</code>程序了。</p>
+<p>&emsp;&emsp;这就要求什么呢？快！快！快！这就是最核心的要求，处理一定要快，要给每个<code>fd</code>通道最快的感受，要让每个<code>fd</code>觉得，你只在给他一个人跑腿。</p>
+<a id="more"></a>
+
+<p>&emsp;&emsp;那么有人会问了，那我一个<code>IO</code>请求对应一个线程来处理，这样所有的<code>IO</code>不都并发了嘛？这样确实可以，但是会存在瓶颈，线程数一旦多了，性能反而会变差。</p>
+<h1 id="最朴实的实现"><a href="#最朴实的实现" class="headerlink" title="最朴实的实现"></a>最朴实的实现</h1><p>&emsp;&emsp;让我们先来看看一个最为朴实无华的办法，不用任何系统调用是否可以实现<code>IO</code>多路复用呢？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">while TRUE</span><br><span class="line">for each 句柄数组 &#123;</span><br><span class="line">    read&#x2F;write(fd, &#x2F;* 参数 *&#x2F;)</span><br><span class="line">&#125;</span><br><span class="line">sleep(1s)</span><br></pre></td></tr></table></figure>
+
+<p>在<code>for</code>循环内，每次都尝试<code>IO</code>一下，读／写到数据了就处理，读／写不到数据就<code>sleep</code>。这样不就实现了“一对多的<code>IO</code>多路复用”嘛？</p>
+<p>&emsp;&emsp;慢着，这里存在一个问题，上面的程序可能会卡死在第三行，使得整个系统不能运行下去，为什么？</p>
+<p>&emsp;&emsp;默认情况下，没有加任何参数创建出来的句柄是阻塞类型的，在读取或写数据时，如果数据还没有准备好，是会需要等待的（也就是卡住）。所以在上面伪代码的第三行有可能直接被卡死，进而导致整个线程都不能运行下去。例如，现在有1，2，3这三个句柄，现在1读写都没有准备好，但是2，3句柄都准备好了，那么遍历句柄数组时，就会卡死在前面，后面的2，3则得不到运行。这不符合我们的预期，因为<code>IO</code>多路复用的<code>loop</code>线程是公共服务，不能因为一个<code>fd</code>就直接瘫痪。那么这个问题要如何解决呢？</p>
+<p>&emsp;&emsp;只需要把<code>fd</code>都设置为非阻塞模式，这样<code>read/write</code>的时候，如果数据没有准备好，返回<code>EAGAIN</code>错误即可，不会卡住线程，从而整个系统便会继续运行下去。例如上述的句柄1还未就绪，那么<code>read/write</code>不会阻塞，只会返回<code>EAGAIN</code>错误（需要特殊处理这种错误），然后<code>loop</code>线程可以继续执行2，3的读写。</p>
+<p>&emsp;&emsp;以上就是最朴实的<code>IO</code>多路复用的实现了，但是好像在生产环境中没有见过这种<code>IO</code>多路复用的实现？这是为什么？</p>
+<p>&emsp;&emsp;因为还不够高级智能，<code>while</code>循环每次都要定期睡眠一下，这样会导致吞吐能力降低，很可能在刚好要<code>sleep</code>的时候，所有的<code>fd</code>都准备好了<code>IO</code>数据，而这个时候却要固执地等待一秒钟，可想而知。那么将这个<code>sleep</code>去掉呢？这样不就可以及时地处理了嘛？及时是及时了，但是<code>CPU</code>估计要起飞了，不加<code>sleep</code>，那么在没有<code>fd</code>需要处理的时候，<code>CPU</code>可能都要跑到<code>100%</code>了，这个也是无法接受的。</p>
+<p>&emsp;&emsp;这就陷入了纠结中，<code>sleep</code>的时候吞吐不行，不<code>sleep</code>的时候又会浪费<code>CPU</code>，该怎么办呢？</p>
+<p>&emsp;&emsp;这种情况下，用户态（关于内核态，用户态，见“<a href="/2022/08/12/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E9%9D%9E%E9%98%BB%E5%A1%9EIO/" title="UNIX高级IO之非阻塞IO">UNIX高级IO之非阻塞IO</a>”一文）很难有所作为，只能求助内核来提供机制协助我们，因为只有内核才能及时地管理这些通知和调度。</p>
+<p>&emsp;&emsp;现在再来梳理一下<code>IO</code>多路复用的需求和原理。<code>IO</code>多路复用就是1个线程处理多个<code>fd</code>的模式。我们的要求是：这个“1”要尽可能的快，避免一切无效工作，要把所有事件都用在处理句柄的<code>IO</code>上，不能有任何空转包括<code>sleep</code>的时间浪费。有没有一种工具，我们把一箩筐的<code>fd</code>放置其中，只要有一个<code>fd</code>能够读写数据，后台<code>loop</code>线程就要立即唤醒，开足马力跑起来，其他时间则将<code>CPU</code>让出去。这种需求只能由内核来满足我们。</p>
+<h1 id="Linux内核出手"><a href="#Linux内核出手" class="headerlink" title="Linux内核出手"></a>Linux内核出手</h1><p>&emsp;&emsp;要想不用<code>sleep</code>这种辣眼睛的实现，就需要<code>Linux</code>内核出手了，毕竟<code>IO</code>的处理都是在内核之中进行的，数据就绪与否内核最为清楚。内核一口气提供了三种工具：<code>select</code>，<code>poll</code>和<code>epoll</code>。为什么会有三种？仅仅是历史的不断改进，从劣到优的一个转变过程而已。</p>
+<p>&emsp;&emsp;这三种工具都能够管理<code>fd</code>的可读可写事件，在所有<code>fd</code>不可读写无所事事的时候，可以阻塞线程，切走<code>CPU</code>。在<code>fd</code>触发事件时，线程要能够被唤醒。而这三种工具之中以<code>epoll</code>的效率最高。为什么呢？</p>
+<p>&emsp;&emsp;具体的对比见“<a href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%A6%82%E8%BF%B0/" title="UNIX高级IO之epoll概述">UNIX高级IO之epoll概述</a>”一文，其实很简单，无非就是<code>epoll</code>所做的无用功最少。举个例子，以<code>select</code>和<code>epoll</code>来对比举例，池子里管理了1024个句柄，<code>loop</code>线程被唤醒时，<code>select</code>都是蒙的，不知道这1024个<code>fd</code>里面哪个<code>IO</code>准备好了。这种情况该怎么办？只能遍历这1024个<code>fd</code>了，一个个的测试。这是灾难性的，假如只有一个句柄准备好了，那相当于做了一千多倍的无用功。<code>epoll</code>则不同，从<code>epoll_wait</code>醒来的时候就能够精确地拿到就绪的<code>fd</code>数组，不需要任何测试，就知道它们是要处理的<code>fd</code>。</p>
+<h1 id="epoll涉及的系统调用"><a href="#epoll涉及的系统调用" class="headerlink" title="epoll涉及的系统调用"></a>epoll涉及的系统调用</h1><p>&emsp;&emsp;<code>epoll</code>的使用非常“简单”，只有下面三个系统调用（他们具体的描述见“<a href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%A6%82%E8%BF%B0/" title="UNIX高级IO之epoll概述">UNIX高级IO之epoll概述</a>”）：</p>
+<ul>
+<li><code>epoll_create</code>负责创建一个池子，一个监控和管理句柄<code>fd</code>的池子；</li>
+<li><code>epoll_ctl</code>负责管理这个池子里<code>fd</code>的增、删和改；</li>
+<li><code>epoll_wait</code>负责打盹，让出<code>CPU</code>调度，但是只要有“事”（触发事件），就会立即被唤醒。</li>
+</ul>
+<h1 id="epoll高效的原理"><a href="#epoll高效的原理" class="headerlink" title="epoll高效的原理"></a>epoll高效的原理</h1><p>&emsp;&emsp;作为高并发<code>IO</code>实现的秘密武器，其中原理十分的朴实：<code>epoll</code>的实现几乎没有做任何无用功，我们从使用的角度来一步步分析下（更加具体的使用实例见“<a href="/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/" title="UNIX高级IO之epoll的LT和ET模式">UNIX高级IO之epoll的LT和ET模式</a>”）。</p>
+<h2 id="epoll池数据结构"><a href="#epoll池数据结构" class="headerlink" title="epoll池数据结构"></a>epoll池数据结构</h2><p>&emsp;&emsp;首先，<code>epoll</code>的第一步是创建一个池子，由<code>epoll_create</code>来完成：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> epollfd = epoll_create(<span class="number">1024</span>);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>这个池子对于我们来说是黑盒，用来装<code>fd</code>，暂时不纠结其中的结构（十分的复杂），我们拿到了一个<code>epollfd</code>，这个<code>epollfd</code>就能够唯一代表我们所使用的<code>epoll</code>池。</p>
+<p>&emsp;&emsp;然后就需要往这个<code>epoll</code>池中存放<code>fd</code>了，这就需要用到<code>epoll_ctl</code>了：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">epoll_ctl(epollfd, EPOLL_CTL_ADD, <span class="number">100</span>, &amp;event);</span><br></pre></td></tr></table></figure>
+
+<p>我们把句柄100放到了这个池子中，其中的<code>event</code>可以指定我们对于该句柄所要监听的事件类型。</p>
+<p>&emsp;&emsp;那么第一个跟高效相关的问题来了，添加<code>fd</code>进池子也就算了，如果是修改和删除呢？如何做到高效？这里就涉及到了怎么管理<code>fd</code>池子的数据结构了。最常见的思路是用<code>list</code>，虽然功能上可以使用，但是性能却不尽如人意，每次都要遍历链表才能找到位置。池子越大，性能越慢。那么这个时候红黑树就出现了，<code>Linux</code>内核对于<code>epoll</code>池的内部实现就是用红黑树的结构体来管理这些注册进来的<code>fd</code>句柄。红黑树是一种平衡二叉树，时间复杂度为$O(\log n)$，计算这个池子不断的增删改，也能保持非常稳定的查找性能。</p>
+<h2 id="回调"><a href="#回调" class="headerlink" title="回调"></a>回调</h2><p>&emsp;&emsp;现在思考第二个高效的秘密：怎么才能保证数据准备好之后，立即感知呢？</p>
+<p>&emsp;&emsp;<code>epoll_ctl</code>有一个秘密：回调的设置。在<code>epoll_ctl</code>内部实现中，除了使用红黑树来管理句柄结构，另一个核心步骤就是设置<code>poll</code>回调。那么<code>poll</code>回调又是什么呢？该如何设置呢？</p>
+<p>&emsp;&emsp;在解决这个问题之前，先说说<code>file_operations-&gt;poll</code>是什么？<code>Linux</code>被设计成万物皆文件的架构，在实现一个文件系统的时候，就需要实现这个文件调用，该结构体用<code>struct file_operations</code>来表示。例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> &#123;</span></span><br><span class="line">    <span class="keyword">ssize_t</span> (*<span class="built_in">read</span>) (struct file*, <span class="keyword">char</span> user*, <span class="keyword">size_t</span>, xxx);</span><br><span class="line">    <span class="keyword">ssize_t</span> (*<span class="built_in">write</span>) (struct file* <span class="keyword">char</span> user*, <span class="keyword">size_t</span>, xxx);</span><br><span class="line">    <span class="keyword">__poll_t</span> (*poll) (struct file*, struct poll_table_struct);</span><br><span class="line">    <span class="keyword">int</span> (*<span class="built_in">open</span>) (struct inode*, struct file*);</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>read</code>、<code>write</code>、<code>poll</code>和<code>open</code>等等函数，这些都是对文件的定制处理操作，对于文件的操作其实都是在这个框架内部实现逻辑的，比如<code>ext2</code>文件系统如果有对<code>read/write</code>做定制化，那么就会有<code>ext2_read</code>和<code>ext2_write</code>，对于<code>ext4</code>则就有<code>ext4_read</code>和<code>ext4_write</code>。</p>
+<p>&emsp;&emsp;我们可以很直观地知道<code>read</code>是文件系统定制<code>fd</code>读的行为调用，<code>write</code>是文件系统定制<code>fd</code>写的行为调用，那么<code>file_operation-&gt;poll</code>呢？这个就是定制监听事件的机制实现。通过<code>poll</code>机制让上层能够直接告诉底层，我这个<code>fd</code>一旦读写就绪，就请底层硬件（比如网卡）回调的时候自动把这个<code>fd</code>相关的结构体放到指定队列（就绪队列）中，并且唤醒相关进程。</p>
+<p><img src="https://hex-0-1300395569.cos.ap-shanghai.myqcloud.com/hexo-site-arzhe/epoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/%E7%9B%91%E5%90%AC%E6%9C%BA%E5%88%B6.png" alt="监听机制"></p>
+<p>&emsp;&emsp;这个<code>poll</code>事件回调机制则是<code>epoll</code>池高效的最核心原理。</p>
+<blockquote>
+<p>&emsp;&emsp;<code>epoll</code>池管理的句柄只能是支持了<code>file_operations-&gt;poll</code>的文件<code>fd</code>。换句话说，如果一个“文件”所在的文件系统没有实现<code>poll</code>接口，那么就用不了<code>epoll</code>机制。</p>
+</blockquote>
+<p>&emsp;&emsp;<code>poll</code>该如何设置呢？在<code>epoll_ctl</code>的实现中，有一步调用了<code>vfs_poll</code>，在这里面会进行一个判断，如果<code>fd</code>所在文件系统的<code>file_operations</code>实现了<code>poll</code>，那么就会直接调用，如果没有，就会报告响应的错误码。那么<code>poll</code>调用立马究竟实现了什么？概况地来说就是，挂了个钩子，设置了唤醒的回调路径，<code>epoll</code>跟底层对接的回调函数是<code>ep_poll_callback</code>，这个函数其实很简单，做两件事：</p>
+<ul>
+<li>当我们感兴趣的事件就绪时，把该<code>fd</code>对应的结构体放到一个特定的队列中（就绪队列）；</li>
+<li>唤醒<code>epoll</code>，起来干活了。</li>
+</ul>
+<p>&emsp;&emsp;当<code>fd</code>触发了对应事件后，就会经过层层回调，最终调用到这个回调函数，把对应<code>fd</code>的结构体放入就绪队列中，从而把<code>epoll</code>从<code>epoll_wait</code>处唤醒。这个结构体叫做<code>epitem</code>，每个注册到<code>epoll</code>池的<code>fd</code>都会对应一个。而就绪队列就简单了，因为没有了查找的需求了，只要是在就绪队列中的<code>epitem</code>，都触发了我们感兴趣的事件，必须要处理。所以就绪队列就是一个简单的双指针链表。</p>
+<h1 id="哪些fd可以用epoll来管理"><a href="#哪些fd可以用epoll来管理" class="headerlink" title="哪些fd可以用epoll来管理"></a>哪些fd可以用epoll来管理</h1><p>&emsp;&emsp;由于并不是所有的<code>fd</code>对应的文件系统都实现了<code>poll</code>接口，所以自然不是所有的<code>fd</code>都可以放进<code>epoll</code>池，那么有哪些文件系统的<code>file_operations</code>实现了<code>poll</code>接口？首先，类似<code>ext2</code>、<code>ext4</code>和<code>xfs</code>这种常规的文件系统是没有实现的，换句话说，这些最常见的、真是文件的文件系统反倒是用不了<code>epoll</code>机制的。那谁支持呢？最常见的就是网络套接字：<code>socket</code>。网络也是<code>epoll</code>池最常见的应用地点，<code>Linux</code>下万物皆文件，<code>socket</code>实现了一套<code>socket_file_operations</code>的逻辑（<code>net/socket.c</code>）。除了<code>socket fd</code>，还有两个典型的<code>fd</code>，通常也会放到<code>epoll</code>池中：</p>
+<ul>
+<li><code>eventfd</code>：<code>eventfd</code>实现非常简单，顾名思义就是专门用来做事件通知用的。使用系统调用<code>eventfd</code>创建，这种文件<code>fd</code>无法传输数据，只用来传输事件，常常用于生产者消费者的事件实现；</li>
+<li><code>timerfd</code>：这是一种定时器<code>fd</code>，使用<code>timerfd_create</code>创建，到时间点便会触发可读事件。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;<code>epoll</code>之所以做到了高效，最关键的几点：</p>
+<ul>
+<li>内部管理<code>fd</code>使用了高效的红黑树结构管理，做到了增删改之后性能的优化和平衡；</li>
+<li><code>epoll</code>池添加<code>fd</code>的时候，调用<code>file_operations-&gt;poll</code>，把这个<code>fd</code>就绪之后的回调路径安排好，通过事件通知的形式，做到最高效的运行；</li>
+<li><code>epoll</code>池最核心的两个数据结构：红黑树和就绪列表。红黑树是为了应对用户的增删改需求，就绪列表是<code>fd</code>事件就绪之后放置的特殊地点，<code>epoll</code>池只需要遍历这个就绪链表，就能给用户返回所有已经就绪的<code>fd</code>数组。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/UNIX%E9%AB%98%E7%BA%A7IO/" rel="tag"><i class="fa fa-tag"></i> UNIX高级IO</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/" rel="prev" title="UNIX高级IO之epoll的LT和ET模式">
+      <i class="fa fa-chevron-left"></i> UNIX高级IO之epoll的LT和ET模式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82/" rel="next" title="UNIX高级IO之epoll实现细节">
+      UNIX高级IO之epoll实现细节 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#多路复用"><span class="nav-number">1.</span> <span class="nav-text">多路复用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最朴实的实现"><span class="nav-number">2.</span> <span class="nav-text">最朴实的实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux内核出手"><span class="nav-number">3.</span> <span class="nav-text">Linux内核出手</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#epoll涉及的系统调用"><span class="nav-number">4.</span> <span class="nav-text">epoll涉及的系统调用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#epoll高效的原理"><span class="nav-number">5.</span> <span class="nav-text">epoll高效的原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#epoll池数据结构"><span class="nav-number">5.1.</span> <span class="nav-text">epoll池数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#回调"><span class="nav-number">5.2.</span> <span class="nav-text">回调</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#哪些fd可以用epoll来管理"><span class="nav-number">6.</span> <span class="nav-text">哪些fd可以用epoll来管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">89</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>

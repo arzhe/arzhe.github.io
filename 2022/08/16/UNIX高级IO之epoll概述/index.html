@@ -24,17 +24,17 @@
 
   <meta name="description" content="epoll模型&amp;emsp;&amp;emsp;epoll是什么？按照man手册的说法：是为了处理大批量句柄而作了改进的poll。要使用epoll，只需要以下三个系统调用：epoll_create、epoll_ctl和epoll_wait。epoll也是2.6内核才有的（准确的来说应该是2.5.44内核中被引入的）。从理论上来说AIO（异步IO）似乎是最高效的，IO操作可以立即返回，然后等待OS告诉我们I">
 <meta property="og:type" content="article">
-<meta property="og:title" content="UNIX高级IO之epoll">
-<meta property="og:url" content="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/index.html">
+<meta property="og:title" content="UNIX高级IO之epoll概述">
+<meta property="og:url" content="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%A6%82%E8%BF%B0/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="epoll模型&amp;emsp;&amp;emsp;epoll是什么？按照man手册的说法：是为了处理大批量句柄而作了改进的poll。要使用epoll，只需要以下三个系统调用：epoll_create、epoll_ctl和epoll_wait。epoll也是2.6内核才有的（准确的来说应该是2.5.44内核中被引入的）。从理论上来说AIO（异步IO）似乎是最高效的，IO操作可以立即返回，然后等待OS告诉我们I">
 <meta property="article:published_time" content="2022-08-16T02:26:00.000Z">
-<meta property="article:modified_time" content="2022-08-18T07:18:15.000Z">
+<meta property="article:modified_time" content="2022-08-23T02:03:22.000Z">
 <meta property="article:author" content="arzhe">
 <meta property="article:tag" content="UNIX高级IO">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/">
+<link rel="canonical" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%A6%82%E8%BF%B0/">
 
 
 <script id="page-configurations">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>UNIX高级IO之epoll | Hexo</title>
+  <title>UNIX高级IO之epoll概述 | Hexo</title>
   
 
 
@@ -206,7 +206,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%A6%82%E8%BF%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
@@ -219,7 +219,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          UNIX高级IO之epoll
+          UNIX高级IO之epoll概述
         </h1>
 
         <div class="post-meta">
@@ -236,7 +236,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-18 15:18:15" itemprop="dateModified" datetime="2022-08-18T15:18:15+08:00">2022-08-18</time>
+                <time title="Modified: 2022-08-23 10:03:22" itemprop="dateModified" datetime="2022-08-23T10:03:22+08:00">2022-08-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -249,7 +249,7 @@
             </span>
 
           
-            <span id="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll" title="Views">
+            <span id="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%A6%82%E8%BF%B0/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll概述" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -279,19 +279,22 @@
 <p>&emsp;&emsp;<code>epoll</code>则没有这样限制，它所支持的<code>FD</code>上限是最大考可以打开的文件的数目，这个数字一般远大于1024，举个例子，在<code>1GB</code>内存的机器上大约是10万左右，具体数目可以<code>cat /proc/sys/fs/file-max</code>来查看（本人机器上面是19位数量级的数字，闲的无聊数了下，可以说是几乎无限制），一般来说这个数目和系统内存关系很大。</p>
 <h3 id="IO效率不随FD数目增加而线性下降"><a href="#IO效率不随FD数目增加而线性下降" class="headerlink" title="IO效率不随FD数目增加而线性下降"></a>IO效率不随FD数目增加而线性下降</h3><p>&emsp;&emsp;传统的<code>select/poll</code>另一个致命弱点就是当你拥有一个很大的<code>socket</code>集合时，由于网络延迟的原因，任一时间只有部分的<code>socket</code>是“活跃”的，但是<code>select/poll</code>每次调用都会线性扫描全部的集合，这就会导致效率呈线性下降。但是<code>epoll</code>不存在这个问题，它只会对”活跃”的<code>socket</code>进行 操作——这是因为在内核实现中<code>epoll</code>是根据每个<code>fd</code>上面的<code>callback</code>函数实现的。那么，只有”活跃”的<code>socket</code>才会主动的去调用<code>callback</code>函数，其他<code>idle</code>状态<code>socket</code>则不会，在这点上，<code>epoll</code>实现了一个”伪”<code>AIO</code>，因为这时候推动力在<code>os</code>内核。在一些 <code>benchmark</code>中，如果所有的<code>socket</code>基本上都是活跃的——比如一个高速<code>LAN</code>环境，<code>epoll</code>并不比<code>select/poll</code>有什么效率，相反，如果过多使用<code>epoll_ctl</code>,效率相比还有稍微的下降。但是一旦使用<code>idle connections</code>模拟<code>WAN</code>环境,<code>epoll</code>的效率就远在<code>select/poll</code>之上了。</p>
 <h3 id="使用mmap加速内核与用户空间的消息传递"><a href="#使用mmap加速内核与用户空间的消息传递" class="headerlink" title="使用mmap加速内核与用户空间的消息传递"></a>使用mmap加速内核与用户空间的消息传递</h3><p>&emsp;&emsp;这点实际上涉及到<code>epoll</code>的具体实现了。无论是<code>select</code>，<code>poll</code>还是<code>epoll</code>都需要内核把<code>FD</code>消息通知给用户空间，如何避免不必要的内存拷贝就很重要了，在这点上，<code>epoll</code>是通过内核与用户空间<code>mmap</code>同一块内存来实现的。</p>
+<blockquote>
+<p>&emsp;&emsp;<code>mmap</code>将用户空间的一块地址和内核空间的一块地址同时映射到相同的一块物理内存地址，不管是用户空间还是内核空间都是虚拟地址，最终要听过地址映射映射到物理地址。这就使得这块物理内存对内核和用户均可见，减少了用户态和内核态之间的数据交换。</p>
+</blockquote>
 <h3 id="内核调优"><a href="#内核调优" class="headerlink" title="内核调优"></a>内核调优</h3><p>&emsp;&emsp;这一点严格来说其实不算<code>epoll</code>的优点，而是整个<code>Linux</code>平台的优点。也许你可以怀疑<code>Linux</code>平台，但是你无法回避<code>Linux</code>平台赋予你微调内核的能力。比如，内核<code>TCP/IP</code>协议栈使用内存池管理<code>sk_buff</code>结构，那么可以在运行时期动态调整这个内存<code>pool(skb_head_pool)</code>的大小——通过<code>echo XXXX &gt; /proc/sys/net/core/hot_list_length</code>完成。再比如<code>listen</code>函数的第2个参数(<code>TCP</code>完成3次握手的数据包队列长度)，也可以根据平台内存大小动态调整。</p>
-<h2 id="epoll工作模式"><a href="#epoll工作模式" class="headerlink" title="epoll工作模式"></a>epoll工作模式</h2><p>&emsp;&emsp;强大的东西往往是简单的，对于<code>epoll</code>唯一有点麻烦的是，它有两种工作模式：<code>LT</code>和<code>ET</code>：</p>
+<h2 id="epoll工作模式"><a href="#epoll工作模式" class="headerlink" title="epoll工作模式"></a>epoll工作模式</h2><p>&emsp;&emsp;强大的东西往往是简单的，对于<code>epoll</code>唯一有点麻烦的是，它有两种工作模式：<code>LT</code>和<code>ET</code>，这里只作简单的介绍，更加具体的探讨见“<a href="/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/" title="UNIX高级IO之epoll的LT和ET模式">UNIX高级IO之epoll的LT和ET模式</a>”。</p>
 <h3 id="LT"><a href="#LT" class="headerlink" title="LT"></a>LT</h3><p>&emsp;&emsp;<code>LT</code>（<code>Level Triggered</code>）是缺省的工作模式，并且同时支持<code>block</code>和<code>no-block socket</code>。在这种做法中，内核告诉我们一个文件描述符是否就绪了，然后我们可以对这个就绪的<code>fd</code>进行<code>IO</code>操作。即使我们不作任何操作，内核还是会继续通知我们的（一直“骚扰”我们），所以，这种模式编程出错误的可能性要小一点。传统的<code>select/poll</code>都是这种模型的代表。</p>
 <h3 id="ET"><a href="#ET" class="headerlink" title="ET"></a>ET</h3><p>&emsp;&emsp;<code>ET</code>（<code>Edge Triggered</code>）是高速工作模式，只支持<code>no-block socket</code>。在这种模式下，当描述符从未就绪变为就绪时，内核通过<code>epoll</code>告诉你。然后它会假设你知道文件描述符已经就绪，并且不会再为那个文件描述符发送更多的就绪通知，直到你做了某些操作导致那个文件描述符不再为就绪状态了。</p>
-<h2 id="epoll的使用方法"><a href="#epoll的使用方法" class="headerlink" title="epoll的使用方法"></a>epoll的使用方法</h2><p>&emsp;&emsp;<code>epoll</code>的接口“非常简单”，一共就3个函数：<code>epoll_create</code>、<code>epoll_ctl</code>和<code>epoll_wait</code>。</p>
+<h2 id="epoll的使用方法"><a href="#epoll的使用方法" class="headerlink" title="epoll的使用方法"></a>epoll的使用方法</h2><p>&emsp;&emsp;<code>epoll</code>的接口“非常简单”，一共就3个函数：<code>epoll_create</code>、<code>epoll_ctl</code>和<code>epoll_wait</code>。其使用一组函数来完成任务，而不是单个函数。其次，<code>epoll</code>把用户关心的文件描述符上的事件放在内核里的一个事件表中，从而不需要像<code>select</code>和<code>poll</code>那样每次调用都要重复传入文件描述符集或事件集。但是<code>epoll</code>需要使用一个额外的文件描述符，来唯一标识内核中的这个事件表。这个文件描述符使用如下的<code>epoll_create</code>函数来创建。</p>
 <h3 id="epoll-create"><a href="#epoll-create" class="headerlink" title="epoll_create"></a>epoll_create</h3><p>&emsp;&emsp;该函数声明如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_create</span><span class="params">(<span class="keyword">int</span> <span class="built_in">size</span>)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<p>用于创建一个<code>epoll</code>句柄，<code>size</code>用来告诉内核这个监听的数目一共多大。这个参数不同于<code>select</code>中的第一个参数，给出最大监听的<code>fd+1</code>的值。需要注意的是，当创建好<code>epoll</code>句柄后，它就会占用一个<code>fd</code>值，在<code>Linux</code>下如果查看<code>/proc/进程id/fd/</code>，是能够看到这个<code>fd</code>的，所以在使用完<code>epoll</code>后，必须调用<code>close</code>关闭，否则可能导致<code>fd</code>被耗尽。</p>
+<p>用于创建一个<code>epoll</code>句柄，<code>size</code>参数现在并不起作用了，只是给内核一个提示，告诉它事件表需要多大。该函数返回的文件描述符将用作其他所有<code>epoll</code>系统调用的第一个参数，以指定要访问的内核事件表。需要注意的是，当创建好<code>epoll</code>句柄后，它就会占用一个<code>fd</code>值，在<code>Linux</code>下如果查看<code>/proc/进程id/fd/</code>，是能够看到这个<code>fd</code>的，所以在使用完<code>epoll</code>后，必须调用<code>close</code>关闭，否则可能导致<code>fd</code>被耗尽。</p>
 <h3 id="epoll-ctl"><a href="#epoll-ctl" class="headerlink" title="epoll_ctl"></a>epoll_ctl</h3><p>&emsp;&emsp;函数声明如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_ctl</span><span class="params">(<span class="keyword">int</span> epfd, <span class="keyword">int</span> op, <span class="keyword">int</span> fd, struct epoll_event* event)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<p><code>epoll</code>的事件注册函数，它不同于<code>select</code>是在监听事件时（<code>epoll</code>使用<code>epoll_wait</code>监听）告诉内核要监听什么类型的事件，而是在这里先注册要监听的事件类型。第一个参数是<code>epoll_create</code>的返回值，第二个参数表示动作，用三个宏来表示：</p>
+<p><code>epoll</code>的事件注册函数，用来操作<code>epoll</code>的内核事件表，它不同于<code>select</code>是在监听事件时（<code>epoll</code>使用<code>epoll_wait</code>监听）告诉内核要监听什么类型的事件，而是在这里先注册要监听的事件类型。第一个参数是<code>epoll_create</code>的返回值，第二个参数表示动作，用三个宏来表示：</p>
 <ul>
 <li><p><code>EPOLL_CTL_ADD</code>：注册新的<code>fd</code>到<code>epfd</code>中；</p>
 </li>
@@ -300,7 +303,7 @@
 <li><p><code>EPOLL_CTL_DEL</code>：从<code>epfd</code>中删除一个<code>fd</code>。</p>
 </li>
 </ul>
-<p>&emsp;&emsp;第三个参数是需要监听的<code>fd</code>，第四个参数是告诉内核需要监听什么事，<code>struct epoll_event</code>结构如下：</p>
+<p>&emsp;&emsp;第三个参数是需要监听的<code>fd</code>，第四个参数是告诉内核需要监听该<code>fd</code>所感兴趣的事件，<code>struct epoll_event</code>结构如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">union</span> epoll_data &#123;</span><br><span class="line">    <span class="keyword">void</span>* ptr;</span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line">    <span class="keyword">__unit32_t</span> u32;</span><br><span class="line">    <span class="keyword">__unit64_t</span> u64;</span><br><span class="line">&#125; <span class="keyword">epoll_data_t</span>;</span><br><span class="line"></span><br><span class="line">truct epoll_event &#123;</span><br><span class="line">    <span class="keyword">__unit32_t</span> events;</span><br><span class="line">    <span class="keyword">epoll_data_t</span> data;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>其中<code>events</code>可以是以下宏的集合：</p>
@@ -313,10 +316,15 @@
 <li><code>EPOLLET</code>： 将<code>epoll</code>设为边缘触发（<code>Edge Triggered</code>）模式，这是相对于水平触发（<code>Level Triggered</code>）来说的。</li>
 <li><code>EPOLLONESHOT</code>：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个<code>socket</code>的话，需要再次把这个<code>socket</code>加入到<code>epoll</code>队列里。</li>
 </ul>
+<p>&emsp;&emsp;<code>epoll_data_t</code>是一个联合体，其4个成员中使用最多的是<code>fd</code>，它指定事件所从属的目标文件描述符。<code>ptr</code>成员可用来指定与<code>fd</code>相关的用户数据。但由于<code>epoll_data_t</code>是一个联合体，不能同时使用其<code>ptr</code>成员和<code>fd</code>成员，因此，如果要将文件描述符和用户数据关联起来，以实现快速的数据访问，只能使用其他手段，比如放弃使用<code>epoll_data_t</code>的<code>fd</code>成员，而在<code>ptr</code>指向的用户数据中包含<code>fd</code>。</p>
+<p>&emsp;&emsp;<code>epoll_ctl</code>成功时返回0，失败则返回-1并设置<code>errno</code>。</p>
 <h3 id="epoll-wait"><a href="#epoll-wait" class="headerlink" title="epoll_wait"></a>epoll_wait</h3><p>&emsp;&emsp;该函数声明如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">epoll_wait</span><span class="params">(<span class="keyword">int</span> epfd, struct epoll_event* events, <span class="keyword">int</span> max_events, <span class="keyword">int</span> timeout)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<p>等待事件的产生，类似于<code>select</code>调用。参数<code>events</code>用来从内核中得到事件的集合，<code>max_events</code>告知内核这个<code>events</code>有多大，这个 <code>max_events</code>的值不能大于创建<code>epoll_create</code>时的<code>size</code>，参数<code>timeout</code>是超时时间（毫秒，0会立即返回，-1是永久阻塞）。该函数返回需要处理的事件数目，如返回0表示已超时。</p>
+<p>等待事件的产生，类似于<code>select</code>调用。参数<code>events</code>用来从内核中得到事件的集合，<code>max_events</code>指定最多监听多少个事件，它必须大于0，这个 <code>max_events</code>的值不能大于创建<code>epoll_create</code>时的<code>size</code>，参数<code>timeout</code>是超时时间（毫秒，0会立即返回，-1是永久阻塞）。该函数返回需要处理的事件数目，如返回0表示已超时。</p>
+<p>&emsp;&emsp;如果其检测到事件，就将所有就绪的事件从内核事件表（由<code>epfd</code>参数指定）中复制到它的第二个参数<code>events</code>指向的数组中。这个数组只用于输出<code>epoll_wait</code>检测到的就绪事件，而不像<code>select</code>和<code>poll</code>的数据参数那样既用于传入用户注册的事件，又用于输出内核检测到的就绪事件。这就极大地提高了应用程序索引就绪文件描述符的效率。以下代码就体现了这个差别：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如何索引poll返回的就绪文件描述符</span></span><br><span class="line"><span class="keyword">int</span> ret = poll(fds, MAX_EVENT_NUMBER, <span class="number">-1</span>);</span><br><span class="line"><span class="comment">// 必须遍历所有已注册的文件描述符并找到其中的就绪者</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; MAX_EVENT_NUMBER; ++i) &#123;</span><br><span class="line">    <span class="keyword">if</span>(fds[i].revents &amp; POLLIN) &#123;</span><br><span class="line">        <span class="keyword">int</span> sockfd = fds[i].fd;</span><br><span class="line">        <span class="comment">// 处理sockfd</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如何索引epoll返回的就绪文件描述符</span></span><br><span class="line"><span class="keyword">int</span> ret = epoll_wait(epollfd, events, MAX_EVENT_NUMBER, <span class="number">-1</span>);</span><br><span class="line"><span class="comment">// 仅遍历就绪的ret个文件描述符</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; ret; ++i) &#123;</span><br><span class="line">    <span class="keyword">int</span> sockfd = events[i].data.fd;</span><br><span class="line">    <span class="comment">// sockfd肯定就绪了，直接处理</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 
     </div>
 
@@ -436,7 +444,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-count">89</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

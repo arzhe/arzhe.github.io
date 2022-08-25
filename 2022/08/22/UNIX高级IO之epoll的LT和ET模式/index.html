@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="manifest" href="/images/manifest.json">
+  <meta name="msapplication-config" content="/images/browserconfig.xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":"ture","style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"changyan","storage":true,"lazyload":true,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="概述&amp;emsp;&amp;emsp;epoll对文件描述符的操作有两种模式：LT（Level Trigger，水平触发）模式和ET（Edge Trigger，边沿触发）模式。LT模式是默认的工作模式，这种模式下epoll相当于一个效率较高的poll。当往epoll内核事件表中注册一个文件描述符上的EPOLLET事件时，epoll将以ET模式来操作该文件描述符。ET模式则是epoll的高效工作模式。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX高级IO之epoll的LT和ET模式">
+<meta property="og:url" content="http://yoursite.com/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="概述&amp;emsp;&amp;emsp;epoll对文件描述符的操作有两种模式：LT（Level Trigger，水平触发）模式和ET（Edge Trigger，边沿触发）模式。LT模式是默认的工作模式，这种模式下epoll相当于一个效率较高的poll。当往epoll内核事件表中注册一个文件描述符上的EPOLLET事件时，epoll将以ET模式来操作该文件描述符。ET模式则是epoll的高效工作模式。">
+<meta property="article:published_time" content="2022-08-22T02:57:00.000Z">
+<meta property="article:modified_time" content="2022-08-25T07:06:43.000Z">
+<meta property="article:author" content="arzhe">
+<meta property="article:tag" content="UNIX高级IO">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>UNIX高级IO之epoll的LT和ET模式 | Hexo</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7abb6a307fd74cd7cea25ec1000564d2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-主页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>主页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-公益404">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          UNIX高级IO之epoll的LT和ET模式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-08-22 10:57:00" itemprop="dateCreated datePublished" datetime="2022-08-22T10:57:00+08:00">2022-08-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-25 15:06:43" itemprop="dateModified" datetime="2022-08-25T15:06:43+08:00">2022-08-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll的LT和ET模式" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>&emsp;&emsp;<code>epoll</code>对文件描述符的操作有两种模式：<code>LT</code>（<code>Level Trigger</code>，水平触发）模式和<code>ET</code>（<code>Edge Trigger</code>，边沿触发）模式。<code>LT</code>模式是默认的工作模式，这种模式下<code>epoll</code>相当于一个效率较高的<code>poll</code>。当往<code>epoll</code>内核事件表中注册一个文件描述符上的<code>EPOLLET</code>事件时，<code>epoll</code>将以<code>ET</code>模式来操作该文件描述符。<code>ET</code>模式则是<code>epoll</code>的高效工作模式。</p>
+<a id="more"></a>
+
+<p>&emsp;&emsp;对于采用<code>LT</code>工作模式的文件描述符，当<code>epoll_wait</code>检测到其上有事件发生并将此事件通知给应用程序后，应用程序可以不立即处理该事件。这样，当应用程序下一次调用<code>epoll_wait</code>时，<code>epoll_wait</code>还会再次向应用程序通告此事件，直到该事件被处理。</p>
+<p>&emsp;&emsp;而对于采用了<code>ET</code>工作模式的文件描述符，当<code>epoll_wait</code>检测到其上有事件发生并将此事件通告给应用程序后，应用程序必须立即处理该事件，因为后续的<code>epoll_wait</code>调用将不再向应用程序通知这一事件。可见，<code>ET</code>模式在很大程度上降低了同一个<code>epoll</code>事件被重复触发的次数，因此效率要比<code>LT</code>模式高。以下代码体现了<code>LT</code>和<code>ET</code>在工作方式上的差异：</p>
+<h1 id="LT模式"><a href="#LT模式" class="headerlink" title="LT模式"></a>LT模式</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/epoll.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;pthread.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX_EVENT_NUMBER 1024</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUFFER_SIZE 10</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 将文件描述符设置为非阻塞</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">set_nonblock</span><span class="params">(<span class="keyword">int</span> fd)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> old_option = fcntl(fd, F_GETFL);</span><br><span class="line">    <span class="keyword">int</span> new_option = old_option | O_NONBLOCK;</span><br><span class="line">    fcntl(fd, F_SETFL, new_option);</span><br><span class="line">    <span class="keyword">return</span> old_option;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将文件描述符fd上的EPOLLIN注册到epollfd指示的epoll内核事件中，参数enable_et指定是否对fd启用ET模式</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">add_fd</span><span class="params">(<span class="keyword">int</span> epollfd, <span class="keyword">int</span> fd, <span class="keyword">bool</span> enable_et)</span> </span>&#123;</span><br><span class="line">    epoll_event event;</span><br><span class="line">    event.data.fd = fd;</span><br><span class="line">    event.events = EPOLLIN;</span><br><span class="line">    <span class="keyword">if</span>(enable_et) &#123;</span><br><span class="line">        event.events |= EPOLLET;</span><br><span class="line">    &#125;</span><br><span class="line">    epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &amp;event);</span><br><span class="line">    set_nonblock(fd);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// LT模式的工作流程</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">LT</span><span class="params">(epoll_event* events, <span class="keyword">int</span> number, <span class="keyword">int</span> epollfd, <span class="keyword">int</span> listenfd)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[BUFFER_SIZE];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; number; ++i) &#123;</span><br><span class="line">        <span class="keyword">int</span> sockfd = events[i].data.fd;</span><br><span class="line">        <span class="keyword">if</span>(sockfd == listenfd) &#123;</span><br><span class="line">            <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_address</span>;</span></span><br><span class="line">            <span class="keyword">socklen_t</span> cilent_addr_length = <span class="keyword">sizeof</span>(client_address);</span><br><span class="line">            <span class="keyword">int</span> connfd = accept(listenfd, </span><br><span class="line">                                (struct sockaddr*)&amp;client_address, </span><br><span class="line">                                &amp;client_addr_length);</span><br><span class="line">            <span class="comment">// 对connfd禁用ET模式</span></span><br><span class="line">            add_fd(epollfd, connfd, <span class="literal">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(events[i].events &amp; EPOLLIN) &#123;</span><br><span class="line">            <span class="comment">// 只要socket读缓存中还有未读出的数据，这段代码就被触发</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"event trigger once\n"</span>);</span><br><span class="line">            <span class="built_in">memset</span>(buf, <span class="string">'\0'</span>, BUFFER_SIZE);</span><br><span class="line">            <span class="keyword">int</span> ret = recv(sockfd, buf, BUFFER_SIZE, <span class="number">0</span>);</span><br><span class="line">            <span class="keyword">if</span>(ret &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="built_in">close</span>(sockfd);</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"get %d bytes of content: %s\n"</span>, ret, buf);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"something else happened\n"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="ET模式"><a href="#ET模式" class="headerlink" title="ET模式"></a>ET模式</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ET</span><span class="params">(epoll_event* events, <span class="keyword">int</span> number, <span class="keyword">int</span> epollfd, <span class="keyword">int</span> listenfd)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[BUFFER_SIZE];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; number, ++i) &#123;</span><br><span class="line">        <span class="keyword">int</span> sockfd = events[i].data.fd;</span><br><span class="line">        <span class="keyword">if</span>(sockfd == listenfd) &#123;</span><br><span class="line">            <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_address</span>;</span></span><br><span class="line">            <span class="keyword">socklen_t</span> client_addr_length = <span class="keyword">sizeof</span>(client_address);</span><br><span class="line">            <span class="keyword">int</span> connfd = accept(listenfd, </span><br><span class="line">                                (struct sockaddr*)&amp;client_address,</span><br><span class="line">                                &amp;client_addr_length);</span><br><span class="line">            <span class="comment">// 对connfd开启ET模式</span></span><br><span class="line">            add_fd(epollfd, connfd, <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(events[i].events &amp; EPOLLIN) &#123;</span><br><span class="line">            <span class="comment">// 这段代码不会被重复触发，所以我们循环读取数据，以确保把socket读缓存中的所有数据读出</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"event trigger once\n"</span>);</span><br><span class="line">            <span class="keyword">while</span>(<span class="number">1</span>) &#123;</span><br><span class="line">                <span class="built_in">memset</span>(buf, <span class="string">'\0'</span>, BUFFER_SIZE);</span><br><span class="line">                <span class="keyword">int</span> ret = recv(sockfd, buf, BUFFER_SIZE, <span class="number">0</span>);</span><br><span class="line">                <span class="keyword">if</span>(ret &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="comment">// 对于非阻塞IO，下面的条件成立表示数据已经完全读取完毕</span></span><br><span class="line">                    <span class="comment">// 此后，epoll就能再次触发sockfd上的EPOLLIN事件，以驱动下一次读操作</span></span><br><span class="line">                    <span class="keyword">if</span>((errno == EAGAIN) || (errno == EWOULDBLOCK)) &#123;</span><br><span class="line">                        <span class="built_in">printf</span>(<span class="string">"read later\n"</span>);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="built_in">close</span>(sockfd);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(ret == <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="built_in">close</span>(sockfd);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line">                  <span class="built_in">printf</span>(<span class="string">"get %d bytes of content: %s\n"</span>, ret, buf);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"something else happened\n"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="编写一个服务端程序"><a href="#编写一个服务端程序" class="headerlink" title="编写一个服务端程序"></a>编写一个服务端程序</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(argc &lt;= <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"usage: %s ip_address port_number\n"</span>, basename(argv[<span class="number">0</span>]));</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* ip = argv[<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">int</span> port = atoi(argv[<span class="number">2</span>]);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> ret = <span class="number">0</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">address</span>;</span></span><br><span class="line">    bzero(&amp;address, <span class="keyword">sizeof</span>(address));</span><br><span class="line">    address.sin_family = AF_INET;</span><br><span class="line">    inet_pton(AF_INET, ip, &amp;address.sin_addr);</span><br><span class="line">    address.sin_port = htons(port);</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">int</span> listenfd = socket(PF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line">    assert(ret != <span class="number">-1</span>);</span><br><span class="line">    </span><br><span class="line">    ret = bind(listenfd, (struct sockaddr*)&amp;address, <span class="keyword">sizeof</span>(address));</span><br><span class="line">    assert(ret != <span class="number">-1</span>);</span><br><span class="line">    </span><br><span class="line">    ret = <span class="built_in">listen</span>(listenfd, <span class="number">5</span>);</span><br><span class="line">    assert(ret != <span class="number">-1</span>);</span><br><span class="line">    </span><br><span class="line">    epoll_event events[MAX_EVENT_NUMBER];</span><br><span class="line">    <span class="keyword">int</span> epollfd = epoll_create(<span class="number">5</span>);</span><br><span class="line">    assert(epollfd != <span class="number">-1</span>);</span><br><span class="line">    add_fd(epollfd, listenfd, <span class="literal">true</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">int</span> ret = epoll_wait(epollfd, events, MAX_EVENT_NUMBER, <span class="number">-1</span>);</span><br><span class="line">        <span class="keyword">if</span>(ret &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"epoll failure\n"</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      </span><br><span class="line">        <span class="comment">// 使用LT模式</span></span><br><span class="line">        LT(events, ret, epollfd, listenfd);</span><br><span class="line">        <span class="comment">// 使用ET模式</span></span><br><span class="line">        <span class="comment">// ET(events, ret, epollfd, listenfd);</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">close</span>(listenfd);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;运行上述代码，然后<code>telnet</code>到这个服务器程序上并一次传输超过10字节（<code>BUFFER_SIZE</code>的大小）的数据，然后比较<code>LT</code>模式和<code>ET</code>模式的异同，发现正如我们所预期的那样，<code>ET</code>模式下事件被触发的次数要比<code>LT</code>模式下少很多。</p>
+<blockquote>
+<p>&emsp;&emsp;每个使用<code>ET</code>模式的文件描述符都应该是非阻塞的。如果文件描述符是阻塞的，那么读或写操作将会因为没有后续的事件而一直处于阻塞状态。</p>
+</blockquote>
+<h1 id="EPOLLONESHOT事件"><a href="#EPOLLONESHOT事件" class="headerlink" title="EPOLLONESHOT事件"></a>EPOLLONESHOT事件</h1><p>&emsp;&emsp;即使我们使用<code>ET</code>模式，一个<code>socket</code>上的某个事件还是可能被触发多次。这在并发程序中就会引起一个问题。比如一个线程（或进程）在读取完某个<code>socket</code>上的数据后开始处理这些数据，而在数据的处理过程中该<code>socket</code>上又有新数据可读（<code>EPOLLIN</code>事件再次被触发），此时另外一个线程被唤醒来读取这些新的数据。于是就出现了两个线程同时操作一个<code>socket</code>的局面。这当然不是我们所期望的，我们所期望的是一个<code>socket</code>连接在任一时刻都只被一个线程处理。这一点可以使用<code>epoll</code>的<code>EPOLLONESHOT</code>事件实现。</p>
+<p>&emsp;&emsp;对于注册了<code>EPOLLONESHOT</code>事件的文件描述符，操作系统最多触发其上注册的一个可读、可写或异常事件，且只触发一次，除非我们使用<code>epoll_ctl</code>函数重置该文件描述符上注册的<code>EPOLLONESHOT</code>事件。这样，当一个线程在处理某个<code>socket</code>时，其他线程是不可能有机会操作该<code>socket</code>的。但反过来思考，注册了<code>EPOLLONESHOT</code>事件的<code>socket</code>一旦被某个线程处理完毕，该线程就应该立即重置这个<code>socket</code>上的<code>EPOLLONESHOT</code>事件，以确保这个<code>socket</code>下一次可读时，其<code>EPOLLIN</code>事件能被触发，进而让其他工作线程有机会继续处理这个<code>socket</code>。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;&emsp;在<code>ET</code>模式下，当通过<code>epoll_wait</code>函数获取到准备好的事件后，如果没有处理完成所有的事件，那么再次调用<code>epoll_wait</code>函数将不会返回该<code>fd</code>，而<code>LT</code>模式下如果<code>fd</code>的事件没有处理完成，那么在下一次调用<code>epoll_wait</code>函数时将会返回该<code>fd</code>，这里用一个例子来说明：</p>
+<ol>
+<li>首先将一个读取数据的<code>read_fd</code>注册到<code>epoll</code>句柄中；</li>
+<li>然后往这个<code>read_fd</code>写入<code>2kb</code>的数据；</li>
+<li>当调用<code>epoll_wait</code>函数时，由于此时有<code>2kb</code>的数据可以读取，那么将返回这个已经准备好事件的<code>read_fd</code>；</li>
+<li>接着读取<code>read_fd</code>中<code>1kb</code>的数据，此时<code>read_fd</code>中还有<code>1kb</code>没有处理；</li>
+<li>然后再次调用<code>epoll_wait</code>函数。</li>
+</ol>
+<p>&emsp;&emsp;此时，如果我们使用<code>ET</code>模式（也就是添加<code>read_fd</code>时指定<code>EPOLLET</code>），那么尽管<code>read_fd</code>中还有<code>1kb</code>的数据可以读取，但是由于我们处于<code>ET</code>模式，此时再次调用<code>epoll_wait</code>函数将会阻塞当前线程，因为<code>ET</code>模式需要用户自己处理完当前事件的数据。当然如果我们使用<code>EPOLLLT</code>，那么此时再次调用<code>epoll_wait</code>函数，将会返回剩余<code>1kb</code>读取的<code>read_fd</code>对象。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="arzhe WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="arzhe Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/UNIX%E9%AB%98%E7%BA%A7IO/" rel="tag"><i class="fa fa-tag"></i> UNIX高级IO</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/08/16/%E5%AE%89%E8%A3%85%E7%BC%96%E8%AF%91Sonic/" rel="prev" title="安装编译Sonic">
+      <i class="fa fa-chevron-left"></i> 安装编译Sonic
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/" rel="next" title="UNIX高级IO之epoll机制和原理">
+      UNIX高级IO之epoll机制和原理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LT模式"><span class="nav-number">2.</span> <span class="nav-text">LT模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ET模式"><span class="nav-number">3.</span> <span class="nav-text">ET模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编写一个服务端程序"><span class="nav-number">4.</span> <span class="nav-text">编写一个服务端程序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EPOLLONESHOT事件"><span class="nav-number">5.</span> <span class="nav-text">EPOLLONESHOT事件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="arzhe"
+      src="/images/John%20Winston%20Lennon.jpg">
+  <p class="site-author-name" itemprop="name">arzhe</p>
+  <div class="site-description" itemprop="description">you never can tell</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">89</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/arzhe" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;arzhe" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">arzhe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"1Lw0EoSDOuMDUqcpTtJPKkq0-gzGzoHsz","app_key":"jSoKO2XPz0BTKvBbraE50zze","server_url":"https://1lw0eosd.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-pjax@0/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+    </div>
+</body>
+</html>

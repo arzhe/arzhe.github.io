@@ -202,7 +202,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/19/%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
@@ -216,7 +216,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/08/19/%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA/" class="post-title-link" itemprop="url">光线追踪</a>
+            <a href="/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82/" class="post-title-link" itemprop="url">UNIX高级IO之epoll实现细节</a>
         </h2>
 
         <div class="post-meta">
@@ -225,22 +225,28 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2022-08-19 16:09:00 / Modified: 17:20:09" itemprop="dateCreated datePublished" datetime="2022-08-19T16:09:00+08:00">2022-08-19</time>
+              <time title="Created: 2022-08-24 14:28:00" itemprop="dateCreated datePublished" datetime="2022-08-24T14:28:00+08:00">2022-08-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-25 15:07:42" itemprop="dateModified" datetime="2022-08-25T15:07:42+08:00">2022-08-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">计算机图形基础</span></a>
+                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
                 </span>
             </span>
 
           
-            <span id="/2022/08/19/%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA/" class="post-meta-item leancloud_visitors" data-flag-title="光线追踪" title="Views">
+            <span id="/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll实现细节" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -258,10 +264,183 @@
 
       
           <hr>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;渲染三维对象是计算机图形学的基本任务之一，一个场景或模型通常由排列在<code>3D</code>空间中的许多几何对象组成，计算机会生成从特定视角观察三维场景的一个<code>2D</code>图像。几个世纪以来，建筑师和工程师一直都通过这种方式来绘制图纸以实现他们的设计。</p>
+<h1 id="细节前的准备工作"><a href="#细节前的准备工作" class="headerlink" title="细节前的准备工作"></a>细节前的准备工作</h1><p>&emsp;&emsp;因为<code>Linux</code>中一切皆文件，但是由于文件系统是另外一个模块，本系列不会花费大量的篇幅来解析文件系统相关的细枝末节，毕竟那样就跑题了，只是简单地介绍一下<code>VFS</code>（<code>Virtual File System</code>）相关的概念。</p>
+<p>&emsp;&emsp;在深入了解<code>epoll</code>实现细节之前，还需要清楚系统调用、中断和系统的进程调度等方面的知识，有关系统调用和中断的细节见“<a href="/2022/08/12/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8B%E9%9D%9E%E9%98%BB%E5%A1%9EIO/" title="UNIX高级IO之非阻塞IO">UNIX高级IO之非阻塞IO</a>”。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/08/19/%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA/#more" rel="contents">
+              <a class="btn" href="/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">UNIX高级IO之epoll机制和原理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-08-24 08:45:00" itemprop="dateCreated datePublished" datetime="2022-08-24T08:45:00+08:00">2022-08-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-25 15:07:12" itemprop="dateModified" datetime="2022-08-25T15:07:12+08:00">2022-08-25</time>
+              </span>
+
+          
+            <span id="/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll机制和原理" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h1><p>&emsp;&emsp;多路是指？多个业务方（句柄）并发下来的<code>IO</code>。</p>
+<p>&emsp;&emsp;复用是指？复用一个后台处理程序。</p>
+<p>&emsp;&emsp;站在<code>IO</code>系统开发人员的角度，业务方咱们没办法提要求。因为业务是上帝，只有我们服从的份，他们要创建多个<code>fd</code>，那么我们就必须要负责对这些<code>fd</code>进行处理，并且最好还要并发起来。既然没办法对业务方提要求，那么就只能要求后台<code>loop</code>程序了。</p>
+<p>&emsp;&emsp;这就要求什么呢？快！快！快！这就是最核心的要求，处理一定要快，要给每个<code>fd</code>通道最快的感受，要让每个<code>fd</code>觉得，你只在给他一个人跑腿。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/08/24/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%9C%BA%E5%88%B6%E5%92%8C%E5%8E%9F%E7%90%86/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
+      <meta itemprop="name" content="arzhe">
+      <meta itemprop="description" content="you never can tell">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">UNIX高级IO之epoll的LT和ET模式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-08-22 10:57:00" itemprop="dateCreated datePublished" datetime="2022-08-22T10:57:00+08:00">2022-08-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-08-25 15:06:43" itemprop="dateModified" datetime="2022-08-25T15:06:43+08:00">2022-08-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll的LT和ET模式" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>&emsp;&emsp;<code>epoll</code>对文件描述符的操作有两种模式：<code>LT</code>（<code>Level Trigger</code>，水平触发）模式和<code>ET</code>（<code>Edge Trigger</code>，边沿触发）模式。<code>LT</code>模式是默认的工作模式，这种模式下<code>epoll</code>相当于一个效率较高的<code>poll</code>。当往<code>epoll</code>内核事件表中注册一个文件描述符上的<code>EPOLLET</code>事件时，<code>epoll</code>将以<code>ET</code>模式来操作该文件描述符。<code>ET</code>模式则是<code>epoll</code>的高效工作模式。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/08/22/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E7%9A%84LT%E5%92%8CET%E6%A8%A1%E5%BC%8F/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -374,7 +553,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%A6%82%E8%BF%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
@@ -388,7 +567,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/" class="post-title-link" itemprop="url">UNIX高级IO之epoll</a>
+            <a href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%A6%82%E8%BF%B0/" class="post-title-link" itemprop="url">UNIX高级IO之epoll概述</a>
         </h2>
 
         <div class="post-meta">
@@ -405,7 +584,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-18 15:18:15" itemprop="dateModified" datetime="2022-08-18T15:18:15+08:00">2022-08-18</time>
+                <time title="Modified: 2022-08-23 10:03:22" itemprop="dateModified" datetime="2022-08-23T10:03:22+08:00">2022-08-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -418,7 +597,7 @@
             </span>
 
           
-            <span id="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll" title="Views">
+            <span id="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%A6%82%E8%BF%B0/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX高级IO之epoll概述" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -439,7 +618,7 @@
 <h1 id="epoll模型"><a href="#epoll模型" class="headerlink" title="epoll模型"></a>epoll模型</h1><p>&emsp;&emsp;<code>epoll</code>是什么？按照<code>man</code>手册的说法：是为了处理大批量句柄而作了改进的<code>poll</code>。要使用<code>epoll</code>，只需要以下三个系统调用：<code>epoll_create</code>、<code>epoll_ctl</code>和<code>epoll_wait</code>。<code>epoll</code>也是2.6内核才有的（准确的来说应该是2.5.44内核中被引入的）。从理论上来说<code>AIO</code>（异步<code>IO</code>）似乎是最高效的，<code>IO</code>操作可以立即返回，然后等待<code>OS</code>告诉我们<code>IO</code>操作完成。但是一直以来，如何实现似乎没有一个完美的方案。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll/#more" rel="contents">
+              <a class="btn" href="/2022/08/16/UNIX%E9%AB%98%E7%BA%A7IO%E4%B9%8Bepoll%E6%A6%82%E8%BF%B0/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -901,186 +1080,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/22/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E7%BC%93%E5%86%B2%E5%8C%BA/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/12/22/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E7%BC%93%E5%86%B2%E5%8C%BA/" class="post-title-link" itemprop="url">UNIX标准IO库之缓冲区</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-12-22 16:23:00" itemprop="dateCreated datePublished" datetime="2021-12-22T16:23:00+08:00">2021-12-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-12 08:55:02" itemprop="dateModified" datetime="2022-08-12T08:55:02+08:00">2022-08-12</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/12/22/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E7%BC%93%E5%86%B2%E5%8C%BA/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX标准IO库之缓冲区" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>&emsp;&emsp;本文讲述标准<code>I/O</code>库。不仅仅是<code>UNIX</code>，很多其他操作系统都实现了标准<code>I/O</code>库，所以这个库由<code>ISO C</code>标准说明。<code>Single UNIX Specification</code>对<code>ISO C</code>标准进行了扩充，定义了另外一些接口。</p>
-<p>&emsp;&emsp;标准<code>I/O</code>库处理很多细节，如缓冲区分配、以及优化的块长度执行<code>I/O</code>等。这些处理使用户不必担心如何选择使用正确的块长度。这使得它便于用户使用，但是如果我们不深入地了解<code>I/O</code>库函数的操作，也会带来一些问题。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/12/22/UNIX%E6%A0%87%E5%87%86IO%E5%BA%93%E4%B9%8B%E7%BC%93%E5%86%B2%E5%8C%BA/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/16/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%89%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/John%20Winston%20Lennon.jpg">
-      <meta itemprop="name" content="arzhe">
-      <meta itemprop="description" content="you never can tell">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/12/16/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%89%EF%BC%89/" class="post-title-link" itemprop="url">UNIX文件IO（三）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-12-16 11:16:00" itemprop="dateCreated datePublished" datetime="2021-12-16T11:16:00+08:00">2021-12-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-12-17 23:37:08" itemprop="dateModified" datetime="2021-12-17T23:37:08+08:00">2021-12-17</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/UNIX%E9%95%BF%E7%AF%87%E5%A4%A7%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">UNIX长篇大论</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/12/16/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%89%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="UNIX文件IO（三）" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <hr>
-<h1 id="函数sync、fsync和fdatasync"><a href="#函数sync、fsync和fdatasync" class="headerlink" title="函数sync、fsync和fdatasync"></a>函数sync、fsync和fdatasync</h1><p>&emsp;&emsp;传统的<code>UNIX</code>系统实现在内核中设有缓冲区高速缓存或页高速缓存，大多数磁盘<code>I/O</code>都通过缓冲区进行。当我们向文件写入数据时，内核通常先将数据复制到缓冲区中，然后排入队列，晚些时候再写入磁盘。这种方式被称为延迟写。</p>
-<p>&emsp;&emsp;通常，当内核需要重用缓冲区来存放其他磁盘块数据时，它会把所有延迟写数据块写入磁盘。为了保证磁盘上实际文件系统与缓冲区中内容的一致性，<code>UNIX</code>系统提供了<code>sync</code>、<code>fsync</code>和<code>fdatasync</code>三个函数。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/12/16/UNIX%E6%96%87%E4%BB%B6IO%EF%BC%88%E4%B8%89%EF%BC%89/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1151,7 +1150,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-count">89</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
